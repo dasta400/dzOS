@@ -459,8 +459,6 @@ wantsmore:
 ;	loadihex - Load Intel HEX file into memory
 ;------------------------------------------------------------------------------
 CLI_CMD_LOADIHEX:
-; For each DATA byte received, it will output a simple dot to the screen
-;
 ; IMPORTANT NOTE: Checksum is not implemented
 ;
 ; Intel HEX record structure
@@ -488,28 +486,6 @@ CLI_CMD_LOADIHEX:
 ; 	D = byte count from iHEX
 ; 	HL = pointer to memory address
 
-		call	check_param1
-		jp		nz, ihexload			; yes, do the loadihex
-		ret								; no, exit routine
-ihexload:
-		; buffer_parm1_val have the value in hexadecimal
-		; we need to convert it to binary
-		ld		a, (buffer_parm1_val)
-		ld		h, a
-		ld		a, (buffer_parm1_val + 1)
-		ld		l, a
-		call	F_KRN_HEX2BN
-		ld		d, a
-		ld		a, (buffer_parm1_val + 2)
-		ld		h, a
-		ld		a, (buffer_parm1_val + 3)
-		ld		l, a
-		call	F_KRN_HEX2BN
-		ld		e, a
-	; DE contains the binary value for param1
-		; store it in buffer_parm1_val for future use inside the routine
-		ld		(buffer_parm1_val), de
-
 		ld		hl, msg_rcvhex
 		call	F_KRN_WRSTR
 		ld		c, 0					; initilise C, to store checksum
@@ -533,12 +509,6 @@ start_ihexload:
 		jp		z, ihexload_end 		; yes, show finished message and end
 		cp		00h						; no, is it Data?
 		jp		nz, ihexload_error		; no, show error and return
-	; hl must contain address in param1 + address in hex file
-	; so that Data is loaded to the address in param1 + address in hex file
-		push	de						; backup DE
-		ld		de, (buffer_parm1_val)	; get address received by param
-		add		hl, de					; add it to the address in the hex file
-		pop		de						; restore de
 		; Data (n bytes, where n is equal to BYTE COUNT)
 get_data:
 		call	F_KRN_GET_BYTE_BIN_ECHO	; get 1 byte from input and put it in binary in A
@@ -549,13 +519,12 @@ get_data:
 		cp		0						; did we loaded all bytes?
 		jp		nz, get_data			; no, get more data
 		; Checksum (1 byte)
-	; Checksum is not implemented, 
-	; therefore we just read the byte and discard it
+	; Checksum is not implemented, we just read the byte and discard it
 		call	F_KRN_RDCHARECHO		; get START CODE (1 char)
 		call	F_KRN_RDCHARECHO		; get START CODE (1 char)
 		; CRLF (1 byte)
 		call	F_BIOS_CONIN 			; get CR
-		ld		hl, empty_line
+		ld		hl, msg_crc_ok
 		call	F_KRN_WRSTR
 		jp		start_ihexload			; and get next line
 ihexload_error:							; invalid Intel HEX file
@@ -563,9 +532,10 @@ ihexload_error:							; invalid Intel HEX file
 		call	F_KRN_WRSTR
 		ret
 ihexload_end: 							; RECORD TYPE = End Of File (01), then last byte must be FF
-	; Checksum is not implemented, 
-	; therefore we just read the byte and discard it
+	; Checksum is not implemented, we just read the byte and discard it
 		call	F_KRN_GET_BYTE_BIN_ECHO	; get 1 byte from input and put it in binary in A
+		ld		hl, msg_crc_ok
+		call	F_KRN_WRSTR
 		ld		hl, msg_endhex			; yes, show success message
 		call	F_KRN_WRSTR
 		ret
@@ -639,6 +609,8 @@ msg_cf_test_start:
 		.BYTE	"CF Card Test", CR, LF, 0
 msg_cf_test_end:
 		.BYTE	"Sector 0 was loaded into RAM", CR, LF, 0
+msg_crc_ok:
+		.BYTE	" ...[CRC OK]", CR, LF, 0
 ;------------------------------------------------------------------------------
 ;             ERROR MESSAGES
 ;------------------------------------------------------------------------------
