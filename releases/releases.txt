@@ -1,0 +1,4 @@
+dzOS.1.0.0.0rc.bin      05 May 2019
+    BIOS, Kernel and CLI in MVP status
+    commands: help, loadihex, memdump, peek, poke, reset, run
+    

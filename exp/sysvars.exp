@@ -1,0 +1,6 @@
+buffer_cmd       .EQU  $22c4
+buffer_parm1     .EQU  $22d4
+buffer_parm1_val .EQU  $22e4
+buffer_parm2     .EQU  $22f4
+buffer_parm2_val .EQU  $2304
+buffer_pgm       .EQU  $2314
