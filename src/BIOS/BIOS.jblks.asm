@@ -33,15 +33,20 @@
 ;==============================================================================
 ; Includes
 ;==============================================================================
-#include "src/equates.asm"
+#include "src/includes/equates.inc"
 #include "exp/BIOS.exp"
 
 		.ORG	BIOS_JBLK_START
 
-        jp      F_BIOS_CLRSCR
-        jp      F_BIOS_CONIN
-        jp      F_BIOS_CONOUT
+		jp		F_BIOS_WBOOT
+		jp		F_BIOS_SYSHALT
+		jp		F_BIOS_CF_INIT
+		jp		F_BIOS_CF_BUSY
+		jp		F_BIOS_CF_READ_SEC
+		jp		F_BIOS_CLRSCR
+		jp		F_BIOS_CONIN
+		jp		F_BIOS_CONOUT
 
-        .ORG	BIOS_JBLK_END
+		.ORG	BIOS_JBLK_END
 				.BYTE	0
-        .END
+		.END

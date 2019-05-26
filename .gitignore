@@ -1,6 +1,9 @@
 bin/*
 lst/*
 
+builddate
+buildnum
+
 # The Telemark Assembler (TASM)
 TASM.EXE
 TASM80.TAB

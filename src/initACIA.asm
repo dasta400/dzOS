@@ -25,7 +25,7 @@
 ; dastaZ80's Cold Boot BIOS subroutine F_BIOS_CBOOT
 ;==================================================================================
 
-#include "src/equates.asm"              ; use dastaZ80' equates.asm
+#include "src/includes/equates.inc" 	; use dastaZ80' equates.inc
 
 ;SER_BUFSIZE     .EQU     3FH
 ;SER_FULLSIZE    .EQU     30H

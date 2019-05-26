@@ -31,13 +31,6 @@
 ; -----------------------------------------------------------------------------
 
 ;==============================================================================
-; versions
-;==============================================================================
-BIOS_MAJOR				.EQU	'0'
-BIOS_MINOR				.EQU	'1'
-BIOS_PATCH				.EQU	'0'
-
-;==============================================================================
 ; I/O Devices
 ;==============================================================================
 IODEV_CFLASH			.EQU	10h				; CompactFlash
@@ -54,23 +47,21 @@ SPACE					.EQU	20h				; Space
 ; ROM positions
 ;==============================================================================
 INITACIA_START			.EQU	0000h
-INITACIA_END			.EQU	00FFh
+INITACIA_END			.EQU	INITACIA_START + 255
 
 BIOS_START				.EQU	0100h
-BIOS_END				.EQU	023Fh
-BIOS_JBLK_START			.EQU	0240h
-BIOS_JBLK_END			.EQU	033Fh
+BIOS_END				.EQU	BIOS_START + 319
+BIOS_JBLK_START			.EQU	BIOS_END + 1
+BIOS_JBLK_END			.EQU	BIOS_JBLK_START + 255
 
-KRN_START				.EQU	0340h
-KRN_END					.EQU	073Fh
-KRN_JBLK_START			.EQU	0740h
-KRN_JBLK_END			.EQU	083Fh
+KRN_START				.EQU	BIOS_JBLK_END + 1
+KRN_DZOS_VERSION		.EQU	KRN_START + 1472
+KRN_END					.EQU	KRN_DZOS_VERSION + 15
+KRN_JBLK_START			.EQU	KRN_END + 1
+KRN_JBLK_END			.EQU	KRN_JBLK_START + 255
 
-CLI_START				.EQU	0840h
-CLI_END					.EQU	107Fh
-
-SYSCONSTS_START			.EQU	1080h
-SYSCONSTS_END			.EQU	108Bh
+CLI_START				.EQU	KRN_JBLK_END + 1
+CLI_END					.EQU	CLI_START + 3007
 
 ;==============================================================================
 ; RAM positions
@@ -91,6 +82,7 @@ CF_BUFFER_END			.EQU	257Fh
 
 FREERAM_START			.EQU	2580h
 FREERAM_END				.EQU	7FFFh
+FREERAM_TOTAL			.EQU	FREERAM_END - FREERAM_START + 1
 
 ;==============================================================================
 ; CompactFlash

@@ -1,13 +1,13 @@
 ;******************************************************************************
-; kernel.asm
+; kernel.string.asm
 ;
-; Kernel
+; Kernel's String routines
 ; for dastaZ80's dzOS
-; by David Asta (Jan 2018)
+; by David Asta (May 2019)
 ;
 ; Version 1.0.0
-; Created on 03 Jan 2018
-; Last Modification 03 Jan 2018
+; Created on 08 May 2019
+; Last Modification 08 May 2019
 ;******************************************************************************
 ; CHANGELOG
 ; 	-
@@ -30,68 +30,14 @@
 ; along with dzOS.  If not, see <http://www.gnu.org/licenses/>.
 ; -----------------------------------------------------------------------------
 
-
-;==============================================================================
-; Includes
-;==============================================================================
-#include "src/equates.asm"
-#include "exp/BIOS.exp"
-#include "exp/sysconsts.exp"
-
-        .ORG	KRN_START
-krn_welcome:
-		; Kernel start up messages
-		ld		hl, msg_dzos
-		call	F_KRN_WRSTR
-
-		ld		hl, MSG_BIOS_VERSION
-		call	F_KRN_WRSTR
-		ld		a, (BIOS_BUILD)
-		call	F_BIOS_CONOUT
-		ld		a, (BIOS_BUILD + 1)
-		call	F_BIOS_CONOUT
-		ld		a, (BIOS_STATUS)
-		call	F_BIOS_CONOUT
-		ld		a, (BIOS_STATUS + 1)
-		call	F_BIOS_CONOUT
-		
-		ld		hl, msg_krn_version
-		call	F_KRN_WRSTR
-		ld		a, (KERNEL_BUILD)
-		call	F_BIOS_CONOUT
-		ld		a, (KERNEL_BUILD + 1)
-		call	F_BIOS_CONOUT
-		ld		a, (KERNEL_STATUS)
-		call	F_BIOS_CONOUT
-		ld		a, (KERNEL_STATUS + 1)
-		call	F_BIOS_CONOUT
-
-		; output 2 extra empty lines
-		ld		a, CR
-		call	F_BIOS_CONOUT
-		ld		a, LF
-		call	F_BIOS_CONOUT
-		ld		a, CR
-		call	F_BIOS_CONOUT
-		ld		a, LF
-		call	F_BIOS_CONOUT
-
-		; Initialise CF card reader
-		ld		hl, krn_msg_cf_init
-		call	F_KRN_WRSTR
-		call	F_BIOS_CF_INIT			
-		ld		hl, krn_msg_cf_rdy
-		call	F_KRN_WRSTR
-
-		jp		CLI_START				; transfer control to CLI
 ;==============================================================================
 ; String Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
 F_KRN_WRSTR:			.EXPORT		F_KRN_WRSTR
-; Output string
+; Console output string
 ; Display a string of ASCII characters terminated with CR.
-; HL = pointer to the string.
+; HL = pointer to first character of the string
 		ld	    a, (hl)			        ; Get character of the string
 		or	    a			            ; is it 00h? (i.e. end of string)
 		ret	    z			            ; if yes, then return on terminator
@@ -113,6 +59,8 @@ F_KRN_RDCHARECHO:		.EXPORT		F_KRN_RDCHARECHO
 F_KRN_TOUPPER:			.EXPORT		F_KRN_TOUPPER
 ; Convert to Uppercase
 ; Converts character in register A to uppercase.
+; IN <= character to convert
+; OUT => uppercased character
 		cp		'a'						; nothing to do if is not lower case
 		ret		c
 		cp		'z' + 1					; > 'z'?
@@ -125,19 +73,42 @@ F_KRN_GET_BYTE_BIN_ECHO:		.EXPORT		F_KRN_GET_BYTE_BIN_ECHO
 ; Gets a single hexadecimal byte from standard input
 ; converts it to binary
 ; and stores it in A
+; IN <= None
+; OUT => A received character
 		push	hl						; backup HL
 		call	F_KRN_RDCHARECHO		; get 1st char of byte
 		ld		h, a					; and store it in H
 		call	F_KRN_RDCHARECHO		; get 2nd char of byte
 		ld		l, a					; and store it in L
-		call	F_KRN_HEX2BN			; convert contents of HL to a binary number in A
+		call	F_KRN_HEX2BIN			; convert contents of HL to a binary number in A
 		pop		hl						; restore HL
 		ret
+;------------------------------------------------------------------------------
+F_KRN_PRN_BYTES:		.EXPORT		F_KRN_PRN_BYTES
+; Prints bytes
+; Print n number of bytes as ASCII characters
+;	IN <= B = number of bytes to print
+;		  HL = start memory address where the bytes are
+;	OUT => default output (e.g. screen, I/O)
+		ld		a, (hl)					; get memory content pointed by HL into A
+		cp		0						; is it null?
+		jp		z, prnbytesend			; yes, exit routine
+		cp		LF						; new line?
+		jp		nz, nonewline			; no, contine normally
+		ld		a, CR					; yes, print CR+LF
+		call	F_BIOS_CONOUT
+		ld		a, LF
+nonewline:
+		call	F_BIOS_CONOUT			; no, print character
+		inc		hl						; pointer to next character
+		djnz	F_KRN_PRN_BYTES			; all bytes printer? No, continue printing
+prnbytesend:
+		ret								; yes, exit routine
 ;------------------------------------------------------------------------------
 F_KRN_PRN_BYTE:			.EXPORT		F_KRN_PRN_BYTE
 ; Print Byte
 ; Prints a single byte in hexadecimal notation.
-;	IN <= A (the byte to be printed)
+;	IN <= A = the byte to be printed
 ;	OUT => default output (e.g. screen, I/O)
 		push	bc
 		; convert high nibble
@@ -181,7 +152,7 @@ F_KRN_PRN_WORD:			.EXPORT		F_KRN_PRN_WORD
 F_KRN_PRINTABLE:		.EXPORT		F_KRN_PRINTABLE
 ; Checks if a character is a printable ASCII character
 ;	IN <= A contains character to check
-;	OUT => C flag is set when a character is printable.
+;	OUT => C flag is set if character is printable.
 		cp		SPACE
 		jr		nc, is_printable
 		ccf
@@ -189,71 +160,63 @@ F_KRN_PRINTABLE:		.EXPORT		F_KRN_PRINTABLE
 is_printable:
 		cp		7fh
 		ret
-;==============================================================================
-; Memory Routines
-;==============================================================================
-F_KRN_SETMEMRNG:		.EXPORT		F_KRN_SETMEMRNG
-; Sets a value in a Memory position range
-; IN <= HL contains the start position, DE contains the end position.
-; The routine will go from HL to DE and store in each position whatever value
-; is in register A.
-setmemrng_loop:
-		ld		(hl), a					; put register A content in address pointed by HL
-		inc		hl						; HL pointed + 1
-		push	hl						; store HL value in Stack, because SBC destroys it
-		sbc		hl, de					; substract DE from HL
-		jp		z, end_setmemrng_loop	; if we reach the end position, jump out
-		pop		hl						; restore HL value from Stack
-		jp		setmemrng_loop			; no at end yet, continue loop
-end_setmemrng_loop:
-		pop		hl						; restore HL value from Stack
+;------------------------------------------------------------------------------
+F_KRN_EMPTYLINES:		.EXPORT		F_KRN_EMPTYLINES
+; Output n empty lines
+;	IN <= B = number of empty lines to print out
+;	OUT => default output (e.g. screen, I/O)
+loop_emptylines:
+		ld		a, CR
+		call	F_BIOS_CONOUT
+		ld		a, LF
+		call	F_BIOS_CONOUT
+		djnz	loop_emptylines
 		ret
-;==============================================================================
-; Code Conversion Routines
-;==============================================================================
-F_KRN_HEX2BN:			.EXPORT		F_KRN_HEX2BN
-; Converts two ASCII characters (representing two hexadecimal digits)
-; to one byte of binary data
-;	IN <= H = More significant ASCII digit
-; 		  L = Less significant ASCII digit
-; 	OUT => A = Binary data
-		ld		a, l 					; get low character
-		call	a2hex					; convert it to hexadecimal
-		ld		b, a					; save hex value in b
-		ld		a, h					; get high character
-		call	a2hex					; convert it to hexadecimal
-		rrca							; shift hex value to upper 4 bits
-		rrca
-		rrca
-		rrca
-		or		b						; or in low hex value
-		ret
-a2hex: ; convert ascii digit to a hex digit
-		sub		'0'						; subtract ascii offset
-		cp		10						; is it a decimal digit?
-		jr		c, a2hex1				; yes, then return
-		sub		7						; no, then subtract offset for letters
-a2hex1:
-		ret
-;==============================================================================
-; Messages
-;==============================================================================
-msg_krn_version:
-		.BYTE	"Kernel v1.0.0.", 0
-msg_dzos:
-		.BYTE	CR, LF
-		.BYTE	"#####   ######   ####    ####  ", CR, LF
-		.BYTE	"##  ##     ##   ##  ##  ##     ", CR, LF
-		.BYTE	"##  ##    ##    ##  ##   ####  ", CR, LF
-		.BYTE	"##  ##   ##     ##  ##      ## ", CR, LF
-		.BYTE	"#####   ######   ####    ####  ", CR, LF, 0
-krn_msg_cf_init:
-		.BYTE	"....Initialising CompactFlash reader ", 0
-krn_msg_cf_rdy:
-		.BYTE	"[ OK ]", CR, LF, 0
-;==============================================================================
-; END of CODE
-;==============================================================================
-    	.ORG	KRN_END
-		        .BYTE	0
-		.END
+;------------------------------------------------------------------------------
+F_KRN_STRCMP:			.EXPORT		F_KRN_STRCMP
+; Compare 2 zero terminated strings
+; IN <= HL pointer to start of string 1
+;		DE pointer to start of string 2
+; OUT => if str1 = str2, Z flag set and C flag not set
+;		 if str1 != str2 and str1 longer than str2, Z flag not set and C flag not set
+;		 if str1 != str2 and str1 shorter than str2, Z flag not set and C flag set
+;
+		; Determine which is the shorter string
+		ld		a, (hl)
+		ld		(buffer_pgm), a			; length of string 1
+		ld		a, (de)
+		ld		(buffer_pgm + 1), a		; length of string 2
+		cp		(hl)					; compare length str2 to length str1
+		jr		c, strcmp				; str2 shorter than str1? yes, jump
+		ld		a, (hl)					; no, str1 is shorter
+		; Compare string (through length of shorter)
+strcmp:
+		or		a						; test length of shorter string
+		jr		z, cmplen				; compare lengths
+		ld		b, a					; counter = length of shorter string (number of bytes to compare)
+		ex		de, hl					; DE = str1, HL = str2
+strcmploop:
+		inc		hl						; pointer to next byte of str2
+		inc		de						; pointer to next byte of str1
+		ld		a, (de)					; byte from str1
+		cp		(hl)					; is it same as in str2?
+		ret		nz						; no, return with flags set
+		djnz	strcmploop				; yes, continue comparing
+cmplen:
+		; compare lengths
+		ld		a, (buffer_pgm)
+		ld		hl, (buffer_pgm + 1)
+		cp		(hl)
+		ret								; exit routine, with flags set or cleared
+;------------------------------------------------------------------------------
+F_KRN_STRCPY:			.EXPORT		F_KRN_STRCPY
+; Copy n characters from string 1 to string 2
+; IN <= HL pointer to start of string 1
+;		DE pointer to start of string 2
+;		B number of characters to copy
+		ld		a, (de)					; 1 character from original string
+		ld		(hl), a					; copy it to destination string
+		inc		de						; pointer to next destination character
+		inc		hl						; pointer to next original character
+		djnz	F_KRN_STRCPY			; all characters copied (i.e. B=0)? No, continue copying
+		ret								; yes, exit routine

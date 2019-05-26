@@ -1,4 +1,9 @@
-dzOS-2019.05.06.0rc.bin
-    BIOS-1.0.0.0rc.bin kernel-1.0.0.0rc.bin CLI-1.0.0.6rc.bin
-        commands: help, loadihex, memdump, peek, poke, reset, run
-    
+dzOS.2019.05.06.1.bin
+	added commands: help, loadihex, memdump, peek, poke, reset, run
+
+dzOS.2019.05.12.27.bin
+	added commands: ld
+
+zOS.2019.05.26.1.bin
+	added commands: sf, lf
+	removed commands: loadihex
