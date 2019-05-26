@@ -1,13 +1,13 @@
 ;******************************************************************************
-; kernel_jblks.asm
+; BIOS.video.asm
 ;
-; Kernel Jumpblocks
+; BIOS' Video routines
 ; for dastaZ80's dzOS
-; by David Asta (Apr 2019)
+; by David Asta (May 2019)
 ;
 ; Version 1.0.0
-; Created on 25 Apr 2019
-; Last Modification 25 Apr 2019
+; Created on 08 May 2019
+; Last Modification 08 May 2019
 ;******************************************************************************
 ; CHANGELOG
 ; 	-
@@ -28,20 +28,28 @@
 
 ; You should have received a copy of the GNU General Public License
 ; along with dzOS.  If not, see <http://www.gnu.org/licenses/>.
-; -----------------------------------------------------------------------------    
+; -----------------------------------------------------------------------------
 
 ;==============================================================================
-; Includes
+; Video Routines
 ;==============================================================================
-#include "src/equates.asm"
-#include "exp/kernel.exp"
-
-		    .ORG	KRN_JBLK_START
-
-        jp      F_KRN_WRSTR
-        jp      F_KRN_RDCHARECHO
-        jp      F_KRN_SETMEMRNG
-
-        .ORG	KRN_JBLK_END
-				        .BYTE	0
-        .END
+;------------------------------------------------------------------------------
+F_BIOS_CLRSCR:			.EXPORT		F_BIOS_CLRSCR
+; Clear all contents from the screen
+		ret
+;------------------------------------------------------------------------------
+F_BIOS_CONIN:			.EXPORT		F_BIOS_CONIN
+; Console input character
+; Read character from Console and store it in register A.
+; IN <= None
+; OUT => A received character
+		rst		10h						; get character in A, using subroutine ininitACIA.asm
+		ret
+;------------------------------------------------------------------------------
+F_BIOS_CONOUT:			.EXPORT		F_BIOS_CONOUT
+; Console output character
+; Write the character in register A to the Console.
+; IN <= A character to write
+; OUT => None
+		rst		08h						; print character in A, using subroutine ininitACIA.asm
+		ret

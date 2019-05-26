@@ -1,13 +1,13 @@
 ;******************************************************************************
-; sysvars.asm
+; kernel.mem.asm
 ;
-; System Variables
+; Kernel's Memory routines
 ; for dastaZ80's dzOS
-; by David Asta (Jan 2018)
+; by David Asta (May 2019)
 ;
 ; Version 1.0.0
-; Created on 03 Jan 2018
-; Last Modification 03 Jan 2018
+; Created on 08 May 2019
+; Last Modification 08 May 2019
 ;******************************************************************************
 ; CHANGELOG
 ; 	-
@@ -31,59 +31,24 @@
 ; -----------------------------------------------------------------------------
 
 ;==============================================================================
-; Includes
+; Memory Routines
 ;==============================================================================
-#include "src/includes/equates.inc"
-;==============================================================================
-; Buffers
-;==============================================================================
-;		.ORG	SYSVARS
-		.ORG	ACIA_BUFFERS_END
-buffer_cmd:			.EXPORT			buffer_cmd
-				.FILL	16, 0
-
-buffer_parm1:		.EXPORT			buffer_parm1
-				.FILL	16, 0
-
-buffer_parm1_val:	.EXPORT			buffer_parm1_val
-				.FILL	16, 0
-
-buffer_parm2:		.EXPORT			buffer_parm2
-				.FILL	16, 0
-
-buffer_parm2_val:	.EXPORT			buffer_parm2_val
-				.FILL	16, 0
-
-buffer_pgm:			.EXPORT			buffer_pgm
-				.FILL	32, 0			; general buffer from programs
-
-secs_per_clus:		.EXPORT			secs_per_clus
-				.BYTE	0
-
-secs_per_fat:		.EXPORT			secs_per_fat
-				.BYTE	0, 0
-
-num_fats:			.EXPORT			num_fats
-				.BYTE 	0
-
-reserv_secs:		.EXPORT			reserv_secs
-				.BYTE 	0, 0
-
-clus2secnum:		.EXPORT			clus2secnum
-				.BYTE 	0, 0
-
-root_dir_start:		.EXPORT			root_dir_start
-				.BYTE 	0, 0
-
-root_dir_sectors:	.EXPORT			root_dir_sectors
-				.BYTE	0, 0
-
-cur_dir_start:		.EXPORT			cur_dir_start
-				.BYTE 	0, 0
-
-file_attributes:	.EXPORT			file_attributes
-				.BYTE 	0
-
-        .ORG	SYSVARS_END
-		        .BYTE	0
-        .END
+;------------------------------------------------------------------------------
+F_KRN_SETMEMRNG:		.EXPORT		F_KRN_SETMEMRNG
+; Sets a value in a memory position range
+; IN <= HL contains the start position
+;		DE contains the end position.
+;		A value to set
+; The routine will go from HL to DE and store in each position whatever value
+; is in register A.
+setmemrng_loop:
+		ld		(hl), a					; put register A content in address pointed by HL
+		inc		hl						; HL pointed + 1
+		push	hl						; store HL value in Stack, because SBC destroys it
+		sbc		hl, de					; substract DE from HL
+		jp		z, end_setmemrng_loop	; if we reach the end position, jump out
+		pop		hl						; restore HL value from Stack
+		jp		setmemrng_loop			; no at end yet, continue loop
+end_setmemrng_loop:
+		pop		hl						; restore HL value from Stack
+		ret
