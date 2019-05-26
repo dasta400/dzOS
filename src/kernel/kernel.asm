@@ -73,11 +73,30 @@ krn_welcome:
 		ld		hl, krn_msg_cf_init
 		call	F_KRN_WRSTR
 		call	F_BIOS_CF_INIT			
-		ld		hl, krn_msg_cf_rdy
+		ld		hl, krn_msg_OK
 		call	F_KRN_WRSTR
 		ld		hl, krn_msg_cf_fat16ver
 		call	F_KRN_WRSTR
 		call	F_KRN_F16_READBOOTSEC	; read CF Boot Sector
+
+		; Copy BIOS Jumpblocks from ROM to RAM
+		ld		hl, krn_msg_cpybiosjblks
+		call	F_KRN_WRSTR
+		ld		hl, BIOS_JBLK_START			; pointer to address of start of BIOS Jumpblocks in ROM
+		ld		de, BIOS_JBLK_COPY_START	; pointer to address of start of BIOS Jumpblocks in RAM
+		ld		bc, 256						; jumpblocks are 256 bytes max.
+		ldir								; copy from ROM to RAM
+		ld		hl, krn_msg_OK
+		call	F_KRN_WRSTR
+		; Copy Kernel Jumpblocks from ROM to RAM
+		ld		hl, krn_msg_cpykrnjblks
+		call	F_KRN_WRSTR
+		ld		hl, KRN_JBLK_START			; pointer to address of start of Kernel Jumpblocks in ROM
+		ld		de, KRN_JBLK_COPY_START		; pointer to address of start of Kernel Jumpblocks in RAM
+		ld		bc, 256						; jumpblocks are 256 bytes max.
+		ldir								; copy from ROM to RAM
+		ld		hl, krn_msg_OK
+		call	F_KRN_WRSTR
 		
 		; output 1 empty line
 		ld		b, 1
@@ -107,10 +126,15 @@ msg_dzos:
 		.BYTE	"#####   ######   ####    ####  ", 0
 krn_msg_cf_init:
 		.BYTE	"....Initialising CompactFlash reader ", 0
-krn_msg_cf_rdy:
-		.BYTE	"[ OK ]", CR, LF, 0
 krn_msg_cf_fat16ver:
 		.BYTE	"FAT16 implementation v1.0 - No directories supported!", CR, LF, 0
+krn_msg_cpybiosjblks:
+		.BYTE	CR, LF
+		.BYTE	"....Copying BIOS Jumblocks to RAM ", 0
+krn_msg_cpykrnjblks:
+		.BYTE	"....Copying Kernel Jumblocks to RAM ", 0
+krn_msg_OK:
+		.BYTE	"[ OK ]", CR, LF, 0
 
 		.ORG	KRN_DZOS_VERSION
 dzos_version:			.EXPORT		dzos_version
