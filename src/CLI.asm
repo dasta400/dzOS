@@ -421,32 +421,19 @@ F_CLI_F16_PRNDIRENTRY:
 		jp		nz, printdirlabel		; yes, print <DIR> instead of file size
 										; no, print file size
 		; file size is in Hexadecimal
-		ld		e, (hl)					; D = MSB
-		inc		hl						; point to LSB
-		ld		d, (hl)					; E = LSB
-		push	hl						; backup HL. Pointer 1st byte (LSB)
-		ex		de, hl					; H = 1st byte (LSB), L = 2nd byte (LSB)
-		call	F_KRN_BIN2BCD
-		ex		de, hl					; HL = converted 6-digit BCD
-		ld		de, buffer_cmd			; where the numbers in ASCII will be stored
-		call	F_KRN_BCD2ASCII
-		pop		hl						; backup HL. Pointer 1st byte (LSB)
-		; Print each of the 6 digits
-		ld		ix, buffer_cmd
-		ld		a, (ix + 0)
+		ld		a, '0'
 		call	F_BIOS_CONOUT
-		ld		a, (ix + 1)
+		ld		a, 'x'
 		call	F_BIOS_CONOUT
-		ld		a, (ix + 2)
-		call	F_BIOS_CONOUT
-		ld		a, (ix + 3)
-		call	F_BIOS_CONOUT
-		ld		a, (ix + 4)
-		call	F_BIOS_CONOUT
-		ld		a, (ix + 5)
-		call	F_BIOS_CONOUT
+		
+		inc 	hl						; point to 2nd byte (MSB)
+		ld		a, (hl)					
+		call	F_KRN_PRN_BYTE			; print it
+		dec		hl						; point to 1st byte (LSB)
+		ld		a, (hl)
+		call	F_KRN_PRN_BYTE			; print it
 		; skip the 4 bytes of file size
-;		inc		hl						; skip 1 byte
+		inc		hl						; skip 1 byte
 		inc		hl						; skip 1 byte
 		inc		hl						; skip 1 byte
 		inc		hl						; skip 1 byte
