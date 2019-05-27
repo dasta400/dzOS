@@ -87,3 +87,60 @@ nascii:
 nas1:
 		add		a, '0'					; add ASCII 0 to make a character
 		ret
+;------------------------------------------------------------------------------
+F_KRN_BIN2BCD:			.EXPORT		F_KRN_BIN2BCD
+; Converts 2 bytes of unsigned integer to 6-digit BCD
+; https://de.comp.lang.assembler.x86.narkive.com/EjY9sEbE/z80-binary-to-ascii
+;	IN <= HL = unsigned integer
+;	OUT => DE = 6-digit BCD
+		ld		bc, 4096				; counter
+		ld 		de, 0
+bin2bcdloop:
+		add 	hl, hl
+		ld 		a, e
+		adc 	a, a
+		daa
+		ld 		e, a
+		ld 		a, d
+		adc 	a, a
+		daa
+		ld 		d, a
+		ld 		a, c
+		adc 	a, a
+		daa
+		ld 		c, a
+		djnz 	bin2bcdloop				; all bits done? No, continue with more bits
+		ret								; yes, exit routine
+;------------------------------------------------------------------------------
+F_KRN_BCD2ASCII:		.EXPORT		F_KRN_BCD2ASCII
+; Converts 6-digit BCD to ASCII string in a memory location
+; https://de.comp.lang.assembler.x86.narkive.com/EjY9sEbE/z80-binary-to-ascii
+;	IN <= DE = pointer to where the string will be stored
+;		  HL = 6-digit BCD
+;	OUT => DE = pointer to where the string is stored
+		ld 		a, c
+		call 	uppernibble
+		ld 		a, c
+		call	lowernibble
+		ld 		a, h
+		call 	uppernibble
+		ld 		a, h
+		call 	lowernibble
+		ld 		a, l
+		call 	uppernibble
+		ld 		a, l
+		jr 		lowernibble
+uppernibble:
+		rra 							; move high nibble to low nibble
+		rra
+		rra
+		rra
+lowernibble:
+		and 	0Fh 					; get low nibble
+		add 	a, 90h
+		daa
+		adc 	a, 40h
+		daa
+		ld 		(de), a
+		inc 	de
+		ret
