@@ -4,6 +4,9 @@ dzOS.2019.05.06.1.bin
 dzOS.2019.05.12.27.bin
 	added commands: ld
 
-zOS.2019.05.26.1.bin
+dzOS.2019.05.26.1.bin
 	added commands: sf, lf
 	removed commands: loadihex
+
+dzOS.2019.05.27.6.bin
+	ld shows file size in decimal notation
