@@ -6,6 +6,7 @@ buffer_parm2_val .EQU  $2304
 buffer_pgm       .EQU  $2314
 clus2secnum      .EQU  $233a
 cur_dir_start    .EQU  $2340
+cur_sector       .EQU  $2343
 file_attributes  .EQU  $2342
 num_fats         .EQU  $2337
 reserv_secs      .EQU  $2338

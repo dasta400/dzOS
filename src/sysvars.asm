@@ -84,6 +84,9 @@ cur_dir_start:		.EXPORT			cur_dir_start
 file_attributes:	.EXPORT			file_attributes
 				.BYTE 	0
 
+cur_sector:		.EXPORT			cur_sector
+				.BYTE 	0, 0
+
         .ORG	SYSVARS_END
 		        .BYTE	0
         .END
