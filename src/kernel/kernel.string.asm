@@ -80,7 +80,7 @@ F_KRN_GET_BYTE_BIN_ECHO:		.EXPORT		F_KRN_GET_BYTE_BIN_ECHO
 		ld		h, a					; and store it in H
 		call	F_KRN_RDCHARECHO		; get 2nd char of byte
 		ld		l, a					; and store it in L
-		call	F_KRN_HEX2BIN			; convert contents of HL to a binary number in A
+		call	F_KRN_ASCII2HEX			; convert contents of HL to a binary number in A
 		pop		hl						; restore HL
 		ret
 ;------------------------------------------------------------------------------

@@ -42,6 +42,7 @@ CR						.EQU	0Dh				; Carriage Return
 LF						.EQU	0Ah				; Line Feed
 ;CLRSCR					.EQU	0Ch				; Clear screen
 SPACE					.EQU	20h				; Space
+DATESEP					.EQU	'/'				; Date separator
 
 ;==============================================================================
 ; ROM positions

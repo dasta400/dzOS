@@ -416,9 +416,10 @@ F_KRN_F16_LOADEXE2RAM:	.EXPORT		F_KRN_F16_LOADEXE2RAM
 ;		 All bytes of the executable file are loaded into 
 ;			RAM at the address location found in the file header
 ; buffer_pgm usage
-;		buffer_pgm = 2 bytes 1st Cluster, 1st Sector number
-;		buffer_pgm + 2 = 2 bytes Load address
-;		buffer_pgm + 4 =  number of bytes copied
+;		buffer_pgm = (2 bytes) 1st Cluster, 1st Sector number
+;		buffer_pgm + 2 = (2 bytes) destination address in RAM
+;		buffer_pgm + 4 = (2 bytes) number of bytes copied
+;		buffer_pgm + 6 = (2 bytes) original load address
 ; Header:
 ; 	first 4 bytes = string dzOS (64, 7A, 4F, 53)
 ; 	next 2 bytes are the hexadecimal values of the start address in little-endian format
@@ -448,10 +449,11 @@ F_KRN_F16_LOADEXE2RAM:	.EXPORT		F_KRN_F16_LOADEXE2RAM
 	
 	; copy 1st sector of 1st cluster
 	ld		de, (CF_BUFFER_START + 4)	; pointer to load address
+	ld		(buffer_pgm + 6), de	; backup DE. Load address
 	ld		hl, CF_BUFFER_START + 16	; pointer to first executable byte
 	ld		bc, 495					; 512 - 16 = 496 bytes will be copied
 	ldir							; copy n bytes from HL to DE
-	ld		(buffer_pgm + 2), de	; backup DE. Load address
+	ld		(buffer_pgm + 2), de	; backup DE. destination address
 	; copy remaining sectors of 1st cluster
 	ld		a, (secs_per_clus)		; counter. Remaining sectors
 loadloop:
@@ -460,13 +462,13 @@ loadloop:
 	inc		hl						; next sector
 	ld		(buffer_pgm), hl		; backup HL. Sector number
 	call	F_KRN_F16_SEC2BUFFER	; load sector to buffer
-	ld		hl, (buffer_pgm + 2)	; restore load address
+	ld		hl, (buffer_pgm + 2)	; restore destination address
 	ld		bc, (buffer_pgm + 4)	; copy entire sector (512 bytes) 512 - 1 for the 0 byte
-	ex		de, hl					; DE = load address + number of bytes last copied
+	ex		de, hl					; DE = destination address + number of bytes last copied
 	inc		de						; +1 to not overwrite last byte
 	ld		hl, CF_BUFFER_START		; pointer to first executable byte
 	ldir							; copy n bytes from HL to DE
-	ld		(buffer_pgm + 2), de	; backup DE. Load address
+	ld		(buffer_pgm + 2), de	; backup DE. destination address
 	cp		0						; did we copy all sectors of the cluster?
 	jp		nz, loadloop			; no, copy another sector
 	jp		allok					; yes, set return parameters and exit routine
@@ -476,18 +478,14 @@ loadloop:
 	;		load bytes into RAM
 
 	; >>>> ToDo - This only loads sectors of first cluster <<<<
-
-	; Get load address from header
-		; For each sector
-		; Copy bytes to load address location in RAM
-
+	; >>>> ToDo - Should only load number of bytes equal to file size. Otherwise is loading rubbish <<<<
 errorheader:
 	ld		hl, error_4004
 	call	F_KRN_WRSTR
 	cp		a						; set Z flag
 	ret
 allok:
-	ld		de, (CF_BUFFER_START + 4)	; pointer to load address
+	ld		de, (buffer_pgm + 6)	; restore load address
 	or		1						; reset Z flag
 	ret
 ;==============================================================================
