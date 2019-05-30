@@ -415,18 +415,20 @@ F_KRN_F16_LOADEXE2RAM:	.EXPORT		F_KRN_F16_LOADEXE2RAM
 ;		 DE = load address
 ;		 All bytes of the executable file are loaded into 
 ;			RAM at the address location found in the file header
-; buffer_cmd usage
-;		buffer_cmd = 2 bytes 1st Cluster, 1st Sector number
-;		buffer_cmd + 2 = 2 bytes Load address
-;		buffer_cmd + 4 =  number of bytes copied
+; buffer_pgm usage
+;		buffer_pgm = 2 bytes 1st Cluster, 1st Sector number
+;		buffer_pgm + 2 = 2 bytes Load address
+;		buffer_pgm + 4 =  number of bytes copied
 ; Header:
 ; 	first 4 bytes = string dzOS (64, 7A, 4F, 53)
 ; 	next 2 bytes are the hexadecimal values of the start address in little-endian format
 ;	rest of the bytes are nullified with 0x00 and not used at the moment
 
+	ld		bc, 511					; copy entire sector (512 bytes) 512 - 1 for the 0 byte
+	ld		(buffer_pgm + 4), bc	; backup BC. Number of bytes copied
 	; Read FAT and get list of clusters
 	call	F_KRN_F16_CLUS2SEC		; convert cluster number to sector number
-	ld		(buffer_cmd), hl		; backup HL. 1st Cluster, 1st Sector number
+	ld		(buffer_pgm), hl		; backup HL. 1st Sector number
 	call	F_KRN_F16_SEC2BUFFER	; load sector to buffer
 	; Check header for "dzOS"
 	ld		ix, CF_BUFFER_START
@@ -446,36 +448,34 @@ F_KRN_F16_LOADEXE2RAM:	.EXPORT		F_KRN_F16_LOADEXE2RAM
 	
 	; copy 1st sector of 1st cluster
 	ld		de, (CF_BUFFER_START + 4)	; pointer to load address
-	ld		(buffer_cmd + 2), de	; backup DE. Load address
 	ld		hl, CF_BUFFER_START + 16	; pointer to first executable byte
-	ld		bc, 496					; 512 - 16 = 496 bytes will be copied
-	ld		(buffer_cmd + 4), bc	; backup BC. Number of bytes copied
+	ld		bc, 495					; 512 - 16 = 496 bytes will be copied
 	ldir							; copy n bytes from HL to DE
-;	jp		allok
+	ld		(buffer_pgm + 2), de	; backup DE. Load address
 	; copy remaining sectors of 1st cluster
 	ld		a, (secs_per_clus)		; counter. Remaining sectors
 loadloop:
 	dec		a						; 1st sector already loaded
-	ld		hl, (buffer_cmd)		; restore sector number
+	ld		hl, (buffer_pgm)		; restore sector number
 	inc		hl						; next sector
-	ld		(buffer_cmd), hl		; backup HL. Sector number
+	ld		(buffer_pgm), hl		; backup HL. Sector number
 	call	F_KRN_F16_SEC2BUFFER	; load sector to buffer
-	ld		hl, (buffer_cmd + 2)	; restore load address
-	ld		bc, (buffer_cmd + 4)	; restore number of bytes copied
-	add		hl, bc					; HL = load address + number of bytes last copied
-	ld		bc, 512					; copy entire sector (512 bytes)
-	ld		(buffer_cmd + 4), bc	; backup BC. Number of bytes copied
+	ld		hl, (buffer_pgm + 2)	; restore load address
+	ld		bc, (buffer_pgm + 4)	; copy entire sector (512 bytes) 512 - 1 for the 0 byte
 	ex		de, hl					; DE = load address + number of bytes last copied
+	inc		de						; +1 to not overwrite last byte
 	ld		hl, CF_BUFFER_START		; pointer to first executable byte
 	ldir							; copy n bytes from HL to DE
+	ld		(buffer_pgm + 2), de	; backup DE. Load address
 	cp		0						; did we copy all sectors of the cluster?
 	jp		nz, loadloop			; no, copy another sector
 	jp		allok					; yes, set return parameters and exit routine
 
 	; for each cluster
-	;	print sectors
+	;	for each sector
+	;		load bytes into RAM
 
-	; >>>> ToDo - This only loads 496 bytes (first sector of first cluster) <<<<
+	; >>>> ToDo - This only loads sectors of first cluster <<<<
 
 	; Get load address from header
 		; For each sector
