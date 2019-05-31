@@ -374,7 +374,68 @@ F_CLI_F16_PRNDIRENTRY:
 		;	hhhhh = binary number of hours (0-23)
 		;	mmmmmm = binary number of minutes (0-59)
 		;	xxxxx = binary number of two-second periods (0-29), representing seconds 0 to 58.
-
+		; extract hour (hhhhh) from MSB 0x17
+		ld		iy, (buffer_pgm)		; IY = first byte of the address where the entry is located
+		ld		bc, 16h					; offset for Time modified
+		add		iy, bc					; IY += offset
+ 		ld		e, (iy + 1)				; we are only interested in the MSB now
+		ld		d, 5					; we want to extract 5 bits
+		ld		a, 3					; starting at position bit 3
+		call	F_KRN_BITEXTRACT
+		ld		(buffer_pgm + 2), a		; store hour value in buffer_pgm for later
+		; extract minute part (mmm) from MSB 0x17
+		ld		e, (iy + 1)				; we are only interested in the MSB now
+		ld		d, 3					; we want to extract 3 bits
+		ld		a, 0					; starting at position bit 0
+		call	F_KRN_BITEXTRACT
+		ld		(buffer_pgm + 3), a		; store minute part value in buffer_pgm for later
+		ld		hl, buffer_pgm + 3		; get rid
+		sla		(hl)					;   of the
+		sla		(hl)					;   unwanted
+		sla		(hl)					;   bits
+		; extract minute part (mmm) from LSB 0x16
+		ld		e, (iy)					; we are only interested in the MSB now
+		ld		d, 3					; we want to extract 3 bits
+		ld		a, 5					; starting at position bit 5
+		call	F_KRN_BITEXTRACT
+		ld		b, a					; store minute part value in B for later
+		; combine both minutes parts
+		ld		a, (buffer_pgm + 3)
+		or		b
+		ld		(buffer_pgm + 3), a		; store minute value in buffer_pgm for later
+		; print hour and  ':' separator
+		ld		a, (buffer_pgm + 2)
+		ld		h, 0
+		ld		l, a
+		call	F_KRN_BIN2BCD6
+		ex		de, hl
+		ld		de, buffer_pgm + 4
+		call	F_KRN_BCD2ASCII
+		ld		iy, buffer_pgm + 4
+		ld		a, (iy + 4)
+		call	F_BIOS_CONOUT
+		ld		a, (iy + 5)
+		call	F_BIOS_CONOUT
+		ld		a, TIMESEP
+ 		call	F_BIOS_CONOUT
+		; print minutes
+		ld		a, (buffer_pgm + 3)
+		ld		h, 0
+		ld		l, a
+		call	F_KRN_BIN2BCD6
+		ex		de, hl
+		ld		de, buffer_pgm + 4
+		call	F_KRN_BCD2ASCII
+		ld		iy, buffer_pgm + 4
+		ld		a, (iy + 4)
+		call	F_BIOS_CONOUT
+		ld		a, (iy + 5)
+		call	F_BIOS_CONOUT
+		; print 2 spaces to separate
+		ld		a, SPACE
+		call	F_BIOS_CONOUT
+		ld		a, SPACE
+		call	F_BIOS_CONOUT
 		; 0x18	2 bytes		Date modified
 		;		<------- 0x19 --------> <------- 0x18 -------->
 		;		07 06 05 04 03 02 01 00 07 06 05 04 03 02 01 00
@@ -384,7 +445,7 @@ F_CLI_F16_PRNDIRENTRY:
 		; 	ddddd = indicates the binary day number (1-31)
 		; extract year (yyyyyyy) from MSB 0x19
 		ld		iy, (buffer_pgm)		; IY = first byte of the address where the entry is located
-		ld		bc, 18h					; offset for First cluster (low word)
+		ld		bc, 18h					; offset for Date modified
 		add		iy, bc					; IY += offset
  		ld		e, (iy + 1)				; we are only interested in the MSB now
  		ld		d, 7					; we want to extract 7 bits
@@ -466,7 +527,6 @@ extrday:
 		call	F_BIOS_CONOUT
 		ld		a, (iy + 5)
 		call	F_BIOS_CONOUT
-
 		; print 2 spaces to separate
 		ld		a, SPACE
 		call	F_BIOS_CONOUT
@@ -970,9 +1030,9 @@ msg_help:
 msg_cf_ld:
 		.BYTE	CR, LF
 		.BYTE	"Directory contents", CR, LF
-		.BYTE	"-------------------------------------------", CR, LF
-		.BYTE	"File          Date        Cluster  Size", CR, LF
-		.BYTE	"-------------------------------------------", CR, LF, 0
+		.BYTE	"------------------------------------------------", CR, LF
+		.BYTE	"File          Time   Date        Cluster  Size", CR, LF
+		.BYTE	"------------------------------------------------", CR, LF, 0
 msg_dirlabel:
 		.BYTE	"<DIR>", 0
 msg_crc_ok:
