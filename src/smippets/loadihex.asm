@@ -110,3 +110,12 @@ ihexload_end: 							; RECORD TYPE = End Of File (01), then last byte must be FF
 		ld		hl, msg_endhex			; yes, show success message
 		call	F_KRN_WRSTR
 		ret
+;==============================================================================
+; Messages
+;==============================================================================
+msg_rcvhex:
+		.BYTE	CR, LF
+		.BYTE	"PASTE THE .HEX FILE INTO THE TERMINAL WINDOW", CR, LF, 0
+msg_endhex:
+		.BYTE	CR, LF
+		.BYTE	"Intel HEX file received successfully", CR, LF, 0
