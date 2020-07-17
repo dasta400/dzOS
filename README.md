@@ -9,3 +9,5 @@ The OS consists of three parts:
 * The **Command-Line Interface (CLI)**, that provides commands for the user to talk to the Kernel and BIOS.
 
 The Kernel and the CLI are hardware independendent and will work on any Z80 based computer. Therefore, by adapting the BIOS code, **dzOS can easily be ported to other Z80 systems**.
+
+![dzOS v2019.06.18.17](https://github.com/asmCcoder/dzOS/blob/master/docs/dzOS.2019.06.18.17.png "dzOS v2019.06.18.17")
