@@ -5,6 +5,8 @@ lst/*
 builddate
 buildnum
 
+ToDo.txt
+
 # The Telemark Assembler (TASM)
 TASM.EXE
 TASM80.TAB

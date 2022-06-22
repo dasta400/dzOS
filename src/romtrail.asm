@@ -1,13 +1,13 @@
 ;******************************************************************************
-; BIOS_jblks.asm
+; romtrail.asm
 ;
-; BIOS Jumpblocks
+; This file just fills the free ROM space, so that the binary is exactly 8192 bytes
 ; for dastaZ80's dzOS
-; by David Asta (Apr 2019)
+; by David Asta (Jul 2019)
 ;
 ; Version 1.0.0
-; Created on 25 Apr 2019
-; Last Modification 21 Jun 2022
+; Created on 09 July 2019
+; Last Modification 09 July 2019
 ;******************************************************************************
 ; CHANGELOG
 ; 	-
@@ -15,7 +15,7 @@
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2019-2022 David Asta
+; Copyright (c) 2019 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -36,32 +36,11 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-;==============================================================================
-; Includes
-;==============================================================================
 #include "src/equates.inc"
-#include "exp/BIOS.exp"
 
-		.ORG	BIOS_JBLK_START
+	.ORG	FREEROM_START
+				.FILL	FREEROM_SIZE, 0
 
-		jp		F_BIOS_WBOOT
-		jp		F_BIOS_SYSHALT
-
-		; SIO/2
-		jp		F_BIOS_SERIAL_CONIN_A
-		jp		F_BIOS_SERIAL_CONOUT_A
-		jp		F_BIOS_SERIAL_CONOUT_B
-
-		; jp		F_BIOS_CLRSCR
-		; jp		F_BIOS_CONIN
-		; jp		F_BIOS_CONOUT
-
-		; CompactFlash
-		jp		F_BIOS_CF_INIT
-		jp		F_BIOS_CF_BUSY
-		jp		F_BIOS_CF_READ_SEC
-		jp		F_BIOS_CF_DISKINFO
-
-		.ORG	BIOS_JBLK_END
-		.BYTE	0
+	.ORG	FREEROM_END
+				.BYTE	0
 		.END

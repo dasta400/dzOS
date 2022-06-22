@@ -1,10 +1,15 @@
-# ToDO - Detect OS Linux or Win
-ASM = ./TASM.EXE
+# Detect OS
+UNAME = $(shell uname)
+ifeq ($(UNAME), Linux)
+    ASM = wine TASM.EXE
+else
+    ASM = ./TASM.EXE
+endif
 ASMFLAGS = -80 -b -a -fFF		# For generating .bin files
 #ASMFLAGS = -80 -o10 -g0 -c -a -y	# For generating Intel HEX files
 TARGET = dzOS
-BINARIES = bin/BIOS.bin bin/BIOS.jblks.bin bin/kernel.bin bin/kernel.jblks.bin bin/CLI.bin
-MERGE = bin/BIOS.bin bin/BIOS.jblks.bin bin/kernel.bin bin/kernel.jblks.bin bin/CLI.bin
+BINARIES = bin/BIOS.bin bin/BIOS.jblks.bin bin/kernel.bin bin/kernel.jblks.bin bin/CLI.bin bin/romtrail.bin
+MERGE = bin/BIOS.bin bin/BIOS.jblks.bin bin/kernel.bin bin/kernel.jblks.bin bin/CLI.bin bin/romtrail.bin
 MKDIR = mkdir -p
 RED = \033[0;31m
 GREEN = \033[0;32m
@@ -14,10 +19,10 @@ MAGENTA = \033[0;35m
 CYAN = \033[0;36m
 WHITE = \033[0;37m
 
-BIOS_MAXSIZE = 832
-KERNEL_MAXSIZE = 1744
-CLI_MAXSIZE = 3136
-VERSION_ADDR = 2305
+BIOS_MAXSIZE = 1912
+KERNEL_MAXSIZE = 1672
+CLI_MAXSIZE = 3309
+VERSION_ADDR = 3824		# $0EF0
 
 YEAR = $(shell date +"%Y")
 MONTH = $(shell date +"%m")
@@ -49,6 +54,7 @@ all: clean $(TARGET)
 	$(eval BUILDNUM = $(shell echo $$(($(BUILDNUM) + 1))))
 	@echo "$(BUILDNUM)" > buildnum
 	@echo "$(BUILDDATE_NOW)" > builddate;
+	@grep -nir ToDo src/ > ToDo.txt
 
 directories:
 	@$(MKDIR) bin
@@ -89,13 +95,17 @@ bin/CLI.bin: src/CLI.asm
 	@$(ASM) $(ASMFLAGS) src/CLI.asm bin/CLI.bin lst/CLI.lst > /tmp/dastaZ80_compile.txt
 	@sed '6!d' /tmp/dastaZ80_compile.txt
 
+bin/romtrail.bin: src/romtrail.asm
+	@$(ASM) $(ASMFLAGS) src/romtrail.asm bin/romtrail.bin lst/romtrail.lst > /tmp/dastaZ80_compile.txt
+	@sed '6!d' /tmp/dastaZ80_compile.txt
+
 
 $(TARGET): bin/sysvars.bin $(BINARIES)
 	
 
 clean:
+	@echo "$(RED)In case of error, check $(CYAN)/tmp/dastaZ80_compile.txt$(WHITE)"
 	@echo "$(YELLOW)#### Cleaning project ####$(WHITE)"
 	@rm -f bin/*
 	@rm -f exp/*
 	@rm -f lst/*
-

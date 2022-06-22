@@ -7,33 +7,39 @@
 ;
 ; Version 1.0.0
 ; Created on 03 Jan 2018
-; Last Modification 03 Jan 2018
+; Last Modification 21 Jun 2022
 ;******************************************************************************
 ; CHANGELOG
 ; 	-
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
-; This file is part of dzOS
-; Copyright (C) 2017-2018 David Asta
-
-; dzOS is free software: you can redistribute it and/or modify
-; it under the terms of the GNU General Public License as published by
-; the Free Software Foundation, either version 3 of the License, or
-; (at your option) any later version.
-
-; dzOS is distributed in the hope that it will be useful,
-; but WITHOUT ANY WARRANTY; without even the implied warranty of
-; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-; GNU General Public License for more details.
-
-; You should have received a copy of the GNU General Public License
-; along with dzOS.  If not, see <http://www.gnu.org/licenses/>.
+; MIT License
+; 
+; Copyright (c) 2018-2022 David Asta
+; 
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+; 
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+; 
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
 ;==============================================================================
 ; Includes
 ;==============================================================================
-#include "src/includes/equates.inc"
+#include "src/equates.inc"
 #include "exp/BIOS.exp"
 #include "exp/kernel.exp"
 #include "exp/sysvars.exp"
@@ -48,10 +54,10 @@ LINESPERPAGE			.EQU	20		; 20 lines per page (for memdump)
 		.ORG	CLI_START
 cli_welcome:
 		ld		hl, msg_cli_version		; CLI start up message
-		call	F_KRN_WRSTR				; Output message
+		call	F_KRN_SERIAL_WRSTR				; Output message
 		; output 1 empty line
 		ld		b, 1
-		call 	F_KRN_EMPTYLINES
+		call 	F_KRN_SERIAL_EMPTYLINES
 
 		; Show Free available RAM
 ;		ld		hl, FREERAM_END
@@ -65,7 +71,7 @@ cli_welcome:
 cli_promptloop:
         call	F_CLI_CLRCLIBUFFS	    ; Clear buffers
 		ld	    hl, msg_prompt          ; Prompt
-		call	F_KRN_WRSTR             ; Output message
+		call	F_KRN_SERIAL_WRSTR             ; Output message
 		ld	    hl, buffer_cmd          ; address where commands are buffered
 
 		ld	    a, 0
@@ -80,7 +86,7 @@ F_CLI_READCMD:
 ; Parameters (identified by colon) are detected and stored in *parameters buffer*,
 ; meanwhile the command is store in *command buffer*.
 readcmd_loop:
-		call	F_KRN_RDCHARECHO		; read a character, with echo
+		call	F_KRN_SERIAL_RDCHARECHO		; read a character, with echo
 		cp		' '						; test for 1st parameter entered
 		jp		z, was_param
 		cp		','						; test for 2nd parameter entered
@@ -132,30 +138,22 @@ F_CLI_PARSECMD:
 		ld		a, (hl)
 		cp		00h						; just an ENTER?
 		jp		z, cli_promptloop		; show prompt again
-		;search command "ld" (list directory)
-		ld		de, _CMD_LD
+		;search command "cat" (disk catalogue)
+		ld		de, _CMD_CF_CAT
 		call	search_cmd				; was the command that we were searching?
-		jp		z, CLI_CMD_LD			; yes, then execute the command
-;		;search command "cd" (change directory)
-;		ld		de, _CMD_CD
-;		call	search_cmd				; was the command that we were searching?
-;		jp		z, CLI_CMD_CD			; yes, then execute the command
+		jp		z, CLI_CMD_CF_CAT		; yes, then execute the command
+		;search command "load" (load file)
+		ld		DE,_CMD_CF_LOAD
+		call	search_cmd				; was the command that we were searching?
+		jp		z, CLI_CMD_CF_LOAD		; yes, then execute the command
+		;search command "load" (load file)
+		ld		DE,_CMD_CF_DISKINFO
+		call	search_cmd				; was the command that we were searching?
+		jp		z, CLI_CMD_CF_DISKINFO	; yes, then execute the command
 		;search command "help"
 		ld		de, _CMD_HELP
 		call	search_cmd				; was the command that we were searching?
 		jp		z, CLI_CMD_HELP			; yes, then execute the command
-		;search command "load file to RAM"
-		ld		de, _CMD_LF
-		call	search_cmd				; was the command that we were searching?
-		jp		z, CLI_CMD_LF			; yes, then execute the command
-		;search command "show file contents"
-		ld		de, _CMD_SF
-		call	search_cmd				; was the command that we were searching?
-		jp		z, CLI_CMD_SF			; yes, then execute the command
-;		;search command "loadihex"
-;		ld		de, _CMD_LOADIHEX
-;		call	search_cmd				; was the command that we were searching?
-;		jp		z, CLI_CMD_LOADIHEX		; yes, then execute the command
 		;search command "run"
 		ld		de, _CMD_RUN
 		call	search_cmd				; was the command that we were searching?
@@ -168,6 +166,10 @@ F_CLI_PARSECMD:
 		ld		de, _CMD_POKE
 		call	search_cmd				; was the command that we were searching?
 		jp		z, CLI_CMD_POKE			; yes, then execute the command
+		;search command "autopoke"
+		ld		de, _CMD_AUTOPOKE
+		call	search_cmd				; was the command that we were searching?
+		jp		z, CLI_CMD_AUTOPOKE		; yes, then execute the command
 		;search command "memdump"
 		ld		de, _CMD_MEMDUMP
 		call	search_cmd				; was the command that we were searching?
@@ -176,9 +178,13 @@ F_CLI_PARSECMD:
 		ld		de, _CMD_RESET
 		call	search_cmd				; was the command that we were searching?
 		jp		z, F_BIOS_WBOOT			; yes, then execute the command
+		;search command "halt"
+		ld		de, _CMD_HALT
+		call	search_cmd				; was the command that we were searching?
+		jp		z, F_BIOS_SYSHALT		; yes, then execute the command
 no_match:	; unknown command entered
 		ld		hl, error_1001
-		call	F_KRN_WRSTR
+		call	F_KRN_SERIAL_WRSTR
 		jp		cli_promptloop
 ;------------------------------------------------------------------------------
 search_cmd:
@@ -221,7 +227,7 @@ check_param:
 		ret
 bad_params:
 		ld		hl, error_1002			; load bad parameters error text
-		call	F_KRN_WRSTR				; print it
+		call	F_KRN_SERIAL_WRSTR		; print it
 		ret
 ;------------------------------------------------------------------------------
 param1val_uppercase:
@@ -229,7 +235,7 @@ param1val_uppercase:
 		ld		hl, buffer_parm1_val - 1
 		jp		p1vup_loop
 param2val_uppercase:
-; converts buffer_parm1_val to uppercase
+; converts buffer_parm2_val to uppercase
 		ld		hl, buffer_parm2_val - 1
 p1vup_loop:
 		inc		hl
@@ -253,512 +259,31 @@ F_CLI_CLRCLIBUFFS:
 		ld	    de, buffer_cmd + 0fh    ; buffers are 15 bytes long
 		call	F_KRN_SETMEMRNG
 
-		ld	    hl, buffer_parm1
-		ld	    de, buffer_parm1 + 0fh	; buffers are 15 bytes long
-		call	F_KRN_SETMEMRNG
+		; ld	    hl, buffer_parm1
+		; ld	    de, buffer_parm1 + 0fh	; buffers are 15 bytes long
+		; call	F_KRN_SETMEMRNG
 
 		ld	    hl, buffer_parm1_val
 		ld	    de, buffer_parm1_val + 0fh   ; buffers are 15 bytes long
 		call	F_KRN_SETMEMRNG
 
-		ld	    hl, buffer_parm2
-		ld	    de, buffer_parm2 + 0fh	; buffers are 15 bytes long
-		call	F_KRN_SETMEMRNG
+		; ld	    hl, buffer_parm2
+		; ld	    de, buffer_parm2 + 0fh	; buffers are 15 bytes long
+		; call	F_KRN_SETMEMRNG
 
 		ld	    hl, buffer_parm2_val
 		ld	    de, buffer_parm2_val + 0fh	; buffers are 15 bytes long
 		call	F_KRN_SETMEMRNG
 		ret
 ;==============================================================================
-; Disk Routines
-;==============================================================================
-;------------------------------------------------------------------------------
-F_CLI_F16_READDIRENTRY:
-; Read a Directory Entry (32 bytes) from disk
-; There are 512 root entries. 32 bytes per entry, therefore 16 entries per sector, 
-;	therefore 32 sectors
-; IN <= cur_dir_start = Sector number current dir
-		ld		hl, (cur_dir_start)		; Sector number = current dir
-		ld		(cur_sector), hl		; backup Sector number
-load_sector:
-		ld		hl, (cur_sector)
-		call	F_KRN_F16_SEC2BUFFER	; load sector into RAM buffer
-
-		ld		ix, CF_BUFFER_START		; byte pointer within the 32 bytes group
-		ld		(buffer_pgm), ix		; byte pointer within the 32 bytes group
-loop_readentries:
-		; The first byte of the filename indicates its status:
-		; 0x00	No file
-		; 0xE5  Deleted file
-		; 0x05	The first character of the filename is actually 0xe5.
-		; 0x2E	The entry is for the dot entry (current directory)
-		;		If the second byte is also 0x2e, the entry is for the double dot entry (parent directory)
-		;				the cluster field contains the cluster number of this directory's parent directory.
-		;		If the parent directory is the root directory, cluster number 0x0000 is specified here.
-		; Any other character for first character of a real filename.
-		ld		ix, (buffer_pgm)		; byte pointer within the 32 bytes group
-		ld		a, (ix)					; load contents of pointed memory address
-		cp		0						; is it no file, therefore directory is empty?
-;		ret		z						; yes, exit routine
-		jp		z, nextsector			; yes, load next sector
-		cp		$E5						; no, is it a deleted file?
-		jp		z, nextentry			; yes, skip entry
-		
-		; if it's a Long File Name (LFN) entry, skip it
-		ld		a, (ix + $0b)			; read 0x0b (File attributes)
-		cp		0Fh						; is it Long File Name entry?
-		jp		z, nextentry			; yes, skip entry
-										; no, continue
-		; if it was no LFN, then 0x0b holds the File attributes
-		ld		(file_attributes), a	; store File attributes for later use
-		; 0x0b 	1 byte 		File attributes
-		;	Bit 0	0x01	Indicates that the file is read only.
-		;	Bit 1	0x02	Indicates a hidden file. Such files can be displayed if it is really required.
-		;	Bit 2	0x04	Indicates a system file. These are hidden as well.
-		;	Bit 3	0x08	Indicates a special entry containing the disk's volume label, instead of describing a file. This kind of entry appears only in the root directory.
-		;	Bit 4	0x10	The entry describes a subdirectory.
-		;	Bit 5	0x20	This is the archive flag. This can be set and cleared by the programmer or user, but is always set when the file is modified. It is used by backup programs.
-		;	Bit 6	Not used; must be set to 0.
-		; 	Bit 7	Not used; must be set to 0.
-		bit		3, a					; is it disk's volume label entry?
-		jp		nz, nextentry			; yes, skip entry
-		call	F_CLI_F16_PRNDIRENTRY
-		jp		nextentry
-nextentry:
-		ld		de, 32					; skip 32 bytes
-		ld		hl, (buffer_pgm)		; byte pointer within the 32 bytes group
-		add		hl, de					; HL = HL + 32
-		ld		(buffer_pgm), hl		; byte pointer within the 32 bytes group
-		jp		loop_readentries
-nextsector:
-		ld		hl, cur_sector
-		inc		(hl)
-		ld		a, 32
-		cp		(hl)
-		ret		z
-		jp		load_sector
-;------------------------------------------------------------------------------
-F_CLI_F16_PRNDIRENTRY:
-; Prints an entry for a directory entry
-; Filename, extension, first cluster, size
-;	IN <= buffer_pgm = first byte of the address where the entry is located
-;	OUT => default output (e.g. screen, I/O)
-;		ld		iy, (buffer_pgm)		; first byte of the address where the entry is located
-		; 0x00 	8 bytes 	File name
-		ld		hl, (buffer_pgm)		; byte pointer within the 32 bytes group
-		ld		b, 8					; counter = 8 bytes
-		call	F_KRN_PRN_BYTES
-		; 0x08 	3 bytes 	File extension
-		ld		a, '.'					; no, print the dot between 
-		call	F_BIOS_CONOUT			;    name and extension
-		ld		b, 3					; counter = 3 bytes
-		call	F_KRN_PRN_BYTES
-
-		; print 2 spaces to separate
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-
-		; 0x0b 	1 byte 		File attributes
-		; 0x0c 	1 bytes 	Reserved
-		; 0x0d	1 byte		Created time refinement in 10ms (0-199)
-		; 0x0e 	2 bytes 	Time created
-		; 0x10 	2 bytes 	Date created
-		; 0x12	2 bytes		Last access date
-		; 0x14	2 bytes		First cluster (high word)
-		; 0x16	2 bytes		Time modified
-		; 		<------- 0x17 --------> <------- 0x16 -------->
-		;		07 06 05 04 03 02 01 00 07 06 05 04 03 02 01 00
-		;		h  h  h  h  h  m  m  m  m  m  m  x  x  x  x  x
-		;	hhhhh = binary number of hours (0-23)
-		;	mmmmmm = binary number of minutes (0-59)
-		;	xxxxx = binary number of two-second periods (0-29), representing seconds 0 to 58.
-		; extract hour (hhhhh) from MSB 0x17
-		ld		iy, (buffer_pgm)		; IY = first byte of the address where the entry is located
-		ld		bc, 16h					; offset for Time modified
-		add		iy, bc					; IY += offset
- 		ld		e, (iy + 1)				; we are only interested in the MSB now
-		ld		d, 5					; we want to extract 5 bits
-		ld		a, 3					; starting at position bit 3
-		call	F_KRN_BITEXTRACT
-		ld		(buffer_pgm + 2), a		; store hour value in buffer_pgm for later
-		; extract minute part (mmm) from MSB 0x17
-		ld		e, (iy + 1)				; we are only interested in the MSB now
-		ld		d, 3					; we want to extract 3 bits
-		ld		a, 0					; starting at position bit 0
-		call	F_KRN_BITEXTRACT
-		ld		(buffer_pgm + 3), a		; store minute part value in buffer_pgm for later
-		ld		hl, buffer_pgm + 3		; get rid
-		sla		(hl)					;   of the
-		sla		(hl)					;   unwanted
-		sla		(hl)					;   bits
-		; extract minute part (mmm) from LSB 0x16
-		ld		e, (iy)					; we are only interested in the MSB now
-		ld		d, 3					; we want to extract 3 bits
-		ld		a, 5					; starting at position bit 5
-		call	F_KRN_BITEXTRACT
-		ld		b, a					; store minute part value in B for later
-		; combine both minutes parts
-		ld		a, (buffer_pgm + 3)
-		or		b
-		ld		(buffer_pgm + 3), a		; store minute value in buffer_pgm for later
-		; print hour and  ':' separator
-		ld		a, (buffer_pgm + 2)
-		ld		h, 0
-		ld		l, a
-		call	F_KRN_BIN2BCD6
-		ex		de, hl
-		ld		de, buffer_pgm + 4
-		call	F_KRN_BCD2ASCII
-		ld		iy, buffer_pgm + 4
-		ld		a, (iy + 4)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 5)
-		call	F_BIOS_CONOUT
-		ld		a, TIMESEP
- 		call	F_BIOS_CONOUT
-		; print minutes
-		ld		a, (buffer_pgm + 3)
-		ld		h, 0
-		ld		l, a
-		call	F_KRN_BIN2BCD6
-		ex		de, hl
-		ld		de, buffer_pgm + 4
-		call	F_KRN_BCD2ASCII
-		ld		iy, buffer_pgm + 4
-		ld		a, (iy + 4)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 5)
-		call	F_BIOS_CONOUT
-		; print 2 spaces to separate
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-		; 0x18	2 bytes		Date modified
-		;		<------- 0x19 --------> <------- 0x18 -------->
-		;		07 06 05 04 03 02 01 00 07 06 05 04 03 02 01 00
-		;		y  y  y  y  y  y  y  m  m  m  m  d  d  d  d  d
-		;	yyyyyyy = binary year offset from 1980 (0-119), representing the years 1980 to 2099
-		;	mmmm = binary month number (1-12)
-		; 	ddddd = indicates the binary day number (1-31)
-		; extract year (yyyyyyy) from MSB 0x19
-		ld		iy, (buffer_pgm)		; IY = first byte of the address where the entry is located
-		ld		bc, 18h					; offset for Date modified
-		add		iy, bc					; IY += offset
- 		ld		e, (iy + 1)				; we are only interested in the MSB now
- 		ld		d, 7					; we want to extract 7 bits
-		ld		a, 1					; starting at position bit 1
-		call	F_KRN_BITEXTRACT
- 		ld		(buffer_pgm + 2), a		; store year value in buffer_pgm for later
-
- 		; extract month part (mmm) from LSB 0x18
- 		ld		e, (iy)					; we are only interested in the LSB now
- 		ld		d, 3					; we want to extract 3 bits
- 		ld		a, 5					; starting at position bit 5
- 		call	F_KRN_BITEXTRACT
- 		ld		(buffer_pgm + 3), a		; store month part in buffer_pgm for later
- 		; extract month part (m) from MSB 0x19
- 		ld		e, (iy + 1)				; we are only interested in the MSB now
-		ld		d, 1					; we want to extract last bit
-		ld		a, 0					; starting at position bit 0
-		call	F_KRN_BITEXTRACT
- 		cp		1						; was the bit set?
-		jp		z, setit				; yes, then set the 3th bit on the extracted month part too
-		ld		hl, (buffer_pgm + 3) 
-		res		3, (hl)					; no, then reset the 3th bit on the extracted month part (mmm)
-		jp		extrday
-setit:
-		ld		hl, (buffer_pgm + 3) 
-		set		3, (hl)					; set the 3th bit on the extracted month part (mmm)
- 		; extract day (ddddd) from LSB 0x18
-extrday:	
- 		ld		e, (iy)					; we are only interested in the LSB now
- 		ld		d, 5					; we want to extract 5 bits
- 		ld		a, 0					; starting at position bit 0
- 		call	F_KRN_BITEXTRACT
- 		ld		(buffer_pgm + 4), a
- 		; print day and  '/' separator
-		ld		h, 0
-		ld		l, a
-		call	F_KRN_BIN2BCD6
-		ex		de, hl
-		ld		de, buffer_pgm + 5
-		call	F_KRN_BCD2ASCII
-		ld		iy, buffer_pgm + 5
-		ld		a, (iy + 4)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 5)
-		call	F_BIOS_CONOUT
-		ld		a, DATESEP
- 		call	F_BIOS_CONOUT
-		; print month and '/' separator
-		ld		a, (buffer_pgm + 3)
-		ld		h, 0
-		ld		l, a
-		call	F_KRN_BIN2BCD6
-		ex		de, hl
-		ld		de, buffer_pgm + 5
-		call	F_KRN_BCD2ASCII
-		ld		iy, buffer_pgm + 5
-		ld		a, (iy + 4)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 5)
-		call	F_BIOS_CONOUT
-		ld		a, DATESEP
- 		call	F_BIOS_CONOUT
-		; print year
-		ld		a, (buffer_pgm + 2)
-		ld		h, 0
-		ld		l, a
-		ld		bc, 1980				; year is the number of years since 1980
-		add		hl, bc
-		call	F_KRN_BIN2BCD6
-		ex		de, hl
-		ld		de, buffer_pgm + 5
-		call	F_KRN_BCD2ASCII
-		ld		iy, buffer_pgm + 5
-		ld		a, (iy + 2)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 3)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 4)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 5)
-		call	F_BIOS_CONOUT
-		; print 2 spaces to separate
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-
-		; 0x1a	2 bytes		First cluster (low word)
-		ld		iy, (buffer_pgm)		; IY = first byte of the address where the entry is located
-		ld		bc, 1ah					; offset for First cluster (low word)
-		add		iy, bc					; IY += offset
-		ld		h, (iy + 1)				; MSB
-		ld		l, (iy)					; LSB
-		call	F_KRN_PRN_WORD			; print it
-
-		; print 5 spaces to separate
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-		ld		a, SPACE
-		call	F_BIOS_CONOUT
-
-		; 0x1c 	4 bytes 	File size in bytes
-		; File size is 4 bytes, but in Z80 computers the max. addressable 
-		; memory is 2 bytes (FFFF = 65536 = 64 KB). Therefore we will only
-		; use 2 bytes as we don't expect files to be bigger than that
-		ld		a, (file_attributes)
-		bit		4, a					; Is it a subdirectory?
-		jp		nz, printdirlabel	; yes, print <DIR> instead of file size
-										; no, print file size
-		; file size is in Hexadecimal
-		ld		iy, (buffer_pgm)		; IY = first byte of the address where the entry is located
-		ld		bc, 1ch					; offset for First cluster (low word)
-		add		iy, bc					; IY += offset
-		ld		e, (iy)					; D = MSB
-		ld		d, (iy + 1)				; E = LSB
-		ex		de, hl					; H = 1st byte (LSB), L = 2nd byte (LSB)
-		call	F_KRN_BIN2BCD6
-		ex		de, hl					; HL = converted 6-digit BCD
-		ld		de, buffer_pgm + 2		; where the numbers in ASCII will be stored
-		call	F_KRN_BCD2ASCII
-		; Print each of the 6 digits
-		ld		iy, buffer_pgm + 2
-		ld		a, (iy + 0)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 1)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 2)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 3)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 4)
-		call	F_BIOS_CONOUT
-		ld		a, (iy + 5)
-		call	F_BIOS_CONOUT
-		jp		printdirend			; nothing else to do for this entry
-printdirlabel:
-		; skip the 4 bytes of file size that were not read
-		ld		hl, msg_dirlabel
-		call	F_KRN_WRSTR
-printdirend:
-		ld		b, 1
-		call 	F_KRN_EMPTYLINES
-		ret
-;==============================================================================
 ; CLI available Commands
 ;==============================================================================
-;------------------------------------------------------------------------------
-;	lf - Load a file into RAM
-;------------------------------------------------------------------------------
-; First 16 bytes are the header and are not loaded into RAM
-		;	4 bytes must be string dzOS
-		;	next bytes for load address (where to load the bytes)
-		; Rest of the bytes are the executable code, which is loaded at load address
-CLI_CMD_LF:
-		call	check_param1
-		jp		nz, loadfile			; param1 specified? Yes, do the command
-		ret								; no, exit routine
-loadfile:
-		call	param1val_uppercase
-		ld		de, (buffer_parm1_val)
-		; parm1 is in ascii, we need to convert the values to hex
-		ld		a, (buffer_parm1_val)
-		ld		h, a
-		ld		a, (buffer_parm1_val + 1)
-		ld		l, a
-		call	F_KRN_ASCII2HEX
-		ld		d, a
-		ld		a, (buffer_parm1_val + 2)
-		ld		h, a
-		ld		a, (buffer_parm1_val + 3)
-		ld		l, a
-		call	F_KRN_ASCII2HEX
-		ld		e, a
-	; DE contains the binary value for param1
-	; >>>> ToDO - What if user entered wrong cluster? <<<<
-		call	F_KRN_F16_LOADEXE2RAM
-		jp		z, lfend				; did LOADEXE2RAM return an error? Yes, exit routine
-		ld		hl, msg_exeloaded		; no, print load message
-		call	F_KRN_WRSTR
-		ex		de, hl					; HL = load address (returned by F_KRN_F16_LOADEXE2RAM)
-		call	F_KRN_PRN_WORD			; print load address
-lfend:
-		ret
-;------------------------------------------------------------------------------
-;	sf - Show the contents of a file
-;------------------------------------------------------------------------------
-CLI_CMD_SF:
-		call	check_param1
-		jp		nz, showfile			; param1 specified? Yes, do the command
-		ret								; no, exit routine
-showfile:
-		call	param1val_uppercase
-		ld		de, (buffer_parm1_val)
-		; parm1 is in ascii, we need to convert the values to hex
-		ld		a, (buffer_parm1_val)
-		ld		h, a
-		ld		a, (buffer_parm1_val + 1)
-		ld		l, a
-		call	F_KRN_ASCII2HEX
-		ld		d, a
-		ld		a, (buffer_parm1_val + 2)
-		ld		h, a
-		ld		a, (buffer_parm1_val + 3)
-		ld		l, a
-		call	F_KRN_ASCII2HEX
-		ld		e, a
-	; DE contains the binary value for param1
-	; >>>> ToDO - What if user entered wrong cluster? <<<<
-
-		; for current cluster
-		;	convert it to sector
-		;	read each sector of the cluster
-		;	print the 512 bytes to the screen
-		ex		de, hl					; move from DE to HL (HL = param1)
-		push	hl						; backup HL. param1 (cluster number)
-		call	F_KRN_F16_CLUS2SEC		; convert cluster number to sector number
-		call	F_KRN_F16_SEC2BUFFER	; load sector to buffer
-		; read FAT (into buffer_pgm) to know which are the clusters of the file
-		pop		hl						; restore HL. param1 (cluster number)
-		push	hl						; backup HL. param1 (cluster number)
-		call	F_KRN_F16_GETFATCLUS	; read clusters from FAT into sysvars.buffer_pgm
-		pop		hl						; restore HL. param1 (cluster number)
-		ld		b, 1
-		call 	F_KRN_EMPTYLINES
-		ld		a, (secs_per_clus)
-		push	af						; backup A. secs_per_clus
-		ex		de, hl					; DE = param1 (cluster number)
-getclussec:
-		call	F_KRN_F16_CLUS2SEC		; get the sector number of the cluster
-loadandprintsec:
-		push	hl						; backup HL. sector number
-		call	F_KRN_F16_SEC2BUFFER	; load sector to buffer
-
-		; print entire sector on screen
-		ld		hl, CF_BUFFER_START
-		; print first 256 bytes of the sector on screen
-		ld		b, 0
-		call	F_KRN_PRN_BYTES
-		jp		z, sfendpop				; was last character null? Yes, exit routine
-		; no, print remaining 256 bytes of the sector on screen
-		ld		b, 0
-		call	F_KRN_PRN_BYTES
-
-		pop		hl						; restore HL. sector number
-		pop		af						; restore A. secs_per_clus
-		dec		a						; 1 sector printed
-		cp		0						; all sectors of the cluster printed?
-		jp		z, nextclus				; yes, load next cluster
-		inc		hl						; no, print next sector of the cluster
-		push	af						; backup A. secs_per_clus
-		jp		loadandprintsec
-
-		; rest of clusters
-		; 	for each cluster in sysvars.buffer_pgm until cluster == FFFF
-		; 		convert it into sectors
-		;		print each byte of sector
-		; 	load sectors and print contents
-
-nextclus:
-		ld		ix, buffer_pgm			; pointer to cluster counter in sysvars.buffer_pgm
-		ld		a, (ix)					; how many cluster to print
-		add		a, a					; each cluster is 2 bytes, so duplicate the counter
-		cp		(ix + 1)				; all cluster printed?
-		jp		z, sfend				; yes, exit routine
-		ld		b, 0					; no continue
-		ld		c, (ix + 1)				; BC = counter of printed clusters
-		inc		bc						; counter + 1
-		ld		hl, buffer_pgm			; pointer to cluster counter in sysvars.buffer_pgm
-		add		hl, bc					; pointer to cluster counter + counter of printed clusters
-		ld		a, (hl)					; load LSB byte of cluster number
-		cp		$FF						; if A = FF, then this was last cluster
-		jp		z, sfend				; yes, exit routine
-										; no, continue
-		ld		e, (hl)					; DE = LSB first cluster in sysvars.buffer_pgm
-		inc		hl
-		ld		d, (hl)					; DE = MSB first cluster in sysvars.buffer_pgm
-		inc		(ix + 1)				; each cluster is 2 bytes
-		inc		(ix + 1)				; 	counter of printed clusters + 2
-		jp		getclussec				; print entire cluster (all sectors)
-sfendpop:
-		pop		hl
-		pop		af
-sfend:
-		ret
-;------------------------------------------------------------------------------
-;	cd - Changes current directory of a disk
-;------------------------------------------------------------------------------
-;CLI_CMD_CD:
-;		call	check_param1
-;		jp		z, cdend				; param1 specified?
-;		call	F_KRN_F16_CHGDIR		; yes, change current directory
-;cdend:
-;		ret								; no, exit routine
-;------------------------------------------------------------------------------
-;	ld - Prints the list of the current directory of a disk
-;------------------------------------------------------------------------------
-CLI_CMD_LD:
-		ld		hl, msg_cf_ld			; print directory list header
-		call	F_KRN_WRSTR
-		call	F_CLI_F16_READDIRENTRY	; print contents of current directory
-		ret
 ;------------------------------------------------------------------------------
 ;	help - Show list of available commands
 ;------------------------------------------------------------------------------
 CLI_CMD_HELP:
 		ld		hl, msg_help
-		call	F_KRN_WRSTR
+		call	F_KRN_SERIAL_WRSTR
 		ret
 ;------------------------------------------------------------------------------
 ;	peek - Prints the value of a single memory address
@@ -773,81 +298,110 @@ CLI_CMD_PEEK:
 peek:
 		call	param1val_uppercase
 ;		ld		hl, empty_line			; print an empty line
-;		call	F_KRN_WRSTR
+;		call	F_KRN_SERIAL_WRSTR
 		ld		b, 1
-		call 	F_KRN_EMPTYLINES
+		call 	F_KRN_SERIAL_EMPTYLINES
 	; buffer_parm1_val has the value in hexadecimal
 	; we need to convert it to binary
 		ld		a, (buffer_parm1_val)
 		ld		h, a
 		ld		a, (buffer_parm1_val + 1)
 		ld		l, a
-		call	F_KRN_ASCII2HEX
+		call	F_KRN_ASCII_TO_HEX
 		ld		d, a
 		ld		a, (buffer_parm1_val + 2)
 		ld		h, a
 		ld		a, (buffer_parm1_val + 3)
 		ld		l, a
-		call	F_KRN_ASCII2HEX
+		call	F_KRN_ASCII_TO_HEX
 		ld		e, a
 	; DE contains the binary value for param1
 		ex		de, hl					; move from DE to HL (param1)
 		ld		a, (hl)					; load value at address of param1
-		call	F_KRN_PRN_BYTE			; Prints byte in hexadecimal notation
+		call	F_KRN_SERIAL_PRN_BYTE	; Prints byte in hexadecimal notation
 		ret
 ;------------------------------------------------------------------------------
-;	poke - Changes a single memory address to a specified value
+;	poke - calls poke subroutine that changes a single memory address 
+;          to a specified value
 ;------------------------------------------------------------------------------
 CLI_CMD_POKE:
-;	IN <= 	buffer_parm1_val = address
-; 			buffer_parm2_val = value
+;	IN <= 	buffer_parm1_val = memory address
+; 			buffer_parm2_val = specified value
 ;	OUT => print message 'OK' to default output (e.g. screen, I/O)
 	; Check if both parameters were specified
 		call	check_param1
 		ret		z						; param1 specified? No, exit routine
 		call	check_param2			; yes, check param2
-		jp		nz, poke				; param2 specified? Yes, do the poke
-		ret								; no, exit routine
-poke:
+		; jp		nz, poke				; param2 specified? Yes, do the poke
+		; ret								; no, exit routine
+		ret		z						; param2 specified? No, exit routine
+		; yes, change the value
 		call	param1val_uppercase
 		call	param2val_uppercase
-		; convert param2 to uppercase and store in HL
-		ld		hl, (buffer_parm2_val)
-		ld		a, h
-		call	F_KRN_TOUPPER
-		ld		b, a
-		ld		a, l
-		call	F_KRN_TOUPPER
-		ld		l, b
-		ld		h, a
-		call	F_KRN_ASCII2HEX			; Hex ASCII to Binary conversion
-	; buffer_parm1_val have the address in hexadecimal
-	; we need to convert it to binary
-		ld		a, (buffer_parm1_val)
-		ld		h, a
-		ld		a, (buffer_parm1_val + 1)
-		ld		l, a
-		call	F_KRN_ASCII2HEX
-		ld		d, a
-		ld		a, (buffer_parm1_val + 2)
-		ld		h, a
-		ld		a, (buffer_parm1_val + 3)
-		ld		l, a
-		call	F_KRN_ASCII2HEX
-		ld		e, a					; DE contains the binary value for param1
-	; buffer_parm2_val have the value in hexadecimal
-	; we need to convert it to binary
+		call	F_KRN_ASCII_TO_HEX		; Hex ASCII to Binary conversion
+		; buffer_parm1_val have the address in hexadecimal ASCII
+		; we need to convert its hexadecimal value (e.g. 33 => 03)
+		ld		IX, buffer_parm1_val
+		call	F_KRN_ASCIIADR_TO_HEX
+		push	HL						; Backup HL
+		; buffer_parm2_val have the value in hexadecimal ASCII
+		; we need to convert its hexadecimal value (e.g. 33 => 03)
 		ld		a, (buffer_parm2_val)
 		ld		h, a
 		ld		a, (buffer_parm2_val + 1)
 		ld		l, a
-		call	F_KRN_ASCII2HEX			; A contains the binary value for param2
-		ex		de, hl					; move from DE to HL
-		ld		(hl), a					; store value in address
-	; print OK, to let the user know that the command was successful
+		call	F_KRN_ASCII_TO_HEX		; A contains the binary value for param2
+		pop		HL						; Restore HL
+		ld		(hl), a					; Store value in address
+		; print OK, to let the user know that the command was successful
 		ld		hl, msg_ok
-		call	F_KRN_WRSTR
+		call	F_KRN_SERIAL_WRSTR
 		ret
+
+;------------------------------------------------------------------------------
+;	autopoke - Allows to enter hexadecimal values that will be stored at the
+;              address in parm1 and consecutive positions.
+;              The address is incremented automatically after each hexadecimal 
+;              value is entered. 
+;              Entering no value (i.e. just press ENTER) will stop the process.
+;------------------------------------------------------------------------------
+CLI_CMD_AUTOPOKE:
+;	IN <= 	buffer_parm1_val = Start address
+		call	check_param1
+		ret		z						; param1 specified? No, exit routine
+		; yes, convert address from ASCII to its hex value
+		ld		IX, buffer_parm1_val
+		call	F_KRN_ASCIIADR_TO_HEX
+		; Use IX as pointer to memory address where the values entered by
+		; the user will be stored. It's incremented after each value is entered
+		ld		(tmp_addr1), HL
+		ld		IX, (tmp_addr1)
+autopoke_loop:
+		; show a dollar symbol to indicate the user that can enter an hexadecimal
+		ld	    hl, msg_prompt_hex      ; Prompt
+		call	F_KRN_SERIAL_WRSTR      ; Output message
+		; read 1st character
+		call	F_KRN_SERIAL_RDCHARECHO	; read a character, with echo
+		cp		CR						; test for 1st parameter entered
+		jp		z, end_autopoke			; if it's CR, exit subroutine
+		call	F_KRN_TOUPPER
+		ld		H, A					; H = value's 1st digit
+		; read 2nd character
+		call	F_KRN_SERIAL_RDCHARECHO	; read a character, with echo
+		cp		CR						; test for 1st parameter entered
+		jp		z, end_autopoke				; if it's CR, exit subroutine
+		call	F_KRN_TOUPPER
+		ld		L, A					; L = value's 2nd digit
+		; convert HL from ASCII to hex
+		call	F_KRN_ASCII_TO_HEX		; A = HL in hex
+		; Do the poke (i.e. store specified value at memory address)
+		ld		(IX), A
+		; Increment memory address pointer and loop back to get next value
+		inc		IX
+		jp		autopoke_loop
+end_autopoke:
+		ret		
+
 ;------------------------------------------------------------------------------
 ;	memdump - Shows memory contents of an specified section of memory
 ;------------------------------------------------------------------------------
@@ -865,20 +419,20 @@ CLI_CMD_MEMDUMP:
 memdump:
 		; print header
 		ld		hl, msg_memdump_hdr
-		call	F_KRN_WRSTR
+		call	F_KRN_SERIAL_WRSTR
 	; buffer_parm2_val have the value in hexadecimal
 	; we need to convert it to binary
 		ld		a, (buffer_parm2_val)
 		ld		h, a
 		ld		a, (buffer_parm2_val + 1)
 		ld		l, a
-		call	F_KRN_ASCII2HEX
+		call	F_KRN_ASCII_TO_HEX
 		ld		d, a
 		ld		a, (buffer_parm2_val + 2)
 		ld		h, a
 		ld		a, (buffer_parm2_val + 3)
 		ld		l, a
-		call	F_KRN_ASCII2HEX
+		call	F_KRN_ASCII_TO_HEX
 		ld		e, a
 	; DE contains the binary value for param2
 		push	de						; store in the stack
@@ -888,13 +442,13 @@ memdump:
 		ld		h, a
 		ld		a, (buffer_parm1_val + 1)
 		ld		l, a
-		call	F_KRN_ASCII2HEX
+		call	F_KRN_ASCII_TO_HEX
 		ld		d, a
 		ld		a, (buffer_parm1_val + 2)
 		ld		h, a
 		ld		a, (buffer_parm1_val + 3)
 		ld		l, a
-		call	F_KRN_ASCII2HEX
+		call	F_KRN_ASCII_TO_HEX
 		ld		e, a
 	; DE contains the binary value for param1
 		ex		de, hl					; move from DE to HL (HL=param1)
@@ -904,35 +458,35 @@ start_dump_line:
 dump_line:
 		push	hl
 		ld		a, CR
-		call	F_BIOS_CONOUT
+		call	F_BIOS_SERIAL_CONOUT_A
 		ld		a, LF
-		call	F_BIOS_CONOUT
-		call	F_KRN_PRN_WORD
+		call	F_BIOS_SERIAL_CONOUT_A
+		call	F_KRN_SERIAL_PRN_WORD
 		ld		a, ':'					; semicolon separates mem address from data
-		call	F_BIOS_CONOUT
+		call	F_BIOS_SERIAL_CONOUT_A
 		ld		a, ' '					; and an extra space to separate
-		call	F_BIOS_CONOUT
+		call	F_BIOS_SERIAL_CONOUT_A
 		ld		b, 10h					; we will output 16 bytes in each line
 dump_loop:
 		ld		a, (hl)
-		call	F_KRN_PRN_BYTE
+		call	F_KRN_SERIAL_PRN_BYTE
 		ld		a, ' '
-		call	F_BIOS_CONOUT
+		call	F_BIOS_SERIAL_CONOUT_A
 		inc		hl
 		djnz	dump_loop
 		; dump ASCII characters
 		pop		hl
 		ld		b, 10h					; we will output 16 bytes in each line
 		ld		a, ' '
-		call	F_BIOS_CONOUT
-		call	F_BIOS_CONOUT
+		call	F_BIOS_SERIAL_CONOUT_A
+		call	F_BIOS_SERIAL_CONOUT_A
 ascii_loop:
 		ld		a, (hl)
 		call	F_KRN_PRINTABLE			; is it an ASCII printable character?
 		jr		c, printable
 		ld		a, '.'					; if is not, print a dot
 printable:
-		call	F_BIOS_CONOUT
+		call	F_BIOS_SERIAL_CONOUT_A
 		inc		hl
 		djnz	ascii_loop
 
@@ -949,8 +503,8 @@ dump_next:
 askmoreorquit:
 		push	hl						; backup HL
 		ld		hl, msg_moreorquit
-		call	F_KRN_WRSTR
-		call	F_BIOS_CONIN			; read key
+		call	F_KRN_SERIAL_WRSTR
+		call	F_BIOS_SERIAL_CONIN_A	; read key
 		cp		SPACE					; was the SPACE key?
 		jp		z, wantsmore			; user wants more
 		pop		hl						; yes, user wants more. Restore HL
@@ -958,7 +512,7 @@ askmoreorquit:
 wantsmore:
 		; print header
 		ld		hl, msg_memdump_hdr
-		call	F_KRN_WRSTR
+		call	F_KRN_SERIAL_WRSTR
 		pop		hl						; restore HL
 		jp		start_dump_line			; return to start, so we print 23 more lines
 
@@ -979,17 +533,372 @@ runner:
 		ld		h, a
 		ld		a, (buffer_parm1_val + 1)
 		ld		l, a
-		call	F_KRN_ASCII2HEX
+		call	F_KRN_ASCII_TO_HEX
 		ld		d, a
 		ld		a, (buffer_parm1_val + 2)
 		ld		h, a
 		ld		a, (buffer_parm1_val + 3)
 		ld		l, a
-		call	F_KRN_ASCII2HEX
+		call	F_KRN_ASCII_TO_HEX
 		ld		e, a
 	; DE contains the binary value for param1
 		ex		de, hl					; move from DE to HL (param1)
 		jp		(hl)					; jump execution to address in HL
+		ret
+;------------------------------------------------------------------------------
+; 	cat - Shows disk catalogue
+;------------------------------------------------------------------------------
+CLI_CMD_CF_CAT:
+		; print header
+		ld		HL, msg_cf_cat_title
+		call	F_KRN_SERIAL_WRSTR
+		ld		HL, msg_cf_cat_sep
+		call	F_KRN_SERIAL_WRSTR
+		ld		HL, msg_cf_cat_detail
+		call	F_KRN_SERIAL_WRSTR
+		ld		HL, msg_cf_cat_sep
+		call	F_KRN_SERIAL_WRSTR
+		; print catalogue
+		call	F_CLI_CF_PRINT_DISKCAT
+		ret
+;------------------------------------------------------------------------------
+; 	load - Load filename from disk to RAM
+;------------------------------------------------------------------------------
+CLI_CMD_CF_LOAD:
+; IN <= buffer_parm1_val = Filename
+; OUT => OK message on default output (e.g. screen, I/O)
+		; Check parameter was specified
+		call	check_param1
+		ret		z								; param1 specified? No, exit routine
+		ld		HL, buffer_parm1_val
+		call	F_KRN_DZFS_GET_FILE_BATENTRY	; Yes, search filename in BAT
+		; Was the filename found?
+		ld		A, (tmp_addr3)
+		cp		$AB
+		jp		z, load_filename_not_found		; No, show error message
+		ld		A, (tmp_addr3 + 1)
+		cp		$BA
+		jp		z, load_filename_not_found		; No, show error message
+		; yes, continue
+		ld		HL, (cur_file_load_addr)		; Load file into SYSVARS.cur_file_load_addr
+		ld		DE, (cur_file_1st_sector)
+		ld		IX, (cur_file_size_sectors)
+		call	F_KRN_DZFS_LOAD_FILE_TO_RAM
+		; show success message
+		ld		HL, msg_cf_file_loaded
+		call	F_KRN_SERIAL_WRSTR
+		; Show SYSVARS.cur_file_load_addr
+		ld		HL, (cur_file_load_addr)
+		call	F_KRN_SERIAL_PRN_WORD
+		ld		B, 1
+		call	F_KRN_SERIAL_EMPTYLINES
+		ret
+load_filename_not_found:
+		ld		HL, error_1003
+		call	F_KRN_SERIAL_WRSTR
+		ret
+;------------------------------------------------------------------------------
+; 	diskinfo - Show CF information
+;------------------------------------------------------------------------------
+CLI_CMD_CF_DISKINFO:
+; Info is stored in Words (2 bytes) and Double Words (4 bytes)
+; Words are little-endian. For Double Words, 1st Word is the MSW in little endian
+		call 	F_BIOS_CF_DISKINFO
+		ld		HL, msg_cf_info
+		call	F_KRN_SERIAL_WRSTR
+		; Word 1: Number of cylinders
+		ld		HL, msg_cf_info_numcyls
+		call	F_KRN_SERIAL_WRSTR
+		ld		HL, (CF_BUFFER_START + 2)	; offset for word 1
+		call	F_KRN_BIN_TO_BCD6				; DE = HL in decimal
+		ex		DE, HL
+		call	F_KRN_SERIAL_PRN_WORD
+		ld		B, 1
+		call	F_KRN_SERIAL_EMPTYLINES
+		; Word 3: Number of heads
+		ld		HL, msg_cf_info_numheads
+		call	F_KRN_SERIAL_WRSTR
+		ld		HL, (CF_BUFFER_START + 6)	; offset for word 3
+		call	F_KRN_BIN_TO_BCD6				; DE = HL in decimal
+		ex		DE, HL
+		call	F_KRN_SERIAL_PRN_WORD
+		ld		B, 1
+		call	F_KRN_SERIAL_EMPTYLINES
+		; Word 6: Number of sectors per track
+		ld		HL, msg_cf_info_secpertrk
+		call	F_KRN_SERIAL_WRSTR
+		ld		HL, (CF_BUFFER_START + 12)	; offset for word 3
+		call	F_KRN_BIN_TO_BCD6				; DE = HL in decimal
+		ex		DE, HL
+		call	F_KRN_SERIAL_PRN_WORD
+		ld		B, 1
+		call	F_KRN_SERIAL_EMPTYLINES
+		; Words 10-19: Serial number (20 ASCII)
+		ld		HL, msg_cf_info_sernum
+		call	F_KRN_SERIAL_WRSTR
+		ld		B, 20
+		ld		HL, CF_BUFFER_START + 20
+		call	F_KRN_SERIAL_PRN_BYTES
+		ld		B, 1
+		call	F_KRN_SERIAL_EMPTYLINES
+		; Words 23-26: Firmware revision (8 ASCII)
+		ld		HL, msg_cf_info_firmw_rev
+		call	F_KRN_SERIAL_WRSTR
+		ld		B, 8
+		ld		HL, CF_BUFFER_START + 46
+		call	F_KRN_SERIAL_PRN_BYTES
+		ld		B, 1
+		call	F_KRN_SERIAL_EMPTYLINES
+		; Words 27-46: Model number (40 ASCII)
+		ld		HL, msg_cf_info_model
+		call	F_KRN_SERIAL_WRSTR
+		ld		B, 40
+		ld		HL, CF_BUFFER_START + 54
+		call	F_KRN_SERIAL_PRN_BYTES
+		ld		B, 1
+		call	F_KRN_SERIAL_EMPTYLINES
+		; Words 23-26: Firmware revision (8 ASCII)
+		; Words 27-46: Model number (40 ASCII)
+		; Words 49: Capabilities (bit 9 = LBA Supported)
+		; Words 51: PIO data transfer cycle timing mode
+		; Words 54: Number of current cylinders
+		; Words 55: Number of current heads
+		; Words 56: Number of current sectors per track
+		; Words 57-58: Current capacity in sectors
+		; Words 60-61: Total number of user addressable sectors (LBA mode only)
+		ret
+;==============================================================================
+; Disk Routines
+;==============================================================================
+;------------------------------------------------------------------------------
+F_CLI_CF_PRINT_DISKCAT:
+; Prints the contents (catalogue) of the CompactFlash Disk
+; All entries in the BAT are consecutive. When a new file is stored, it will be 
+; stored in the next available (first character = $00=available, or $FF=deleted).
+; Hence, once we can read the BAT, and once we find the first entry with $00, we
+; know there are no more entries. The maximum number of entries is 1744
+		ld      A, 1						; BAT starts at sector 1
+        ld      (cur_sector), A
+        ld      A, 0
+        ld      (cur_sector + 1), A
+diskcat_nextsector:
+		call	F_KRN_DZFS_READ_BAT_SECTOR
+		; As we read in groups of 512 bytes (Sector), 
+		; each read will put 16 entries in the buffer.
+		; We need to read a maxmimum of 1024 entries (i.e BAT max entries),
+		; therefore 64 sectors.
+		ld		A, 0						; entry counter
+diskcat_print:
+		push 	AF
+		call	F_KRN_DZFS_BATENTRY2BUFFER
+
+		; Check if the file should be displayed
+		; i.e. first character is not 7E (deleted)
+		;      and attribute bit 1 (hidden) is not 1
+		; If first character is 00, then there aren't more entries.
+		ld		A, (cur_file_name)
+		cp		$7E							; File is deleted?
+		jp		z, diskcat_nextentry		; Yes, skip it
+		cp		$00							; Available entry? (i.e. no file)
+		jp		z, diskcat_end				; Yes, no more entries then
+		ld		A, (cur_file_attribs)
+		and		2							; File is hidden?
+		jp		nz,	diskcat_nextentry		; Yes, skip it
+
+		; Print entry data
+		; Filename
+		ld		B, 14
+		ld		HL, cur_file_name
+		call	F_KRN_SERIAL_PRN_BYTES
+		call	print_a_space
+		call	print_a_space
+
+		; Date created
+; TODO - Need to convert into DD-MM-YYYY
+		ld		A, 'D'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'D'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, '-'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'M'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'M'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, '-'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'Y'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'Y'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'Y'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'Y'
+		call	F_BIOS_SERIAL_CONOUT_A
+		call	print_a_space
+		call	print_a_space
+		; Time created
+; TODO - Need to convert into hh:mm:ss		
+		; call	F_KRN_TRANSLT_TIME
+		ld		A, 'H'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'H'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, ':'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'M'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'M'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, ':'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'S'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'S'
+		call	F_BIOS_SERIAL_CONOUT_A
+		call	print_a_space
+		call	print_a_space
+		; Date last modif.
+; TODO - Need to convert into DD-MM-YYYY
+		ld		A, 'D'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'D'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, '-'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'M'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'M'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, '-'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'Y'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'Y'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'Y'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'Y'
+		call	F_BIOS_SERIAL_CONOUT_A
+		call	print_a_space
+		call	print_a_space
+		; Time last modif.
+; TODO - Need to convert into hh:mm:ss
+		ld		A, 'H'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'H'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, ':'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'M'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'M'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, ':'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'S'
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, 'S'
+		call	F_BIOS_SERIAL_CONOUT_A
+		call	print_a_space
+		call	print_a_space
+		; Size
+		ld		IY, cur_file_size_bytes
+		ld		E, (IY)						; E = MSB
+		ld		D, (IY + 1)					; D = LSB
+		ex		DE, HL						; H = 1st byte (LSB), L = 2nd byte (LSB)
+		call	F_KRN_BIN_TO_BCD6
+		ex		DE, HL						; HL = converted 6-digit BCD
+		ld		DE, buffer_pgm				; where the numbers in ASCII will be stored
+		call	F_KRN_BCD_TO_ASCII
+		; Print each of the 6 digits
+		ld		IY, buffer_pgm
+		ld		A, (IY + 0)
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, (IY + 1)
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, (IY + 2)
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, (IY + 3)
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, (IY + 4)
+		call	F_BIOS_SERIAL_CONOUT_A
+		ld		A, (IY + 5)
+		call	F_BIOS_SERIAL_CONOUT_A
+		call	print_a_space
+		call	print_a_space
+		call	print_a_space
+		; Attributes (RHSE, R=Read Only, H=Hidden, S=System, E=Executable)
+		call	F_CLI_CF_PRINT_ATTRBS
+		
+		; Add CR + LF
+		ld		B, 1
+		call	F_KRN_SERIAL_EMPTYLINES
+diskcat_nextentry:
+		pop		AF
+		inc		A							; next entry
+		cp		16							; did we process the 16 entries?
+		jp		nz, diskcat_print			; No, process next entry
+		; More entries in other sectors?
+		ld		A, (cur_sector)
+		inc		A							; increment sector counter
+		ld		(cur_sector), A				; Did we process
+		cp		64							;    64 sectors already?
+; TODO - Change this 64, to be read from Superblock's Sectors per Block
+		jp		nz, diskcat_nextsector		; No, then process next sector
+		jp		diskcat_end_nopop
+diskcat_end:
+		pop     AF							; needed because previous push AF	
+diskcat_end_nopop:
+		ret									; Yes, then nothing else to do
+;------------------------------------------------------------------------------
+F_CLI_CF_PRINT_ATTRBS:
+; Prints a string with letters (R=Read Only, H=Hidden, S=System, E=Executable)
+; if file attribute is ON, or space if it's OFF
+		ld		A, (cur_file_attribs)
+		push	AF
+		and		1							; Read Only?
+		jp		nz, cf_attrb_is_ro			; No, print a space
+		call	print_a_space
+		jp		cf_attrib_hidden
+cf_attrb_is_ro:								; Yes, print a dot
+		ld		A, 'R'
+		call	F_BIOS_SERIAL_CONOUT_A
+cf_attrib_hidden:
+		pop		AF
+		push	AF
+		and		2							; Hidden?
+		jp		nz, cf_attrb_is_hidden		; No, print a space
+		call	print_a_space
+		jp		cf_attrib_system
+cf_attrb_is_hidden:							; Yes, print a dot
+		ld		A, 'H'
+		call	F_BIOS_SERIAL_CONOUT_A
+cf_attrib_system:
+		pop		AF
+		push	AF
+		and		4							; System?
+		jp		nz, cf_attrb_is_system		; No, print a space
+		call	print_a_space
+		jp		cf_attrib_executable
+cf_attrb_is_system:							; Yes, print a dot
+		ld		A, 'S'
+		call	F_BIOS_SERIAL_CONOUT_A
+cf_attrib_executable:
+		pop		AF
+		and		8							; Executable?
+		jp		nz, cf_attrb_is_exec		; No, print a space
+		call	print_a_space
+		jp		print_attribs_end
+cf_attrb_is_exec:							; Yes, print a dot
+		ld		A, 'E'
+		call	F_BIOS_SERIAL_CONOUT_A
+print_attribs_end:
+		ret
+
+print_a_space:
+		ld		A, ' '
+		call	F_BIOS_SERIAL_CONOUT_A
 		ret
 ;==============================================================================
 ; Messages
@@ -1002,6 +911,9 @@ msg_bytesfree:
 msg_prompt:
 		.BYTE	CR, LF
 		.BYTE	"> ", 0
+msg_prompt_hex:
+		.BYTE	CR, LF
+		.BYTE	"$ ", 0
 msg_ok:
 		.BYTE	CR, LF
 		.BYTE	"OK", 0
@@ -1015,24 +927,17 @@ msg_help:
 		.BYTE	"| Command     | Description                       | Usage              |", CR, LF
 		.BYTE	"|-------------|-----------------------------------|--------------------|", CR, LF
 		.BYTE	"| help        | Shows this help                   | help               |", CR, LF
-;		.BYTE	"| loadihex    | Load Intel HEX file               | loadihex 2600      |", CR, LF
 		.BYTE	"| memdump     | Memory Dump                       | memdump 0000,0100  |", CR, LF
 		.BYTE	"| peek        | Show a Memory Address value       | peek 20cf          |", CR, LF
 		.BYTE	"| poke        | Change a Memory Address value     | poke 20cf,ff       |", CR, LF
+		.BYTE	"| autopoke    | Like poke, but autoincrement addr.| autopoke 2570      |", CR, LF
 		.BYTE	"| reset       | Clears RAM and resets the system  | reset              |", CR, LF
-		.BYTE	"| run         | Run from Memory Address           | run 2600           |", CR, LF
+		.BYTE	"| run         | Run from Memory Address           | run 2570           |", CR, LF
+		.BYTE	"| halt        | Halt the system                   | halt               |", CR, LF
 		.BYTE	"|             |                                   |                    |", CR, LF
-;		.BYTE	"| cd          | Change Directory                  | cd mydocs          |", CR, LF
-		.BYTE	"| ld          | List Directory contents of a Disk | ld                 |", CR, LF
-		.BYTE	"| sf          | Show contents of a file           | sf 0007            |", CR, LF
-		.BYTE	"| lf          | Load file (Max. 496 bytes) to RAM | lf 0007            |", CR, LF
+		.BYTE	"| cat         | Show Disk Catalogue               | cat                |", CR, LF
+		.BYTE   "| load        | Load filename from disk to RAM    | load file1         |", CR, LF
 		.BYTE	"|-------------|-----------------------------------|--------------------|", 0
-msg_cf_ld:
-		.BYTE	CR, LF
-		.BYTE	"Directory contents", CR, LF
-		.BYTE	"------------------------------------------------", CR, LF
-		.BYTE	"File          Time   Date        Cluster  Size", CR, LF
-		.BYTE	"------------------------------------------------", CR, LF, 0
 msg_dirlabel:
 		.BYTE	"<DIR>", 0
 msg_crc_ok:
@@ -1044,6 +949,34 @@ msg_memdump_hdr:
 msg_exeloaded:
 		.BYTE	CR, LF
 		.BYTE	"Executable loaded at: 0x", 0
+msg_cf_cat_title:
+		.BYTE	CR, LF
+		.BYTE	CR, LF
+		.BYTE	"Disk Catalogue", CR, LF, 0
+msg_cf_cat_sep:
+		.BYTE	"-------------------------------------------------------------------------------", CR, LF, 0
+msg_cf_cat_detail:
+		.BYTE	"File              Created               Modified              Size   Attributes" , CR, LF, 0
+msg_cf_file_loaded:
+		.BYTE	CR, LF
+		.BYTE	"File loaded successfully at address: $", 0
+msg_cf_info:
+		.BYTE	CR, LF
+		.BYTE	CR, LF
+		.BYTE	"CompactFlash diskinfo", CR, LF
+		.BYTE	"----------------------------------------", CR, LF, 0
+msg_cf_info_numcyls:
+		.BYTE	"Cylinders . . . . : ", 0
+msg_cf_info_numheads:
+		.BYTE	"Heads . . . . . . : ", 0
+msg_cf_info_secpertrk:
+		.BYTE	"Sectors per Track : ", 0
+msg_cf_info_sernum:
+		.BYTE	"Serial Number . . : ", 0
+msg_cf_info_firmw_rev:
+		.BYTE	"Firmware revision : ", 0
+msg_cf_info_model:
+		.BYTE	"Model . . . . . . : ", 0
 ;------------------------------------------------------------------------------
 ;             ERROR MESSAGES
 ;------------------------------------------------------------------------------
@@ -1055,32 +988,29 @@ error_1002:
 		.BYTE	"Bad parameter(s)", CR, LF, 0
 error_1003:
 		.BYTE	CR, LF
-		.BYTE	"Invalid Intel HEX format", CR, LF, 0
-error_1004:
-		.BYTE	CR, LF
-		.BYTE	"Checksum error", CR, LF, 0
-error_1005:
-		.BYTE	CR, LF
 		.BYTE	"File not found", CR, LF, 0
 ;==============================================================================
 ; AVAILABLE CLI COMMANDS
 ;==============================================================================
-_CMD_HELP		.BYTE	"help", 0
-;_CMD_LOADIHEX	.BYTE	"loadihex", 0
-_CMD_MEMDUMP	.BYTE	"memdump", 0
-_CMD_PEEK		.BYTE	"peek", 0
-_CMD_POKE		.BYTE	"poke", 0
-_CMD_RESET		.BYTE	"reset", 0
-_CMD_RUN		.BYTE	"run", 0
+_CMD_HELP			.BYTE	"help", 0
+_CMD_MEMDUMP		.BYTE	"memdump", 0
+; TODO - Convert memdump into a stand-alone executable program
+_CMD_PEEK			.BYTE	"peek", 0
+_CMD_POKE			.BYTE	"poke", 0
+_CMD_AUTOPOKE		.BYTE	"autopoke", 0
+_CMD_RESET			.BYTE	"reset", 0
+_CMD_RUN			.BYTE	"run", 0
+_CMD_HALT			.BYTE	"halt", 0
 
 ; CompactFlash commands
-_CMD_LD			.BYTE	"ld", 0			; list directory
-;_CMD_CD			.BYTE	"cd", 0		; change directory
-_CMD_SF			.BYTE	"sf", 0			; show file contents
-_CMD_LF			.BYTE	"lf", 0			; load file to RAM
+_CMD_CF_CAT			.BYTE	"cat", 0		; show files catalogue
+_CMD_CF_LOAD		.BYTE	"load", 0		; load filename from disk to RAM
+_CMD_CF_DISKINFO	.BYTE	"diskinfo", 0	; show CF information
+; TODO - Convert diskinfo into a stand-alone executable program
+
 ;==============================================================================
 ; END of CODE
 ;==============================================================================
         .ORG	CLI_END
-		.BYTE	0
+		.BYTE 	0
 		.END
