@@ -1,6 +1,11 @@
 bin/*
 exp/*
 lst/*
+src_standalone/*.sh
+src_standalone/*.hex
+src_standalone/*.lst
+src_standalone/TASM*
+
 
 builddate
 buildnum

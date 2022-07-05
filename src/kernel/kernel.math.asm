@@ -41,7 +41,7 @@
 ;==============================================================================
 ;------------------------------------------------------------------------------
 F_KRN_MULTIPLY816_SLOW:
-; Multiplies an 8-bit number by a 16-bit number
+; Multiplies an 8-bit number by a 16-bit number (HL = A * DE)
 ; It does a slow multiplication by adding multiplier to itself as many
 ; times as multiplicand (e.g. 8 * 4 = 8+8+8+8)
 ; IN <= A = Multiplicand

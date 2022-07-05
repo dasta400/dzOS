@@ -5,7 +5,7 @@ ifeq ($(UNAME), Linux)
 else
     ASM = ./TASM.EXE
 endif
-ASMFLAGS = -80 -b -a -fFF		# For generating .bin files
+ASMFLAGS = -80 -b -a -f00		# For generating .bin files
 #ASMFLAGS = -80 -o10 -g0 -c -a -y	# For generating Intel HEX files
 TARGET = dzOS
 BINARIES = bin/BIOS.bin bin/BIOS.jblks.bin bin/kernel.bin bin/kernel.jblks.bin bin/CLI.bin bin/romtrail.bin
@@ -19,10 +19,10 @@ MAGENTA = \033[0;35m
 CYAN = \033[0;36m
 WHITE = \033[0;37m
 
-BIOS_MAXSIZE = 1912
-KERNEL_MAXSIZE = 1672
-CLI_MAXSIZE = 3309
-VERSION_ADDR = 3824		# $0EF0
+BIOS_MAXSIZE = 4928
+KERNEL_MAXSIZE = 4928
+CLI_MAXSIZE = 5056
+VERSION_ADDR = 9968     # $26F0
 
 YEAR = $(shell date +"%Y")
 MONTH = $(shell date +"%m")

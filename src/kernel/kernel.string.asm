@@ -40,16 +40,28 @@
 ; String Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_KRN_PRINTABLE:		.EXPORT		F_KRN_PRINTABLE
+F_KRN_IS_PRINTABLE:		.EXPORT		F_KRN_IS_PRINTABLE
 ; Checks if a character is a printable ASCII character
 ;	IN <= A contains character to check
-;	OUT => C flag is set if character is printable.
-		cp		SPACE
+;	OUT => C flag is set if character is printable
+		cp		SPACE					; first printable character in ASCII table
 		jr		nc, is_printable
 		ccf
 		ret
 is_printable:
-		cp		$7f
+		cp		$7F						; last + 1 printable character in ASCII table
+		ret
+;------------------------------------------------------------------------------
+F_KRN_IS_NUMERIC:		.EXPORT		F_KRN_IS_NUMERIC
+; Checks if a character is numeric (0..9)
+;	IN <= A contains character to check
+;	OUT => C flag is set if character is numeric
+		cp		$30						; first numeric character in ASCII table
+		jr		nc, is_numeric
+		ccf
+		ret
+is_numeric:
+		cp		$3A						; last + 1 numeric character in ASCII table
 		ret
 ;------------------------------------------------------------------------------
 F_KRN_TOUPPER:			.EXPORT		F_KRN_TOUPPER

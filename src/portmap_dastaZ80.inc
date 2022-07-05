@@ -1,13 +1,16 @@
 ;******************************************************************************
-; kernel_jblks.asm
+; portmap_dastaZ80.inc
 ;
-; Kernel Jumpblocks
+; Port Mapping to run on dastaZ80
 ; for dastaZ80's dzOS
-; by David Asta (Apr 2019)
+; by David Asta (Jul 2018)
+;
+; Create a symbolic link to this file, with name portmappings.inc
+;      ln -s portmap_dastaZ80.inc portmappings.inc
 ;
 ; Version 1.0.0
-; Created on 25 Apr 2019
-; Last Modification 21 Jun 2022
+; Created on 03 Jul 2022
+; Last Modification 03 Jul 2022
 ;******************************************************************************
 ; CHANGELOG
 ; 	-
@@ -15,7 +18,7 @@
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2019-2022 David Asta
+; Copyright (c) 2022 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -37,46 +40,19 @@
 ; -----------------------------------------------------------------------------
 
 ;==============================================================================
-; Includes
+; Memory
 ;==============================================================================
-#include "src/equates.inc"
-#include "exp/kernel.exp"
+; ROMRAM_PAGING           .EQU    $38
 
-		.ORG	KRN_JBLK_START
+;==============================================================================
+; SIO/2
+;==============================================================================
+SIO_CH_A_CONTROL        .EQU	$20
+SIO_CH_A_DATA           .EQU	$21
+SIO_CH_B_CONTROL        .EQU	$22
+SIO_CH_B_DATA		    .EQU	$23
 
-		jp			F_KRN_SERIAL_WRSTR
-		jp			F_KRN_SERIAL_RDCHARECHO
-		jp			F_KRN_SERIAL_EMPTYLINES
-		jp			F_KRN_SERIAL_PRN_BYTES
-		jp			F_KRN_SERIAL_PRN_BYTE
-		jp			F_KRN_SERIAL_PRN_WORD
-		jp			F_KRN_TOUPPER
-		; jp		F_KRN_GET_BYTE_BIN_ECHO
-		jp			F_KRN_IS_PRINTABLE
-		jp			F_KRN_IS_NUMERIC
-		jp			F_KRN_STRCMP
-		jp			F_KRN_STRCPY
-		jp			F_KRN_STRLEN
-		; jp		F_KRN_SETMEMRNG
-		; jp		F_KRN_ASCII2HEX
-		; jp		F_KRN_HEX2ASCII
-		; jp		F_KRN_BIN2BCD4
-		; jp		F_KRN_BIN2BCD6
-		; jp		F_KRN_BCD2ASCII
-		; jp		F_KRN_BITEXTRACT
-		jp			F_KRN_ASCIIADR_TO_HEX
-		; jp			F_KRN_TRANSLT_TIME
-		; jp			F_KRN_TRANSLT_DATE
-
-		jp			F_KRN_DZFS_READ_SUPERBLOCK
-		jp			F_KRN_DZFS_GET_FILE_BATENTRY
-		jp			F_KRN_DZFS_LOAD_FILE_TO_RAM
-		jp			F_KRN_DZFS_DELETE_FILE
-		jp			F_KRN_DZFS_RENAME_FILE
-		jp			F_KRN_DZFS_CHGATTR_FILE
-		jp			F_KRN_DZFS_FORMAT_CF
-        jp          F_KRN_DZFS_SHOW_DISKINFO
-
-		.ORG	KRN_JBLK_END
-		.BYTE	0
-		.END
+;==============================================================================
+; CompactFlash
+;==============================================================================
+CFLASH_PORT				.EQU	$00

@@ -1,13 +1,13 @@
 ;******************************************************************************
-; kernel_jblks.asm
+; BIOS.rtc.asm
 ;
-; Kernel Jumpblocks
+; BIOS' Real-Time Clock routines
 ; for dastaZ80's dzOS
-; by David Asta (Apr 2019)
+; by David Asta (Jun 2022)
 ;
 ; Version 1.0.0
-; Created on 25 Apr 2019
-; Last Modification 21 Jun 2022
+; Created on 25 Jun 2022
+; Last Modification 25 Jun 2022
 ;******************************************************************************
 ; CHANGELOG
 ; 	-
@@ -15,7 +15,7 @@
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2019-2022 David Asta
+; Copyright (c) 2022 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -37,46 +37,40 @@
 ; -----------------------------------------------------------------------------
 
 ;==============================================================================
-; Includes
+; Real-Time Clock Routines
 ;==============================================================================
-#include "src/equates.inc"
-#include "exp/kernel.exp"
-
-		.ORG	KRN_JBLK_START
-
-		jp			F_KRN_SERIAL_WRSTR
-		jp			F_KRN_SERIAL_RDCHARECHO
-		jp			F_KRN_SERIAL_EMPTYLINES
-		jp			F_KRN_SERIAL_PRN_BYTES
-		jp			F_KRN_SERIAL_PRN_BYTE
-		jp			F_KRN_SERIAL_PRN_WORD
-		jp			F_KRN_TOUPPER
-		; jp		F_KRN_GET_BYTE_BIN_ECHO
-		jp			F_KRN_IS_PRINTABLE
-		jp			F_KRN_IS_NUMERIC
-		jp			F_KRN_STRCMP
-		jp			F_KRN_STRCPY
-		jp			F_KRN_STRLEN
-		; jp		F_KRN_SETMEMRNG
-		; jp		F_KRN_ASCII2HEX
-		; jp		F_KRN_HEX2ASCII
-		; jp		F_KRN_BIN2BCD4
-		; jp		F_KRN_BIN2BCD6
-		; jp		F_KRN_BCD2ASCII
-		; jp		F_KRN_BITEXTRACT
-		jp			F_KRN_ASCIIADR_TO_HEX
-		; jp			F_KRN_TRANSLT_TIME
-		; jp			F_KRN_TRANSLT_DATE
-
-		jp			F_KRN_DZFS_READ_SUPERBLOCK
-		jp			F_KRN_DZFS_GET_FILE_BATENTRY
-		jp			F_KRN_DZFS_LOAD_FILE_TO_RAM
-		jp			F_KRN_DZFS_DELETE_FILE
-		jp			F_KRN_DZFS_RENAME_FILE
-		jp			F_KRN_DZFS_CHGATTR_FILE
-		jp			F_KRN_DZFS_FORMAT_CF
-        jp          F_KRN_DZFS_SHOW_DISKINFO
-
-		.ORG	KRN_JBLK_END
-		.BYTE	0
-		.END
+;------------------------------------------------------------------------------
+F_BIOS_RTC_GET_TIME:        .EXPORT     F_BIOS_RTC_GET_TIME
+; Returns the current time from the RTC circuit, in HEX values
+; IN <= none
+; OUT => time is stored in SYSVARS
+; TODO - F_BIOS_RTC_GET_TIME
+        ld      A, $15
+        ld      (RTC_hour), A
+        ld      A, $2D
+        ld      (RTC_minutes), A
+        ld      A, $20
+        ld      (RTC_seconds), A
+        ld      A, $5F
+        ld      (RTC_hundreds), A
+        ret
+F_BIOS_RTC_GET_DATE:        .EXPORT     F_BIOS_RTC_GET_DATE
+; Returns the current date from the RTC circuit, in HEX values
+; IN <= none
+; OUT => date is stored in SYSVARS
+; TODO - F_BIOS_RTC_GET_DATE
+        ld      A, $04
+        ld      (RTC_day), A
+        ld      A, $0A
+        ld      (RTC_month), A
+        ld      A, $14
+        ld      (RTC_century), A
+        ld      A, $01
+        ld      (RTC_year), A
+        ret
+F_BIOS_RTC_SET_TIME:        .EXPORT     F_BIOS_RTC_SET_TIME
+; TODO - F_BIOS_RTC_SET_TIME
+        ret
+F_BIOS_RTC_SET_DATE:        .EXPORT     F_BIOS_RTC_SET_DATE
+; TODO - F_BIOS_RTC_SET_DATE
+        ret

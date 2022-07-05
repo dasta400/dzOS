@@ -49,7 +49,7 @@
 ;------------------------------------------------------------------------------
 ; Transmit a character over Channel B
 		.ORG 	$0018
-        jp      F_BIOS_SERIAL_CONOUT_A
+        jp      F_BIOS_SERIAL_CONOUT_B
 ;------------------------------------------------------------------------------
 ; Receive a character over Channel B
 		.ORG	$0020

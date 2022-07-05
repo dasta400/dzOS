@@ -18,24 +18,24 @@ The Kernel and the CLI are hardware independendent and will work on any Z80 base
 
 I've decided to divide the project into progressive models (or **Mark**, as I call it).
 
-* Current model: Mark I
+* Current model: Mark II
   * Hardware:
     * No case
     * CPU Z80 @ 7.3728 Mhz
     * CompactFlash slot (DZFS read only, 1 single partition)
     * In progress:
       * Acorn A3010 Keyboard interface
-      * Video output (Grant Searle's Monitor controller)
+      * Video output (TMS9918A VDP)
   * Software:
     * OS:
       * BIOS & Kernel:
         * talks to Serial Interface to communicate with the Keyboard.
         * talks with the Video Interface to generate VGA output.
+        * DZFS read/write, 1 partition
       * CLI:
         * Shows prompt, reads input from keyboard and calls command's subroutines.
         * Available commands:
           * **cat**: shows disk (CompactFlash) catalogue.
-          * **cls**: clears the screen and positions the prompt at the top
           * **halt**: halts the system.
           * **help**: shows list of available commands, with a short description and usage example.
           * **load [filename]**: loads specified filename from disk to RAM, at location specified in the Block Allocation Table (BAT).
@@ -45,23 +45,13 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
           * **poke [address],[value]**: stores value at the specified address.
           * **autopoke [start_address]**: allows to enter hexadecimal values that will be stored at the start_address and consecutive positions. The address is incremented automatically after each hexadecimal value + press of ENTER key. Entering no value (i.e. just press ENTER) will stop the process. I made this so that I can enter assembled programs, as Mark I doesn't have any means of loading programs.
           * **reset**: clears RAM (sets all to $00) and resets the system.
-
-* Planned next model: Mark II
-  * Hardware:
-    * Circuit integrated into Acorn A3010 Keyboard case.
-    * Real-Time CLock (RTC)
-  * Software:
-    * DZFS read/write, multiple partitions
-    * CLI new commands:
-      * File System:
-        * **rename [old_filename],[new_filename]**: changes the name of file old_filename to new_filename.
-        * **delete [filename]**: deletes filename. Data isn't deleted, just the first character of the filename in the BAT is set to 7E (~), so it can be undeleted. Be aware, that the save command will always search for an empty entry in the BAT, but if it finds none, then it will re-use the first entry of a deleted file. Therefore, undelete of a file is only guaranteed if no file was created since the delete command was issued.
-        * **undelete [filename],[new_filename]**: this is actually an alias for the rename command.
-        * **chgattr [filename],[new_attributes(RHSE)]**: changes the attributes of filename to the new specified attributes.
-        * **formatdsk [label] [num_partitions]**: formats a CompactFlash card with DZFS.
-        * **save [filename],[memory_address],[num_bytes]**: creates a file with filename, with the contents of memory starting at memory_address and ending at memory_address + num_bytes.
-      * RTC:
-        * **date**: show current date.
-        * **time**: show current time.
-        * **setdate [ddmmyyyy]**: set current date.
-        * **settime [hhmmss]**: set current time.
+          * **run** [filename],[parameters]: executes a load [filename] and run [address]
+          * **formatdsk** [label],[num_partitions]: formats a CompactFlash card with DZFS.
+          * **rename** [old_filename],[new_filename]: changes the name of file old_filename to new_filename.
+          * **delete** [filename]: deletes filename. Data isn't deleted, just the first character of the filename in the BAT is set to 7E (~), so it can be undeleted. Be aware, that the save command will always search for an empty entry in the BAT, but if it finds none, then it will re-use the first entry of a deleted file. Therefore, undelete of a file is only guaranteed if no file was created since the delete command was issued.
+          * **chgattr** [filename],[new_attributes(RHSE)]: changes the attributes of filename to the new specified attributes.
+    * TODOs:
+      * Do not allow renaming System or Read Only files.
+      * Do not allow deleting System or Read Only files.
+    * BUGS:
+      * *run*, *rename*, *delete* and *chgaatr*, are not taking in consideration the full filename (e.g. *disk* is acting on file *diskinfo*)
