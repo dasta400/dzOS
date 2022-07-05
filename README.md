@@ -10,7 +10,7 @@ The OS consists of three parts:
 
 The Kernel and the CLI are hardware independendent and will work on any Z80 based computer. Therefore, by adapting the BIOS code, **dzOS can easily be ported to other Z80 systems**.
 
-![dzOS v2022.06.22.3](https://github.com/dasta400/dzOS/blob/MarkI/docs/dzOS.2022.06.22.3.png "dzOS v2022.06.22.3")
+![dzOS v2022.07.05.1](https://github.com/dasta400/dzOS/blob/MarkI/docs/dzOS.2022.07.05.1.png "dzOS v2022.07.05.1")
 
 ---
 

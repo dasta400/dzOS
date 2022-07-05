@@ -1131,17 +1131,21 @@ msg_help:
         .BYTE   "| Command     | Description                       | Usage              |", CR, LF
         .BYTE   "|-------------|-----------------------------------|--------------------|", CR, LF
         .BYTE   "| help        | Shows this help                   | help               |", CR, LF
+        .BYTE   "| memdump     | Shows contents of memory          | memdump 2200,2300  |", CR, LF
         .BYTE   "| peek        | Show a Memory Address value       | peek 20cf          |", CR, LF
         .BYTE   "| poke        | Change a Memory Address value     | poke 20cf,ff       |", CR, LF
         .BYTE   "| autopoke    | Like poke, but autoincrement addr.| autopoke 2570      |", CR, LF
-        .BYTE   "| reset       | Clears RAM and resets the system  | reset              |", CR, LF
         .BYTE   "| run         | Run from Memory Address           | run 2570           |", CR, LF
-        .BYTE   "| run         | Run a file on disk                | run diskinfo       |", CR, LF
+        .BYTE   "| reset       | Clears RAM and resets the system  | reset              |", CR, LF
         .BYTE   "| halt        | Halt the system                   | halt               |", CR, LF
         .BYTE   "|             |                                   |                    |", CR, LF
         .BYTE   "| cat         | Show Disk Catalogue               | cat                |", CR, LF
+        .BYTE   "| run         | Run a file on disk                | run diskinfo       |", CR, LF
         .BYTE   "| load        | Load filename from disk to RAM    | load file1         |", CR, LF
         .BYTE   "| formatdsk   | Format CompactFlash disk          | formatdsk mydisk,3 |", CR, LF
+        .BYTE   "| rename      | Rename a file                     | rename old,new     |", CR, LF
+        .BYTE   "| delete      | Deletes a file                    | delete myfile      |", CR, LF
+        .BYTE   "| chgattr     | Assigns new Attributes to a file  | chgattr myfile,RSE |", CR, LF
         .BYTE   "|-------------|-----------------------------------|--------------------|", 0
 msg_dirlabel:
         .BYTE   "<DIR>", 0
