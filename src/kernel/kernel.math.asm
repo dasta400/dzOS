@@ -10,7 +10,7 @@
 ; Last Modification 08 May 2019
 ;******************************************************************************
 ; CHANGELOG
-; 	-
+;   -
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -40,16 +40,16 @@
 ; Arithmetic Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_KRN_MULTIPLY816_SLOW:
+F_KRN_MULTIPLY816_SLOW:             .EXPORT     F_KRN_MULTIPLY816_SLOW
 ; Multiplies an 8-bit number by a 16-bit number (HL = A * DE)
 ; It does a slow multiplication by adding multiplier to itself as many
 ; times as multiplicand (e.g. 8 * 4 = 8+8+8+8)
 ; IN <= A = Multiplicand
-;		DE = Multiplier
+;       DE = Multiplier
 ; OUT => HL = product
-		ld		b, a					; counter = multiplicand
-		ld		hl, 0					; initialise result
-mult8loop:	
-		add		hl, de					; add multiplier to result
-		djnz	mult8loop				; decrease multiplicand. Is multiplicand = 0? No, do it again
-		ret								; Yes, exit routine
+        ld      b, a                    ; counter = multiplicand
+        ld      hl, 0                   ; initialise result
+mult8loop:
+        add     hl, de                  ; add multiplier to result
+        djnz    mult8loop               ; decrease multiplicand. Is multiplicand = 0? No, do it again
+        ret                             ; Yes, exit routine

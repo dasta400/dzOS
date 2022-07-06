@@ -54,11 +54,9 @@ F_BIOS_CBOOT:
         jp      F_BIOS_SERIAL_INIT      ; Initialise SIO/2
         call    F_BIOS_WIPE_RAM         ; wipe (with zeros) the entire RAM,
                                         ; except Stack area, SYSVARS and Buffers
-; TODO - F_BIOS_WIPE_RAM is not working
-
         .ORG    INITSIO2_END + 1		; To avoid overwritting RST08, RST10, RST18,
                                         ; RST20 and the SIO/2 Interrupt Vector at 60h
-;------------------------------------------------------------------------------										
+;------------------------------------------------------------------------------
 ; Warm Boot
 F_BIOS_WBOOT:           .EXPORT         F_BIOS_WBOOT
         ld      A, $00                  ; Set SIO/2 Channel A as the default
@@ -76,7 +74,7 @@ F_BIOS_SYSHALT:         .EXPORT         F_BIOS_SYSHALT
 ; RAM Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_BIOS_WIPE_RAM:
+F_BIOS_WIPE_RAM:        ; TODO - is not working
 ; Sets zeros (00h) in all RAM addresses except Stack area, SYSVARS and Buffers
         ld      BC, FREERAM_TOTAL       ; total bytes
         inc     BC                      ;    to wipe + 1

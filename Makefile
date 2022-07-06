@@ -90,9 +90,9 @@ bin/kernel.jblks.bin: src/kernel/kernel.jblks.asm
 	@$(ASM) $(ASMFLAGS) src/kernel/kernel.jblks.asm bin/kernel.jblks.bin lst/kernel.jblks.lst > /tmp/dastaZ80_compile.txt
 	@sed '6!d' /tmp/dastaZ80_compile.txt
 
-bin/CLI.bin: src/CLI.asm
+bin/CLI.bin: src/CLI/CLI.asm
 	@echo "$(GREEN)#### Compiling $(CYAN)CLI $(GREEN)####$(WHITE)"
-	@$(ASM) $(ASMFLAGS) src/CLI.asm bin/CLI.bin lst/CLI.lst > /tmp/dastaZ80_compile.txt
+	@$(ASM) $(ASMFLAGS) src/CLI/CLI.asm bin/CLI.bin lst/CLI.lst > /tmp/dastaZ80_compile.txt
 	@sed '6!d' /tmp/dastaZ80_compile.txt
 
 bin/romtrail.bin: src/romtrail.asm
