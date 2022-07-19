@@ -109,7 +109,6 @@ F_BIOS_CF_READ_SEC:			.EXPORT			F_BIOS_CF_READ_SEC
 ;		B = sector address LBA 3 (bits 24-27)
 		; set LBA addresses
 		call	F_BIOS_CF_SET_LBA
-
 		call	F_BIOS_CF_BUSY				; wait until CF is ready
 		ld		a, CF_CMD_READ_SECTOR		; mask for read sector(s)
 		out		(CF_CMD), a					; send mask to Command register
@@ -131,4 +130,35 @@ F_BIOS_CF_READ_512B:
 		inc		hl							; increment RAM pointer
 		
 		djnz	F_BIOS_CF_READ_512B			; did B went back to 0 (i.e. 256 times)? No, continue loop
+		ret									; yes, exit routine
+;------------------------------------------------------------------------------
+F_BIOS_CF_WRITE_SEC:			.EXPORT			F_BIOS_CF_WRITE_SEC
+; Write a Sector (512 bytes) from RAM buffer into CF card
+; IN <= E = sector address LBA 0 (bits 0-7)
+;		D = sector address LBA 1 (bits 8-15)
+;		C = sector address LBA 2 (bits 16-23)
+;		B = sector address LBA 3 (bits 24-27)
+		; set LBA addresses
+		call	F_BIOS_CF_SET_LBA
+		call	F_BIOS_CF_BUSY				; wait until CF is ready
+		ld		A, CF_CMD_WRITE_SECTOR		; mask for write sector(s)
+		out		(CF_CMD), A					; send mask to Command register
+		call	F_BIOS_CF_BUSY				; wait until CF is ready
+		ld		HL, CF_BUFFER_START			; Sector data is stored at the CF buffer in RAM
+		ld		B, 0h						; 256 words (512 bytes) will be written
+F_BIOS_CF_WRITE_512B:
+; Write 2 bytes each time, 256 times
+; Hence, 512 bytes are written in total
+		; 1st byte
+		call	F_BIOS_CF_BUSY				; wait until CF is ready
+		ld		A, (HL)						; A = byte to be written
+		out		(CFLASH_PORT), A			; write to CF
+		inc		HL
+		; 2nd byte
+		call	F_BIOS_CF_BUSY				; wait until CF is ready
+		ld		A, (HL)						; A = byte to be written
+		out		(CFLASH_PORT), A			; write to CF
+		inc		HL
+
+		djnz	F_BIOS_CF_WRITE_512B		; did B went back to 0 (i.e. 256 times)? No, continue loop
 		ret									; yes, exit routine

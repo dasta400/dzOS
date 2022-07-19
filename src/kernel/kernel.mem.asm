@@ -5,12 +5,13 @@
 ; for dastaZ80's dzOS
 ; by David Asta (May 2019)
 ;
-; Version 1.0.0
+; Version 2.0.0
 ; Created on 08 May 2019
-; Last Modification 08 May 2019
+; Last Modification 03 Jul 2022
 ;******************************************************************************
 ; CHANGELOG
-; 	-
+;   - 20 Jun 2022: Shorter and faster routine for F_KRN_SETMEMRNG
+;   - 03 Jul 2022: Added F_KRN_WHICH_RAMSIZE
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -40,21 +41,27 @@
 ; Memory Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_KRN_SETMEMRNG:		.EXPORT		F_KRN_SETMEMRNG
+F_KRN_SETMEMRNG:        .EXPORT         F_KRN_SETMEMRNG
 ; Sets a value in a memory position range
-; IN <= HL contains the start position
-;		DE contains the end position.
-;		A value to set
-; The routine will go from HL to DE and store in each position whatever value
-; is in register A.
+; IN <= HL = start position
+;       BC = number of bytes to set
+;       A value to set
 setmemrng_loop:
-		ld		(hl), a					; put register A content in address pointed by HL
-		inc		hl						; HL pointed + 1
-		push	hl						; store HL value in Stack, because SBC destroys it
-		sbc		hl, de					; substract DE from HL
-		jp		z, end_setmemrng_loop	; if we reach the end position, jump out
-		pop		hl						; restore HL value from Stack
-		jp		setmemrng_loop			; no at end yet, continue loop
-end_setmemrng_loop:
-		pop		hl						; restore HL value from Stack
-		ret
+        ld      (HL), A
+        cpi
+        jp      pe, setmemrng_loop
+        ret
+;------------------------------------------------------------------------------
+F_KRN_WHICH_RAMSIZE
+; Check how much RAM we have
+; OUT => Z set for 64 KB, cleare for 32 KB
+
+; Test for 64 KB
+        ; Write 1 byte to $FFFF
+        ld      A, $AB
+        ld      ($FFFF), A
+        xor     A
+        ; Read it back to see if it was stored
+        ld      A, ($FFFF)
+        cp      $AB
+        ret

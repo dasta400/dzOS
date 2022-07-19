@@ -64,49 +64,51 @@ SIO_CH_B_BUFFER_USED: 		.EXPORT     	SIO_CH_B_BUFFER_USED
 SIO_PRIMARY_IO:				.EXPORT     	SIO_PRIMARY_IO
             .BYTE   0
 ;==============================================================================
-; CLI buffers
-;==============================================================================
-buffer_cmd:					.EXPORT			buffer_cmd
-				.FILL	16, 0
-buffer_parm1_val:			.EXPORT			buffer_parm1_val
-				.FILL	16, 0
-buffer_parm2_val:			.EXPORT			buffer_parm2_val
-				.FILL	16, 0
-buffer_pgm:					.EXPORT			buffer_pgm
-				.FILL	32, 0			; general buffer from programs
-;==============================================================================
 ; CompactFlash buffers
 ;==============================================================================
-cf_is_formatted:			.EXPORT			cf_is_formatted
+CF_is_formatted:			.EXPORT			CF_is_formatted
 				.BYTE	0				; Indicates if the CompactFlash can be used.
 										; FF if it’s DZFS format. 00 otherwise
-cur_partition:				.EXPORT			cur_partition
+CF_cur_partition:			.EXPORT			CF_cur_partition
 				.BYTE	0				; Current partition number. Used for LBA addressing.
-cur_sector:					.EXPORT			cur_sector
+CF_cur_sector:				.EXPORT			CF_cur_sector
 				.BYTE	0, 0
 ; Current file specifications
-cur_file_name:				.EXPORT			cur_file_name
+CF_cur_file_name:			.EXPORT			CF_cur_file_name
 				.FILL	14, 0
-cur_file_attribs:			.EXPORT			cur_file_attribs
+CF_cur_file_attribs:		.EXPORT			CF_cur_file_attribs
 				.BYTE	0
-cur_file_time_created:		.EXPORT			cur_file_time_created
+CF_cur_file_time_created:	.EXPORT			CF_cur_file_time_created
 				.BYTE	0, 0
-cur_file_date_created:		.EXPORT			cur_file_date_created
+CF_cur_file_date_created:	.EXPORT			CF_cur_file_date_created
 				.BYTE	0, 0
-cur_file_time_modified:		.EXPORT			cur_file_time_modified
+CF_cur_file_time_modified:	.EXPORT			CF_cur_file_time_modified
 				.BYTE	0, 0
-cur_file_date_modified:		.EXPORT			cur_file_date_modified
+CF_cur_file_date_modified:	.EXPORT			CF_cur_file_date_modified
 				.BYTE	0, 0
-cur_file_size_bytes:		.EXPORT			cur_file_size_bytes
+CF_cur_file_size_bytes:		.EXPORT			CF_cur_file_size_bytes
 				.BYTE	0, 0
-cur_file_size_sectors:		.EXPORT			cur_file_size_sectors
+CF_cur_file_size_sectors:	.EXPORT			CF_cur_file_size_sectors
 				.BYTE	0
-cur_file_entry_number:		.EXPORT			cur_file_entry_number
+CF_cur_file_entry_number:	.EXPORT			CF_cur_file_entry_number
 				.BYTE	0, 0
-cur_file_1st_sector:		.EXPORT			cur_file_1st_sector
+CF_cur_file_1st_sector:		.EXPORT			CF_cur_file_1st_sector
 				.BYTE	0, 0
-cur_file_load_addr:			.EXPORT			cur_file_load_addr
+CF_cur_file_load_addr:		.EXPORT			CF_cur_file_load_addr
 				.BYTE	0, 0
+;==============================================================================
+; CLI buffers
+;==============================================================================
+CLI_buffer_cmd:				.EXPORT			CLI_buffer_cmd
+				.FILL	16, 0
+CLI_buffer_parm1_val:		.EXPORT			CLI_buffer_parm1_val
+				.FILL	16, 0
+CLI_buffer_parm2_val:		.EXPORT			CLI_buffer_parm2_val
+				.FILL	16, 0
+CLI_buffer_pgm:				.EXPORT			CLI_buffer_pgm
+				.FILL	32, 0			; general buffer from programs
+CLI_buffer_full_cmd:		.EXPORT			CLI_buffer_full_cmd
+				.FILL	64, 0
 ;==============================================================================
 ; Temporary variables
 ;==============================================================================
@@ -118,6 +120,25 @@ tmp_addr3:					.EXPORT			tmp_addr3
 				.BYTE	0, 0			; Temporary storage for an address
 tmp_byte:					.EXPORT			tmp_byte
 				.BYTE	0				; Temporary storage for a Byte
+;==============================================================================
+; Real-Time CLock variables
+;==============================================================================
+RTC_hour					.EXPORT			RTC_hour
+				.BYTE	0
+RTC_minutes					.EXPORT			RTC_minutes
+				.BYTE	0
+RTC_seconds					.EXPORT			RTC_seconds
+				.BYTE	0
+RTC_hundreds				.EXPORT			RTC_hundreds
+				.BYTE	0
+RTC_century					.EXPORT			RTC_century
+				.BYTE	0
+RTC_year					.EXPORT			RTC_year
+				.BYTE	0
+RTC_month					.EXPORT			RTC_month
+				.BYTE	0
+RTC_day						.EXPORT			RTC_day
+				.BYTE	0
 
 ;==============================================================================
 ; END of CODE
