@@ -1,16 +1,16 @@
 ;******************************************************************************
-; kernel.math.asm
+; romtrail.asm
 ;
-; Kernel's Arithmetic routines
+; This file just fills the free ROM space, so that the binary is exactly 8192 bytes
 ; for dastaZ80's dzOS
-; by David Asta (May 2019)
+; by David Asta (Jul 2019)
 ;
 ; Version 1.0.0
-; Created on 08 May 2019
-; Last Modification 08 May 2019
+; Created on 09 July 2019
+; Last Modification 09 July 2019
 ;******************************************************************************
 ; CHANGELOG
-;   -
+; 	-
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -36,20 +36,11 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-;==============================================================================
-; Arithmetic Routines
-;==============================================================================
-;------------------------------------------------------------------------------
-F_KRN_MULTIPLY816_SLOW:             .EXPORT     F_KRN_MULTIPLY816_SLOW
-; Multiplies an 8-bit number by a 16-bit number (HL = A * DE)
-; It does a slow multiplication by adding multiplier to itself as many
-; times as multiplicand (e.g. 8 * 4 = 8+8+8+8)
-; IN <= A = Multiplicand
-;       DE = Multiplier
-; OUT => HL = product
-        ld      b, a                    ; counter = multiplicand
-        ld      hl, 0                   ; initialise result
-mult8loop:
-        add     hl, de                  ; add multiplier to result
-        djnz    mult8loop               ; decrease multiplicand. Is multiplicand = 0? No, do it again
-        ret                             ; Yes, exit routine
+#include "src/equates.inc"
+
+	.ORG	FREEROM_START
+				.FILL	FREEROM_SIZE, 0
+
+	.ORG	FREEROM_END
+				.BYTE	0
+		.END

@@ -7,34 +7,75 @@
 ;
 ; Version 1.0.0
 ; Created on 08 May 2019
-; Last Modification 08 May 2019
+; Last Modification 21 Jun 2022
 ;******************************************************************************
 ; CHANGELOG
 ; 	-
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
-; This file is part of dzOS
-; Copyright (C) 2017-2018 David Asta
-
-; dzOS is free software: you can redistribute it and/or modify
-; it under the terms of the GNU General Public License as published by
-; the Free Software Foundation, either version 3 of the License, or
-; (at your option) any later version.
-
-; dzOS is distributed in the hope that it will be useful,
-; but WITHOUT ANY WARRANTY; without even the implied warranty of
-; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-; GNU General Public License for more details.
-
-; You should have received a copy of the GNU General Public License
-; along with dzOS.  If not, see <http://www.gnu.org/licenses/>.
+; MIT License
+; 
+; Copyright (c) 2019-2022 David Asta
+; 
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+; 
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+; 
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
 ;==============================================================================
 ; Code Conversion Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_KRN_ASCII2HEX:			.EXPORT		F_KRN_ASCII2HEX
+;TODO - F_KRN_TRANSLT_TIME:			.EXPORT		F_KRN_TRANSLT_TIME
+; In DZFS, file created/modified time is stored in 2 bytes in the format:
+;   5 bits for hour (binary number of hours 0-23)
+;   6 bits for minutes (binary number of minutes 0-59)
+;   5 bits for seconds (binary number of seconds / 2)
+; <-------- MSB --------> <-------- LSB -------->
+; 07 06 05 04 03 02 01 00 07 06 05 04 03 02 01 00
+; h  h  h  h  h  m  m  m  m  m  m  x  x  x  x  x
+; This subroutine translates from that format into a human readable hh:mm:ss
+; IN <= HL = address where the time to translate (source) is stored
+;       DE = address where the translated time (result) will be stored
+
+
+;------------------------------------------------------------------------------
+F_KRN_ASCIIADR_TO_HEX:		.EXPORT		F_KRN_ASCIIADR_TO_HEX
+; Convert address (or any 2 bytes) from hex ASCII to its hex value
+; (e.g. hex ASCII = 32 35 37 30 => hex value 2570)
+;	IN <= IX = address of 1st digit
+;	OUT => HL = converted hex value
+;
+		; Convert 1st byte
+		ld		H, (IX)					; H = hex ASCII value of 1st digit
+		ld		L, (IX + 1)				; L = hex ASCII value of 2nd digit
+		call	F_KRN_ASCII_TO_HEX		; A = hex value of HL
+		push	AF						; Backup 1st converted byte
+		; Convert 2nd byte
+		ld		H, (IX + 2)				; H = hex ASCII value of 1st digit
+		ld		L, (IX + 3)				; L = hex ASCII value of 2nd digit
+		call	F_KRN_ASCII_TO_HEX		; A = hex value of HL
+		; Store converted bytes into HL
+		pop		HL						; Restore 1st converted byte
+		ld		L, A					; 2nd converted byte
+		ret
+
+;------------------------------------------------------------------------------
+F_KRN_ASCII_TO_HEX:			.EXPORT		F_KRN_ASCII_TO_HEX
 ; Converts two ASCII characters (representing two hexadecimal digits)
 ; to one byte in Hexadecimal
 ; (e.g. 0x33 and 0x45 are converted into 3E)
@@ -60,7 +101,7 @@ a2hex: ; convert ascii digit to a hex digit
 a2hex1:
 		ret
 ;------------------------------------------------------------------------------
-F_KRN_HEX2ASCII:			.EXPORT		F_KRN_HEX2ASCII
+F_KRN_HEX_TO_ASCII:			.EXPORT		F_KRN_HEX_TO_ASCII
 ; Converts one byte in Hexadecimal to two ASCII printable characters
 ; (e.g. 0x3E is converted into 33 and 45, which are the ASCII values of 3 and E)
 ;	IN <= A = binary data
@@ -90,7 +131,7 @@ nas1:
 		add		a, '0'					; add ASCII 0 to make a character
 		ret
 ;------------------------------------------------------------------------------
-F_KRN_BIN2BCD4:			.EXPORT		F_KRN_BIN2BCD4
+F_KRN_BIN_TO_BCD4:			.EXPORT		F_KRN_BIN_TO_BCD4
 ; Converts 1 byte of unsigned integer to 4-digit
 ; IN <= A = unsigned integer
 ; OUT => H = hundreds digit
@@ -120,11 +161,12 @@ tens:
 		ld		l, a
 		ret
 ;------------------------------------------------------------------------------
-F_KRN_BIN2BCD6:			.EXPORT		F_KRN_BIN2BCD6
+F_KRN_BIN_TO_BCD6:			.EXPORT		F_KRN_BIN_TO_BCD6
 ; Converts 2 bytes of unsigned integer to 6-digit BCD
+; (e.g. 0xFFFF is converted into C = 6, D = 55, E = 35)
 ; https://de.comp.lang.assembler.x86.narkive.com/EjY9sEbE/z80-binary-to-ascii
 ;	IN <= HL = unsigned integer
-;	OUT => DE = 6-digit BCD
+;	OUT => CDE = 6-digit BCD
 		ld		bc, 4096				; counter
 		ld 		de, 0
 bin2bcdloop:
@@ -144,7 +186,7 @@ bin2bcdloop:
 		djnz 	bin2bcdloop				; all bits done? No, continue with more bits
 		ret								; yes, exit routine
 ;------------------------------------------------------------------------------
-F_KRN_BCD2ASCII:		.EXPORT		F_KRN_BCD2ASCII
+F_KRN_BCD_TO_ASCII:		.EXPORT		F_KRN_BCD_TO_ASCII
 ; Converts 6-digit BCD to ASCII string in a memory location
 ; https://de.comp.lang.assembler.x86.narkive.com/EjY9sEbE/z80-binary-to-ascii
 ;	IN <= DE = pointer to where the string will be stored

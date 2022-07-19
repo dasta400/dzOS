@@ -5,50 +5,63 @@
 ; for dastaZ80's dzOS
 ; by David Asta (May 2019)
 ;
-; Version 1.0.0
+; Version 2.0.0
 ; Created on 08 May 2019
-; Last Modification 08 May 2019
+; Last Modification 03 Jul 2022
 ;******************************************************************************
 ; CHANGELOG
-; 	-
+;   - 20 Jun 2022: Shorter and faster routine for F_KRN_SETMEMRNG
+;   - 03 Jul 2022: Added F_KRN_WHICH_RAMSIZE
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
-; This file is part of dzOS
-; Copyright (C) 2017-2018 David Asta
-
-; dzOS is free software: you can redistribute it and/or modify
-; it under the terms of the GNU General Public License as published by
-; the Free Software Foundation, either version 3 of the License, or
-; (at your option) any later version.
-
-; dzOS is distributed in the hope that it will be useful,
-; but WITHOUT ANY WARRANTY; without even the implied warranty of
-; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-; GNU General Public License for more details.
-
-; You should have received a copy of the GNU General Public License
-; along with dzOS.  If not, see <http://www.gnu.org/licenses/>.
+; MIT License
+; 
+; Copyright (c) 2019 David Asta
+; 
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+; 
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+; 
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
 ;==============================================================================
 ; Memory Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_KRN_SETMEMRNG:		.EXPORT		F_KRN_SETMEMRNG
+F_KRN_SETMEMRNG:        .EXPORT         F_KRN_SETMEMRNG
 ; Sets a value in a memory position range
-; IN <= HL contains the start position
-;		DE contains the end position.
-;		A value to set
-; The routine will go from HL to DE and store in each position whatever value
-; is in register A.
+; IN <= HL = start position
+;       BC = number of bytes to set
+;       A value to set
 setmemrng_loop:
-		ld		(hl), a					; put register A content in address pointed by HL
-		inc		hl						; HL pointed + 1
-		push	hl						; store HL value in Stack, because SBC destroys it
-		sbc		hl, de					; substract DE from HL
-		jp		z, end_setmemrng_loop	; if we reach the end position, jump out
-		pop		hl						; restore HL value from Stack
-		jp		setmemrng_loop			; no at end yet, continue loop
-end_setmemrng_loop:
-		pop		hl						; restore HL value from Stack
-		ret
+        ld      (HL), A
+        cpi
+        jp      pe, setmemrng_loop
+        ret
+;------------------------------------------------------------------------------
+F_KRN_WHICH_RAMSIZE
+; Check how much RAM we have
+; OUT => Z set for 64 KB, cleare for 32 KB
+
+; Test for 64 KB
+        ; Write 1 byte to $FFFF
+        ld      A, $AB
+        ld      ($FFFF), A
+        xor     A
+        ; Read it back to see if it was stored
+        ld      A, ($FFFF)
+        cp      $AB
+        ret

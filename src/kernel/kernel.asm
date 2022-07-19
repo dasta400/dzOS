@@ -7,141 +7,256 @@
 ;
 ; Version 1.0.0
 ; Created on 03 Jan 2018
-; Last Modification 03 Jan 2018
+; Last Modification 21 Jun 2022
 ;******************************************************************************
 ; CHANGELOG
-; 	-
+;     -
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
-; This file is part of dzOS
-; Copyright (C) 2017-2018 David Asta
-
-; dzOS is free software: you can redistribute it and/or modify
-; it under the terms of the GNU General Public License as published by
-; the Free Software Foundation, either version 3 of the License, or
-; (at your option) any later version.
-
-; dzOS is distributed in the hope that it will be useful,
-; but WITHOUT ANY WARRANTY; without even the implied warranty of
-; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-; GNU General Public License for more details.
-
-; You should have received a copy of the GNU General Public License
-; along with dzOS.  If not, see <http://www.gnu.org/licenses/>.
+; MIT License
+; 
+; Copyright (c) 2018-2022 David Asta
+; 
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+; 
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+; 
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
 ;==============================================================================
 ; Includes
 ;==============================================================================
-#include "src/includes/equates.inc"
+#include "src/equates.inc"
 #include "exp/BIOS.exp"
 #include "exp/sysvars.exp"
 
-		.ORG	KRN_START
-;		; Clean sysvars (not the ACIA, because they are in use already)
-;		ld		hl, 0
-;		ld		a, 0
-;		ld		(secs_per_clus), a
-;		ld		(secs_per_fat), hl
-;		ld		(num_fats), a
-;		ld		(reserv_secs), hl
-;		ld		(clus2secnum), hl
-;		ld		(root_dir_start), hl
-;		ld		(root_dir_sectors), hl
-;		ld		(cur_dir_start), hl
-;		ld		(file_attributes), a
-krn_welcome:
-		; Kernel start up messages
-		ld		hl, msg_dzos			; dzOS welcome message
-		call	F_KRN_WRSTR
-		ld		hl, dzos_version		; dzOS version
-		call	F_KRN_WRSTR
-;		; output 1 empty line
-;		ld		b, 1
-;		call	F_KRN_EMPTYLINES
+        .ORG    KRN_START
 
-		ld		hl, msg_bios_version	; BIOS version
-		call	F_KRN_WRSTR
-		ld		hl, msg_krn_version		; Kernel version
-		call	F_KRN_WRSTR
+        ; Kernel start up messages
+        ld      HL, msg_dzos            ; dzOS welcome message
+        call    F_KRN_SERIAL_WRSTR
+        ld      HL, dzos_version        ; dzOS version
+        call    F_KRN_SERIAL_WRSTR
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+        ld      HL, msg_bios_version    ; BIOS version
+        call    F_KRN_SERIAL_WRSTR
+        ld      HL, msg_krn_version        ; Kernel version
+        call    F_KRN_SERIAL_WRSTR
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
 
-		; output 2 empty lines
-		ld		b, 2
-		call	F_KRN_EMPTYLINES
+        ; Detect RAM size
+        ld      HL, krn_msg_ramsize_detect
+        call    F_KRN_SERIAL_WRSTR
+        call    F_KRN_WHICH_RAMSIZE
+        jp      nz, ramsize_32k
+ramsize_64k:
+        ld      HL, krn_msg_ramsize_64k
+        jp      ramsize_print
+ramsize_32k:
+        ld      HL, krn_msg_ramsize_32k
+ramsize_print:
+        call    F_KRN_SERIAL_WRSTR
+        ld      HL, krn_msg_ramsize_trail
+        call    F_KRN_SERIAL_WRSTR
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
 
-		; Initialise CF card reader
-		ld		hl, krn_msg_cf_init
-		call	F_KRN_WRSTR
-		call	F_BIOS_CF_INIT			
-		ld		hl, krn_msg_OK
-		call	F_KRN_WRSTR
-		ld		hl, krn_msg_cf_fat16ver
-		call	F_KRN_WRSTR
-		call	F_KRN_F16_READBOOTSEC	; read CF Boot Sector
+        ; Initialise CF card reader
+        ld      hl, krn_msg_cf_init
+        call    F_KRN_SERIAL_WRSTR
+        call    F_BIOS_CF_INIT
+        ld      hl, krn_msg_OK
+        call    F_KRN_SERIAL_WRSTR
+        ; Read Superblock
+        call    F_KRN_DZFS_READ_SUPERBLOCK
 
-		; Copy BIOS Jumpblocks from ROM to RAM
-		ld		hl, krn_msg_cpybiosjblks
-		call	F_KRN_WRSTR
-		ld		hl, BIOS_JBLK_START			; pointer to address of start of BIOS Jumpblocks in ROM
-		ld		de, BIOS_JBLK_COPY_START	; pointer to address of start of BIOS Jumpblocks in RAM
-		ld		bc, 256						; jumpblocks are 256 bytes max.
-		ldir								; copy from ROM to RAM
-		ld		hl, krn_msg_OK
-		call	F_KRN_WRSTR
-		; Copy Kernel Jumpblocks from ROM to RAM
-		ld		hl, krn_msg_cpykrnjblks
-		call	F_KRN_WRSTR
-		ld		hl, KRN_JBLK_START			; pointer to address of start of Kernel Jumpblocks in ROM
-		ld		de, KRN_JBLK_COPY_START		; pointer to address of start of Kernel Jumpblocks in RAM
-		ld		bc, 256						; jumpblocks are 256 bytes max.
-		ldir								; copy from ROM to RAM
-		ld		hl, krn_msg_OK
-		call	F_KRN_WRSTR
-		
-		; output 1 empty line
-		ld		b, 1
-		call	F_KRN_EMPTYLINES
+        ; Copy BIOS Jumpblocks from ROM to RAM
+        ld        hl, krn_msg_cpybiosjblks
+        call    F_KRN_SERIAL_WRSTR
+        ld        hl, BIOS_JBLK_START            ; pointer to address of start of BIOS Jumpblocks in ROM
+        ld        de, BIOS_JBLK_COPY_START    ; pointer to address of start of BIOS Jumpblocks in RAM
+        ld        bc, 256                        ; jumpblocks are 256 bytes max.
+        ldir                                ; copy from ROM to RAM
+        ld        hl, krn_msg_OK
+        call    F_KRN_SERIAL_WRSTR
+        ; Copy Kernel Jumpblocks from ROM to RAM
+        ld        hl, krn_msg_cpykrnjblks
+        call    F_KRN_SERIAL_WRSTR
+        ld        hl, KRN_JBLK_START            ; pointer to address of start of Kernel Jumpblocks in ROM
+        ld        de, KRN_JBLK_COPY_START        ; pointer to address of start of Kernel Jumpblocks in RAM
+        ld        bc, 256                        ; jumpblocks are 256 bytes max.
+        ldir                                ; copy from ROM to RAM
+        ld        hl, krn_msg_OK
+        call    F_KRN_SERIAL_WRSTR
 
-		jp		CLI_START				; transfer control to CLI
+        jp        CLI_START                ; transfer control to CLI
+
+;==============================================================================
+; General Subroutines
+;==============================================================================
+F_KRN_DZFS_SHOW_DISKINFO:           .EXPORT     F_KRN_DZFS_SHOW_DISKINFO
+        ; Volume Label
+        ld      HL, msg_vol_label
+        call    F_KRN_SERIAL_WRSTR
+        ld      B, 16                           ; counter = 4 bytes
+        ld      HL, CF_SBLOCK_LABEL             ; point HL to offset in the buffer
+        call    F_KRN_SERIAL_PRN_BYTES
+        ; Volume Serial Number
+        ld      HL, msg_volsn
+        call    F_KRN_SERIAL_WRSTR
+        ld      A, (CF_SBLOCK_SERNUM)
+        call    F_KRN_SERIAL_PRN_BYTE
+        ld      A, (CF_SBLOCK_SERNUM + $01)
+        call    F_KRN_SERIAL_PRN_BYTE
+        ld      A, (CF_SBLOCK_SERNUM + $02)
+        call    F_KRN_SERIAL_PRN_BYTE
+        ld      A, (CF_SBLOCK_SERNUM + $03)
+        call    F_KRN_SERIAL_PRN_BYTE
+        ld      A, ')'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+        ; File System id
+        ld      HL, msg_filesys
+        call    F_KRN_SERIAL_WRSTR
+        ld      B, 8                            ; counter = 4 bytes
+        ld      HL, CF_SBLOCK_FSID              ; point HL to offset in the buffer
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld        B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+        ; Volume Date/Time Creation
+        ld      HL, msg_vol_creation
+        call    F_KRN_SERIAL_WRSTR
+        ld      B, 2                            ; counter = 2 bytes
+        ld      HL, CF_SBLOCK_DATECREA          ; day
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      A, '/'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 2                            ; counter = 2 bytes
+        ld      HL, CF_SBLOCK_DATECREA + 2      ; month
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      A, '/'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 4                            ; counter = 4 bytes
+        ld      HL, CF_SBLOCK_DATECREA + 4      ; year
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 2                            ; counter = 2 bytes
+        ld      HL, CF_SBLOCK_DATECREA + 8      ; hour
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      A, ':'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 2                            ; counter = 2 bytes
+        ld      HL, CF_SBLOCK_DATECREA + 10     ; minutes
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      A, ':'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 2                            ; counter = 2 bytes
+        ld      HL, CF_SBLOCK_DATECREA + 12     ; seconds
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+        ; Number of partitions
+        ld      HL, msg_num_partitions
+        call    F_KRN_SERIAL_WRSTR
+        ld      A, (CF_SBLOCK_NUMPARTITIONS)
+        call    F_KRN_SERIAL_PRN_BYTE
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+;TODO        ; Bytes per Sector
+        ld      HL, msg_bytes_sector
+        call    F_KRN_SERIAL_WRSTR
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+;TODO        ; Sectors per Block
+        ld      HL, msg_sectors_block
+        call    F_KRN_SERIAL_WRSTR
+        ; ld      A, (CF_SBLOCK_SECBLOCK)
+        ; call    F_KRN_BIN_TO_BCD4
+        ; ld      A, 64
+        ; call    F_KRN_HEX_TO_ASCII
+        ; ld      A, H
+        ; call    F_BIOS_SERIAL_CONOUT_A
+        ; ld      A, L
+        ; call    F_BIOS_SERIAL_CONOUT_A
+        ret
 ;==============================================================================
 ; Kernel Modules
 ;==============================================================================
-#include "src/kernel/kernel.string.asm"
+#include "src/kernel/kernel.kbd.asm"
+#include "src/kernel/kernel.serial.asm"
 #include "src/kernel/kernel.mem.asm"
+#include "src/kernel/kernel.string.asm"
 #include "src/kernel/kernel.conv.asm"
 #include "src/kernel/kernel.math.asm"
-#include "src/kernel/kernel.fat16.asm"
+#include "src/kernel/kernel.dzfs.asm"
+
 ;==============================================================================
 ; Messages
 ;==============================================================================
-msg_krn_version:
-		.BYTE	CR, LF
-		.BYTE	"Kernel v1.0.0", 0
 msg_dzos:
-		.BYTE	CR, LF
-		.BYTE	"#####   ######   ####    ####  ", CR, LF
-		.BYTE	"##  ##     ##   ##  ##  ##     ", CR, LF
-		.BYTE	"##  ##    ##    ##  ##   ####  ", CR, LF
-		.BYTE	"##  ##   ##     ##  ##      ## ", CR, LF
-		.BYTE	"#####   ######   ####    ####  ", 0
+        .BYTE    CR, LF
+        .BYTE    "#####   ######   ####    ####  ", CR, LF
+        .BYTE    "##  ##     ##   ##  ##   ##    ", CR, LF
+        .BYTE    "##  ##   ##     ##  ##     ##  ", CR, LF
+        .BYTE    "#####   ######   ####    ####  ", 0
+msg_krn_version:
+        .BYTE    CR, LF
+        .BYTE    "Kernel v1.0.0", 0
 krn_msg_cf_init:
-		.BYTE	"....Initialising CompactFlash reader ", 0
-krn_msg_cf_fat16ver:
-		.BYTE	"FAT16 implementation v1.0 - No directories supported!", CR, LF, 0
+        .BYTE    "....Initialising CompactFlash reader ", 0
 krn_msg_cpybiosjblks:
-		.BYTE	CR, LF
-		.BYTE	"....Copying BIOS Jumblocks to RAM ", 0
+        .BYTE    "....Copying BIOS Jumblocks to RAM ", 0
 krn_msg_cpykrnjblks:
-		.BYTE	"....Copying Kernel Jumblocks to RAM ", 0
+        .BYTE    "....Copying Kernel Jumblocks to RAM ", 0
+krn_msg_ramsize_detect:
+        .BYTE   "....Detecting RAM size [ ", 0
+krn_msg_ramsize_32k:
+        .BYTE   "32", 0
+krn_msg_ramsize_64k:
+        .BYTE   "64", 0
+krn_msg_ramsize_trail:
+        .BYTE   " KB ]", 0
 krn_msg_OK:
-		.BYTE	"[ OK ]", CR, LF, 0
+        .BYTE   "[ OK ]", CR, LF, 0
+msg_volsn:
+        .BYTE   " (S/N: ",0
+msg_vol_label:
+        .BYTE   "            Volume . . : ",0
+msg_vol_creation:
+        .BYTE   "            Created on : ",0
+msg_num_partitions:
+        .BYTE   "            Partitions : ",0
+msg_filesys:
+        .BYTE   "            File System: ", 0
+msg_bytes_sector:
+        .BYTE   "       Bytes per Sector: ", 0
+msg_sectors_block:
+        .BYTE   "      Sectors per Block: ", 0
 
-		.ORG	KRN_DZOS_VERSION
-dzos_version:			.EXPORT		dzos_version
-		.BYTE	"vYYYY.MM.DD.   ", 0
+        .ORG    KRN_DZOS_VERSION
+dzos_version:            .EXPORT        dzos_version
+        .BYTE    "vYYYY.MM.DD.   ", 0    ; This is overwritten by Makefile with
+                                        ; compilation date and compile number
 ;==============================================================================
 ; END of CODE
 ;==============================================================================
-    	.ORG	KRN_END
-		        .BYTE	0
-		.END
+        .ORG    KRN_END
+        .BYTE    0
+        .END

@@ -1,21 +1,24 @@
 ;******************************************************************************
-; kernel.math.asm
+; portmap_dastaZ80.inc
 ;
-; Kernel's Arithmetic routines
+; Port Mapping to run on dastaZ80
 ; for dastaZ80's dzOS
-; by David Asta (May 2019)
+; by David Asta (Jul 2018)
+;
+; Create a symbolic link to this file, with name portmappings.inc
+;      ln -s portmap_dastaZ80.inc portmappings.inc
 ;
 ; Version 1.0.0
-; Created on 08 May 2019
-; Last Modification 08 May 2019
+; Created on 03 Jul 2022
+; Last Modification 03 Jul 2022
 ;******************************************************************************
 ; CHANGELOG
-;   -
+; 	-
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2019 David Asta
+; Copyright (c) 2022 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -37,19 +40,19 @@
 ; -----------------------------------------------------------------------------
 
 ;==============================================================================
-; Arithmetic Routines
+; Memory
 ;==============================================================================
-;------------------------------------------------------------------------------
-F_KRN_MULTIPLY816_SLOW:             .EXPORT     F_KRN_MULTIPLY816_SLOW
-; Multiplies an 8-bit number by a 16-bit number (HL = A * DE)
-; It does a slow multiplication by adding multiplier to itself as many
-; times as multiplicand (e.g. 8 * 4 = 8+8+8+8)
-; IN <= A = Multiplicand
-;       DE = Multiplier
-; OUT => HL = product
-        ld      b, a                    ; counter = multiplicand
-        ld      hl, 0                   ; initialise result
-mult8loop:
-        add     hl, de                  ; add multiplier to result
-        djnz    mult8loop               ; decrease multiplicand. Is multiplicand = 0? No, do it again
-        ret                             ; Yes, exit routine
+; ROMRAM_PAGING           .EQU    $38
+
+;==============================================================================
+; SIO/2
+;==============================================================================
+SIO_CH_A_CONTROL        .EQU	$20
+SIO_CH_A_DATA           .EQU	$21
+SIO_CH_B_CONTROL        .EQU	$22
+SIO_CH_B_DATA		    .EQU	$23
+
+;==============================================================================
+; CompactFlash
+;==============================================================================
+CFLASH_PORT				.EQU	$00
