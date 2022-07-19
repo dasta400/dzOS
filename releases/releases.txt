@@ -1,12 +1,20 @@
-dzOS.2019.05.06.1.bin
+dzOS.2019.05.06.1.bin (old)
 	added commands: help, loadihex, memdump, peek, poke, reset, run
 
-dzOS.2019.05.12.27.bin
+dzOS.2019.05.12.27.bin (old)
 	added commands: ld
 
-dzOS.2019.05.26.1.bin
+dzOS.2019.05.26.1.bin (old)
 	added commands: sf, lf
 	removed commands: loadihex
 
-dzOS.2019.05.27.7.bin
+dzOS.2019.05.27.7.bin (old)
 	ld shows file size in decimal notation
+
+dzOS.2022.07.19.16.bin (latest)
+    BIOS & Kernel talk to Serial Interface to communicate with the Keyboard
+    BIOS & Kernel talk with the Video Interface to generate VGA output
+    Dropped FAT16 and implemented my own file system (DZFS). For now read only with 1 partition
+    Added commands: cat, run, autopoke, formatdsk, rename, delete, chgattrt
+    Removed FAT16 commands: ld, sf, lf
+    Removed commands: loadihex
