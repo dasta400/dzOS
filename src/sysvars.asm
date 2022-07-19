@@ -121,7 +121,7 @@ tmp_addr3:					.EXPORT			tmp_addr3
 tmp_byte:					.EXPORT			tmp_byte
 				.BYTE	0				; Temporary storage for a Byte
 ;==============================================================================
-; Real-Time CLock variables
+; Real-Time Clock variables
 ;==============================================================================
 RTC_hour					.EXPORT			RTC_hour
 				.BYTE	0

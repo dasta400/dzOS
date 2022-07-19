@@ -41,6 +41,7 @@
 ;==============================================================================
 msg_help:
         .BYTE   CR, LF
+        .BYTE   ANSI_COLR_YLW
         .BYTE   " dzOS Help", CR, LF
         .BYTE   "|-------------|-----------------------------------|--------------------|", CR, LF
         .BYTE   "| Command     | Description                       | Usage              |", CR, LF
@@ -85,6 +86,8 @@ _CMD_CF_RENAME      .BYTE   "rename", 0     ; renames a file
 _CMD_CF_DELETE      .BYTE   "delete", 0     ; deletes a file
 _CMD_CF_CHGATTR     .BYTE   "chgattr", 0    ; changes attributes of a file
 
+_CMD_PIOPIO         .BYTE   "piopio", 0     ; test PIO
+
 ;==============================================================================
 ; TABLES
 ;==============================================================================
@@ -107,6 +110,7 @@ cmd_list_table:
         .WORD       _CMD_CF_RENAME
         .WORD       _CMD_CF_DELETE
         .WORD       _CMD_CF_CHGATTR
+        .WORD       _CMD_PIOPIO
 
 ; Jump table for avaiulable CLI commands
 cmd_jmptable:
@@ -126,11 +130,12 @@ cmd_jmptable:
         .WORD       CLI_CMD_CF_RENAME
         .WORD       CLI_CMD_CF_DELETE
         .WORD       CLI_CMD_CF_CHGATTR
+        .WORD       CLI_CMD_PIOPIO
 
 ;==============================================================================
 ; Local Equates
 ;==============================================================================
-JMPTABLE_LENGTH     .EQU        16      ; total number of available commands
+JMPTABLE_LENGTH     .EQU        17      ; total number of available commands
                                         ; in jump table above
 
 CLI_NOCMD:

@@ -46,7 +46,7 @@ The first 512 bytes on the disk contain fundamental information about the disk g
 | $2E    | 2              | Bytes per Sector (in Hexadecimal little-endian)|00 02|
 | $30    | 1              | Sectors per Block (in Hexadecimal little-endian)|40|
 | $31    | 1              | Number of Partitions|03|
-| $32 - $64 | 53 | Copyright notice (ASCII value) | Copyright 2022  David Asta    The MIT License (MIT)|
+| $32 - $64 | 51 | Copyright notice (ASCII value) | Copyright 2022  David Asta    The MIT License (MIT)|
 | $65-$1FF | 477          | Not used (filled with $00)|00 00 00 00 00 00 00 .........|
 
 ### Example
@@ -77,7 +77,7 @@ For simplicity, each entry works also as index. The first entry describes the fi
 | ------ | -------------- | ----------- | ------- |
 | $00    | 14  | **Filename** | 46 49 4C 45 30 30 30 30 31 20 20 20 20 20 |
 |        |     | Padded with spaces at the end||
-|        |     | (only allowed A to Z and 0 to 9. No spaces allowed)||
+|        |     | (only allowed A to Z and 0 to 9. No spaces allowed. Cannot start with a number.)||
 |        |     | First character also indicates 00=available, 7E=deleted (will appear as ~)||
 | $0E    | 1   | **Attributes** (Bits 0=Inactive / 1=Active) | Read Only, System file, Executable = 1101 = 0D |
 |        |     | Bit 0 = Read Only |  |
@@ -113,4 +113,4 @@ Offset  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F   0123456789ABCDEF
 
 ## Data Area
 
-The Data Area is the area of the disk used to store file data (e.g. programs, documents).
+The Data Area is the area of the disk used to store file data (e.g. programs, documents). It's divided into blocks (called Clusters) of 128 sectors each.

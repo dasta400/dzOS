@@ -36,6 +36,8 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
+; ToDo - Calls to functions should be to RAM jumpblock addresses
+
 ;==============================================================================
 ; Includes
 ;==============================================================================
@@ -50,7 +52,8 @@
         .ORG    CLI_START
 cli_welcome:
         ld      HL, msg_cli_version     ; CLI start up message
-        call    F_KRN_SERIAL_WRSTR      ; Output message
+        ld      A, ANSI_COLR_CYA
+        call    F_KRN_SERIAL_WRSTRCLR
         ; output 1 empty line
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
@@ -61,7 +64,10 @@ cli_welcome:
 cli_promptloop:
         call    F_CLI_CLRCLIBUFFS       ; Clear buffers
         ld      HL, msg_prompt          ; Prompt
-        call    F_KRN_SERIAL_WRSTR      ; Output message
+        ld      A, ANSI_COLR_CYA
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      A, ANSI_COLR_WHT        ; Set text colour
+        call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
         ld      HL, CLI_buffer_cmd      ; address where commands are buffered
 
         ld      A, 0
@@ -72,7 +78,8 @@ cli_promptloop:
         jp      cli_promptloop
 cli_command_unknown:
         ld      HL, error_1001
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 F_CLI_READCMD:
@@ -208,7 +215,8 @@ check_param:
         ret
 bad_params:
         ld      HL, error_1002
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
         ret
 ;------------------------------------------------------------------------------
 param1val_uppercase:
@@ -280,13 +288,13 @@ F_CLI_CLRCLIBUFFS:
 ; Messages
 ;==============================================================================
 msg_cli_version:
-        .BYTE   CR, LF
         .BYTE   "CLI    v1.0.0", 0
 ; msg_bytesfree:
         ; .BYTE   " Bytes free", 0
 msg_prompt:
         .BYTE   CR, LF
-        .BYTE   "> ", 0
+        .BYTE   "> "
+        .BYTE   0
 ;------------------------------------------------------------------------------
 ;             ERROR MESSAGES
 ;------------------------------------------------------------------------------
