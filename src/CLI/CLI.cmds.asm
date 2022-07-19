@@ -51,7 +51,8 @@ CLI_CMD_HALT:
 ;------------------------------------------------------------------------------
 CLI_CMD_HELP:
         ld      HL, msg_help
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;    peek - Prints the value of a single memory address
@@ -96,12 +97,12 @@ CLI_CMD_POKE:
         call    param1val_uppercase
         call    param2val_uppercase
         call    F_KRN_ASCII_TO_HEX      ; Hex ASCII to Binary conversion
-        ; CLI_buffer_parm1_val have the address in hexadecimal ASCII
+        ; CLI_buffer_parm1_val has the address in hexadecimal ASCII
         ; we need to convert its hexadecimal value (e.g. 33 => 03)
         ld      IX, CLI_buffer_parm1_val
         call    F_KRN_ASCIIADR_TO_HEX
         push    HL                      ; Backup HL
-        ; CLI_buffer_parm2_val have the value in hexadecimal ASCII
+        ; CLI_buffer_parm2_val has the value in hexadecimal ASCII
         ; we need to convert its hexadecimal value (e.g. 33 => 03)
         ld      A, (CLI_buffer_parm2_val)
         ld      H, A
@@ -112,9 +113,9 @@ CLI_CMD_POKE:
         ld      (HL), A                 ; Store value in address
         ; print OK, to let the user know that the command was successful
         ld      HL, msg_ok
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
-
 ;------------------------------------------------------------------------------
 ;    autopoke - Allows to enter hexadecimal values that will be stored at the
 ;              address in parm1 and consecutive positions.
@@ -135,7 +136,8 @@ CLI_CMD_AUTOPOKE:
 autopoke_loop:
         ; show a dollar symbol to indicate the user that can enter an hexadecimal
         ld      HL, msg_prompt_hex      ; Prompt
-        call    F_KRN_SERIAL_WRSTR      ; Output message
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         ; read 1st character
         call    F_KRN_SERIAL_RDCHARECHO ; read a character, with echo
         cp      CR                      ; test for 1st parameter entered
@@ -167,7 +169,8 @@ CLI_CMD_MEMDUMP:
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; print header
         ld      HL, msg_memdump_hdr
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
     ; CLI_buffer_parm2_val have the value in hexadecimal
     ; we need to convert it to binary
         ld      A, (CLI_buffer_parm2_val)
@@ -251,7 +254,8 @@ dump_next:
 askmoreorquit:
         push    HL                      ; backup HL
         ld      HL, msg_moreorquit
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_CYA
+        call    F_KRN_SERIAL_WRSTRCLR
         call    F_BIOS_SERIAL_CONIN_A   ; read key
         cp      SPACE                   ; was the SPACE key?
         jp      z, wantsmore            ; user wants more
@@ -260,7 +264,8 @@ askmoreorquit:
 wantsmore:
         ; print header
         ld      HL, msg_memdump_hdr
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         pop     HL                      ; restore HL
         jp      start_dump_line         ; return to start, so we print 23 more lines
 ;------------------------------------------------------------------------------
@@ -308,13 +313,17 @@ runner_addr:
 CLI_CMD_CF_CAT:
         ; print header
         ld      HL, msg_cf_cat_title
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_cf_cat_sep
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_cf_cat_detail
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_cf_cat_sep
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         ; print catalogue
         call    F_CLI_CF_PRINT_DISKCAT
         jp      cli_promptloop
@@ -343,7 +352,8 @@ CLI_CMD_CF_LOAD:    ; TODO - It is loading without full filename (e.g. disk load
         call    F_KRN_DZFS_LOAD_FILE_TO_RAM
         ; show success message
         ld      HL, msg_cf_file_loaded
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         ; Show SYSVARS.CF_cur_file_load_addr
         ld      HL, (CF_cur_file_load_addr)
         call    F_KRN_SERIAL_PRN_WORD
@@ -354,7 +364,8 @@ load_filename_not_found:
         ld      A, $EF                  ; Flag for 'run' command
         ld      (tmp_byte), A           ; to indicate that the file was not run
         ld      HL, error_2001
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;     formatdsk - Format CompactFlash disk
@@ -373,7 +384,8 @@ CLI_CMD_CF_FORMATDSK:
         ; User MUST reply with the word 'yes' to proceed.
         ; Any other word/character will cancel the formatting
         ld      HL, msg_cf_format_confirm
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         ld      IX, CLI_buffer_pgm      ; answer will be stored in CLI_buffer_pgm
 format_answer_loop:
         call    F_KRN_SERIAL_RDCHARECHO ; read a character, with echo
@@ -399,7 +411,8 @@ format_answer_end:
         ld      DE, CLI_buffer_parm2_val
         call    F_KRN_DZFS_FORMAT_CF
         ld      HL, msg_format_end
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;     diskinfo - Show CompactFlash information
@@ -407,7 +420,8 @@ format_answer_end:
 CLI_CMD_CF_DISKINFO:
         call    F_KRN_DZFS_READ_SUPERBLOCK  ; get CF information from the Superblock
         ld      HL, msg_cf_diskinfo_hdr
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         call    F_KRN_DZFS_SHOW_DISKINFO
         ; File System id
         ; Volume Label
@@ -439,7 +453,8 @@ CLI_CMD_CF_RENAME:  ; TODO - Do not allow renaming System or Read Only files
         jp      z, check_old_filename   ; No, continue
         ; Old filename already exists, show error an exit
         ld      HL, error_2002
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 check_old_filename:
         ; Check that old filename exists
@@ -459,12 +474,14 @@ check_old_filename:
         call    F_KRN_DZFS_RENAME_FILE
         ; show success message
         ld      HL, msg_cf_file_renamed
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 filename_notfound:
         ; Old filename already exists, show error an exit
         ld      HL, error_2001
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;   delete - Deletes a file with a specified filename
@@ -491,7 +508,8 @@ CLI_CMD_CF_DELETE:      ; TODO - Do not allow delete System or Read Only files
         call    F_KRN_DZFS_DELETE_FILE
         ; show success message
         ld      HL, msg_cf_file_deleted
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;   chgattr - Changes the attributes (RSHE) of a specified filename
@@ -510,7 +528,8 @@ CLI_CMD_CF_CHGATTR:     ; TODO - It is changing attribs without full filename (e
         jp      nz, chgattr             ; exists, change attributes
         ; doesn't exists, error and exit
         ld      HL, error_2001
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 chgattr:
         ; Read each character of param2 and make up the mask byte as per
@@ -566,7 +585,8 @@ make_done:
         jp      next_attr
 wrong_attr:
         ld      HL, error_2003
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 mask_done:
         ld      DE, (CF_cur_file_entry_number)
@@ -574,7 +594,8 @@ mask_done:
         call    F_KRN_DZFS_CHGATTR_FILE
         ; show success message
         ld      HL, msg_cf_file_attr_chged
-        call    F_KRN_SERIAL_WRSTR
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 is_filename_found:
@@ -592,6 +613,26 @@ is_filename_found:
         ld      A, (tmp_addr3 + 1)
         cp      $BA
         ret
+;------------------------------------------------------------------------------
+;   piopio - tests for PIO
+;------------------------------------------------------------------------------
+CLI_CMD_PIOPIO:
+        call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
+        call    param1val_uppercase
+        call    F_KRN_ASCII_TO_HEX      ; Hex ASCII to Binary conversion
+        ; CLI_buffer_parm1_val has the address in hexadecimal ASCII
+        ; we need to convert its hexadecimal value (e.g. 33 => 03)
+        ld      A, (CLI_buffer_parm1_val)
+        ld      H, A
+        ld      A, (CLI_buffer_parm1_val + 1)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX      ; A contains the binary value for param2
+        out     (PIO_A_DATA), A
+        ; print OK, to let the user know that the command was successful
+        ld      HL, msg_ok
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      cli_promptloop
 ;==============================================================================
 ; Disk subroutines
 ;==============================================================================

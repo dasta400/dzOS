@@ -36,6 +36,8 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
+; ToDo - Calls to functions should be to RAM jumpblock addresses
+
 ;==============================================================================
 ; Includes
 ;==============================================================================
@@ -54,8 +56,9 @@ F_BIOS_CBOOT:
         jp      F_BIOS_SERIAL_INIT      ; Initialise SIO/2
         call    F_BIOS_WIPE_RAM         ; wipe (with zeros) the entire RAM,
                                         ; except Stack area, SYSVARS and Buffers
-        .ORG    INITSIO2_END + 1		; To avoid overwritting RST08, RST10, RST18,
+        .ORG    INITSIO2_END + 1        ; To avoid overwritting RST08, RST10, RST18,
                                         ; RST20 and the SIO/2 Interrupt Vector at 60h
+        call    F_BIOS_PIO_INIT         ; Initialise PIO
 ;------------------------------------------------------------------------------
 ; Warm Boot
 F_BIOS_WBOOT:           .EXPORT         F_BIOS_WBOOT
@@ -97,6 +100,7 @@ msg_bios_version:               .EXPORT         msg_bios_version
 ;==============================================================================
 #include "src/BIOS/BIOS.cf.asm"
 #include "src/BIOS/BIOS.rtc.asm"
+#include "src/BIOS/BIOS.pio.asm"
 #include "src/BIOS/BIOS.serial.asm"     ; this include MUST be always the last
 
 ;==============================================================================

@@ -1,21 +1,21 @@
 ;******************************************************************************
-; BIOS_jblks.asm
+; BIOS.pio.asm
 ;
-; BIOS Jumpblocks
+; BIOS' Parallel (PIO) routines
 ; for dastaZ80's dzOS
-; by David Asta (Apr 2019)
+; by David Asta (July 2022)
 ;
 ; Version 1.0.0
-; Created on 25 Apr 2019
-; Last Modification 21 Jun 2022
+; Created on 08 Jul 2022
+; Last Modification 08 Jul 2022
 ;******************************************************************************
 ; CHANGELOG
-; 	-
+;   -
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2019-2022 David Asta
+; Copyright (c) 2022 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -36,39 +36,13 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-;==============================================================================
-; Includes
-;==============================================================================
-#include "src/equates.inc"
-#include "exp/BIOS.exp"
-
-		.ORG	BIOS_JBLK_START
-
-		jp		F_BIOS_WBOOT
-		jp		F_BIOS_SYSHALT
-
-		; SIO/2
-		jp		F_BIOS_SERIAL_CONIN_A
-		jp		F_BIOS_SERIAL_CONOUT_A
-		jp		F_BIOS_SERIAL_CONOUT_B
-
-		; jp		F_BIOS_CLRSCR
-		; jp		F_BIOS_CONIN
-		; jp		F_BIOS_CONOUT
-
-		; CompactFlash
-		jp		F_BIOS_CF_INIT
-		jp		F_BIOS_CF_BUSY
-		jp		F_BIOS_CF_READ_SEC
-		jp		F_BIOS_CF_WRITE_SEC
-		jp		F_BIOS_CF_DISKINFO
-
-		; Real-Time Clock
-		jp		F_BIOS_RTC_GET_TIME
-		jp		F_BIOS_RTC_GET_DATE
-		jp		F_BIOS_RTC_SET_TIME
-		jp		F_BIOS_RTC_SET_DATE
-
-		.ORG	BIOS_JBLK_END
-		.BYTE	0
-		.END
+; -----------------------------------------------------------------------------
+; Initialise PIO
+F_BIOS_PIO_INIT:
+        ; Set Port A as output (Mode 0)
+        ld      A, $0F                  ; D7-D6 = 0 (output)
+                                        ; D3-D0 must be 1111 to indicate Set Mode
+        out     (PIO_A_CONTROL), A
+        ; Set Port B as output (Mode 0)
+        ld      A, $0F                  ; D7-D6 = 0 (output)
+                                        ; D3-D0 must be 1111 to indicate Set Mode

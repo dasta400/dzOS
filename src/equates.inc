@@ -1,5 +1,5 @@
 ;******************************************************************************
-; equates.asm
+; equates.inc
 ;
 ; General Equates (.EQU)
 ; for dastaZ80's dzOS
@@ -101,6 +101,19 @@ SIO_EMPTY_SIZE          .EQU    5
 
 SIO_RTS_HIGH            .EQU    $0E8
 SIO_RTS_LOW	            .EQU    $0EA
+
+;==============================================================================
+; ANSI Terminal colours
+;==============================================================================
+ANSI_COLR_BLK           .EQU    0
+ANSI_COLR_RED           .EQU    1
+ANSI_COLR_GRN           .EQU    2
+ANSI_COLR_YLW           .EQU    3
+ANSI_COLR_BLU           .EQU    4
+ANSI_COLR_MGT           .EQU    5
+ANSI_COLR_CYA           .EQU    6
+ANSI_COLR_WHT           .EQU    7
+ANSI_COLR_GRY           .EQU    8
 
 ;==============================================================================
 ; CompactFlash
