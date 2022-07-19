@@ -82,3 +82,7 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
       * Do not allow deleting System or Read Only files.
     * **BUGS**:
       * *run*, *rename*, *delete* and *chgaatr*, are not taking in consideration the full filename (e.g. *disk* is acting on file *diskinfo*)
+
+## Compatibility
+
+It works with [RC2014](https://rc2014.co.uk/). You just need to assemble using the included *portmap_RC2014.inc*, by creating a symbolic link: ```ln -s portmap_RC2014.inc portmappings.inc```
