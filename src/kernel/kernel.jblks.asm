@@ -10,7 +10,7 @@
 ; Last Modification 21 Jun 2022
 ;******************************************************************************
 ; CHANGELOG
-; 	-
+;   -
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -42,36 +42,35 @@
 #include "src/equates.inc"
 #include "exp/kernel.exp"
 
-		.ORG	KRN_JBLK_START
+        .ORG    KRN_JBLK_START
 
-		jp			F_KRN_SERIAL_WRSTR
-		jp			F_KRN_SERIAL_RDCHARECHO
-		jp			F_KRN_SERIAL_EMPTYLINES
-		jp			F_KRN_SERIAL_PRN_BYTES
-		jp			F_KRN_SERIAL_PRN_BYTE
-		jp			F_KRN_SERIAL_PRN_WORD
-		jp			F_KRN_TOUPPER
-		; jp		F_KRN_GET_BYTE_BIN_ECHO
-		jp			F_KRN_PRINTABLE
-		jp			F_KRN_STRCMP
-		jp			F_KRN_STRCPY
-		jp			F_KRN_STRLEN
-		; jp		F_KRN_SETMEMRNG
-		; jp		F_KRN_ASCII2HEX
-		; jp		F_KRN_HEX2ASCII
-		; jp		F_KRN_BIN2BCD4
-		; jp		F_KRN_BIN2BCD6
-		; jp		F_KRN_BCD2ASCII
-		; jp		F_KRN_BITEXTRACT
-		jp			F_KRN_ASCIIADR_TO_HEX
-		; jp			F_KRN_TRANSLT_TIME
-		; jp			F_KRN_TRANSLT_DATE
+        jp      F_KRN_SERIAL_WRSTR
+        jp      F_KRN_SERIAL_RDCHARECHO
+        jp      F_KRN_SERIAL_EMPTYLINES
+        jp      F_KRN_SERIAL_PRN_BYTES
+        jp      F_KRN_SERIAL_PRN_BYTE
+        jp      F_KRN_SERIAL_PRN_WORD
 
-		jp			F_KRN_DZFS_READ_SUPERBLOCK
-		jp			F_KRN_DZFS_GET_FILE_BATENTRY
-		jp			F_KRN_DZFS_LOAD_FILE_TO_RAM
-		; jp			F_KRN_DZFS_FORMAT_DISK
+        jp      F_KRN_TOUPPER
+        jp      F_KRN_IS_PRINTABLE
+        jp      F_KRN_IS_NUMERIC
+        jp      F_KRN_STRCMP
+        jp      F_KRN_STRCPY
+        jp      F_KRN_STRLEN
 
-		.ORG	KRN_JBLK_END
-		.BYTE	0
-		.END
+        jp			F_KRN_ASCIIADR_TO_HEX
+
+        jp          F_KRN_MULTIPLY816_SLOW
+
+        jp			F_KRN_DZFS_READ_SUPERBLOCK
+        jp			F_KRN_DZFS_GET_FILE_BATENTRY
+        jp			F_KRN_DZFS_LOAD_FILE_TO_RAM
+        jp			F_KRN_DZFS_DELETE_FILE
+        jp			F_KRN_DZFS_RENAME_FILE
+        jp			F_KRN_DZFS_CHGATTR_FILE
+        jp			F_KRN_DZFS_FORMAT_CF
+        jp          F_KRN_DZFS_SHOW_DISKINFO
+
+        .ORG	KRN_JBLK_END
+        .BYTE	0
+        .END

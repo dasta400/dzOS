@@ -1,21 +1,21 @@
 ;******************************************************************************
-; kernel.math.asm
+; BIOS.rtc.asm
 ;
-; Kernel's Arithmetic routines
+; BIOS' Real-Time Clock routines
 ; for dastaZ80's dzOS
-; by David Asta (May 2019)
+; by David Asta (Jun 2022)
 ;
 ; Version 1.0.0
-; Created on 08 May 2019
-; Last Modification 08 May 2019
+; Created on 25 Jun 2022
+; Last Modification 25 Jun 2022
 ;******************************************************************************
 ; CHANGELOG
-;   -
+; 	-
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2019 David Asta
+; Copyright (c) 2022 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -37,19 +37,40 @@
 ; -----------------------------------------------------------------------------
 
 ;==============================================================================
-; Arithmetic Routines
+; Real-Time Clock Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_KRN_MULTIPLY816_SLOW:             .EXPORT     F_KRN_MULTIPLY816_SLOW
-; Multiplies an 8-bit number by a 16-bit number (HL = A * DE)
-; It does a slow multiplication by adding multiplier to itself as many
-; times as multiplicand (e.g. 8 * 4 = 8+8+8+8)
-; IN <= A = Multiplicand
-;       DE = Multiplier
-; OUT => HL = product
-        ld      b, a                    ; counter = multiplicand
-        ld      hl, 0                   ; initialise result
-mult8loop:
-        add     hl, de                  ; add multiplier to result
-        djnz    mult8loop               ; decrease multiplicand. Is multiplicand = 0? No, do it again
-        ret                             ; Yes, exit routine
+F_BIOS_RTC_GET_TIME:        .EXPORT     F_BIOS_RTC_GET_TIME
+; Returns the current time from the RTC circuit, in HEX values
+; IN <= none
+; OUT => time is stored in SYSVARS
+; TODO - F_BIOS_RTC_GET_TIME
+        ld      A, $15
+        ld      (RTC_hour), A
+        ld      A, $2D
+        ld      (RTC_minutes), A
+        ld      A, $20
+        ld      (RTC_seconds), A
+        ld      A, $5F
+        ld      (RTC_hundreds), A
+        ret
+F_BIOS_RTC_GET_DATE:        .EXPORT     F_BIOS_RTC_GET_DATE
+; Returns the current date from the RTC circuit, in HEX values
+; IN <= none
+; OUT => date is stored in SYSVARS
+; TODO - F_BIOS_RTC_GET_DATE
+        ld      A, $04
+        ld      (RTC_day), A
+        ld      A, $0A
+        ld      (RTC_month), A
+        ld      A, $14
+        ld      (RTC_century), A
+        ld      A, $01
+        ld      (RTC_year), A
+        ret
+F_BIOS_RTC_SET_TIME:        .EXPORT     F_BIOS_RTC_SET_TIME
+; TODO - F_BIOS_RTC_SET_TIME
+        ret
+F_BIOS_RTC_SET_DATE:        .EXPORT     F_BIOS_RTC_SET_DATE
+; TODO - F_BIOS_RTC_SET_DATE
+        ret

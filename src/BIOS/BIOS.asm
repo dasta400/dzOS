@@ -42,70 +42,66 @@
 #include "src/equates.inc"
 #include "exp/sysvars.exp"
 
-		.ORG	$0000
+        .ORG    $0000
 ;==============================================================================
 ; General Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
 ; Cold Boot
 F_BIOS_CBOOT:
-		di
-		ld		SP, STACK_END			; Set Stack address in RAM
-        jp      F_BIOS_SERIAL_INIT		; Initialise SIO/2
-
+        di
+        ld      SP, STACK_END           ; Set Stack address in RAM
+        jp      F_BIOS_SERIAL_INIT      ; Initialise SIO/2
+        call    F_BIOS_WIPE_RAM         ; wipe (with zeros) the entire RAM,
+                                        ; except Stack area, SYSVARS and Buffers
         .ORG    INITSIO2_END + 1		; To avoid overwritting RST08, RST10, RST18,
-										; RST20 and the SIO/2 Interrupt Vector at 60h
-;------------------------------------------------------------------------------										
+                                        ; RST20 and the SIO/2 Interrupt Vector at 60h
+;------------------------------------------------------------------------------
 ; Warm Boot
-F_BIOS_WBOOT:			.EXPORT			F_BIOS_WBOOT
-		ld		A, $00					; Set SIO/2 Channel A as the default
-		ld		(SIO_PRIMARY_IO), A		; channel to be used (connected to Keyboard)
+F_BIOS_WBOOT:           .EXPORT         F_BIOS_WBOOT
+        ld      A, $00                  ; Set SIO/2 Channel A as the default
+        ld      (SIO_PRIMARY_IO), A     ; channel to be used (connected to Keyboard)
 
-		jp		KRN_START				; transfer control to Kernel
+        jp      KRN_START               ; transfer control to Kernel
 
 ;------------------------------------------------------------------------------
 ; Halts the system
-F_BIOS_SYSHALT:			.EXPORT			F_BIOS_SYSHALT
-		di								; disable interrupts
-		halt							; halt the computer
+F_BIOS_SYSHALT:         .EXPORT         F_BIOS_SYSHALT
+        di                              ; disable interrupts
+        halt                            ; halt the computer
 
 ;==============================================================================
 ; RAM Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_BIOS_WIPE_RAM:
-; Sets zeros (00h) in all RAM addresses after the SysVars area
-		ld		hl, SYSVARS_END + 1		; start address to wipe
-		ld		de, FREERAM_END			; end address to wipe
-		ld		a, 0					; 00h is the value that will written in all RAM addresses
-wiperam_loop:
-		ld		(hl), a					; put register A content in address pointed by HL
-		inc		hl						; increment pointer
-		push	hl						; store HL value in Stack, because SBC destroys it
-		sbc		hl, de					; substract DE from HL
-		jr		z, wiperam_end			; if we reach the end position, jump out
-		pop		hl						; restore HL
-		jr		wiperam_loop			; no at end yet, continue loop
-wiperam_end:
-		pop		hl						; restore HL value from Stack
-		ret
+F_BIOS_WIPE_RAM:        ; TODO - is not working
+; Sets zeros (00h) in all RAM addresses except Stack area, SYSVARS and Buffers
+        ld      BC, FREERAM_TOTAL       ; total bytes
+        inc     BC                      ;    to wipe + 1
+        ld      HL, FREERAM_START       ; start address to wipe
+        ld      A, 0                    ; 00h is the wipe value that will written
+        ld      (HL), A                 ; wipe 1st address
+        ld      DE, FREERAM_START + 1   ; point DE to next address to wipe
+        ldir                            ; (DE)=(HL), HL=HL+1, until BC=0
+        ret
 
 ;==============================================================================
 ; Messages
 ;==============================================================================
-msg_bios_version:				.EXPORT			msg_bios_version
-		.BYTE	CR, LF
-		.BYTE	"BIOS v1.0.0", 0
+msg_bios_version:               .EXPORT         msg_bios_version
+        .BYTE   CR, LF
+        .BYTE   "BIOS v1.0.0", 0
 
 ;==============================================================================
 ; BIOS Modules
 ;==============================================================================
 #include "src/BIOS/BIOS.cf.asm"
-#include "src/BIOS/BIOS.serial.asm"
+#include "src/BIOS/BIOS.rtc.asm"
+#include "src/BIOS/BIOS.serial.asm"     ; this include MUST be always the last
 
 ;==============================================================================
 ; END of CODE
 ;==============================================================================
-		.ORG	BIOS_END
+        .ORG    BIOS_END
         .BYTE 0
-		.END        
+        .END
