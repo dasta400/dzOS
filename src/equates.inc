@@ -64,21 +64,21 @@ FREEROM_SIZE            .EQU    FREEROM_END - FREEROM_START
 ;==============================================================================
 ; RAM positions
 ;==============================================================================
-STACK_START             .EQU    $4000   ; Top of the dastaZ80's Stack location
+STACK_START             .EQU    $4000               ; Top of the dastaZ80's Stack location
 STACK_END               .EQU    STACK_START + 31    ; Bottom of the dastaZ80's Stack location
 
-BIOS_JBLK_COPY_START    .EQU    STACK_START + $80
-BIOS_JBLK_COPY_END      .EQU    STACK_START + $17F
-KRN_JBLK_COPY_START     .EQU    STACK_START + $120
-KRN_JBLK_COPY_END       .EQU    STACK_START + $21F
+BIOS_JBLK_COPY_START    .EQU    STACK_END + 1
+BIOS_JBLK_COPY_END      .EQU    BIOS_JBLK_COPY_START + 255
+KRN_JBLK_COPY_START     .EQU    BIOS_JBLK_COPY_END + 1
+KRN_JBLK_COPY_END       .EQU    KRN_JBLK_COPY_START + 255
 
-SYSVARS_START           .EQU    STACK_START + $220
-SYSVARS_END             .EQU    SYSVARS_START + 328
+SYSVARS_START           .EQU    KRN_JBLK_COPY_END + 1
+SYSVARS_END             .EQU    SYSVARS_START + 335
 
-CF_BUFFER_START         .EQU    $2370
+CF_BUFFER_START         .EQU    SYSVARS_END + 1
 CF_BUFFER_END           .EQU    CF_BUFFER_START + 511
 
-FREERAM_START           .EQU    STACK_START + $570
+FREERAM_START           .EQU    CF_BUFFER_END + 1
 FREERAM_END             .EQU    $FFFF
 FREERAM_TOTAL           .EQU    FREERAM_END - FREERAM_START + 1
 

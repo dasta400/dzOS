@@ -224,7 +224,6 @@ F_KRN_DZFS_SHOW_DISKINFO:           .EXPORT     F_KRN_DZFS_SHOW_DISKINFO
 ;==============================================================================
 ; Kernel Modules
 ;==============================================================================
-#include "src/kernel/kernel.kbd.asm"
 #include "src/kernel/kernel.serial.asm"
 #include "src/kernel/kernel.mem.asm"
 #include "src/kernel/kernel.string.asm"
