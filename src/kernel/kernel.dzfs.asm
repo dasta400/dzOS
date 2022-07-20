@@ -223,29 +223,36 @@ bat_nextentry:
 ;------------------------------------------------------------------------------
 F_KRN_DZFS_LOAD_FILE_TO_RAM:            .EXPORT         F_KRN_DZFS_LOAD_FILE_TO_RAM
 ; Load a file from CF into RAM, at the specified address
-; IN <= HL load address in RAM
-;       DE 1st sector
-;        IX length in sectors
+; IN <= DE 1st sector
+;       IX length in sectors
 ;
-    ld    (CF_cur_sector), IX     ; sector counter
-    ld    IX, CF_cur_sector    ; pointer to sector counter
-    ; set up LBA addressing
+        ld      (CF_cur_sector), IX     ; sector counter
+        ld      IX, CF_cur_sector       ; pointer to sector counter
+        ld      HL, (CF_cur_file_load_addr) ; By loading groups of 512 bytes
+        ld      (tmp_addr1), HL             ; the address will be modified
+                                            ; so I use a temporary variable to store it
 loadfile:
-    ld    B, 0
-    ld    A, (CF_cur_partition)
-    ld    C, A
-    call    F_BIOS_CF_READ_SEC    ; read 1 sector (512 bytes)
-    ; Copy file data from buffer to load address
-    ld      BC, 512
-        ld      HL, CF_BUFFER_START
-        ld      DE, (CF_cur_file_load_addr)
+        ; set up LBA addressing
+        ld      B, 0
+        ld      A, (CF_cur_partition)
+        ld      C, A
+        push    DE                      ; backup sector to load
+        call    F_BIOS_CF_READ_SEC      ; read 1 sector (512 bytes)
+        ; Copy file data
+        ld      BC, 512                 ; Copy 512 bytes
+        ld      HL, CF_BUFFER_START     ;   from the CF buffer
+        ld      DE, (tmp_addr1)         ;   to RAM
         ldir
-
-    dec    (IX)            ; decrement sector counter
-    or    (IX)            ; is it 0?
-    ret    z             ; yes, exit subroutine
-    inc    DE            ; no, increment sector number
-    jp    loadfile        ;     and read more sectors
+        ld      (tmp_addr1), DE         ; store the new RAM address,
+                                        ;   after ldir incremented DE by 512 bytes
+        dec     (IX)                    ; decrement sector counter
+        jp      z, loadfile_end
+        pop     DE                      ; restore sector to load
+        inc     DE                      ; no, increment sector number
+        jp    loadfile                  ;     and read more sectors
+loadfile_end:
+        pop     DE                      ; restore to avoid crash
+        ret                             ; and exit routine
 ;------------------------------------------------------------------------------
 F_KRN_DZFS_DELETE_FILE:                 .EXPORT         F_KRN_DZFS_DELETE_FILE
 ; To delete a file, change 1st character of the filename to 7E (~)

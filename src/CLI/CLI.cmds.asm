@@ -280,7 +280,9 @@ CLI_CMD_RUN:    ; TODO - It is running without full filename (e.g. disk runs dis
         jr      c, runner_addr          ; is number? Yes, run from memory address
 runner_filename:                        ; No, load and run file
         ; filename is the first parameter, so can call load command directly
-        call    CLI_CMD_CF_LOAD
+        ld      A, $AB                  ; This is a flag to tell CLI_CMD_CF_LOAD that the call
+        ld      (tmp_byte), A           ; didn't come from the jumptable, so that it can return here
+        call    CLI_CMD_CF_LOAD_NOCHECK
         ld      A, (tmp_byte)           ; Was the file loaded correctly?
         cp      $EF                     ; EF means there was an error
         jp      z, cli_promptloop       ; exit subroutine if param1 was not specified
@@ -334,6 +336,7 @@ CLI_CMD_CF_LOAD:    ; TODO - It is loading without full filename (e.g. disk load
 ; IN <= CLI_buffer_parm1_val = Filename
 ; OUT => OK message on default output (e.g. screen, I/O) if file found
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
+CLI_CMD_CF_LOAD_NOCHECK:                ; When called from CLI_CMD_RUN, the paramter was already checked
         ; Search filename in BAT
         ld      HL, CLI_buffer_parm1_val
         call    F_KRN_DZFS_GET_FILE_BATENTRY
@@ -346,7 +349,6 @@ CLI_CMD_CF_LOAD:    ; TODO - It is loading without full filename (e.g. disk load
         ; cp      $BA
         jp      z, load_filename_not_found ; No, show error message
         ; yes, continue
-        ld      HL, (CF_cur_file_load_addr) ; Load file into SYSVARS.CF_cur_file_load_addr
         ld      DE, (CF_cur_file_1st_sector)
         ld      IX, (CF_cur_file_size_sectors)
         call    F_KRN_DZFS_LOAD_FILE_TO_RAM
@@ -359,7 +361,11 @@ CLI_CMD_CF_LOAD:    ; TODO - It is loading without full filename (e.g. disk load
         call    F_KRN_SERIAL_PRN_WORD
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
-        jp      cli_promptloop
+        ; Did we get here via jumptable or call from CLI_CMD_RUN?
+        ld      A, (tmp_byte)
+        cp      $AB                     ; called from CLI_CMD_RUN?
+        ret     z                       ; yes, then do a return
+        jp      cli_promptloop          ; no, then transfer control back to CLI prompt
 load_filename_not_found:
         ld      A, $EF                  ; Flag for 'run' command
         ld      (tmp_byte), A           ; to indicate that the file was not run
@@ -866,12 +872,10 @@ cf_attrib_executable:
         and     8                       ; Executable?
         jp      nz, cf_attrb_is_exec    ; No, print a space
         call    print_a_space
-        jp      print_attribs_end
+        ret
 cf_attrb_is_exec:                       ; Yes, print a dot
         ld      A, 'E'
         call    F_BIOS_SERIAL_CONOUT_A
-print_attribs_end:
-        jp      cli_promptloop
 
 print_a_space:
         ld      A, ' '

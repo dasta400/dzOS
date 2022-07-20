@@ -61,7 +61,7 @@ cli_welcome:
 ;TODO        ; Show Free available RAM
         ; ld      HL, FREERAM_TOTAL
 
-cli_promptloop:
+cli_promptloop:         .EXPORT     cli_promptloop
         call    F_CLI_CLRCLIBUFFS       ; Clear buffers
         ld      HL, msg_prompt          ; Prompt
         ld      A, ANSI_COLR_CYA
