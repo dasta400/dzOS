@@ -10,3 +10,6 @@ dzOS.2019.05.26.1.bin
 
 dzOS.2019.05.27.7.bin
 	ld shows file size in decimal notation
+
+dzOS.2022.07.20.21.bin
+    solved bug in 'cat' and 'run' commands.
