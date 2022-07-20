@@ -18,3 +18,6 @@ dzOS.2022.07.19.16.bin (latest)
     Added commands: cat, run, autopoke, formatdsk, rename, delete, chgattrt
     Removed FAT16 commands: ld, sf, lf
     Removed commands: loadihex
+
+dzOS.2022.07.20.21.bin (hotfix)
+    Solved bug in 'cat' and 'run' commands.
