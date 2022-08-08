@@ -20,11 +20,11 @@ CLI_buffer_full_cmd .EQU  $431f
 RTC_hour         .EQU  $4366
 RTC_minutes      .EQU  $4367
 RTC_seconds      .EQU  $4368
-RTC_hundreds     .EQU  $4369
-RTC_century      .EQU  $436a
-RTC_year         .EQU  $436b
-RTC_month        .EQU  $436c
-RTC_day          .EQU  $436d
+RTC_century      .EQU  $4369
+RTC_year         .EQU  $436a
+RTC_month        .EQU  $436b
+RTC_day          .EQU  $436c
+RTC_day_of_the_week .EQU  $436d
 SIO_CH_A_BUFFER  .EQU  $4220
 SIO_CH_A_IN_PTR  .EQU  $4260
 SIO_CH_A_RD_PTR  .EQU  $4262

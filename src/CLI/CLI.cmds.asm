@@ -68,19 +68,7 @@ CLI_CMD_PEEK:
         call    F_KRN_SERIAL_EMPTYLINES
     ; CLI_buffer_parm1_val has the value in hexadecimal
     ; we need to convert it to binary
-        ld      A, (CLI_buffer_parm1_val)
-        ld      H, A
-        ld      A, (CLI_buffer_parm1_val + 1)
-        ld      L, A
-        call    F_KRN_ASCII_TO_HEX
-        ld      D, A
-        ld      A, (CLI_buffer_parm1_val + 2)
-        ld      H, A
-        ld      A, (CLI_buffer_parm1_val + 3)
-        ld      L, A
-        call    F_KRN_ASCII_TO_HEX
-        ld      E, A
-    ; DE contains the binary value for param1
+        call    F_CLI_HEX2BIN_PARAM1    ; DE contains the binary value for param1
         ex      DE, HL                  ; move from DE to HL (param1)
         ld      A, (HL)                 ; load value at address of param1
         call    F_KRN_SERIAL_PRN_BYTE   ; Prints byte in hexadecimal notation
@@ -171,37 +159,13 @@ CLI_CMD_MEMDUMP:
         ld      HL, msg_memdump_hdr
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
-    ; CLI_buffer_parm2_val have the value in hexadecimal
-    ; we need to convert it to binary
-        ld      A, (CLI_buffer_parm2_val)
-        ld      H, A
-        ld      A, (CLI_buffer_parm2_val + 1)
-        ld      L, A
-        call    F_KRN_ASCII_TO_HEX
-        ld      D, A
-        ld      A, (CLI_buffer_parm2_val + 2)
-        ld      H, A
-        ld      A, (CLI_buffer_parm2_val + 3)
-        ld      L, A
-        call    F_KRN_ASCII_TO_HEX
-        ld      E, A
-    ; DE contains the binary value for param2
+        ; CLI_buffer_parm2_val have the value in hexadecimal
+        ; we need to convert it to binary
+        call    F_CLI_HEX2BIN_PARAM2    ; DE contains the binary value for param2
         push    DE                      ; store in the stack
-    ; CLI_buffer_parm1_val have the value in hexadecimal
-    ; we need to convert it to binary
-        ld      A, (CLI_buffer_parm1_val)
-        ld      H, A
-        ld      A, (CLI_buffer_parm1_val + 1)
-        ld      L, A
-        call    F_KRN_ASCII_TO_HEX
-        ld      D, A
-        ld      A, (CLI_buffer_parm1_val + 2)
-        ld      H, A
-        ld      A, (CLI_buffer_parm1_val + 3)
-        ld      L, A
-        call    F_KRN_ASCII_TO_HEX
-        ld      E, A
-    ; DE contains the binary value for param1
+        ; CLI_buffer_parm1_val have the value in hexadecimal
+        ; we need to convert it to binary
+        call    F_CLI_HEX2BIN_PARAM1    ; DE contains the binary value for param1
         ex      DE, HL                  ; move from DE to HL (HL=param1)
         pop     DE                      ; restore from stack (DE=param2)
 start_dump_line:
@@ -293,19 +257,7 @@ runner_addr:
         call    param1val_uppercase
         ; CLI_buffer_parm1_val have the value in hexadecimal
         ; we need to convert it to binary
-        ld      A, (CLI_buffer_parm1_val)
-        ld      H, A
-        ld      A, (CLI_buffer_parm1_val + 1)
-        ld      L, A
-        call    F_KRN_ASCII_TO_HEX
-        ld      D, A
-        ld      A, (CLI_buffer_parm1_val + 2)
-        ld      H, A
-        ld      A, (CLI_buffer_parm1_val + 3)
-        ld      L, A
-        call    F_KRN_ASCII_TO_HEX
-        ld      E, A
-        ; DE contains the binary value for param1
+        call    F_CLI_HEX2BIN_PARAM1    ; DE contains the binary value for param1
         ex      DE, HL                  ; move from DE to HL (param1)
         jp      (HL)                    ; jump execution to address in HL
         jp      cli_promptloop          ; exit subroutine if param1 was not specified
@@ -620,25 +572,177 @@ is_filename_found:
         cp      $BA
         ret
 ;------------------------------------------------------------------------------
-;   piopio - tests for PIO
+;   save - Save n bytes from an specified address in memory to a file
+;          User will be prompted for a filename
 ;------------------------------------------------------------------------------
-CLI_CMD_PIOPIO:
-        call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
-        call    param1val_uppercase
-        call    F_KRN_ASCII_TO_HEX      ; Hex ASCII to Binary conversion
-        ; CLI_buffer_parm1_val has the address in hexadecimal ASCII
-        ; we need to convert its hexadecimal value (e.g. 33 => 03)
+CLI_CMD_CF_SAVE:
+; IN <= CLI_buffer_parm1_val = start address in memory
+;       CLI_buffer_parm2_val = number of bytes to save
+
+; ToDo - CLI_CMD_CF_SAVE
+;      ✔ Check params 1 and 2
+;      ✔ Ask for filename
+;      ✔ Check if filename already exists. If it does, error and exit
+;      ✔ Print sucess message
+
+        call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
+        ; Ask for filename
+        ld      HL, msg_prompt_fname
+        ld      A, ANSI_COLR_BLU
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      IX, CLI_buffer_cmd      ; store filename entered by the user in SYSVARS
+get_filename:
+        call    F_KRN_SERIAL_RDCHARECHO
+        cp      CR                      ; ENTER?
+        jp      z, end_get_fname        ; yes, filename was fully entered
+        ld      (IX), A                 ; no, store filename in SYSVARS
+        inc     IX
+        jp      get_filename            ; and continue reading characters
+end_get_fname:
+        ; Check filename exists
+        ld      HL, CLI_buffer_cmd
+        call    F_KRN_DZFS_GET_FILE_BATENTRY
+        ; Was the filename found?
+        call    is_filename_found
+        jp      z, save_filename        ; doesn't exist, do the saving
+        ; exists, error and exit
+        ld      HL, error_2002
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      cli_promptloop
+save_filename:
+        ; Convert param1 to binary
+        call    F_CLI_HEX2BIN_PARAM1    ; DE contains the binary value for param1
+        push    DE                      ;backup param1 in binary
+        ; Convert param2 to binary
+        ;   Get the length of param2 and store it in B
+        ld      HL, CLI_buffer_parm2_val
+        ld      A, $00                      ; param2 is terminated with $00
+        call    F_KRN_STRLEN
+        ;   Shift bytes by one to the right
+        ;      and put the length in first byte
+        dec     HL                          ; pointer to last byte to shift
+        call    F_KRN_SHIFT_BYTES_BY1
+        ;   Convert it to binary
+        ld      HL, CLI_buffer_parm2_val
+        call    F_KRN_DEC_TO_BIN
+        ld      B, H                        ; store byte counter
+        ld      C, L                        ;   in BC
+
+        pop     HL                          ; restore param1 in binary
+        ld      IX, CLI_buffer_cmd      ; IX points to where the filename is stored
+
+        call    F_KRN_DZFS_CREATE_NEW_FILE
+
+        ld      HL, $4000
+        ld      DE, $4570
+        jp      start_dump_line
+
+
+        ; print OK, to let the user know that the command was successful
+        ld      HL, msg_cf_file_saved
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      cli_promptloop
+;------------------------------------------------------------------------------
+;   date - Show current date
+;------------------------------------------------------------------------------
+CLI_CMD_RTC_DATE:
+;         call    F_BIOS_RTC_GET_DATE     ; date is stored in SYSVARS in BCD
+;         ld      A, RTC_day_of_the_week
+;         cp      2
+;         jp      z, date_mon
+;         cp      3
+;         jp      z, date_tue
+;         cp      4
+;         jp      z, date_wed
+;         cp      5
+;         jp      z, date_thu
+;         cp      6
+;         jp      z, date_fri
+;         cp      7
+;         jp      z, date_sat
+; date_sun:
+;         jp      date_day
+; date_mon:
+;         jp      date_day
+; date_tue:
+;         jp      date_day
+; date_wed:
+;         jp      date_day
+; date_thu:
+;         jp      date_day
+; date_fri:
+;         jp      date_day
+; date_sat:
+
+; date_day:
+;         ; ToDo - CLI_CMD_RTC_DATE print a comma to separate DoW from Day
+;         ld      D, 0
+;         ld      E, (RTC_day)
+; date_month:
+;         ; ToDo - CLI_CMD_RTC_DATE print a slash to separate Day from Month
+;         ld      D, 0
+;         ld      E, (RTC_month)
+; date_year:
+;         ; ToDo - CLI_CMD_RTC_DATE print a slash to separate Month from Year
+
+        ret
+;------------------------------------------------------------------------------
+;   time - Show current time
+;------------------------------------------------------------------------------
+CLI_CMD_RTC_TIME:
+        ; call    F_BIOS_RTC_GET_TIME
+        ret
+;------------------------------------------------------------------------------
+;   setdate - Change current date (ddmmyyyy)
+;------------------------------------------------------------------------------
+CLI_CMD_RTC_SETDATE:
+        ret
+;------------------------------------------------------------------------------
+;   settime - Change current time (hhmmss)
+;------------------------------------------------------------------------------
+CLI_CMD_RTC_SETTIME:
+        ret
+;==============================================================================
+; Subroutines
+;==============================================================================
+;------------------------------------------------------------------------------
+F_CLI_HEX2BIN_PARAM1:
+; Converts CLI_buffer_parm1_val from ASCII hex to binary values
+; (e.g. 0x33 and 0x45 are converted into 3E)
+; OUT => DE = the binary value for CLI_buffer_parm1_val
         ld      A, (CLI_buffer_parm1_val)
         ld      H, A
         ld      A, (CLI_buffer_parm1_val + 1)
         ld      L, A
-        call    F_KRN_ASCII_TO_HEX      ; A contains the binary value for param2
-        out     (PIO_A_DATA), A
-        ; print OK, to let the user know that the command was successful
-        ld      HL, msg_ok
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        jp      cli_promptloop
+        call    F_KRN_ASCII_TO_HEX
+        ld      D, A
+        ld      A, (CLI_buffer_parm1_val + 2)
+        ld      H, A
+        ld      A, (CLI_buffer_parm1_val + 3)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX
+        ld      E, A
+        ret
+;------------------------------------------------------------------------------
+F_CLI_HEX2BIN_PARAM2:
+; Converts CLI_buffer_parm2_val from ASCII hex to binary values
+; (e.g. 0x33 and 0x45 are converted into 3E)
+; OUT => DE = the binary value for CLI_buffer_parm1_val
+        ld      A, (CLI_buffer_parm2_val)
+        ld      H, A
+        ld      A, (CLI_buffer_parm2_val + 1)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX
+        ld      D, A
+        ld      A, (CLI_buffer_parm2_val + 2)
+        ld      H, A
+        ld      A, (CLI_buffer_parm2_val + 3)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX
+        ld      E, A
+        ret
 ;==============================================================================
 ; Disk subroutines
 ;==============================================================================
@@ -786,22 +890,16 @@ diskcat_print:
         ; Print each of the 6 digits
         ld      IY, CLI_buffer_pgm
         ld      A, (IY + 0)
-        call    diskcat_space_when_zero
         call    F_BIOS_SERIAL_CONOUT_A
         ld      A, (IY + 1)
-        call    diskcat_space_when_zero
         call    F_BIOS_SERIAL_CONOUT_A
         ld      A, (IY + 2)
-        call    diskcat_space_when_zero
         call    F_BIOS_SERIAL_CONOUT_A
         ld      A, (IY + 3)
-        call    diskcat_space_when_zero
         call    F_BIOS_SERIAL_CONOUT_A
         ld      A, (IY + 4)
-        call    diskcat_space_when_zero
         call    F_BIOS_SERIAL_CONOUT_A
         ld      A, (IY + 5)
-        call    diskcat_space_when_zero
         call    F_BIOS_SERIAL_CONOUT_A
         call    print_a_space
         call    print_a_space
@@ -822,18 +920,14 @@ diskcat_nextentry:
         inc     A                       ; increment sector counter
         ld      (CF_cur_sector), A      ; Did we process
         cp      64                      ;    64 sectors already?
-; TODO - Change this 64, to be read from Superblock's Sectors per Block
+; TODO - Change this 64, to be read from Superblock's Sectors per Block?
         jp      nz, diskcat_nextsector  ; No, then process next sector
         jp      diskcat_end_nopop
 diskcat_end:
         pop     AF                      ; needed because previous push AF    
 diskcat_end_nopop:
         jp      cli_promptloop          ; Yes, then nothing else to do
-diskcat_space_when_zero:
-        cp      $30                     ; is it a 0?
-        ret     nz                      ; no, then return
-        ld      A, SPACE                ; yes, then change it for a space
-        ret
+
 ;------------------------------------------------------------------------------
 F_CLI_CF_PRINT_ATTRBS:
 ; Prints a string with letters (R=Read Only, H=Hidden, S=System, E=Executable)
@@ -917,6 +1011,9 @@ msg_cf_file_deleted:
 msg_cf_file_attr_chged:
         .BYTE   CR, LF
         .BYTE   "File Attributes changed", 0
+msg_cf_file_saved:
+        .BYTE   CR, LF
+        .BYTE   "File saved", 0
 msg_cf_format_confirm:
         .BYTE   CR, LF
         .BYTE   "All data in the disk will be destroyed!", CR, LF
@@ -934,6 +1031,9 @@ msg_moreorquit:
 msg_format_end:
         .BYTE   CR, LF
         .BYTE   "Disk was successfully formatted", CR, LF, 0
+msg_prompt_fname:
+        .BYTE   CR, LF
+        .BYTE   "filename? ", 0
 ;------------------------------------------------------------------------------
 ;             ERROR MESSAGES
 ;------------------------------------------------------------------------------

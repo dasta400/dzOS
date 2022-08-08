@@ -47,7 +47,7 @@
 		jp		F_BIOS_WBOOT
 		jp		F_BIOS_SYSHALT
 
-		; SIO/2
+		; Serial subroutines
 		jp		F_BIOS_SERIAL_CONIN_A
 		jp		F_BIOS_SERIAL_CONOUT_A
 		jp		F_BIOS_SERIAL_CONOUT_B
@@ -56,14 +56,14 @@
 		; jp		F_BIOS_CONIN
 		; jp		F_BIOS_CONOUT
 
-		; CompactFlash
+		; CompactFlash subroutines
 		jp		F_BIOS_CF_INIT
 		jp		F_BIOS_CF_BUSY
 		jp		F_BIOS_CF_READ_SEC
 		jp		F_BIOS_CF_WRITE_SEC
 		jp		F_BIOS_CF_DISKINFO
 
-		; Real-Time Clock
+		; Real-Time Clock subroutines
 		jp		F_BIOS_RTC_GET_TIME
 		jp		F_BIOS_RTC_GET_DATE
 		jp		F_BIOS_RTC_SET_TIME

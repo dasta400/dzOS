@@ -44,6 +44,9 @@
 
         .ORG    KRN_JBLK_START
 
+        ; Serial subroutines
+        jp      F_KRN_SERIAL_SETFGCOLR
+        jp      F_KRN_SERIAL_WRSTRCLR
         jp      F_KRN_SERIAL_WRSTR
         jp      F_KRN_SERIAL_RDCHARECHO
         jp      F_KRN_SERIAL_EMPTYLINES
@@ -51,6 +54,7 @@
         jp      F_KRN_SERIAL_PRN_BYTE
         jp      F_KRN_SERIAL_PRN_WORD
 
+        ; String subroutines
         jp      F_KRN_TOUPPER
         jp      F_KRN_IS_PRINTABLE
         jp      F_KRN_IS_NUMERIC
@@ -58,18 +62,41 @@
         jp      F_KRN_STRCPY
         jp      F_KRN_STRLEN
 
-        jp			F_KRN_ASCIIADR_TO_HEX
+        ; Memory subroutines
+        jp      F_KRN_SETMEMRNG
+        jp      F_KRN_COPYMEM512
+        jp      F_KRN_SHIFT_BYTES_BY1
 
-        jp          F_KRN_MULTIPLY816_SLOW
+        ; Conversion subroutines
+        jp      F_KRN_ASCIIADR_TO_HEX
+        jp      F_KRN_ASCIIADR_TO_HEX
+        jp      F_KRN_ASCII_TO_HEX
+        jp      F_KRN_HEX_TO_ASCII
+        jp      F_KRN_BIN_TO_BCD4
+        jp      F_KRN_BIN_TO_BCD6
+        jp      F_KRN_BCD_TO_ASCII
+        jp      F_KRN_BITEXTRACT
+        jp      F_KRN_BIN_TO_ASCII
+        jp      F_KRN_DEC_TO_BIN
 
-        jp			F_KRN_DZFS_READ_SUPERBLOCK
-        jp			F_KRN_DZFS_GET_FILE_BATENTRY
-        jp			F_KRN_DZFS_LOAD_FILE_TO_RAM
-        jp			F_KRN_DZFS_DELETE_FILE
-        jp			F_KRN_DZFS_RENAME_FILE
-        jp			F_KRN_DZFS_CHGATTR_FILE
-        jp			F_KRN_DZFS_FORMAT_CF
-        jp          F_KRN_DZFS_SHOW_DISKINFO
+        ; Math subroutines
+        jp      F_KRN_MULTIPLY816_SLOW
+        jp      F_KRN_MULTIPLY1616
+        jp      F_KRN_DIV1616
+
+        ; DZFS subroutines
+        jp      F_KRN_DZFS_READ_SUPERBLOCK
+        jp      F_KRN_DZFS_GET_FILE_BATENTRY
+        jp      F_KRN_DZFS_LOAD_FILE_TO_RAM
+        jp      F_KRN_DZFS_DELETE_FILE
+        jp      F_KRN_DZFS_RENAME_FILE
+        jp      F_KRN_DZFS_CHGATTR_FILE
+        jp      F_KRN_DZFS_FORMAT_CF
+        jp      F_KRN_DZFS_SHOW_DISKINFO
+        jp      F_KRN_DZFS_SECTOR_TO_CF
+        jp      F_KRN_DZFS_SEC_TO_BUFFER
+        jp      F_KRN_DZFS_ADD_BAT_ENTRY
+        jp      F_KRN_DZFS_CREATE_NEW_FILE
 
         .ORG	KRN_JBLK_END
         .BYTE	0

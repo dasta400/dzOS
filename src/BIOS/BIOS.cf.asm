@@ -96,7 +96,7 @@ F_BIOS_CF_SET_LBA:
 		call	F_BIOS_CF_BUSY				; loop until CF card is ready
 
 		ld		a, b						; sector address LBA 3
-		and     0fh                     	; only bits 0 to 3 are LBA 3
+		and     $0f                     	; only bits 0 to 3 are LBA 3
 		or      $e0                     	; mask to select as drive 0 (master)
 		out		(CF_LBA3), a				; LBA Bits 24-27
 		ret

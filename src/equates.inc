@@ -36,7 +36,7 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-#include "src/portmappings.inc"         ; port mappings for different hardware on which DZOS runs
+#include "src/portmappings.inc"         ; port mappings for different hardware
 
 ;==============================================================================
 ; ROM positions

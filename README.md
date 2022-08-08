@@ -52,13 +52,13 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
         * Tactile switch (reset)
 
   * **Software**:
-    * Keyboard Controller Arduino code for Teensy++ 2.0
+    * Keyboard Controller Arduino code for Teensy++ 2.0 (folder *A3010KBD*)
     * FabGL Arduino code for VGA32
     * **OS**:
       * **BIOS** & **Kernel**:
         * Talks with the Keyboard Controller to communicate with the Keyboard.
         * Talks with the Video Interface to generate VGA output.
-        * DZFS read/write, 1 partition
+        * **DZFS** (dastaZ80 File System) read/write, 1 partition. **This file system is still in experimental phase. Lost of data may occur due to unknown bugs.**
       * **Command Line Interface (CLI)**:
         * Shows prompt, reads input from keyboard and calls subroutines corresponding to commands entered by the user.
         * Available commands:
@@ -76,10 +76,11 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
           * **formatdsk *[label]*,*[num_partitions]***: formats a CompactFlash card with DZFS.
           * **rename *[old_filename]*,*[new_filename]***: changes the name of file old_filename to new_filename.
           * **delete *[filename]***: deletes filename. Data isn't deleted, just the first character of the filename in the BAT is set to 7E (~), so it can be undeleted. Be aware, that the save command will always search for an empty entry in the BAT, but if it finds none, then it will re-use the first entry of a deleted file. Therefore, undelete of a file is only guaranteed if no file was created since the delete command was issued.
-          * **chgattr** [filename],[new_attributes(RHSE)]: changes the attributes of filename to the new specified attributes.
+          * **chgattr** *[filename]*,*[new_attributes(RHSE)]*: changes the attributes of filename to the new specified attributes.
     * **TODOs**:
       * Do not allow renaming System or Read Only files.
       * Do not allow deleting System or Read Only files.
+      * Disable disk commands if at boot the CF card was detected as not formatted.
     * **BUGS**:
       * *run*, *rename*, *delete* and *chgaatr*, are not taking in consideration the full filename (e.g. *disk* is acting on file *diskinfo*)
 

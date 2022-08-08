@@ -65,3 +65,74 @@ F_KRN_WHICH_RAMSIZE
         ld      A, ($FFFF)
         cp      $AB
         ret
+;------------------------------------------------------------------------------
+F_KRN_COPYMEM512:       .EXPORT         F_KRN_COPYMEM512
+; Copy bytes from one area of memory to another, in group of 512 bytes (i.e. max. 512 bytes).
+; If less than 512 bytes are to be copied, the rest will be filled with zeros.
+; IN <= HL = start address (from where to copy the bytes)
+;       DE = end address (to where to copy the bytes)
+;       BC = number of bytes to copy (MUST be less or equal to 512)
+        push    BC                      ; backup bytes counter
+        ldir                            ; copy bytes from start to end
+        ; if it were less than 512 bytes,
+        ;   copy zeros until 512 are copied
+        ld      HL, 512
+        pop     BC                      ; restore bytes counter
+        or      A                       ; clear Carry Flag before SBC
+        sbc     HL, BC                  ; HL = remaining bytes to copy
+        ld      B, H                    ; copy HL
+        ld      C, L                    ;   to BC
+copy512rest:
+        ld      A, B                    ; check if BC
+        or      C                       ;   has reached zero
+        jp      z, copy512end           ; yes, we copied all 512 bytes
+        ld      A, 0                    ; no,
+        ld      (DE), A                 ;   copy zeros
+        inc     DE                      ;   to the reamining addresses
+        dec     BC                      ;   until counter reaches zero
+        jp      copy512rest             ;   which means we copied 512
+copy512end:
+        ret
+;------------------------------------------------------------------------------
+F_KRN_SHIFT_BYTES_BY1:  .EXPORT         F_KRN_SHIFT_BYTES_BY1
+; Moves bytes (by one) to the right
+; and replaces first byte with bytes counter
+; IN <= HL = address of last byte to move
+;       B = number of bytes to move
+        push    BC                      ; backup bytes counter
+        ld      D, H
+        ld      E, L                    ; DE = HL
+        inc     DE                      ; DE = HL + 1
+shift_loop:
+        ld      A, (HL)                 ; get byte at HL
+        ld      (DE), A                 ; copy it at HL + 1
+        dec     HL                      ; point to previous byte
+        dec     DE                      ; point to previous byte + 1
+        djnz    shift_loop              ; loop if there are more bytes to move
+        pop     BC                      ; restore bytes counter
+        ld      A, B                    ; and store it
+        ld      (DE), A                 ;   in first byte
+        ret
+;------------------------------------------------------------------------------
+F_KRN_CLEAR_MEMAREA:    .EXPORT         F_KRN_CLEAR_MEMAREA
+; Clears (with zeros) a number of bytes, starting at a specified address
+; Maximum 256 bytes can be cleared.
+; IN <= IX = first byte to clear
+;       B = number of bytes to clear
+        ld      A, 0
+loop_clrmem:
+        ld      (IX), A
+        inc     IX
+        djnz    loop_clrmem
+        ret
+;------------------------------------------------------------------------------
+F_KRN_CLEAR_CFBUFFER:   .EXPORT         F_KRN_CLEAR_CFBUFFER
+; Clears (with zeros) the CF Card Buffer
+        ld      IX, CF_BUFFER_START
+        ld      B, 255
+        call    F_KRN_CLEAR_MEMAREA
+        ld      B, 255
+        call    F_KRN_CLEAR_MEMAREA
+        ld      B, 2
+        call    F_KRN_CLEAR_MEMAREA
+        ret
