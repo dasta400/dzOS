@@ -8,8 +8,8 @@ endif
 ASMFLAGS = -80 -b -a -f00		# For generating .bin files
 #ASMFLAGS = -80 -o10 -g0 -c -a -y	# For generating Intel HEX files
 TARGET = dzOS
-BINARIES = bin/BIOS.bin bin/BIOS.jblks.bin bin/kernel.bin bin/kernel.jblks.bin bin/CLI.bin bin/romtrail.bin
-MERGE = bin/BIOS.bin bin/BIOS.jblks.bin bin/kernel.bin bin/kernel.jblks.bin bin/CLI.bin bin/romtrail.bin
+BINARIES = bin/BIOS.bin bin/kernel.bin bin/CLI.bin bin/BIOS.bootstrap.bin bin/romtrail.bin
+MERGE = bin/BIOS.bin bin/kernel.bin bin/CLI.bin bin/BIOS.bootstrap.bin bin/romtrail.bin
 MKDIR = mkdir -p
 RED = \033[0;31m
 GREEN = \033[0;32m
@@ -19,10 +19,10 @@ MAGENTA = \033[0;35m
 CYAN = \033[0;36m
 WHITE = \033[0;37m
 
-BIOS_MAXSIZE = 4928
-KERNEL_MAXSIZE = 4928
+BIOS_MAXSIZE = 5056
+KERNEL_MAXSIZE = 5056
 CLI_MAXSIZE = 5056
-VERSION_ADDR = 9968     # $26F0
+VERSION_ADDR = 9840     # $2670
 
 YEAR = $(shell date +"%Y")
 MONTH = $(shell date +"%m")
@@ -74,20 +74,10 @@ bin/BIOS.bin: src/BIOS/BIOS.asm
 	@mv src/BIOS/BIOS.exp exp/
 	@sed '6!d' /tmp/dastaZ80_compile.txt
 
-bin/BIOS.jblks.bin: src/BIOS/BIOS.jblks.asm
-	@echo "$(GREEN)#### Compiling $(CYAN)BIOS Jumpblocks $(GREEN)####$(WHITE)"
-	@$(ASM) $(ASMFLAGS) src/BIOS/BIOS.jblks.asm bin/BIOS.jblks.bin lst/BIOS.jblks.lst > /tmp/dastaZ80_compile.txt
-	@sed '6!d' /tmp/dastaZ80_compile.txt
-
 bin/kernel.bin: src/kernel/kernel.asm
 	@echo "$(GREEN)#### Compiling $(CYAN)Kernel $(GREEN)####$(WHITE)"
 	@$(ASM) $(ASMFLAGS) src/kernel/kernel.asm bin/kernel.bin lst/kernel.lst > /tmp/dastaZ80_compile.txt
 	@mv src/kernel/kernel.exp exp/
-	@sed '6!d' /tmp/dastaZ80_compile.txt
-
-bin/kernel.jblks.bin: src/kernel/kernel.jblks.asm
-	@echo "$(GREEN)#### Compiling $(CYAN)Kernel Jumpblocks $(GREEN)####$(WHITE)"
-	@$(ASM) $(ASMFLAGS) src/kernel/kernel.jblks.asm bin/kernel.jblks.bin lst/kernel.jblks.lst > /tmp/dastaZ80_compile.txt
 	@sed '6!d' /tmp/dastaZ80_compile.txt
 
 bin/CLI.bin: src/CLI/CLI.asm
@@ -98,6 +88,11 @@ bin/CLI.bin: src/CLI/CLI.asm
 
 bin/romtrail.bin: src/romtrail.asm
 	@$(ASM) $(ASMFLAGS) src/romtrail.asm bin/romtrail.bin lst/romtrail.lst > /tmp/dastaZ80_compile.txt
+	@sed '6!d' /tmp/dastaZ80_compile.txt
+
+bin/BIOS.bootstrap.bin: src/BIOS/BIOS.bootstrap.asm
+	@echo "$(GREEN)#### Compiling $(CYAN)BIOS Bootstrap $(GREEN)####$(WHITE)"
+	@$(ASM) $(ASMFLAGS) src/BIOS/BIOS.bootstrap.asm bin/BIOS.bootstrap.bin lst/BIOS.bootstrap.lst > /tmp/dastaZ80_compile.txt
 	@sed '6!d' /tmp/dastaZ80_compile.txt
 
 

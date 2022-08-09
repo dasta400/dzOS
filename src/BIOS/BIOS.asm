@@ -43,24 +43,21 @@
 ;==============================================================================
 #include "src/equates.inc"
 #include "exp/sysvars.exp"
+#include "src/BIOS/BIOS.jblks.asm"
 
         .ORG    $0000
-;==============================================================================
-; General Routines
-;==============================================================================
 ;------------------------------------------------------------------------------
 ; Cold Boot
-F_BIOS_CBOOT:
+BIOS_CBOOT:
         di
-        ld      SP, STACK_END           ; Set Stack address in RAM
-        jp      F_BIOS_SERIAL_INIT      ; Initialise SIO/2
-        call    F_BIOS_WIPE_RAM         ; wipe (with zeros) the entire RAM,
-                                        ; except Stack area, SYSVARS and Buffers
+        jp      BOOSTRAP_START          ; Copy ROM to RAM and disable ROM chip
+
+;------------------------------------------------------------------------------
         .ORG    INITSIO2_END + 1        ; To avoid overwritting RST08, RST10, RST18,
                                         ; RST20 and the SIO/2 Interrupt Vector at 60h
 ;------------------------------------------------------------------------------
 ; Warm Boot
-F_BIOS_WBOOT:           .EXPORT         F_BIOS_WBOOT
+BIOS_WBOOT:
         ld      A, $00                  ; Set SIO/2 Channel A as the default
         ld      (SIO_PRIMARY_IO), A     ; channel to be used (connected to Keyboard)
 
@@ -68,24 +65,9 @@ F_BIOS_WBOOT:           .EXPORT         F_BIOS_WBOOT
 
 ;------------------------------------------------------------------------------
 ; Halts the system
-F_BIOS_SYSHALT:         .EXPORT         F_BIOS_SYSHALT
+BIOS_SYSHALT:
         di                              ; disable interrupts
         halt                            ; halt the computer
-
-;==============================================================================
-; RAM Routines
-;==============================================================================
-;------------------------------------------------------------------------------
-F_BIOS_WIPE_RAM:        ; TODO - is not working
-; Sets zeros (00h) in all RAM addresses except Stack area, SYSVARS and Buffers
-        ld      BC, FREERAM_TOTAL       ; total bytes
-        inc     BC                      ;    to wipe + 1
-        ld      HL, FREERAM_START       ; start address to wipe
-        ld      A, 0                    ; 00h is the wipe value that will written
-        ld      (HL), A                 ; wipe 1st address
-        ld      DE, FREERAM_START + 1   ; point DE to next address to wipe
-        ldir                            ; (DE)=(HL), HL=HL+1, until BC=0
-        ret
 
 ;==============================================================================
 ; Messages

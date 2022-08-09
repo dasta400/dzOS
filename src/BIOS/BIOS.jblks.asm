@@ -10,7 +10,7 @@
 ; Last Modification 21 Jun 2022
 ;******************************************************************************
 ; CHANGELOG
-; 	-
+;   -
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -36,39 +36,46 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-;==============================================================================
-; Includes
-;==============================================================================
-#include "src/equates.inc"
-#include "exp/BIOS.exp"
+        .ORG    BIOS_JBLK_START
 
-		.ORG	BIOS_JBLK_START
+F_BIOS_WBOOT:                   .EXPORT         F_BIOS_WBOOT
+        jp      BIOS_WBOOT
+F_BIOS_SYSHALT:                 .EXPORT         F_BIOS_SYSHALT
+        jp      BIOS_SYSHALT
 
-		jp		F_BIOS_WBOOT
-		jp		F_BIOS_SYSHALT
+        ; Serial subroutines
+F_BIOS_SERIAL_CONIN_A:          .EXPORT         F_BIOS_SERIAL_CONIN_A
+        jp      BIOS_SERIAL_CONIN_A
+F_BIOS_SERIAL_CONIN_B:          .EXPORT         F_BIOS_SERIAL_CONIN_B
+        jp      BIOS_SERIAL_CONIN_B
+F_BIOS_SERIAL_CONOUT_A:         .EXPORT         F_BIOS_SERIAL_CONOUT_A
+        jp      BIOS_SERIAL_CONOUT_A
+F_BIOS_SERIAL_CONOUT_B:         .EXPORT         F_BIOS_SERIAL_CONOUT_B
+        jp      BIOS_SERIAL_CONOUT_B
+F_BIOS_SERIAL_INIT              .EXPORT         F_BIOS_SERIAL_INIT
+        jp      BIOS_SERIAL_INIT
 
-		; Serial subroutines
-		jp		F_BIOS_SERIAL_CONIN_A
-		jp		F_BIOS_SERIAL_CONOUT_A
-		jp		F_BIOS_SERIAL_CONOUT_B
+        ; CompactFlash subroutines
+F_BIOS_CF_INIT:                 .EXPORT         F_BIOS_CF_INIT
+        jp      BIOS_CF_INIT
+F_BIOS_CF_BUSY:                 .EXPORT         F_BIOS_CF_BUSY
+        jp      BIOS_CF_BUSY
+F_BIOS_CF_READ_SEC:             .EXPORT         F_BIOS_CF_READ_SEC
+        jp      BIOS_CF_READ_SEC
+F_BIOS_CF_WRITE_SEC:            .EXPORT         F_BIOS_CF_WRITE_SEC
+        jp      BIOS_CF_WRITE_SEC
+F_BIOS_CF_DISKINFO:             .EXPORT         F_BIOS_CF_DISKINFO
+        jp      BIOS_CF_DISKINFO
 
-		; jp		F_BIOS_CLRSCR
-		; jp		F_BIOS_CONIN
-		; jp		F_BIOS_CONOUT
+        ; Real-Time Clock subroutines
+F_BIOS_RTC_GET_TIME:            .EXPORT         F_BIOS_RTC_GET_TIME
+        jp      BIOS_RTC_GET_TIME
+F_BIOS_RTC_GET_DATE:            .EXPORT         F_BIOS_RTC_GET_DATE
+        jp      BIOS_RTC_GET_DATE
+F_BIOS_RTC_SET_TIME:            .EXPORT         F_BIOS_RTC_SET_TIME
+        jp      BIOS_RTC_SET_TIME
+F_BIOS_RTC_SET_DATE:            .EXPORT         F_BIOS_RTC_SET_DATE
+        jp      BIOS_RTC_SET_DATE
 
-		; CompactFlash subroutines
-		jp		F_BIOS_CF_INIT
-		jp		F_BIOS_CF_BUSY
-		jp		F_BIOS_CF_READ_SEC
-		jp		F_BIOS_CF_WRITE_SEC
-		jp		F_BIOS_CF_DISKINFO
-
-		; Real-Time Clock subroutines
-		jp		F_BIOS_RTC_GET_TIME
-		jp		F_BIOS_RTC_GET_DATE
-		jp		F_BIOS_RTC_SET_TIME
-		jp		F_BIOS_RTC_SET_DATE
-
-		.ORG	BIOS_JBLK_END
-		.BYTE	0
-		.END
+        .ORG    BIOS_JBLK_END
+        .BYTE   0

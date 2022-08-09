@@ -40,7 +40,7 @@
 ; Code Conversion Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-;TODO - F_KRN_TRANSLT_TIME:            .EXPORT        F_KRN_TRANSLT_TIME
+;TODO - F_KRN_TRANSLT_TIME:
 ; In DZFS, file created/modified time is stored in 2 bytes in the format:
 ;   5 bits for hour (binary number of hours 0-23)
 ;   6 bits for minutes (binary number of minutes 0-59)
@@ -54,7 +54,7 @@
 
 
 ;------------------------------------------------------------------------------
-F_KRN_ASCIIADR_TO_HEX:          .EXPORT        F_KRN_ASCIIADR_TO_HEX
+KRN_ASCIIADR_TO_HEX:
 ; Convert address (or any 2 bytes) from hex ASCII to its hex value
 ; (e.g. hex ASCII = 32 35 37 30 => hex value 2570)
 ;    IN <= IX = address of 1st digit
@@ -75,7 +75,7 @@ F_KRN_ASCIIADR_TO_HEX:          .EXPORT        F_KRN_ASCIIADR_TO_HEX
         ret
 
 ;------------------------------------------------------------------------------
-F_KRN_ASCII_TO_HEX:            .EXPORT        F_KRN_ASCII_TO_HEX
+KRN_ASCII_TO_HEX:
 ; Converts two ASCII characters (representing two hexadecimal digits)
 ; to one byte in Hexadecimal
 ; (e.g. 0x33 and 0x45 are converted into 3E)
@@ -101,7 +101,7 @@ a2hex: ; convert ascii digit to a hex digit
 a2hex1:
         ret
 ;------------------------------------------------------------------------------
-F_KRN_HEX_TO_ASCII:            .EXPORT        F_KRN_HEX_TO_ASCII
+KRN_HEX_TO_ASCII:
 ; Converts one byte in Hexadecimal to two ASCII printable characters
 ; (e.g. 0x3E is converted into 33 and 45, which are the ASCII values of 3 and E)
 ;    IN <= A = binary data
@@ -131,7 +131,7 @@ nas1:
         add        a, '0'                    ; add ASCII 0 to make a character
         ret
 ;------------------------------------------------------------------------------
-F_KRN_BIN_TO_BCD4:            .EXPORT        F_KRN_BIN_TO_BCD4
+KRN_BIN_TO_BCD4:
 ; Converts 1 byte of unsigned integer hexadecimal to 4-digit BCD
 ; (e.g. 0x80 is converted into H = 01, L = 28)
 ; IN <= A = unsigned integer
@@ -162,7 +162,7 @@ tens:
         ld        l, a
         ret
 ;------------------------------------------------------------------------------
-F_KRN_BIN_TO_BCD6:            .EXPORT        F_KRN_BIN_TO_BCD6
+KRN_BIN_TO_BCD6:
 ; Converts 2 bytes of unsigned integer decimal to 6-digit BCD
 ; (e.g. 0xFFFF is converted into C = 6, D = 55, E = 35)
 ; https://de.comp.lang.assembler.x86.narkive.com/EjY9sEbE/z80-binary-to-ascii
@@ -187,7 +187,7 @@ bin2bcdloop:
         djnz     bin2bcdloop                ; all bits done? No, continue with more bits
         ret                                ; yes, exit routine
 ;------------------------------------------------------------------------------
-F_KRN_BCD_TO_ASCII:     .EXPORT     F_KRN_BCD_TO_ASCII
+KRN_BCD_TO_ASCII:
 ; Converts 6-digit BCD to hex ASCII string in a memory location
 ; (e.g. 512 is converted into 30 30 30 35 31 32)
 ; https://de.comp.lang.assembler.x86.narkive.com/EjY9sEbE/z80-binary-to-ascii
@@ -223,7 +223,7 @@ lowernibble:
         inc     de
         ret
 ;------------------------------------------------------------------------------
-F_KRN_BITEXTRACT:    .EXPORT        F_KRN_BITEXTRACT
+KRN_BITEXTRACT:
 ; Bit Extraction
 ; Extracts a group of bits from a byte and returns the group in the LSB position
 ; IN <= E = byte from where to extract
@@ -262,7 +262,7 @@ maskarray:
         .BYTE    11111111b
 
 ;------------------------------------------------------------------------------
-F_KRN_BIN_TO_ASCII:             .EXPORT         F_KRN_BIN_TO_ASCII
+KRN_BIN_TO_ASCII:
 ; Convert a 16-bit signed binary number (-32768 to 32767) to ASCII data
 ; (e.g. 32767 is converted into 33 32 37 36 37)
 ; (c) 1993 by McGraw-Hill, Inc. (Z80 Assembly Language Subroutines)
@@ -370,7 +370,7 @@ bn2dec_exitmr:
         ret
 
 ;------------------------------------------------------------------------------
-F_KRN_DEC_TO_BIN:             .EXPORT         F_KRN_DEC_TO_BIN
+KRN_DEC_TO_BIN:
 ; Convert an ASCII string consisting of the length of the number (in bytes),
 ;   a possible ASCII - or + sign, and a series of ASCII digits to two bytes
 ;   of binary data. Note that the length is an ordinary binary number, not an

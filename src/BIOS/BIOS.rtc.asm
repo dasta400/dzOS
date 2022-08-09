@@ -40,11 +40,11 @@
 ; Real-Time Clock Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_BIOS_RTC_GET_TIME:        .EXPORT     F_BIOS_RTC_GET_TIME
+BIOS_RTC_GET_TIME:
 ; Returns the current time from the RTC circuit, in HEX values
 ; IN <= none
 ; OUT => time is stored in SYSVARS
-; TODO - F_BIOS_RTC_GET_TIME - get time from RTC chip
+; TODO - BIOS_RTC_GET_TIME - get time from RTC chip
         ld      A, 19
         ld      (RTC_hour), A
         ld      A, 23
@@ -53,11 +53,11 @@ F_BIOS_RTC_GET_TIME:        .EXPORT     F_BIOS_RTC_GET_TIME
         ld      (RTC_seconds), A
         ret
 ;------------------------------------------------------------------------------
-F_BIOS_RTC_GET_DATE:        .EXPORT     F_BIOS_RTC_GET_DATE
+BIOS_RTC_GET_DATE:
 ; Returns the current date from the RTC circuit, in HEX values
 ; IN <= none
 ; OUT => date is stored in SYSVARS
-; TODO - F_BIOS_RTC_GET_DATE - get date from RTC chip
+; TODO - BIOS_RTC_GET_DATE - get date from RTC chip
         ld      A, 20
         ld      (RTC_century), A
         ld      A, 22
@@ -70,10 +70,10 @@ F_BIOS_RTC_GET_DATE:        .EXPORT     F_BIOS_RTC_GET_DATE
         ld      (RTC_day_of_the_week), A
         ret
 ;------------------------------------------------------------------------------
-F_BIOS_RTC_SET_TIME:        .EXPORT     F_BIOS_RTC_SET_TIME
-; TODO - F_BIOS_RTC_SET_TIME
+BIOS_RTC_SET_TIME:
+; TODO - BIOS_RTC_SET_TIME
         ret
 ;------------------------------------------------------------------------------
-F_BIOS_RTC_SET_DATE:        .EXPORT     F_BIOS_RTC_SET_DATE
-; TODO - F_BIOS_RTC_SET_DATE
+BIOS_RTC_SET_DATE:
+; TODO - BIOS_RTC_SET_DATE
         ret

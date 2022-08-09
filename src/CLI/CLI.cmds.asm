@@ -58,8 +58,8 @@ CLI_CMD_HELP:
 ;    peek - Prints the value of a single memory address
 ;------------------------------------------------------------------------------
 CLI_CMD_PEEK:
-;    IN <=     CLI_buffer_parm1_val = address
-;    OUT => default output (e.g. screen, I/O)
+; IN <= CLI_buffer_parm1_val = address
+; OUT => default output (e.g. screen, I/O)
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
         call    param1val_uppercase
 ;        ld        hl, empty_line            ; print an empty line
@@ -68,7 +68,7 @@ CLI_CMD_PEEK:
         call    F_KRN_SERIAL_EMPTYLINES
     ; CLI_buffer_parm1_val has the value in hexadecimal
     ; we need to convert it to binary
-        call    F_CLI_HEX2BIN_PARAM1    ; DE contains the binary value for param1
+        call    _CLI_HEX2BIN_PARAM1     ; DE contains the binary value for param1
         ex      DE, HL                  ; move from DE to HL (param1)
         ld      A, (HL)                 ; load value at address of param1
         call    F_KRN_SERIAL_PRN_BYTE   ; Prints byte in hexadecimal notation
@@ -78,9 +78,9 @@ CLI_CMD_PEEK:
 ;          to a specified value
 ;------------------------------------------------------------------------------
 CLI_CMD_POKE:
-;    IN <=     CLI_buffer_parm1_val = memory address
-;             CLI_buffer_parm2_val = specified value
-;    OUT => print message 'OK' to default output (e.g. screen, I/O)
+; IN <= CLI_buffer_parm1_val = memory address
+;       CLI_buffer_parm2_val = specified value
+; OUT => print message 'OK' to default output (e.g. screen, I/O)
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         call    param1val_uppercase
         call    param2val_uppercase
@@ -112,7 +112,7 @@ CLI_CMD_POKE:
 ;              Entering no value (i.e. just press ENTER) will stop the process.
 ;------------------------------------------------------------------------------
 CLI_CMD_AUTOPOKE:
-;    IN <=     CLI_buffer_parm1_val = Start address
+; IN <=     CLI_buffer_parm1_val = Start address
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
         ; Convert address from ASCII to its hex value
         ld      IX, CLI_buffer_parm1_val
@@ -151,9 +151,9 @@ end_autopoke:
 ;    memdump - Shows memory contents of an specified section of memory
 ;------------------------------------------------------------------------------
 CLI_CMD_MEMDUMP:
-;    IN <= CLI_buffer_parm1_val = Start address
-;          CLI_buffer_parm2_val = End address
-;    OUT => default output (e.g. screen, I/O)
+; IN <= CLI_buffer_parm1_val = Start address
+;       CLI_buffer_parm2_val = End address
+; OUT => default output (e.g. screen, I/O)
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; print header
         ld      HL, msg_memdump_hdr
@@ -161,11 +161,11 @@ CLI_CMD_MEMDUMP:
         call    F_KRN_SERIAL_WRSTRCLR
         ; CLI_buffer_parm2_val have the value in hexadecimal
         ; we need to convert it to binary
-        call    F_CLI_HEX2BIN_PARAM2    ; DE contains the binary value for param2
+        call    _CLI_HEX2BIN_PARAM2     ; DE contains the binary value for param2
         push    DE                      ; store in the stack
         ; CLI_buffer_parm1_val have the value in hexadecimal
         ; we need to convert it to binary
-        call    F_CLI_HEX2BIN_PARAM1    ; DE contains the binary value for param1
+        call    _CLI_HEX2BIN_PARAM1     ; DE contains the binary value for param1
         ex      DE, HL                  ; move from DE to HL (HL=param1)
         pop     DE                      ; restore from stack (DE=param2)
 start_dump_line:
@@ -236,7 +236,7 @@ wantsmore:
 ;    run - Starts running instructions from a specific memory address
 ;------------------------------------------------------------------------------
 CLI_CMD_RUN:    ; TODO - It is running without full filename (e.g. disk runs diskinfo)
-;    IN <=     CLI_buffer_parm1_val = address
+; IN <=     CLI_buffer_parm1_val = address
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
         ; Check if param1 is an address (i.e. starts with a number) or a filename
         ld      A, (CLI_buffer_parm1_val) ; check if the 1st character of param1
@@ -257,7 +257,7 @@ runner_addr:
         call    param1val_uppercase
         ; CLI_buffer_parm1_val have the value in hexadecimal
         ; we need to convert it to binary
-        call    F_CLI_HEX2BIN_PARAM1    ; DE contains the binary value for param1
+        call    _CLI_HEX2BIN_PARAM1     ; DE contains the binary value for param1
         ex      DE, HL                  ; move from DE to HL (param1)
         jp      (HL)                    ; jump execution to address in HL
         jp      cli_promptloop          ; exit subroutine if param1 was not specified
@@ -329,8 +329,9 @@ load_filename_not_found:
 ;     formatdsk - Format CompactFlash disk
 ;------------------------------------------------------------------------------
 CLI_CMD_CF_FORMATDSK:
-;    IN <=     CLI_buffer_parm1_val = disk label
-;             CLI_buffer_parm2_val = number of partitions
+; IN <= CLI_buffer_parm1_val = disk label
+;       CLI_buffer_parm2_val = number of partitions
+;
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; Check that param2 is not equal to 0
         ld      A, (CLI_buffer_parm2_val)
@@ -578,13 +579,7 @@ is_filename_found:
 CLI_CMD_CF_SAVE:
 ; IN <= CLI_buffer_parm1_val = start address in memory
 ;       CLI_buffer_parm2_val = number of bytes to save
-
-; ToDo - CLI_CMD_CF_SAVE
-;      ✔ Check params 1 and 2
-;      ✔ Ask for filename
-;      ✔ Check if filename already exists. If it does, error and exit
-;      ✔ Print sucess message
-
+;
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; Ask for filename
         ld      HL, msg_prompt_fname
@@ -612,7 +607,7 @@ end_get_fname:
         jp      cli_promptloop
 save_filename:
         ; Convert param1 to binary
-        call    F_CLI_HEX2BIN_PARAM1    ; DE contains the binary value for param1
+        call    _CLI_HEX2BIN_PARAM1     ; DE contains the binary value for param1
         push    DE                      ;backup param1 in binary
         ; Convert param2 to binary
         ;   Get the length of param2 and store it in B
@@ -708,7 +703,7 @@ CLI_CMD_RTC_SETTIME:
 ; Subroutines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_CLI_HEX2BIN_PARAM1:
+_CLI_HEX2BIN_PARAM1:
 ; Converts CLI_buffer_parm1_val from ASCII hex to binary values
 ; (e.g. 0x33 and 0x45 are converted into 3E)
 ; OUT => DE = the binary value for CLI_buffer_parm1_val
@@ -726,7 +721,7 @@ F_CLI_HEX2BIN_PARAM1:
         ld      E, A
         ret
 ;------------------------------------------------------------------------------
-F_CLI_HEX2BIN_PARAM2:
+_CLI_HEX2BIN_PARAM2:
 ; Converts CLI_buffer_parm2_val from ASCII hex to binary values
 ; (e.g. 0x33 and 0x45 are converted into 3E)
 ; OUT => DE = the binary value for CLI_buffer_parm1_val
@@ -773,13 +768,13 @@ diskcat_print:
         ;      and attribute bit 1 (hidden) is not 1
         ; If first character is 00, then there aren't more entries.
         ld      A, (CF_cur_file_name)
-;TODO - uncomment after tests        cp        $7E                            ; File is deleted?
-;TODO - uncomment after tests        jp        z, diskcat_nextentry        ; Yes, skip it
+        cp      $7E                     ; File is deleted?
+        jp      z, diskcat_nextentry    ; Yes, skip it
         cp      $00                     ; Available entry? (i.e. no file)
         jp      z, diskcat_end          ; Yes, no more entries then
         ld      A, (CF_cur_file_attribs)
         and     2                       ; File is hidden?
-        jp      nz,    diskcat_nextentry ; Yes, skip it
+        jp      nz, diskcat_nextentry   ; Yes, skip it
 
         ; Print entry data
         ; Filename

@@ -41,18 +41,17 @@
 ; Memory Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_KRN_SETMEMRNG:        .EXPORT         F_KRN_SETMEMRNG
+KRN_SETMEMRNG:
 ; Sets a value in a memory position range
 ; IN <= HL = start position
 ;       BC = number of bytes to set
 ;       A value to set
-setmemrng_loop:
         ld      (HL), A
         cpi
-        jp      pe, setmemrng_loop
+        jp      pe, KRN_SETMEMRNG
         ret
 ;------------------------------------------------------------------------------
-F_KRN_WHICH_RAMSIZE
+KRN_WHICH_RAMSIZE:
 ; Check how much RAM we have
 ; OUT => Z set for 64 KB, cleare for 32 KB
 
@@ -66,7 +65,7 @@ F_KRN_WHICH_RAMSIZE
         cp      $AB
         ret
 ;------------------------------------------------------------------------------
-F_KRN_COPYMEM512:       .EXPORT         F_KRN_COPYMEM512
+KRN_COPYMEM512:
 ; Copy bytes from one area of memory to another, in group of 512 bytes (i.e. max. 512 bytes).
 ; If less than 512 bytes are to be copied, the rest will be filled with zeros.
 ; IN <= HL = start address (from where to copy the bytes)
@@ -94,7 +93,7 @@ copy512rest:
 copy512end:
         ret
 ;------------------------------------------------------------------------------
-F_KRN_SHIFT_BYTES_BY1:  .EXPORT         F_KRN_SHIFT_BYTES_BY1
+KRN_SHIFT_BYTES_BY1:
 ; Moves bytes (by one) to the right
 ; and replaces first byte with bytes counter
 ; IN <= HL = address of last byte to move
@@ -114,7 +113,7 @@ shift_loop:
         ld      (DE), A                 ;   in first byte
         ret
 ;------------------------------------------------------------------------------
-F_KRN_CLEAR_MEMAREA:    .EXPORT         F_KRN_CLEAR_MEMAREA
+KRN_CLEAR_MEMAREA:
 ; Clears (with zeros) a number of bytes, starting at a specified address
 ; Maximum 256 bytes can be cleared.
 ; IN <= IX = first byte to clear
@@ -126,7 +125,7 @@ loop_clrmem:
         djnz    loop_clrmem
         ret
 ;------------------------------------------------------------------------------
-F_KRN_CLEAR_CFBUFFER:   .EXPORT         F_KRN_CLEAR_CFBUFFER
+KRN_CLEAR_CFBUFFER:
 ; Clears (with zeros) the CF Card Buffer
         ld      IX, CF_BUFFER_START
         ld      B, 255

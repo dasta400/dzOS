@@ -40,7 +40,7 @@
 ; Screen = Serial (SIO/2) Channel A, connected to the VGA Output (VGA32)
 
 ;------------------------------------------------------------------------------
-F_KRN_SERIAL_SETFGCOLR:     .EXPORT     F_KRN_SERIAL_SETFGCOLR
+KRN_SERIAL_SETFGCOLR:
 ; Set the colour that will be used for the foreground.
 ; The colour will remain until a new set is done.
 ; IN <= A = Colour number (as listed in equates.inc)
@@ -103,14 +103,14 @@ loop_ANSI_codes:
         pop     HL                      ; Restore pointer to first character of the string
         ret
 ;------------------------------------------------------------------------------
-F_KRN_SERIAL_WRSTRCLR:      .EXPORT     F_KRN_SERIAL_WRSTRCLR
+KRN_SERIAL_WRSTRCLR:
 ; Output a string to the Console, with a specific foreground colour
 ; IN <= A = Colour number (as listed in equates.inc)
 ;       HL = pointer to first character of the string
         call    F_KRN_SERIAL_SETFGCOLR  ; Set the foreground colour
         jp      F_KRN_SERIAL_WRSTR      ; Output the string
 ;------------------------------------------------------------------------------
-F_KRN_SERIAL_WRSTR:         .EXPORT     F_KRN_SERIAL_WRSTR
+KRN_SERIAL_WRSTR:
 ; Output to the Console a string of ASCII characters terminated with CR
 ; IN <= HL = pointer to first character of the string
         ld      A, (hl)                 ; Get character of the string
@@ -118,10 +118,10 @@ F_KRN_SERIAL_WRSTR:         .EXPORT     F_KRN_SERIAL_WRSTR
         ret     z                       ; if yes, then return
         rst     08h                     ; otherwise, print it
         inc     HL                      ; pointer to next character of the string
-        jr      F_KRN_SERIAL_WRSTR      ; repeat (until character = 00h)
+        jr      KRN_SERIAL_WRSTR        ; repeat (until character = 00h)
         ret
 ;------------------------------------------------------------------------------
-F_KRN_SERIAL_RDCHARECHO:    .EXPORT     F_KRN_SERIAL_RDCHARECHO
+KRN_SERIAL_RDCHARECHO:
 ; Read a character, with echo
 ; Read a character from Console and outputs to the Screen
 ; Read character is stored in register A
@@ -131,19 +131,18 @@ F_KRN_SERIAL_RDCHARECHO:    .EXPORT     F_KRN_SERIAL_RDCHARECHO
 ; ToDo - Allow backspace
         ret
 ;------------------------------------------------------------------------------
-F_KRN_SERIAL_EMPTYLINES:    .EXPORT     F_KRN_SERIAL_EMPTYLINES
+KRN_SERIAL_EMPTYLINES:
 ; Output n empty lines
 ; IN <= B = number of empty lines to print out
 ; OUT => default output (e.g. screen, I/O)
-loop_emptylines:
         ld      A, CR
         call    F_BIOS_SERIAL_CONOUT_A
         ld      A, LF
         call    F_BIOS_SERIAL_CONOUT_A
-        djnz    loop_emptylines
+        djnz    KRN_SERIAL_EMPTYLINES
         ret
 ;------------------------------------------------------------------------------
-F_KRN_SERIAL_PRN_BYTES:     .EXPORT     F_KRN_SERIAL_PRN_BYTES
+KRN_SERIAL_PRN_BYTES:
 ; Prints bytes
 ; Print n number of bytes as ASCII characters
 ; IN <= B = number of bytes to print
@@ -160,11 +159,11 @@ F_KRN_SERIAL_PRN_BYTES:     .EXPORT     F_KRN_SERIAL_PRN_BYTES
 nonewline:
         call    F_BIOS_SERIAL_CONOUT_A  ; no, print character
         inc     HL                      ; pointer to next character
-        djnz    F_KRN_SERIAL_PRN_BYTES  ; all bytes printed? No, continue printing
+        djnz    KRN_SERIAL_PRN_BYTES    ; all bytes printed? No, continue printing
 prnbytesend:
         ret                             ; yes, exit routine
 ;------------------------------------------------------------------------------
-F_KRN_SERIAL_PRN_BYTE:      .EXPORT     F_KRN_SERIAL_PRN_BYTE
+KRN_SERIAL_PRN_BYTE:
 ; Print Byte
 ; Prints a single byte in hexadecimal notation.
 ; IN <= A = the byte to be printed
@@ -183,7 +182,7 @@ F_KRN_SERIAL_PRN_BYTE:      .EXPORT     F_KRN_SERIAL_PRN_BYTE
         pop	BC
         ret
 ;------------------------------------------------------------------------------
-F_KRN_SERIAL_PRN_NIBBLE:
+KRN_SERIAL_PRN_NIBBLE:
 ; Print Nibble
 ; Prints a single hexadecimal nibble in hexadecimal notation.
 ; IN <= LSB of A
@@ -197,7 +196,7 @@ print_nibble:
         call    F_BIOS_SERIAL_CONOUT_A  ; print the nibble
         ret
 ;------------------------------------------------------------------------------
-F_KRN_SERIAL_PRN_WORD:      .EXPORT     F_KRN_SERIAL_PRN_WORD
+KRN_SERIAL_PRN_WORD:
 ; Print Word
 ; Prints the 4 hexadecimal digits of a word in hexadecimal notation.
 ; IN <= HL (the word to be printed)
