@@ -36,7 +36,7 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-#include "src/portmappings.inc"         ; port mappings for different hardware on which DZOS runs
+#include "src/portmappings.inc"         ; port mappings for different hardware
 
 ;==============================================================================
 ; ROM positions
@@ -48,16 +48,19 @@ BIOS_JBLK_START         .EQU    BIOS_END + 1
 BIOS_JBLK_END           .EQU    BIOS_JBLK_START + 127
 
 KRN_START               .EQU    BIOS_JBLK_END + 1
-KRN_END                 .EQU    $26FF
+KRN_END                 .EQU    $267F
 KRN_DZOS_VERSION        .EQU    KRN_END - 15
 
 KRN_JBLK_START          .EQU    KRN_END + 1
-KRN_JBLK_END            .EQU    KRN_JBLK_START + 127
+KRN_JBLK_END            .EQU    KRN_JBLK_START + 255
 
 CLI_START               .EQU    KRN_JBLK_END + 1
 CLI_END                 .EQU    $3B3F
 
-FREEROM_START           .EQU    CLI_END + 1
+BOOSTRAP_START          .EQU    CLI_END + 1
+BOOSTRAP_END            .EQU    BOOSTRAP_START + 255
+
+FREEROM_START           .EQU    BOOSTRAP_END + 1
 FREEROM_END             .EQU    $3FFF
 FREEROM_SIZE            .EQU    FREEROM_END - FREEROM_START
 

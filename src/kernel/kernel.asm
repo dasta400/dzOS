@@ -44,6 +44,7 @@
 #include "src/equates.inc"
 #include "exp/BIOS.exp"
 #include "exp/sysvars.exp"
+#include "src/kernel/kernel.jblks.asm"
 
         .ORG    KRN_START
 
@@ -96,131 +97,10 @@ ramsize_print:
         ld      HL, krn_msg_OK
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
-        ; Read Superblock
         call    F_KRN_DZFS_READ_SUPERBLOCK
-
-        ; Copy BIOS Jumpblocks from ROM to RAM
-        ld      HL, krn_msg_cpybiosjblks
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      HL, BIOS_JBLK_START      ; pointer to address of start of BIOS Jumpblocks in ROM
-        ld      DE, BIOS_JBLK_COPY_START ; pointer to address of start of BIOS Jumpblocks in RAM
-        ld      BC, 256                  ; jumpblocks are 256 bytes max.
-        ldir                             ; copy from ROM to RAM
-        ld      HL, krn_msg_OK
-        ld      A, ANSI_COLR_GRN
-        call    F_KRN_SERIAL_WRSTRCLR
-        ; Copy Kernel Jumpblocks from ROM to RAM
-        ld      HL, krn_msg_cpykrnjblks
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      HL, KRN_JBLK_START       ; pointer to address of start of Kernel Jumpblocks in ROM
-        ld      DE, KRN_JBLK_COPY_START  ; pointer to address of start of Kernel Jumpblocks in RAM
-        ld      BC, 256                  ; jumpblocks are 256 bytes max.
-        ldir                             ; copy from ROM to RAM
-        ld      HL, krn_msg_OK
-        ld      A, ANSI_COLR_GRN
-        call    F_KRN_SERIAL_WRSTRCLR
 
         jp      CLI_START                ; transfer control to CLI
 
-;==============================================================================
-; General Subroutines
-;==============================================================================
-F_KRN_DZFS_SHOW_DISKINFO:           .EXPORT     F_KRN_DZFS_SHOW_DISKINFO
-        ; Volume Label
-        ld      HL, msg_vol_label
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      B, 16                   ; counter = 4 bytes
-        ld      HL, CF_SBLOCK_LABEL     ; point HL to offset in the buffer
-        call    F_KRN_SERIAL_PRN_BYTES
-        ; Volume Serial Number
-        ld      HL, msg_volsn
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      A, (CF_SBLOCK_SERNUM)
-        call    F_KRN_SERIAL_PRN_BYTE
-        ld      A, (CF_SBLOCK_SERNUM + $01)
-        call    F_KRN_SERIAL_PRN_BYTE
-        ld      A, (CF_SBLOCK_SERNUM + $02)
-        call    F_KRN_SERIAL_PRN_BYTE
-        ld      A, (CF_SBLOCK_SERNUM + $03)
-        call    F_KRN_SERIAL_PRN_BYTE
-        ld      A, ')'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      B, 1
-        call    F_KRN_SERIAL_EMPTYLINES
-        ; File System id
-        ld      HL, msg_filesys
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      B, 8                            ; counter = 4 bytes
-        ld      HL, CF_SBLOCK_FSID              ; point HL to offset in the buffer
-        call    F_KRN_SERIAL_PRN_BYTES
-        ld        B, 1
-        call    F_KRN_SERIAL_EMPTYLINES
-        ; Volume Date/Time Creation
-        ld      HL, msg_vol_creation
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      B, 2                            ; counter = 2 bytes
-        ld      HL, CF_SBLOCK_DATECREA          ; day
-        call    F_KRN_SERIAL_PRN_BYTES
-        ld      A, '/'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      B, 2                            ; counter = 2 bytes
-        ld      HL, CF_SBLOCK_DATECREA + 2      ; month
-        call    F_KRN_SERIAL_PRN_BYTES
-        ld      A, '/'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      B, 4                            ; counter = 4 bytes
-        ld      HL, CF_SBLOCK_DATECREA + 4      ; year
-        call    F_KRN_SERIAL_PRN_BYTES
-        ld      A, ' '
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      B, 2                            ; counter = 2 bytes
-        ld      HL, CF_SBLOCK_DATECREA + 8      ; hour
-        call    F_KRN_SERIAL_PRN_BYTES
-        ld      A, ':'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      B, 2                            ; counter = 2 bytes
-        ld      HL, CF_SBLOCK_DATECREA + 10     ; minutes
-        call    F_KRN_SERIAL_PRN_BYTES
-        ld      A, ':'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      B, 2                            ; counter = 2 bytes
-        ld      HL, CF_SBLOCK_DATECREA + 12     ; seconds
-        call    F_KRN_SERIAL_PRN_BYTES
-        ld      B, 1
-        call    F_KRN_SERIAL_EMPTYLINES
-        ; Number of partitions
-        ld      HL, msg_num_partitions
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      A, (CF_SBLOCK_NUMPARTITIONS)
-        call    F_KRN_SERIAL_PRN_BYTE
-        ld      B, 1
-        call    F_KRN_SERIAL_EMPTYLINES
-;TODO        ; Bytes per Sector
-        ld      HL, msg_bytes_sector
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      B, 1
-        call    F_KRN_SERIAL_EMPTYLINES
-;TODO        ; Sectors per Block
-        ld      HL, msg_sectors_block
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ; ld      A, (CF_SBLOCK_SECBLOCK)
-        ; call    F_KRN_BIN_TO_BCD4
-        ; ld      A, 64
-        ; call    F_KRN_HEX_TO_ASCII
-        ; ld      A, H
-        ; call    F_BIOS_SERIAL_CONOUT_A
-        ; ld      A, L
-        ; call    F_BIOS_SERIAL_CONOUT_A
-        ret
 ;==============================================================================
 ; Kernel Modules
 ;==============================================================================
@@ -245,10 +125,6 @@ msg_krn_version:
         .BYTE    "Kernel v1.0.0", 0
 krn_msg_cf_init:
         .BYTE    "....Initialising CompactFlash reader ", 0
-krn_msg_cpybiosjblks:
-        .BYTE    "....Copying BIOS Jumblocks to RAM ", 0
-krn_msg_cpykrnjblks:
-        .BYTE    "....Copying Kernel Jumblocks to RAM ", 0
 krn_msg_ramsize_detect:
         .BYTE   "....Detecting RAM size", 0
 krn_msg_ramsize_32k:

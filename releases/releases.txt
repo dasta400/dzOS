@@ -19,5 +19,8 @@ dzOS.2022.07.19.16.bin (latest)
     Removed FAT16 commands: ld, sf, lf
     Removed commands: loadihex
 
-dzOS.2022.07.20.21.bin (hotfix)
+dzOS.2022.07.20.21.bin (old)
     Solved bug in 'cat' and 'run' commands.
+
+dzOS.2022.08.09.59.bin (latest)
+    Implemented ROM paging and Jumpblocks.

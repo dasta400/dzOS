@@ -1,0 +1,9 @@
+CLI
+    * After 'run <filename>' the ANSI code is not changes, so the of the executable text appears in yellow.
+
+Kernel
+    * 'run' is running without full filename (e.g. 'Hello' runs 'HelloWorld')
+    * rename' is renaming without full filename (e.g. 'Hello' renames 'HelloWorld')
+    * 'delete' is deleting without full filename (e.g. 'Hello' deletes 'HelloWorld')
+    * 'chgattr' is changing without full filename (e.g. 'Hello' changes 'HelloWorld')
+    * 'diskinfo' is not showing 'Bytes per Sector' nor 'Sectors per Block'

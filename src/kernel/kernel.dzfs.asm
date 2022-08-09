@@ -37,7 +37,7 @@
 ; -----------------------------------------------------------------------------
 
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_READ_SUPERBLOCK:     .EXPORT     F_KRN_DZFS_READ_SUPERBLOCK
+KRN_DZFS_READ_SUPERBLOCK:
 ; reads the Superblock (512 bytes) at Sector 0
         ; read 512 bytes from Sector 0 into CF buffer in RAM
         ld      DE, 0
@@ -72,7 +72,7 @@ error_signature:
         call    F_KRN_SERIAL_WRSTR
         ret
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_READ_BAT_SECTOR:     .EXPORT     F_KRN_DZFS_READ_BAT_SECTOR
+KRN_DZFS_READ_BAT_SECTOR:
 ; Read a BAT Sector into RAM buffer
 ; IN <= value stored in SYSVAR's CF_cur_sector
         ; ld      A, 1
@@ -82,12 +82,12 @@ F_KRN_DZFS_READ_BAT_SECTOR:     .EXPORT     F_KRN_DZFS_READ_BAT_SECTOR
 load_sector:
         ld      HL, (CF_cur_sector)
         ld      BC, 0
-        call    F_KRN_DZFS_SEC2BUFFER    ; load sector into RAM buffer
+        call    F_KRN_DZFS_SEC_TO_BUFFER    ; load sector into RAM buffer
 
         ; call    F_BIOS_CF_READ_SEC
         ret
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_BATENTRY2BUFFER:     .EXPORT     F_KRN_DZFS_BATENTRY2BUFFER
+KRN_DZFS_BATENTRY2BUFFER:
 ; Extracts the data of a BAT entry from the RAM buffer,
 ; and puts the values in RAM SYSVARS
 ; IN <= A = Entry number
@@ -160,7 +160,7 @@ batentry_no_mult:
         ld      (CF_cur_file_load_addr + 1), A
         ret
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_SEC2BUFFER:
+KRN_DZFS_SEC_TO_BUFFER:
 ; Loads a Sector (512 bytes) and puts the bytes into RAM buffer
 ; IN <=  HL = Sector number
 ; OUT => CF_BUFFER_START is filled with the read 512 bytes
@@ -170,7 +170,7 @@ F_KRN_DZFS_SEC2BUFFER:
         call    F_BIOS_CF_READ_SEC    ; read 1 sector (512 bytes)
         ret
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_GET_FILE_BATENTRY:           .EXPORT         F_KRN_DZFS_GET_FILE_BATENTRY
+KRN_DZFS_GET_FILE_BATENTRY:
 ; Gets the BAT's entry number of a specified filename
 ; IN <= HL = Address where the filename to check is stored
 ; OUT => HL = BAT Entry is stored in the SYSVARS
@@ -185,14 +185,14 @@ F_KRN_DZFS_GET_FILE_BATENTRY:           .EXPORT         F_KRN_DZFS_GET_FILE_BATE
         ld      (CF_cur_sector + 1), A
 bat_nextsector:
         call    F_KRN_DZFS_READ_BAT_SECTOR
-    ; As we read in groups of 512 bytes (Sector), 
-    ; each read will put 16 entries in the buffer.
-    ; We need to read a maxmimum of 1024 entries (i.e BAT max entries),
-    ; therefore 64 sectors.
-    ld    A, 0                ; entry counter
+        ; As we read in groups of 512 bytes (Sector), 
+        ; each read will put 16 entries in the buffer.
+        ; We need to read a maxmimum of 1024 entries (i.e BAT max entries),
+        ; therefore 64 sectors.
+        ld      A, 0                ; entry counter
 bat_entry:
-    push     AF                              ; backup entry counter
-    call    F_KRN_DZFS_BATENTRY2BUFFER
+        push    AF                              ; backup entry counter
+        call    F_KRN_DZFS_BATENTRY2BUFFER
         ; Get length of specified filename
         ld      A, $00                          ; filename to check ends with space  TODO - Space or zero?!
         ld      HL, (tmp_addr2)                 ; HL = address of filename to check
@@ -209,45 +209,52 @@ bat_entry:
         pop     AF                              ; needed because previous push AF
         ret                                     ; exit subroutine
 bat_nextentry:
-        pop    AF                              ; restore entry counter
-        inc    A                               ; next entry
-        cp    16                              ; did we process the 16 entries?
-        jp    nz, bat_entry                   ; No, process next entry
+        pop     AF                              ; restore entry counter
+        inc     A                               ; next entry
+        cp      16                              ; did we process the 16 entries?
+        jp      nz, bat_entry                   ; No, process next entry
         ; More entries in other sectors?
-        ld    A, (CF_cur_sector)
-        inc    A                               ; increment sector counter
-        ld    (CF_cur_sector), A              ; Did we process
-        cp    64                              ;    64 sectors already?
-        jp    nz, bat_nextsector              ; No, then process next sector
+        ld      A, (CF_cur_sector)
+        inc     A                               ; increment sector counter
+        ld      (CF_cur_sector), A              ; Did we process
+        cp      64                              ;    64 sectors already?
+        jp      nz, bat_nextsector              ; No, then process next sector
         ret                                     ; Yes, then nothing else to do
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_LOAD_FILE_TO_RAM:            .EXPORT         F_KRN_DZFS_LOAD_FILE_TO_RAM
+KRN_DZFS_LOAD_FILE_TO_RAM:
 ; Load a file from CF into RAM, at the specified address
-; IN <= HL load address in RAM
-;       DE 1st sector
-;        IX length in sectors
+; IN <= DE 1st sector
+;       IX length in sectors
 ;
-    ld    (CF_cur_sector), IX     ; sector counter
-    ld    IX, CF_cur_sector    ; pointer to sector counter
-    ; set up LBA addressing
+        ld      (CF_cur_sector), IX     ; sector counter
+        ld      IX, CF_cur_sector       ; pointer to sector counter
+        ld      HL, (CF_cur_file_load_addr) ; By loading groups of 512 bytes
+        ld      (tmp_addr1), HL             ; the address will be modified
+                                            ; so I use a temporary variable to store it
 loadfile:
-    ld    B, 0
-    ld    A, (CF_cur_partition)
-    ld    C, A
-    call    F_BIOS_CF_READ_SEC    ; read 1 sector (512 bytes)
-    ; Copy file data from buffer to load address
-    ld      BC, 512
-        ld      HL, CF_BUFFER_START
-        ld      DE, (CF_cur_file_load_addr)
+        ; set up LBA addressing
+        ld      B, 0
+        ld      A, (CF_cur_partition)
+        ld      C, A
+        push    DE                      ; backup sector to load
+        call    F_BIOS_CF_READ_SEC      ; read 1 sector (512 bytes)
+        ; Copy file data
+        ld      BC, 512                 ; Copy 512 bytes
+        ld      HL, CF_BUFFER_START     ;   from the CF buffer
+        ld      DE, (tmp_addr1)         ;   to RAM
         ldir
-
-    dec    (IX)            ; decrement sector counter
-    or    (IX)            ; is it 0?
-    ret    z             ; yes, exit subroutine
-    inc    DE            ; no, increment sector number
-    jp    loadfile        ;     and read more sectors
+        ld      (tmp_addr1), DE         ; store the new RAM address,
+                                        ;   after ldir incremented DE by 512 bytes
+        dec     (IX)                    ; decrement sector counter
+        jp      z, loadfile_end
+        pop     DE                      ; restore sector to load
+        inc     DE                      ; no, increment sector number
+        jp    loadfile                  ;     and read more sectors
+loadfile_end:
+        pop     DE                      ; restore to avoid crash
+        ret                             ; and exit routine
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_DELETE_FILE:                 .EXPORT         F_KRN_DZFS_DELETE_FILE
+KRN_DZFS_DELETE_FILE:
 ; To delete a file, change 1st character of the filename to 7E (~)
 ; IN <= DE = BAT Entry number
 ;
@@ -263,7 +270,7 @@ F_KRN_DZFS_DELETE_FILE:                 .EXPORT         F_KRN_DZFS_DELETE_FILE
         call    F_KRN_DZFS_SECTOR_TO_CF
         ret
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_CHGATTR_FILE:                .EXPORT         F_KRN_DZFS_CHGATTR_FILE
+KRN_DZFS_CHGATTR_FILE:
 ; Changes the attributes (RHSE) of a file
 ; IN <= DE = BAT Entry number
 ;       A = attributes mask byte
@@ -280,17 +287,17 @@ F_KRN_DZFS_CHGATTR_FILE:                .EXPORT         F_KRN_DZFS_CHGATTR_FILE
         call    F_KRN_DZFS_SECTOR_TO_CF ; save data to CF
         ret
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_RENAME_FILE:                 .EXPORT         F_KRN_DZFS_RENAME_FILE
+KRN_DZFS_RENAME_FILE:
 ; Changes the name of a file
 ; IN <= IY = Address where the new filename is stored
 ;       DE = BAT Entry number
         ; ld      DE, $0003             ; TODO - delete this after tests
-        ld      ($3000), DE             ; TODO - delete this after tests
+        ; ld      ($3000), DE             ; TODO - delete this after tests
         ld      A, 32                   ; 32 bytes per entry
         call    F_KRN_MULTIPLY816_SLOW  ; HL = A * DE
         ld      DE, CF_BUFFER_START
         add     HL, DE                  ; HL points to 1st character in CF buffer (old filename)
-        ld      ($3002), HL             ; TODO - delete this after tests
+        ; ld      ($3002), HL             ; TODO - delete this after tests
         ; copy characters from new filename to CF buffer
         ld      B, 1                    ; character counter
 rename_loop:
@@ -320,7 +327,7 @@ rename_save:
         ret
 
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_FORMAT_CF:                   .EXPORT         F_KRN_DZFS_FORMAT_CF
+KRN_DZFS_FORMAT_CF:
 ; Formats a CompactFlash disk
 ; IN <= HL = Address where the disk label is stored
 ;       DE = Address where the number of partitions is stored
@@ -492,7 +499,7 @@ F_KRN_DZFS_CALC_SN:     ; TODO
         ld      HL, tmp_addr1
         ret
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_SECTOR_TO_CF:
+KRN_DZFS_SECTOR_TO_CF:
 ; Calls the BIOS subroutine that will store the data (512 bytes) currently in
 ; CF Card Buffer to the CompactFlash card
 ; IN <= SYSVARS.CF_cur_sector = the sector in the CF card that will be written
@@ -500,6 +507,450 @@ F_KRN_DZFS_SECTOR_TO_CF:
         ld      BC, $0000
         call    F_BIOS_CF_WRITE_SEC 
         ret
+;------------------------------------------------------------------------------
+KRN_DZFS_GET_BAT_FREE_ENTRY:
+; OUT => SYSVARS.CF_cur_file_entry_number = available entry number
+; Reads the BAT to find the first available free entry (entry starts with $00)
+; If no there are no free entries, then it returns the first entry found 
+;   of a deleted file (entry starts with $7E)
+
+; ToDo - F_KRN_DZFS_GET_BAT_FREE_ENTRY
+;       ✔ Read entire BAT
+;       Store first entry (if any) with $7E as first byte
+;       ✔ If found entry with $00 as first byte, return this entry's number
+;       Else, return entry's number of the entry with $7E as first byte
+;       If no $00 nor $7E, return $FFFF as entry number to indicate error
+
+        ld      IY, 0                           ; temporary storage for file entry
+        ld      A, 1                            ; BAT starts at sector 1
+        ld      (CF_cur_sector), A
+        ld      A, 0
+        ld      (CF_cur_sector + 1), A
+getbat_nextsector:
+        call    F_KRN_DZFS_READ_BAT_SECTOR
+        ; As we read in groups of 512 bytes (Sector), 
+        ; each read will put 16 entries in the buffer.
+        ; We need to read a maxmimum of 1024 entries (i.e BAT max entries),
+        ; therefore 64 sectors.
+        ld      A, 0                            ; entry counter
+getbat_entry:
+        push    AF                              ; backup entry counter
+        call    F_KRN_DZFS_BATENTRY2BUFFER
+        ; is the entry free (i.e. $00 as first byte of filename)?
+        ld      A, (CF_cur_file_name)
+        cp      $00                             ; is it a free entry?
+        jp      nz, getbat_nextentry            ; no, check next entry
+        ; cp      $7E                             ; is it a deleted file entry?
+        ld      (CF_cur_file_entry_number), IY  ; yes, store the entry number in SYSVARS
+        pop     AF                              ; needed because previous push AF
+
+        ret                                     ; exit subroutine
+getbat_nextentry:
+        inc     IY
+        pop     AF                              ; restore entry counter
+        inc     A                               ; next entry
+        cp      16                              ; did we process the 16 entries?
+        jp      nz, getbat_entry                ; No, process next entry
+        ; More entries in other sectors?
+        ld      A, (CF_cur_sector)
+        inc     A                               ; increment sector counter
+        ld      (CF_cur_sector), A              ; Did we process
+        cp      64                              ;    64 sectors already?
+        jp      nz, getbat_nextsector           ; No, then process next sector
+; ToDo - F_KRN_DZFS_GET_BAT_FREE_ENTRY: test for no free entries but delete files
+; ToDo - F_KRN_DZFS_GET_BAT_FREE_ENTRY: test for no free entries and no deleted files
+        ret                                     ; Yes, then nothing else to do
+;------------------------------------------------------------------------------
+KRN_DZFS_ADD_BAT_ENTRY:
+; Adds a BAT entry to the disc
+; IN <= DE = BAT entry number
+;       SYSVARS.CF_cur_sector = Sector number where the BAT Entry is
+;       SYSVARS.CF_BUFFER = Sector where the BAT Entry is, loaded from disc
+;       SYSVARS.CF BAT section = filled wit new BAT Entry information
+        ld      A, 32                   ; 32 bytes per entry
+        call    F_KRN_MULTIPLY816_SLOW  ; HL = A * DE
+        ld      DE, CF_BUFFER_START
+        add     HL, DE                  ; HL points to 1st character in CF buffer
+        ; Copy BAT Entry from SYSVARS to CF Buffer
+        ex      DE, HL                  ; DE points to 1st Entry byte in CF buffer
+        ld      HL, CF_cur_file_name    ; HL points to 1st Entry byte in SYSVARS
+        ld      BC, 32                  ; 32 bytes per entry
+        ldir                            ; Copy BAT Entry from SYSVARS to CF Buffer
+        ret
+;------------------------------------------------------------------------------
+KRN_DZFS_CREATE_NEW_FILE:
+; Creates a new file in the disc, from bytes stored in RAM
+; Also creates a BAT entry for the created file
+; IN <= HL = address in memory of first byte to be stored
+;       BC = number of bytes to be stored
+;       IX = address where the filename is stored
+        push    HL                      ; backup first byte to be stored
+        push    BC                      ; backup number of bytes
+        push    IX                      ; backup filename address
+
+        call    F_KRN_DZFS_GET_BAT_FREE_ENTRY   ; returns available entry number
+                                                ; $FFFF means no space for more files
+        ld      HL, (CF_cur_file_entry_number)  ; backup
+        ld      (tmp_addr1), HL                  ;   entry number
+; ToDo - F_KRN_DZFS_CREATE_NEW_FILE - Return error if $FFFF (watch for the PUSH done before)
+        
+        ; Create BAT entry
+        ;   Clear (set to zeros) the BAT entry variables in SYSVARS
+        ld      B, 32                   ; BAT entry in SYSVARS is 32 bytes
+        ld      IX, CF_cur_file_name    ; IX points to first byte of BAT entry
+        call    F_KRN_CLEAR_MEMAREA
+        ;   Filename
+        ld      B, 14                   ; filenames are max. 14 characters
+        pop     IX                      ; restore filename address
+        ld      HL, CF_cur_file_name    ; HL points to where the filename in SYSVARS
+loop_copy_fname:
+        ld      A, (IX)                 ; A = filename character
+        cp      0                       ; is it zero (no character)?
+        jp      nz, loop_copy_fname_nopadded ; no, then copy character
+        ld      A, SPACE                     ; yes, add padding spaces
+        jp      loop_copy_fname_padded       ;      and skip the next 'inc IX'
+loop_copy_fname_nopadded:
+        inc     IX
+loop_copy_fname_padded:
+        ld      (HL), A                 ;   copy to SYSVARS
+        inc     HL
+        djnz    loop_copy_fname         ; copy until 14 characters done
+        ;   Attributes ($08 = executable)
+        ld      A, $08
+        ld      (CF_cur_file_attribs), A
+        ;   Time created (and set modified as the same)
+        call    F_KRN_DZFS_CALC_FILETIME
+        ld      (CF_cur_file_time_created), HL
+        ld      (CF_cur_file_time_modified), HL
+        ;   Date created (and set modified as the same)
+        call    F_KRN_DZFS_CALC_FILEDATE
+        ld      (CF_cur_file_date_created), HL
+        ld      (CF_cur_file_date_modified), HL
+        ;   File size in bytes
+        pop     BC                              ; restore number of bytes
+        ld      (CF_cur_file_size_bytes), BC    ; and store them in BAT
+        ;   File size in sectors
+        ld      DE, 512
+        call    F_KRN_DIV1616           ; BC = BC / DE, HL = remainder
+        ld      A, C
+        ld      (CF_cur_file_size_sectors), A
+        ld      (tmp_addr2), HL         ; store remainder in temporary location for later use will saving
+        ;   If remainder > 0, size_sectors + 1
+        ; ld      A, H
+        ; cp      0
+        ; jp      nz, savef_remainder
+        ; ld      A, L
+        ; cp      0
+        ld      A, H
+        or      L
+        jp      z, savef_noremainder
+savef_remainder:
+        ld      HL, CF_cur_file_size_sectors
+        inc     (HL)                    ; sectors + 1, for the remaining last bytes
+savef_noremainder:
+        ;   BAT entry number
+        ld      HL, (tmp_addr1)
+        ld      (CF_cur_file_entry_number), HL
+        ;   First Sector (65 + 64 * entry_number)
+        ld      HL, 64
+        ld      DE, (CF_cur_file_entry_number)
+        call    F_KRN_MULTIPLY1616
+        ld      DE, 65
+        add     HL, DE
+        ld      (CF_cur_file_1st_sector), HL  ; 1st Sector address
+        ;   Load address
+        pop     HL                      ; restore start mem address to save
+        ld      (CF_cur_file_load_addr), HL
+
+        ; Copy all bytes, in blocks of 512 bytes, from RAM to CF Card Buffer
+; Examples:
+;   bytes   sectors remainder   extra
+;   32768   64      0           0
+;   32200   62      456         456
+;   1024    2       0           0
+;   824     1       312         312
+;   512     1       0           0
+;   320     0       320         320
+;   100     0       100         100
+;         ld      A, (CF_cur_file_size_sectors)   ; number of sectors to save
+;         ld      (tmp_byte), A                   ; store it in temp, to count down
+        
+;   Decrement sector count by 1, so that we don't have a full sector at the end
+;   Loop:
+;       Decrement sector count
+;       If remaining sectors to copy > 0
+;           BC = 512
+;           DE = CF_BUFFER_START
+;           Call F_KRN_COPYMEM512
+;           Call F_KRN_DZFS_SECTOR_TO_CF
+;           Loop
+;       Else
+;           If remaining bytes > 0
+;           BC = remaining bytes
+;           DE = CF_BUFFER_START
+;           Call F_KRN_COPYMEM512
+;           Call F_KRN_DZFS_SECTOR_TO_CF
+
+        ld      A, (CF_cur_file_size_sectors)   ; number of sectors to save
+        ld      (tmp_byte), A                   ; store it in temp, to count down
+        ld      HL, (CF_cur_sector)             ; It contains the BAT's sector. We need it for later
+        ld      (tmp_addr3), HL                 ;   to save the BAT. Hence, backup it up because we'll
+                                                ;   use it now for counting the data sectors
+        ld      A, (CF_cur_file_1st_sector)     ; Set CF_cur_sector to
+        ld      (CF_cur_sector), A              ;   the address of the
+        ld      A, (CF_cur_file_1st_sector + 1) ;   1st sector of the
+        ld      (CF_cur_sector + 1), A          ;   new file
+        ld      HL, (CF_cur_file_load_addr)     ; Store load address in a temporary address, because we'll
+        ld      (tmp_addr1), HL                 ;   use it for incrementing by 512 each time in the loop
+savef_save_sectors:
+        ; ld      HL, tmp_byte            ; start the loop by decrementing sector count down
+        ; dec     (HL)                    ; so that we don't have a full sector at the end
+        ;                                 ; but just the remaining bytes
+        ld      A, (tmp_byte)           ; load A with count down, inside the loop
+        ; Copy 512 bytes from memory address to CF Card Buffer
+        cp      0                               ; sectors > 0?
+        jp      z, savef_lastbytes              ; yes, copy remaining bytes
+        ; call    F_KRN_CLEAR_CFBUFFER
+        ld      BC, 512                         ; no, copy full sector (512 bytes)
+        ld      HL, (tmp_addr1)                 ; Bytes from address at tmp_addr1
+        ld      DE, CF_BUFFER_START             ;   will be copied to the CF buffer
+        call    F_KRN_COPYMEM512
+        ; Save from CF Card Buffer to disc
+        call    F_KRN_DZFS_SECTOR_TO_CF
+        ; Increment sector counter
+        ld      HL, CF_cur_sector
+        inc     (HL)
+        ; Update (+512) CF_cur_sector with next sector address
+        ; ld      HL, (CF_cur_sector)
+        ; ld      DE, 512
+        ; add     HL, DE
+        ; ld      (CF_cur_sector), HL
+        ; Update (+512) tmp_addr1 with the next address from where to get the next 512 bytes to save
+        ld      HL, (tmp_addr1)
+        ld      DE, 512
+        add     HL, DE
+        ld      (tmp_addr1), HL
+        ; Decrement sector count
+        ld      HL, tmp_byte
+        dec     (HL)
+        ; Continue with more bytes
+        jp      savef_save_sectors
+savef_lastbytes:
+        ; tmp_addr2 contains the number of bytes remaining that were not filling an entire sector
+        ; If it's zero, nothing to do (i.e. divison remainder was zero)
+        ; Otherwise save remaining bytes to an entire sector of 512 bytes padded with zeros
+        ld      BC, (tmp_addr2)         ; remaining bytes
+        ; ld      A, B
+        ; cp      0
+        ; jp      nz, savef_savelastbytes
+        ; ld      A, C
+        ; cp      0
+        ld      A, B
+        or      C
+        jp      z, savef_batentry
+; savef_savelastbytes:
+        ; We added 512 in the loop, but last remaining bytes were less
+        ; call    F_KRN_CLEAR_CFBUFFER
+        ld      HL, (tmp_addr1)         ; Bytes from address at tmp_addr1
+        ld      DE, 512                 ; count 512 bytes backwards
+        or      A
+        sbc     HL, DE
+        ld      DE, CF_BUFFER_START     ;   will be copied to the CF buffer
+        call    F_KRN_COPYMEM512
+        ; Save from CF Card Buffer to disc
+        call    F_KRN_DZFS_SECTOR_TO_CF
+savef_batentry:
+        ; Save BAT entry to disc
+        ;   Read BAT from disc again, to finally update it
+        ld      HL, (tmp_addr3)             ; restore sector number
+        ld      (CF_cur_sector), HL         ;   where the BAT entry was
+        ld      DE, (CF_cur_file_entry_number)
+        push    DE                          ; backup BAT entry number
+        call    F_KRN_DZFS_SEC_TO_BUFFER    ; Load BAT
+        pop     DE                          ; restore BAT entry number
+        call    F_KRN_DZFS_ADD_BAT_ENTRY    ; Update BAT and copy it to CF Card Buffer
+        call    F_KRN_DZFS_SECTOR_TO_CF     ; Save buffer to disc
+        ret
+;------------------------------------------------------------------------------
+F_KRN_DZFS_CALC_FILETIME:
+; Converts current RTC time into two bytes
+;           Byte 1    Byte 2
+;           7654 3210 7654 3210
+;           hhhh hmmm mmms ssss
+; Example:  1001 1010 1111 0101 = 19 (10011) 23 (010111) 42 (10101)
+; Formula: 2048 * hours + 32 * minutes + seconds / 2
+; OUT => HL = RTC time into two bytes
+        call    F_BIOS_RTC_GET_TIME     ; update SYSVARS time from RTC
+        ; Hour
+        ld      A, (RTC_hour)           ; get current RTC hour
+        add     A, A                    ; shift it left three times
+        add     A, A
+        add     A, A
+        ld      H, A                    ; and store it
+        ld      L, 0                    ; in H, and L = 0
+        ex      DE, HL                  ; store it in DE
+        ; Minutes
+        ld      A, (RTC_minutes)        ; get current RTC minutes
+        ld      H, 0                    ; clear HL
+        ld      L, A                    ; store it in L
+        add     HL, HL                  ; shift it 5 times
+        add     HL, HL
+        add     HL, HL
+        add     HL, HL
+        add     HL, HL
+        ; Add minutes to hour, using OR
+        ld      A, H                    ; OR the H portion
+        or      D                       ;   with D
+        ld      H, A                    ; and store result back in H
+        ld      A, L                    ; OR the L portion
+        or      E                       ;   with E
+        ld      L, A                    ; and store result back in L
+        ; Seconds
+        ld      A, (RTC_seconds)        ; get current RTC seconds
+        srl     A                       ; divide by 2 (shift once right)
+        ld      D, 0                    ; store in E portion
+        ld      E, A                    ;   of DE, and D = 0
+        ; Add seconds to minutes and hours
+        add     HL, DE
+        ret
+;------------------------------------------------------------------------------
+F_KRN_DZFS_CALC_FILEDATE:
+; Converts current RTC date into two bytes
+;           Byte 1    Byte 2
+;           7654 3210 7654 3210
+;           yyyy yyym mmmd dddd
+; Example:  0001 1011 0110 1001 = 2013 (0001101) 11 (1011) 9 (01001)
+; Year is stored as: current year - 2000 (e.g. 2022 - 2000 = 22)
+; Therefore, with 7 bits, max. year can be 2107 (1111 111)
+; Formula: 512 * (year - 2000) + month * 32 + day
+; OUT => HL = RTC date into two bytes
+        call    F_BIOS_RTC_GET_DATE     ; update SYSVARS date from RTC
+        ; Year
+        ld      A, (RTC_year)           ; get current RTC year (it's already year - 2000)
+        ld      H, 0                    ; clear HL
+        ld      L, A                    ; store it in L
+        sla     L                       ; shift left 9 bits
+        ld      H, L                    ; and store it
+        ld      L, 0                    ; in H, and L = 0
+        ex      DE, HL                  ; store it in DE
+        ; Month
+        ld      A, (RTC_month)          ; get current RTC month
+        ld      H, 0                    ; clear HL
+        ld      L, A                    ; store it in L
+        add     HL, HL                  ; shift it 5 times
+        add     HL, HL
+        add     HL, HL
+        add     HL, HL
+        add     HL, HL
+        ; Add month to year, using OR
+        ld      A, H                    ; OR the H portion
+        or      D                       ;   with D
+        ld      H, A                    ; and store result back in H
+        ld      A, L                    ; OR the L portion
+        or      E                       ;   with E
+        ld      L, A                    ; and store result back in L
+        ; Day
+        ld      A, (RTC_day)            ; get current RTC day
+        ld      D, 0                    ; store in E portion
+        ld      E, A                    ;   of DE, and D = 0
+        ; Add day to month and year
+        add     HL, DE
+        ret
+KRN_DZFS_SHOW_DISKINFO:
+        ; Volume Label
+        ld      HL, msg_vol_label
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      B, 16                   ; counter = 4 bytes
+        ld      HL, CF_SBLOCK_LABEL     ; point HL to offset in the buffer
+        call    F_KRN_SERIAL_PRN_BYTES
+        ; Volume Serial Number
+        ld      HL, msg_volsn
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      A, (CF_SBLOCK_SERNUM)
+        call    F_KRN_SERIAL_PRN_BYTE
+        ld      A, (CF_SBLOCK_SERNUM + $01)
+        call    F_KRN_SERIAL_PRN_BYTE
+        ld      A, (CF_SBLOCK_SERNUM + $02)
+        call    F_KRN_SERIAL_PRN_BYTE
+        ld      A, (CF_SBLOCK_SERNUM + $03)
+        call    F_KRN_SERIAL_PRN_BYTE
+        ld      A, ')'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+        ; File System id
+        ld      HL, msg_filesys
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      B, 8                            ; counter = 4 bytes
+        ld      HL, CF_SBLOCK_FSID              ; point HL to offset in the buffer
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld        B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+        ; Volume Date/Time Creation
+        ld      HL, msg_vol_creation
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      B, 2                            ; counter = 2 bytes
+        ld      HL, CF_SBLOCK_DATECREA          ; day
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      A, '/'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 2                            ; counter = 2 bytes
+        ld      HL, CF_SBLOCK_DATECREA + 2      ; month
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      A, '/'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 4                            ; counter = 4 bytes
+        ld      HL, CF_SBLOCK_DATECREA + 4      ; year
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 2                            ; counter = 2 bytes
+        ld      HL, CF_SBLOCK_DATECREA + 8      ; hour
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      A, ':'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 2                            ; counter = 2 bytes
+        ld      HL, CF_SBLOCK_DATECREA + 10     ; minutes
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      A, ':'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      B, 2                            ; counter = 2 bytes
+        ld      HL, CF_SBLOCK_DATECREA + 12     ; seconds
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+        ; Number of partitions
+        ld      HL, msg_num_partitions
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      A, (CF_SBLOCK_NUMPARTITIONS)
+        call    F_KRN_SERIAL_PRN_BYTE
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+;TODO        ; Bytes per Sector
+        ld      HL, msg_bytes_sector
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+;TODO        ; Sectors per Block
+        ld      HL, msg_sectors_block
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ; ld      A, (CF_SBLOCK_SECBLOCK)
+        ; call    F_KRN_BIN_TO_BCD4
+        ; ld      A, 64
+        ; call    F_KRN_HEX_TO_ASCII
+        ; ld      A, H
+        ; call    F_BIOS_SERIAL_CONOUT_A
+        ; ld      A, L
+        ; call    F_BIOS_SERIAL_CONOUT_A
+        ret
+
 ;==============================================================================
 ; Constants
 ;==============================================================================

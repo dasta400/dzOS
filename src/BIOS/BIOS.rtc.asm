@@ -40,37 +40,40 @@
 ; Real-Time Clock Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_BIOS_RTC_GET_TIME:        .EXPORT     F_BIOS_RTC_GET_TIME
+BIOS_RTC_GET_TIME:
 ; Returns the current time from the RTC circuit, in HEX values
 ; IN <= none
 ; OUT => time is stored in SYSVARS
-; TODO - F_BIOS_RTC_GET_TIME
-        ld      A, $15
+; TODO - BIOS_RTC_GET_TIME - get time from RTC chip
+        ld      A, 19
         ld      (RTC_hour), A
-        ld      A, $2D
+        ld      A, 23
         ld      (RTC_minutes), A
-        ld      A, $20
+        ld      A, 42
         ld      (RTC_seconds), A
-        ld      A, $5F
-        ld      (RTC_hundreds), A
         ret
-F_BIOS_RTC_GET_DATE:        .EXPORT     F_BIOS_RTC_GET_DATE
+;------------------------------------------------------------------------------
+BIOS_RTC_GET_DATE:
 ; Returns the current date from the RTC circuit, in HEX values
 ; IN <= none
 ; OUT => date is stored in SYSVARS
-; TODO - F_BIOS_RTC_GET_DATE
-        ld      A, $04
-        ld      (RTC_day), A
-        ld      A, $0A
-        ld      (RTC_month), A
-        ld      A, $14
+; TODO - BIOS_RTC_GET_DATE - get date from RTC chip
+        ld      A, 20
         ld      (RTC_century), A
-        ld      A, $01
+        ld      A, 22
         ld      (RTC_year), A
+        ld      A, 11
+        ld      (RTC_month), A
+        ld      A, 09
+        ld      (RTC_day), A
+        ld      A, $01
+        ld      (RTC_day_of_the_week), A
         ret
-F_BIOS_RTC_SET_TIME:        .EXPORT     F_BIOS_RTC_SET_TIME
-; TODO - F_BIOS_RTC_SET_TIME
+;------------------------------------------------------------------------------
+BIOS_RTC_SET_TIME:
+; TODO - BIOS_RTC_SET_TIME
         ret
-F_BIOS_RTC_SET_DATE:        .EXPORT     F_BIOS_RTC_SET_DATE
-; TODO - F_BIOS_RTC_SET_DATE
+;------------------------------------------------------------------------------
+BIOS_RTC_SET_DATE:
+; TODO - BIOS_RTC_SET_DATE
         ret

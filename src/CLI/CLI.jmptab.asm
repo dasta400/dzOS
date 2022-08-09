@@ -7,10 +7,10 @@
 ;
 ; Version 1.0.0
 ; Created on 06 Jul 2022
-; Last Modification 06 Jul 2022
+; Last Modification 20 Jul 2022
 ;******************************************************************************
 ; CHANGELOG
-;   -
+;   - 20 Jul 2022 - Added 'save' command
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -62,6 +62,12 @@ msg_help:
         .BYTE   "| rename      | Rename a file                     | rename old,new     |", CR, LF
         .BYTE   "| delete      | Deletes a file                    | delete myfile      |", CR, LF
         .BYTE   "| chgattr     | Assigns new Attributes to a file  | chgattr myfile,RSE |", CR, LF
+        ; .BYTE   "| save        | Save from addr. n bytes to a file | save 4570,64       |", CR, LF
+        .BYTE   "|             |                                   |                    |", CR, LF
+        .BYTE   "| date        | Show current date                 | date               |", CR, LF
+        .BYTE   "| time        | Show current time                 | time               |", CR, LF
+        .BYTE   "| setdate     | Change current date (ddmmyyyy)    | setdate 30072022   |", CR, LF
+        .BYTE   "| settime     | Change current time (hhmmss)      | settime 193900     |", CR, LF
         .BYTE   "|-------------|-----------------------------------|--------------------|", 0
 
 ;==============================================================================
@@ -85,8 +91,13 @@ _CMD_CF_DISKINFO    .BYTE   "diskinfo", 0   ; show CompactFlash information
 _CMD_CF_RENAME      .BYTE   "rename", 0     ; renames a file
 _CMD_CF_DELETE      .BYTE   "delete", 0     ; deletes a file
 _CMD_CF_CHGATTR     .BYTE   "chgattr", 0    ; changes attributes of a file
+_CMD_CF_SAVE        .BYTE   "save", 0       ; save n bytes to a file
 
-_CMD_PIOPIO         .BYTE   "piopio", 0     ; test PIO
+; RTC commands
+_CMD_RTC_DATE       .BYTE   "date", 0
+_CMD_RTC_TIME       .BYTE   "time", 0
+_CMD_RTC_SETDATE    .BYTE   "setdate", 0
+_CMD_RTC_SETTIME    .BYTE   "settime", 0
 
 ;==============================================================================
 ; TABLES
@@ -110,9 +121,13 @@ cmd_list_table:
         .WORD       _CMD_CF_RENAME
         .WORD       _CMD_CF_DELETE
         .WORD       _CMD_CF_CHGATTR
-        .WORD       _CMD_PIOPIO
+;        .WORD       _CMD_CF_SAVE
+        .WORD       _CMD_RTC_DATE
+        .WORD       _CMD_RTC_TIME
+        .WORD       _CMD_RTC_SETDATE
+        .WORD       _CMD_RTC_SETTIME
 
-; Jump table for avaiulable CLI commands
+; Jump table for available CLI commands
 cmd_jmptable:
         .WORD       CLI_NOCMD
         .WORD       CLI_CMD_HELP
@@ -130,7 +145,11 @@ cmd_jmptable:
         .WORD       CLI_CMD_CF_RENAME
         .WORD       CLI_CMD_CF_DELETE
         .WORD       CLI_CMD_CF_CHGATTR
-        .WORD       CLI_CMD_PIOPIO
+;        .WORD       CLI_CMD_CF_SAVE
+        .WORD       CLI_CMD_RTC_DATE
+        .WORD       CLI_CMD_RTC_TIME
+        .WORD       CLI_CMD_RTC_SETDATE
+        .WORD       CLI_CMD_RTC_SETTIME
 
 ;==============================================================================
 ; Local Equates

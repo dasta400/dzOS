@@ -60,6 +60,8 @@ cli_welcome:
 
 ;TODO        ; Show Free available RAM
         ; ld      HL, FREERAM_TOTAL
+        ; ld      HL, msg_bytesfree
+        ; call    F_KRN_SERIAL_WRSTRCLR
 
 cli_promptloop:         .EXPORT     cli_promptloop
         call    F_CLI_CLRCLIBUFFS       ; Clear buffers
@@ -290,7 +292,7 @@ F_CLI_CLRCLIBUFFS:
 msg_cli_version:
         .BYTE   "CLI    v1.0.0", 0
 ; msg_bytesfree:
-        ; .BYTE   " Bytes free", 0
+;         .BYTE   " Bytes free", 0
 msg_prompt:
         .BYTE   CR, LF
         .BYTE   "> "
