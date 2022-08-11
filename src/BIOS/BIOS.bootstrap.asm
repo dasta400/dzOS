@@ -47,23 +47,26 @@
         .ORG    BOOSTRAP_START
 
         ; Copy the contents of the ROM to High RAM ($8000)
-        ; We won't need the boostrap anymore, so we only copy from
-        ;   start of the ROM ($0000) until CLI_END
-        ld      BC, CLI_END             ; set byte counter to copy until CLI_END
-        ld      HL, $0000               ; copy from $0000
-        ld      DE, $8000               ; to start of High RAM
+        ld      BC, BOOSTRAP_END        ; set byte counter
+        ld      HL, $0000               ; copy bytes from $0000
+        ld      DE, START_HIGHRAM       ; to High RAM
         ldir
 
-        ; Disable (page out) ROM
-        ld      A, 1
-        out     (ROMRAM_PAGING), A
+        jp      _disable_ROM + START_HIGHRAM    ; continue, but now from RAM
 
-        ; Copy the copy of ROM in $8000 RAM to $0000 RAM
+_disable_ROM:   ; Disable ROM and enable Low RAM
+        ld      A, $01
+        out     ($38), A
+
+        ; Copy the copy of ROM in High RAM to Low RAM
+        ; Don't need this boostrap anymore, so we only copy from
+        ;   start of the ROM ($8000) until CLI_END
         ld      BC, CLI_END             ; set byte counter to copy until CLI_END
-        ld      HL, $8000               ; copy from $8000
+        ld      HL, START_HIGHRAM       ; copy from $8000
         ld      DE, $0000               ; to start of Low RAM
         ldir
-        ; Continue with BIOS
+
+        ; Continue with BIOS initialisation
         ld      SP, STACK_END           ; Set Stack address in RAM
         jp      F_BIOS_SERIAL_INIT      ; Initialise SIO/2
 

@@ -8,7 +8,7 @@ The OS consists of three parts:
 * The **Kernel**, which provides general functions for everything that is not hardware dependent.
 * The **Command-Line Interface (CLI)**, that provides commands for the user to talk to the Kernel and BIOS.
 
-The Kernel and the CLI are hardware independendent and will work on any Z80 based computer. Therefore, by adapting the BIOS code, **dzOS can easily be ported to other Z80 systems**.
+The Kernel and the CLI are hardware independent and will work on any Z80 based computer. Therefore, by adapting the BIOS code, **dzOS can easily be ported to other Z80 systems**.
 
 ![dzOS v2022.07.19.13](https://github.com/dasta400/dzOS/blob/master/docs/dzOS%20v2022.07.19.13.png "dzOS v2022.07.19.13")
 

@@ -85,6 +85,8 @@ FREERAM_START           .EQU    CF_BUFFER_END + 1
 FREERAM_END             .EQU    $FFFF
 FREERAM_TOTAL           .EQU    FREERAM_END - FREERAM_START + 1
 
+START_HIGHRAM           .EQU    $8000
+
 ;==============================================================================
 ; Key codes over Serial
 ;==============================================================================
