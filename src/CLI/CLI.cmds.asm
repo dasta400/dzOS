@@ -1022,7 +1022,7 @@ msg_memdump_hdr:
         .BYTE   "      .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..", 0
 msg_moreorquit:
         .BYTE   CR, LF
-        .BYTE   "[SPACE] for more or another key for stop", 0
+        .BYTE   "[SPACE] for more or another key to stop", 0
 msg_format_end:
         .BYTE   CR, LF
         .BYTE   "Disk was successfully formatted", CR, LF, 0
