@@ -133,6 +133,8 @@ RTC_century                 .EXPORT         RTC_century
                 .BYTE    0
 RTC_year                    .EXPORT         RTC_year
                 .BYTE    0
+RTC_year4                   .EXPORT         RTC_year4
+                .BYTE    0, 0
 RTC_month                   .EXPORT         RTC_month
                 .BYTE    0
 RTC_day                     .EXPORT         RTC_day

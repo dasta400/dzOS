@@ -121,7 +121,7 @@ cmd_list_table:
         .WORD       _CMD_CF_RENAME
         .WORD       _CMD_CF_DELETE
         .WORD       _CMD_CF_CHGATTR
-;        .WORD       _CMD_CF_SAVE
+        ; .WORD       _CMD_CF_SAVE
         .WORD       _CMD_RTC_DATE
         .WORD       _CMD_RTC_TIME
         .WORD       _CMD_RTC_SETDATE
@@ -145,7 +145,7 @@ cmd_jmptable:
         .WORD       CLI_CMD_CF_RENAME
         .WORD       CLI_CMD_CF_DELETE
         .WORD       CLI_CMD_CF_CHGATTR
-;        .WORD       CLI_CMD_CF_SAVE
+        ; .WORD       CLI_CMD_CF_SAVE
         .WORD       CLI_CMD_RTC_DATE
         .WORD       CLI_CMD_RTC_TIME
         .WORD       CLI_CMD_RTC_SETDATE
@@ -154,7 +154,7 @@ cmd_jmptable:
 ;==============================================================================
 ; Local Equates
 ;==============================================================================
-JMPTABLE_LENGTH     .EQU        17      ; total number of available commands
+JMPTABLE_LENGTH     .EQU        20      ; total number of available commands
                                         ; in jump table above
 
 CLI_NOCMD:

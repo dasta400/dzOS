@@ -185,7 +185,7 @@ rtsB1:
 BIOS_SERIAL_CONOUT_A:
         push    AF
 conoutA1:
-; TODO - Do I need CKSIOA?
+        ; Seems to work fine without this check
         ; call  CKSIOA                    ; See if SIO channel A is finished transmitting
         sub     A
         out     (SIO_CH_A_CONTROL), A
@@ -202,6 +202,7 @@ conoutA1:
 BIOS_SERIAL_CONOUT_B:
         push    AF
 conoutB1:
+        ; Seems to work fine without this check
         ; call  CKSIOB                    ; See if SIO channel B is finished transmitting
         sub     A
         out     (SIO_CH_B_CONTROL), A

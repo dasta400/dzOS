@@ -121,6 +121,30 @@ KRN_SERIAL_WRSTR:
         jr      KRN_SERIAL_WRSTR        ; repeat (until character = 00h)
         ret
 ;------------------------------------------------------------------------------
+KRN_SERIAL_WR6DIG_NOLZEROS:
+; Output to the Console a string of ASCII characters representing number
+;   without outputing leading zeros
+; (.e.g. 30 30 31 32 30 34 is 001204, but the output is 1024)
+; IN <= IX = address where the ASCII characters are stored
+        or      A                       ; clear Carry Flag
+        ld      DE, 0                   ; will use DE as a flag for leading zeros
+        ld      B, 6                    ; 6 digits to print
+_wr6dig_print:
+        ld      A, (IX+0)               ; get digit
+        cp      $30                     ; is it a zero? (in ASCII hex 0=$30)
+        jp      nz, _wr6dig_print_digit ; no, then print digit
+        bit     0, E                    ; if bit is set,
+        jp      nz, _wr6dig_print_digit ;   it's not a leading zero, then print digit
+        jp      _wr6dig_next_digit      ; otherwise, next digit
+_wr6dig_print_digit:
+        call    F_BIOS_SERIAL_CONOUT_A  ; print digit
+        ld      E, 1                    ; set bit to indicate that a non zero was printed
+                                        ;   and therefore there no more leading zeros
+_wr6dig_next_digit:
+        inc     IX                      ; point to next digit
+        djnz    _wr6dig_print           ; and loop
+        ret
+;------------------------------------------------------------------------------
 KRN_SERIAL_RDCHARECHO:
 ; Read a character, with echo
 ; Read a character from Console and outputs to the Screen

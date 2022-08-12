@@ -41,20 +41,22 @@
 ;==============================================================================
 ;------------------------------------------------------------------------------
 BIOS_RTC_GET_TIME:
-; Returns the current time from the RTC circuit, in HEX values
+; Gets the current time from the RTC circuit,
+; and stores hour, minutes and seconds as hexadecimal values in SYSVARS
 ; IN <= none
 ; OUT => time is stored in SYSVARS
 ; TODO - BIOS_RTC_GET_TIME - get time from RTC chip
-        ld      A, 19
+        ld      A, 16
         ld      (RTC_hour), A
-        ld      A, 23
+        ld      A, 24
         ld      (RTC_minutes), A
-        ld      A, 42
+        ld      A, 45
         ld      (RTC_seconds), A
         ret
 ;------------------------------------------------------------------------------
 BIOS_RTC_GET_DATE:
-; Returns the current date from the RTC circuit, in HEX values
+; Returns the current date from the RTC circuit,
+; and stores day, month, year and day of the week as hexadecimal values in SYSVARS
 ; IN <= none
 ; OUT => date is stored in SYSVARS
 ; TODO - BIOS_RTC_GET_DATE - get date from RTC chip
@@ -62,11 +64,13 @@ BIOS_RTC_GET_DATE:
         ld      (RTC_century), A
         ld      A, 22
         ld      (RTC_year), A
-        ld      A, 11
+        ld      HL, 2022
+        ld      (RTC_year4), HL
+        ld      A, 08
         ld      (RTC_month), A
-        ld      A, 09
+        ld      A, 12
         ld      (RTC_day), A
-        ld      A, $01
+        ld      A, 4
         ld      (RTC_day_of_the_week), A
         ret
 ;------------------------------------------------------------------------------

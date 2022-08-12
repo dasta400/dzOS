@@ -265,6 +265,10 @@ runner_addr:
 ;     cat - Shows disk catalogue
 ;------------------------------------------------------------------------------
 CLI_CMD_CF_CAT:
+        ; Only allow disk commands if the disk is formatted
+        ld      A, (CF_is_formatted)
+        cp      $FF
+        jp      nz, _error_diskunformatted
         ; print header
         ld      HL, msg_cf_cat_title
         ld      A, ANSI_COLR_YLW
@@ -287,6 +291,10 @@ CLI_CMD_CF_CAT:
 CLI_CMD_CF_LOAD:    ; TODO - It is loading without full filename (e.g. disk loads diskinfo)
 ; IN <= CLI_buffer_parm1_val = Filename
 ; OUT => OK message on default output (e.g. screen, I/O) if file found
+        ; Only allow disk commands if the disk is formatted
+        ld      A, (CF_is_formatted)
+        cp      $FF
+        jp      nz, _error_diskunformatted
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
 CLI_CMD_CF_LOAD_NOCHECK:                ; When called from CLI_CMD_RUN, the paramter was already checked
         ; Search filename in BAT
@@ -321,7 +329,7 @@ CLI_CMD_CF_LOAD_NOCHECK:                ; When called from CLI_CMD_RUN, the para
 load_filename_not_found:
         ld      A, $EF                  ; Flag for 'run' command
         ld      (tmp_byte), A           ; to indicate that the file was not run
-        ld      HL, error_2001
+        ld      HL, error_2003
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -377,41 +385,36 @@ format_answer_end:
 ;     diskinfo - Show CompactFlash information
 ;------------------------------------------------------------------------------
 CLI_CMD_CF_DISKINFO:
+        ; Only allow disk commands if the disk is formatted
+        ld      A, (CF_is_formatted)
+        cp      $FF
+        jp      nz, _error_diskunformatted
         call    F_KRN_DZFS_READ_SUPERBLOCK  ; get CF information from the Superblock
         ld      HL, msg_cf_diskinfo_hdr
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
         call    F_KRN_DZFS_SHOW_DISKINFO
-        ; File System id
-        ; Volume Label
-        ; Volume Date creation
-        ; Volume Time creation
-        ; Bytes per Sector
-        ; Sectors per Block
-        ; Number of Partitions
-        ; Copyright
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;   rename - Renames a file with a specified filename to a new filename
 ;------------------------------------------------------------------------------
-CLI_CMD_CF_RENAME:  ; TODO - Do not allow renaming System or Read Only files
-                    ; TODO - It is renaming without full filename (e.g. disk renames diskinfo)
+CLI_CMD_CF_RENAME:  ; TODO - It is renaming without full filename (e.g. disk renames diskinfo)
 ; IN <= CLI_buffer_parm1_val = old filename
 ;       CLI_buffer_parm2_val = new filename
+;
+        ; Only allow disk commands if the disk is formatted
+        ld      A, (CF_is_formatted)
+        cp      $FF
+        jp      nz, _error_diskunformatted
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; Check that new filename doesn't already exists
         ld      HL, CLI_buffer_parm2_val
         call    F_KRN_DZFS_GET_FILE_BATENTRY
         ; Was the filename found?
         call    is_filename_found
-        ; ld      A, (tmp_addr3)
-        ; cp      $AB
-        ; jp      z, check_old_filename   ; No, continue
-        ; ld      A, (tmp_addr3 + 1)
-        ; cp      $BA
         jp      z, check_old_filename   ; No, continue
         ; Old filename already exists, show error an exit
-        ld      HL, error_2002
+        ld      HL, error_2004
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -421,13 +424,11 @@ check_old_filename:
         call    F_KRN_DZFS_GET_FILE_BATENTRY
         ; Was the filename found?
         call    is_filename_found
-        ; ld      A, (tmp_addr3)
-        ; cp      $AB
-        ; jp      z, filename_notfound    ; No, error and exit
-        ; ld      A, (tmp_addr3 + 1)
-        ; cp      $BA
         jp      z, filename_notfound    ; No, error and exit
-        ; Yes, do the renaming
+                                        ; Yes, check that is not Read Only or System
+        call    is_rosys
+        jp      nz, action_notallowed   ; Yes, error and exit
+                                        ; No, continue
         ld      DE, (CF_cur_file_entry_number)
         ld      IY, CLI_buffer_parm2_val
         call    F_KRN_DZFS_RENAME_FILE
@@ -438,7 +439,13 @@ check_old_filename:
         jp      cli_promptloop
 filename_notfound:
         ; Old filename already exists, show error an exit
-        ld      HL, error_2001
+        ld      HL, error_2003
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      cli_promptloop
+action_notallowed:
+        ; File is Read Only and/or System, show error and exit
+        ld      HL, error_2007
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -447,22 +454,24 @@ filename_notfound:
 ;            The Kernel doesn't delete the file data. It just changes the
 ;               first character of the filename to ~
 ;------------------------------------------------------------------------------
-CLI_CMD_CF_DELETE:      ; TODO - Do not allow delete System or Read Only files
-                        ; TODO - It is deleting without full filename (e.g. disk deletes diskinfo)
+CLI_CMD_CF_DELETE:      ; TODO - It is deleting without full filename (e.g. disk deletes diskinfo)
 ; IN <= CLI_buffer_parm1_val = filename
+;
+        ; Only allow disk commands if the disk is formatted
+        ld      A, (CF_is_formatted)
+        cp      $FF
+        jp      nz, _error_diskunformatted
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
         ; Search filename in BAT
         ld      HL, CLI_buffer_parm1_val
         call    F_KRN_DZFS_GET_FILE_BATENTRY
         ; Was the filename found?
         call    is_filename_found
-        ; ld      A, (tmp_addr3)
-        ; cp      $AB
-        ; jp      z, filename_notfound  ; No, show error message
-        ; ld      A, (tmp_addr3 + 1)
-        ; cp      $BA
-        jp      z, filename_notfound  ; No, show error message
-        ; yes, continue
+        jp      z, filename_notfound    ; No, error and exit
+                                        ; Yes, check that is not Read Only or System
+        call    is_rosys
+        jp      nz, action_notallowed   ; Yes, error and exit
+                                        ; No, continue
         ld      DE, (CF_cur_file_entry_number)
         call    F_KRN_DZFS_DELETE_FILE
         ; show success message
@@ -478,19 +487,29 @@ CLI_CMD_CF_DELETE:      ; TODO - Do not allow delete System or Read Only files
 CLI_CMD_CF_CHGATTR:     ; TODO - It is changing attribs without full filename (e.g. disk changes diskinfo)
 ; IN <= CLI_buffer_parm1_val = filename
 ;       CLI_buffer_parm2_val = new attributes
+;
+        ; Only allow disk commands if the disk is formatted
+        ld      A, (CF_is_formatted)
+        cp      $FF
+        jp      nz, _error_diskunformatted
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; Check filename exists
         ld      HL, CLI_buffer_parm1_val
         call    F_KRN_DZFS_GET_FILE_BATENTRY
         ; Was the filename found?
         call    is_filename_found
-        jp      nz, chgattr             ; exists, change attributes
-        ; doesn't exists, error and exit
-        ld      HL, error_2001
+        jp      nz, chgattr             ; exists, continue
+                                        ; doesn't exists, error and exit
+        ld      HL, error_2003
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 chgattr:
+        ; Do not allow change attributes on System files
+        ld      A, (CF_cur_file_attribs)
+        bit     2, A                    ; is it System?
+        jp      nz, action_notallowed   ; Yes, error and exit
+                                        ; No, continue        
         ; Read each character of param2 and make up the mask byte as per
         ;   (0=Inactive / 1=Active)
         ;       Bit 0 = Read Only
@@ -543,7 +562,7 @@ make_done:
         ld      (HL), A                 ; change mask byte
         jp      next_attr
 wrong_attr:
-        ld      HL, error_2003
+        ld      HL, error_2005
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -573,6 +592,17 @@ is_filename_found:
         cp      $BA
         ret
 ;------------------------------------------------------------------------------
+is_rosys:
+; return error if file is Read Only and/or System
+; IN <= reads from SYSVARS.CF_cur_file_attribs
+; OUT => Zero Flag cleared if Read Only or System
+        ld      A, (CF_cur_file_attribs)
+        bit     0, A                    ; is it Read Only?
+        ret     nz                       ; exit
+        bit     2, A                    ; no, is it System?
+        ret
+
+;------------------------------------------------------------------------------
 ;   save - Save n bytes from an specified address in memory to a file
 ;          User will be prompted for a filename
 ;------------------------------------------------------------------------------
@@ -580,6 +610,10 @@ CLI_CMD_CF_SAVE:
 ; IN <= CLI_buffer_parm1_val = start address in memory
 ;       CLI_buffer_parm2_val = number of bytes to save
 ;
+        ; Only allow disk commands if the disk is formatted
+        ld      A, (CF_is_formatted)
+        cp      $FF
+        jp      nz, _error_diskunformatted
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; Ask for filename
         ld      HL, msg_prompt_fname
@@ -601,7 +635,7 @@ end_get_fname:
         call    is_filename_found
         jp      z, save_filename        ; doesn't exist, do the saving
         ; exists, error and exit
-        ld      HL, error_2002
+        ld      HL, error_2004
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -633,7 +667,6 @@ save_filename:
         ld      DE, $4570
         jp      start_dump_line
 
-
         ; print OK, to let the user know that the command was successful
         ld      HL, msg_cf_file_saved
         ld      A, ANSI_COLR_YLW
@@ -643,52 +676,20 @@ save_filename:
 ;   date - Show current date
 ;------------------------------------------------------------------------------
 CLI_CMD_RTC_DATE:
-;         call    F_BIOS_RTC_GET_DATE     ; date is stored in SYSVARS in BCD
-;         ld      A, RTC_day_of_the_week
-;         cp      2
-;         jp      z, date_mon
-;         cp      3
-;         jp      z, date_tue
-;         cp      4
-;         jp      z, date_wed
-;         cp      5
-;         jp      z, date_thu
-;         cp      6
-;         jp      z, date_fri
-;         cp      7
-;         jp      z, date_sat
-; date_sun:
-;         jp      date_day
-; date_mon:
-;         jp      date_day
-; date_tue:
-;         jp      date_day
-; date_wed:
-;         jp      date_day
-; date_thu:
-;         jp      date_day
-; date_fri:
-;         jp      date_day
-; date_sat:
-
-; date_day:
-;         ; ToDo - CLI_CMD_RTC_DATE print a comma to separate DoW from Day
-;         ld      D, 0
-;         ld      E, (RTC_day)
-; date_month:
-;         ; ToDo - CLI_CMD_RTC_DATE print a slash to separate Day from Month
-;         ld      D, 0
-;         ld      E, (RTC_month)
-; date_year:
-;         ; ToDo - CLI_CMD_RTC_DATE print a slash to separate Month from Year
-
-        ret
+        ld      HL, msg_todayis
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        call    F_KRN_RTC_SHOW_DATE
+        jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;   time - Show current time
 ;------------------------------------------------------------------------------
 CLI_CMD_RTC_TIME:
-        ; call    F_BIOS_RTC_GET_TIME
-        ret
+        ld      HL, msg_nowis
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        call    F_KRN_RTC_SHOW_TIME
+        jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;   setdate - Change current date (ddmmyyyy)
 ;------------------------------------------------------------------------------
@@ -777,103 +778,37 @@ diskcat_print:
         jp      nz, diskcat_nextentry   ; Yes, skip it
 
         ; Print entry data
-        ; Filename
+        ;   Filename
         ld      B, 14
         ld      HL, CF_cur_file_name
         call    F_KRN_SERIAL_PRN_BYTES
         call    print_a_space
         call    print_a_space
-
-        ; Date created
-; TODO - Need to convert into DD-MM-YYYY
-        ld      A, 'D'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'D'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, '-'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'M'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'M'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, '-'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'Y'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'Y'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'Y'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'Y'
-        call    F_BIOS_SERIAL_CONOUT_A
+        ;   Date created
+        ld      HL, (CF_cur_file_date_created)
+        call    F_KRN_PKEDDATE_TO_DMY   ; A = day, B = month, C = year
+        call    _print_DDMMYYYY
         call    print_a_space
         call    print_a_space
-        ; Time created
-; TODO - Need to convert into hh:mm:ss        
-        ; call    F_KRN_TRANSLT_TIME
-        ld      A, 'H'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'H'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, ':'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'M'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'M'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, ':'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'S'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'S'
-        call    F_BIOS_SERIAL_CONOUT_A
+        ;   Time created
+        ld      HL, (CF_cur_file_time_created)
+        call    F_KRN_PKEDTIME_TO_HMS   ; A = hour, B = minutes, C = seconds
+        call    _print_HMS
         call    print_a_space
         call    print_a_space
-        ; Date last modif.
-; TODO - Need to convert into DD-MM-YYYY
-        ld      A, 'D'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'D'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, '-'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'M'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'M'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, '-'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'Y'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'Y'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'Y'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'Y'
-        call    F_BIOS_SERIAL_CONOUT_A
+        ;   Date last modif.
+        ld      HL, (CF_cur_file_date_modified)
+        call    F_KRN_PKEDDATE_TO_DMY   ; A = day, B = month, C = year
+        call    _print_DDMMYYYY
         call    print_a_space
         call    print_a_space
-        ; Time last modif.
-; TODO - Need to convert into hh:mm:ss
-        ld      A, 'H'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'H'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, ':'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'M'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'M'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, ':'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'S'
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, 'S'
-        call    F_BIOS_SERIAL_CONOUT_A
+        ;   Time last modif.
+        ld      HL, (CF_cur_file_time_modified)
+        call    F_KRN_PKEDTIME_TO_HMS   ; A = hour, B = minutes, C = seconds
+        call    _print_HMS
         call    print_a_space
         call    print_a_space
-        ; Size
+        ;   Size
         ld      IY, CF_cur_file_size_bytes
         ld      E, (IY)                 ; E = MSB
         ld      D, (IY + 1)             ; D = LSB
@@ -882,20 +817,9 @@ diskcat_print:
         ex      DE, HL                  ; HL = converted 6-digit BCD
         ld      DE, CLI_buffer_pgm      ; where the numbers in ASCII will be stored
         call    F_KRN_BCD_TO_ASCII
-        ; Print each of the 6 digits
-        ld      IY, CLI_buffer_pgm
-        ld      A, (IY + 0)
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, (IY + 1)
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, (IY + 2)
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, (IY + 3)
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, (IY + 4)
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, (IY + 5)
-        call    F_BIOS_SERIAL_CONOUT_A
+        ;   Print each of the 6 digits (without leading zeros)
+        ld      IX, CLI_buffer_pgm
+        call    F_KRN_SERIAL_WR6DIG_NOLZEROS
         call    print_a_space
         call    print_a_space
         call    print_a_space
@@ -916,13 +840,13 @@ diskcat_nextentry:
         ld      (CF_cur_sector), A      ; Did we process
         cp      64                      ;    64 sectors already?
 ; TODO - Change this 64, to be read from Superblock's Sectors per Block?
+;        Then needs to be stored in SYSVARS
         jp      nz, diskcat_nextsector  ; No, then process next sector
         jp      diskcat_end_nopop
 diskcat_end:
         pop     AF                      ; needed because previous push AF    
 diskcat_end_nopop:
         jp      cli_promptloop          ; Yes, then nothing else to do
-
 ;------------------------------------------------------------------------------
 F_CLI_CF_PRINT_ATTRBS:
 ; Prints a string with letters (R=Read Only, H=Hidden, S=System, E=Executable)
@@ -970,74 +894,93 @@ print_a_space:
         ld      A, ' '
         call    F_BIOS_SERIAL_CONOUT_A
         ret
-;==============================================================================
-; Messages
-;==============================================================================
-msg_prompt_hex:
-        .BYTE   CR, LF
-        .BYTE   "$ ", 0
-msg_ok:
-        .BYTE   CR, LF
-        .BYTE   "OK", 0
-msg_dirlabel:
-        .BYTE   "<DIR>", 0
-msg_crc_ok:
-        .BYTE   " ...[CRC OK]", CR, LF, 0
-msg_exeloaded:
-        .BYTE   CR, LF
-        .BYTE   "Executable loaded at: 0x", 0
-msg_cf_cat_title:
-        .BYTE   CR, LF
-        .BYTE   CR, LF
-        .BYTE   "Disk Catalogue", CR, LF, 0
-msg_cf_cat_sep:
-        .BYTE   "-------------------------------------------------------------------------------", CR, LF, 0
-msg_cf_cat_detail:
-        .BYTE   "File              Created               Modified              Size   Attributes", CR, LF, 0
-msg_cf_file_loaded:
-        .BYTE   CR, LF
-        .BYTE   "File loaded successfully at address: $", 0
-msg_cf_file_renamed:
-        .BYTE   CR, LF
-        .BYTE   "File renamed", 0
-msg_cf_file_deleted:
-        .BYTE   CR, LF
-        .BYTE   "File deleted", 0
-msg_cf_file_attr_chged:
-        .BYTE   CR, LF
-        .BYTE   "File Attributes changed", 0
-msg_cf_file_saved:
-        .BYTE   CR, LF
-        .BYTE   "File saved", 0
-msg_cf_format_confirm:
-        .BYTE   CR, LF
-        .BYTE   "All data in the disk will be destroyed!", CR, LF
-        .BYTE   "Do you want to continue? (yes/no) ", 0
-msg_cf_diskinfo_hdr:
-        .BYTE   CR, LF
-        .BYTE   "CompactFlash Information", CR, LF, 0
-msg_memdump_hdr:
-        .BYTE   CR, LF
-        .BYTE   "      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F", CR, LF
-        .BYTE   "      .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..", 0
-msg_moreorquit:
-        .BYTE   CR, LF
-        .BYTE   "[SPACE] for more or another key to stop", 0
-msg_format_end:
-        .BYTE   CR, LF
-        .BYTE   "Disk was successfully formatted", CR, LF, 0
-msg_prompt_fname:
-        .BYTE   CR, LF
-        .BYTE   "filename? ", 0
 ;------------------------------------------------------------------------------
-;             ERROR MESSAGES
+_print_DDMMYYYY:
+        ; Print day and separator
+        push    BC                      ; backup month and year
+        call    F_KRN_BIN_TO_BCD4       ; Convert day to decimal
+        ld      C, 0
+        ld      DE, tmp_addr1
+        call    F_KRN_BCD_TO_ASCII      ; tmp_addr3 = ASCII values for day
+        ld      A, (tmp_addr3)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print first character of day
+        ld      A, (tmp_addr3 + 1)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print second character of day
+        ld      A, '-'
+        call    F_BIOS_SERIAL_CONOUT_A  ; print date separator
+        ; Print month and separator
+        pop     BC                      ; restore month
+        push    BC                      ; backup year
+        ld      A, B
+        call    F_KRN_BIN_TO_BCD4       ; Convert month to decimal
+        ld      C, 0
+        ld      DE, tmp_addr1
+        call    F_KRN_BCD_TO_ASCII      ; tmp_addr3 = ASCII values for month
+        ld      A, (tmp_addr3)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print first character of month
+        ld      A, (tmp_addr3 + 1)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print second character of month
+        ld      A, '-'
+        call    F_BIOS_SERIAL_CONOUT_A  ; print date separator
+        ; Print year (need to add 20 for 20xx)
+        pop     BC                      ; restore year
+        ld      A, '2'
+        call    F_BIOS_SERIAL_CONOUT_A  ; print first digit of century
+        ld      A, '0'
+        call    F_BIOS_SERIAL_CONOUT_A  ; print second digit of century
+        ld      A, C
+        call    F_KRN_BIN_TO_BCD4       ; Convert year to decimal
+        ld      C, 0
+        ld      DE, tmp_addr1
+        call    F_KRN_BCD_TO_ASCII      ; tmp_addr3 = ASCII values for year
+        ld      A, (tmp_addr3)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print first character of year
+        ld      A, (tmp_addr3 + 1)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print second character of year
+        ret
 ;------------------------------------------------------------------------------
-error_2001:
-        .BYTE   CR, LF
-        .BYTE   "File not found", CR, LF, 0
-error_2002:
-        .BYTE   CR, LF
-        .BYTE   "New filename already exists", CR, LF, 0
-error_2003:
-        .BYTE   CR, LF
-        .BYTE   "Unknown attribute letter was specified", CR, LF, 0
+_print_HMS:
+        ; Print hour and separator
+        push    BC                      ; backup minutes and seconds
+        call    F_KRN_BIN_TO_BCD4       ; Convert hour to decimal
+        ld      C, 0
+        ld      DE, tmp_addr1
+        call    F_KRN_BCD_TO_ASCII      ; tmp_addr3 = ASCII values for hour
+        ld      A, (tmp_addr3)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print first character of hour
+        ld      A, (tmp_addr3 + 1)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print second character of hour
+        ld      A, ':'
+        call    F_BIOS_SERIAL_CONOUT_A  ; print time separator
+        ; Print minutes and separator
+        pop     BC                      ; restore minutes
+        push    BC                      ; backup seconds
+        ld      A, B
+        call    F_KRN_BIN_TO_BCD4       ; Convert minutes to decimal
+        ld      C, 0
+        ld      DE, tmp_addr1
+        call    F_KRN_BCD_TO_ASCII      ; tmp_addr3 = ASCII values for minutes
+        ld      A, (tmp_addr3)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print first character of minutes
+        ld      A, (tmp_addr3 + 1)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print second character of minutes
+        ld      A, ':'
+        call    F_BIOS_SERIAL_CONOUT_A  ; print time separator
+        ; Print seconds
+        pop     BC                      ; restore seconds
+        ld      A, C
+        call    F_KRN_BIN_TO_BCD4       ; Convert seconds to decimal
+        ld      C, 0
+        ld      DE, tmp_addr1
+        call    F_KRN_BCD_TO_ASCII      ; tmp_addr3 = ASCII values for seconds
+        ld      A, (tmp_addr3)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print first character of seconds
+        ld      A, (tmp_addr3 + 1)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print second character of seconds
+        ret
+;------------------------------------------------------------------------------
+_error_diskunformatted:
+        ld      HL, error_2006
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      cli_promptloop

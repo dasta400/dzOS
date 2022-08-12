@@ -36,8 +36,6 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-; ToDo - Calls to functions should be to RAM jumpblock addresses
-
 ;==============================================================================
 ; Includes
 ;==============================================================================
@@ -54,19 +52,14 @@ cli_welcome:
         ld      HL, msg_cli_version     ; CLI start up message
         ld      A, ANSI_COLR_CYA
         call    F_KRN_SERIAL_WRSTRCLR
-        ; output 1 empty line
+
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
-
-;TODO        ; Show Free available RAM
-        ; ld      HL, FREERAM_TOTAL
-        ; ld      HL, msg_bytesfree
-        ; call    F_KRN_SERIAL_WRSTRCLR
 
 cli_promptloop:         .EXPORT     cli_promptloop
         call    F_CLI_CLRCLIBUFFS       ; Clear buffers
         ld      HL, msg_prompt          ; Prompt
-        ld      A, ANSI_COLR_CYA
+        ld      A, ANSI_COLR_BLU
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, ANSI_COLR_WHT        ; Set text colour
         call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
@@ -79,7 +72,7 @@ cli_promptloop:         .EXPORT     cli_promptloop
         jp      c, cli_command_unknown
         jp      cli_promptloop
 cli_command_unknown:
-        ld      HL, error_1001
+        ld      HL, error_2001
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -216,7 +209,7 @@ check_param:
         jp      z, bad_params               ; no, show error and exit subroutine
         ret
 bad_params:
-        ld      HL, error_1002
+        ld      HL, error_2002
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         ret
@@ -290,22 +283,98 @@ F_CLI_CLRCLIBUFFS:
 ; Messages
 ;==============================================================================
 msg_cli_version:
+        .BYTE   CR, LF
         .BYTE   "CLI    v1.0.0", 0
-; msg_bytesfree:
-;         .BYTE   " Bytes free", 0
 msg_prompt:
         .BYTE   CR, LF
         .BYTE   "> "
         .BYTE   0
+msg_prompt_hex:
+        .BYTE   CR, LF
+        .BYTE   "$ ", 0
+msg_ok:
+        .BYTE   CR, LF
+        .BYTE   "OK", 0
+msg_dirlabel:
+        .BYTE   "<DIR>", 0
+msg_crc_ok:
+        .BYTE   " ...[CRC OK]", CR, LF, 0
+msg_exeloaded:
+        .BYTE   CR, LF
+        .BYTE   "Executable loaded at: 0x", 0
+msg_cf_cat_title:
+        .BYTE   CR, LF
+        .BYTE   CR, LF
+        .BYTE   "Disk Catalogue", CR, LF, 0
+msg_cf_cat_sep:
+        .BYTE   "-----------------------------------------------------------------------------", CR, LF, 0
+msg_cf_cat_detail:
+        .BYTE   "File            Created               Modified              Size   Attributes", CR, LF, 0
+msg_cf_file_loaded:
+        .BYTE   CR, LF
+        .BYTE   "File loaded successfully at address: $", 0
+msg_cf_file_renamed:
+        .BYTE   CR, LF
+        .BYTE   "File renamed", 0
+msg_cf_file_deleted:
+        .BYTE   CR, LF
+        .BYTE   "File deleted", 0
+msg_cf_file_attr_chged:
+        .BYTE   CR, LF
+        .BYTE   "File Attributes changed", 0
+msg_cf_file_saved:
+        .BYTE   CR, LF
+        .BYTE   "File saved", 0
+msg_cf_format_confirm:
+        .BYTE   CR, LF
+        .BYTE   "All data in the disk will be destroyed!", CR, LF
+        .BYTE   "Do you want to continue? (yes/no) ", 0
+msg_cf_diskinfo_hdr:
+        .BYTE   CR, LF
+        .BYTE   "CompactFlash Information", CR, LF, 0
+msg_memdump_hdr:
+        .BYTE   CR, LF
+        .BYTE   "      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F", CR, LF
+        .BYTE   "      .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..", 0
+msg_moreorquit:
+        .BYTE   CR, LF
+        .BYTE   "[SPACE] for more or another key to stop", 0
+msg_format_end:
+        .BYTE   CR, LF
+        .BYTE   "Disk was successfully formatted", CR, LF, 0
+msg_prompt_fname:
+        .BYTE   CR, LF
+        .BYTE   "filename? ", 0
+msg_todayis:
+        .BYTE   CR, LF
+        .BYTE   "Today: ", 0
+msg_nowis:
+        .BYTE   CR, LF
+        .BYTE   "Now: ", 0
 ;------------------------------------------------------------------------------
 ;             ERROR MESSAGES
 ;------------------------------------------------------------------------------
-error_1001:
+error_2001:
         .BYTE   CR, LF
-        .BYTE   "Command unknown (type help for list of available commands)", CR, LF, 0
-error_1002:
+        .BYTE   "Command unknown", CR, LF, 0
+error_2002:
         .BYTE   CR, LF
         .BYTE   "Bad parameter(s)", CR, LF, 0
+error_2003:
+        .BYTE   CR, LF
+        .BYTE   "File not found", CR, LF, 0
+error_2004:
+        .BYTE   CR, LF
+        .BYTE   "New filename already exists", CR, LF, 0
+error_2005:
+        .BYTE   CR, LF
+        .BYTE   "Unknown attribute letter was specified", CR, LF, 0
+error_2006:
+        .BYTE   CR, LF
+        .BYTE   "Disk appears to be unformatted", CR, LF, 0
+error_2007:
+        .BYTE   CR, LF
+        .BYTE   "File is protected", CR, LF, 0
 ;==============================================================================
 ; CLI Modules
 ;==============================================================================
