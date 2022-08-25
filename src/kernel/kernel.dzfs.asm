@@ -63,7 +63,7 @@ KRN_DZFS_READ_SUPERBLOCK:
         ret
 
 sb_error_signature:
-        ; Superblock didn't have the correct signature
+        ; Superblock hasn't the correct signature
         ; change flag in SYSVARS
         ld      A, $00
         ld      (CF_is_formatted), A

@@ -106,6 +106,17 @@
         ld      HL, krn_msg_left_brkt
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
+        ; Show battery status
+        call    F_BIOS_RTC_CHECK_BATTERY
+        cp      $00
+        jp      z, battery_failed
+battery_healthy:
+        ld      HL, msg_rtc_batok
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+rtc_show_datetime:
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
         ; Show current Date
         call    F_BIOS_RTC_GET_DATE
         call    F_KRN_RTC_SHOW_DATE
@@ -122,7 +133,6 @@
         ld      HL, krn_msg_right_brkt
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
-
         jp      CLI_START               ; Transfer control to CLI
 
 error_signature:
@@ -130,7 +140,15 @@ error_signature:
         ld      HL, error_1001
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
+        jp      CLI_START               ; Transfer control to CLI
 
+battery_failed:
+        ld      HL, error_1002
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, krn_msg_right_brkt
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      CLI_START               ; Transfer control to CLI
 
 ;==============================================================================
@@ -192,11 +210,15 @@ msg_sectors_block:
 msg_format_start:
         .BYTE    CR, LF
         .BYTE    "Formatting", 0
+msg_rtc_batok:
+        .BYTE   "RTC Battery is healthy", 0
 ;------------------------------------------------------------------------------
 ;             ERROR MESSAGES
 ;------------------------------------------------------------------------------
 error_1001:
         .BYTE   "    Disk appears to be unformatted", 0
+error_1002:
+        .BYTE   "RTC Battery needs replacement", 0
 
 ;==============================================================================
 ; DZOS Version

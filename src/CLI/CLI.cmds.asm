@@ -159,11 +159,11 @@ CLI_CMD_MEMDUMP:
         ld      HL, msg_memdump_hdr
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
-        ; CLI_buffer_parm2_val have the value in hexadecimal
+        ; CLI_buffer_parm2_val has the value in hexadecimal
         ; we need to convert it to binary
         call    _CLI_HEX2BIN_PARAM2     ; DE contains the binary value for param2
         push    DE                      ; store in the stack
-        ; CLI_buffer_parm1_val have the value in hexadecimal
+        ; CLI_buffer_parm1_val has the value in hexadecimal
         ; we need to convert it to binary
         call    _CLI_HEX2BIN_PARAM1     ; DE contains the binary value for param1
         ex      DE, HL                  ; move from DE to HL (HL=param1)
@@ -236,7 +236,7 @@ wantsmore:
 ;    run - Starts running instructions from a specific memory address
 ;------------------------------------------------------------------------------
 CLI_CMD_RUN:    ; TODO - It is running without full filename (e.g. disk runs diskinfo)
-; IN <=     CLI_buffer_parm1_val = address
+; IN <=     CLI_buffer_parm1_val = address or filename
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
         ; Check if param1 is an address (i.e. starts with a number) or a filename
         ld      A, (CLI_buffer_parm1_val) ; check if the 1st character of param1
@@ -255,7 +255,7 @@ runner_filename:                        ; No, load and run file
         jp      (HL)                    ; jump execution to address in HL
 runner_addr:
         call    param1val_uppercase
-        ; CLI_buffer_parm1_val have the value in hexadecimal
+        ; CLI_buffer_parm1_val has the value in hexadecimal
         ; we need to convert it to binary
         call    _CLI_HEX2BIN_PARAM1     ; DE contains the binary value for param1
         ex      DE, HL                  ; move from DE to HL (param1)
@@ -663,11 +663,7 @@ save_filename:
 
         call    F_KRN_DZFS_CREATE_NEW_FILE
 
-        ld      HL, $4000
-        ld      DE, $4570
-        jp      start_dump_line
-
-        ; print OK, to let the user know that the command was successful
+        ; print OK message, to let the user know that the command was successful
         ld      HL, msg_cf_file_saved
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
@@ -694,12 +690,74 @@ CLI_CMD_RTC_TIME:
 ;   setdate - Change current date (ddmmyyyy)
 ;------------------------------------------------------------------------------
 CLI_CMD_RTC_SETDATE:
-        ret
+        jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;   settime - Change current time (hhmmss)
 ;------------------------------------------------------------------------------
 CLI_CMD_RTC_SETTIME:
-        ret
+        jp      cli_promptloop
+;------------------------------------------------------------------------------
+;   crc - Calculates the CRC-16 BSC for a number of bytes
+;------------------------------------------------------------------------------
+CLI_CMD_CRC16BSC:
+; IN <= CLI_buffer_parm1_val = start address or filename
+;       CLI_buffer_parm2_val = end address or blank
+;
+        call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
+        ; Check if param1 is an address (i.e. starts with a number) or a filename
+        ld      A, (CLI_buffer_parm1_val) ; check if the 1st character of param1
+        call    F_KRN_IS_NUMERIC        ;   is a number
+        jr      c, crc16_addr           ; is number? Yes, run from memory address
+crc16_filename:
+; ToDo - CLI_CMD_CRC16BSC for files
+        jp      cli_promptloop
+crc16_addr:
+        ; If it an address, parameter 2 MUST be provided too
+        call    check_param2            ; Check if parameter 2 was specified
+        jp      z, cli_promptloop       ; no, go back to CLI prompt
+        call    param1val_uppercase
+        call    param2val_uppercase
+        ; CLI_buffer_parm1_val and CLI_buffer_parm2_val has the value in 
+        ;   hexadecimal we need to convert it to binary
+        call    _CLI_HEX2BIN_PARAM1         ; DE contains the binary value for param1
+        ld      (CLI_buffer_parm1_val), DE  ; Store it in SYSVARS
+        call    _CLI_HEX2BIN_PARAM2         ; DE contains the binary value for param1
+        ld      (CLI_buffer_parm2_val), DE  ; Store it in SYSVARS
+
+        ; How many bytes?
+        ld      HL, (CLI_buffer_parm2_val)  ; end address
+        ld      DE, (CLI_buffer_parm1_val)  ; start address
+        xor     A                           ; clear Carry Flag
+        sbc     HL, DE                      ; HL = end address - start address
+        ld      B, H
+        ld      C, L
+        inc     BC                          ; BC = number of bytes to CRC
+        push    BC                          ; backup byte counter
+
+        ; Calculate the CRC
+        call    F_KRN_CRC16_INI             ; Initialise the CRC polynomial and clear the CRC
+        ld      IX, (CLI_buffer_parm1_val)  ; IX = pointer to byte to CRC
+        pop     BC                          ; restore byte counter
+crc16_gen_loop:
+        push    BC                          ; backup byte counter
+        ld      A, (IX)                     ; get byte to CRC
+        call    F_KRN_CRC16_GEN             ; generate CRC
+        inc     IX
+        pop     BC                          ; restore byte counter
+        dec     BC                          ; decrement counter
+        ld      A, B                        ; If didn't CRCed
+        or      C                           ;   all bytes
+        jp      nz, crc16_gen_loop          ;   do more CRCs
+
+        ; Show calculated CRC on screen
+        ld      HL, msg_crcis
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, (MATH_CRC)
+        call    F_KRN_SERIAL_PRN_WORD
+
+        jp      cli_promptloop
+
 ;==============================================================================
 ; Subroutines
 ;==============================================================================

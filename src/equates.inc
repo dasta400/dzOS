@@ -71,10 +71,10 @@ STACK_START             .EQU    $4000               ; Top of the dastaZ80's Stac
 STACK_END               .EQU    STACK_START + 31    ; Bottom of the dastaZ80's Stack location
 
 SYSVARS_START           .EQU    STACK_END + 1
-SYSVARS_END             .EQU    SYSVARS_START + 335
+SYSVARS_END             .EQU    SYSVARS_START + 348
 
 RESERVED_START          .EQU    SYSVARS_END + 1
-RESERVED_END            .EQU    RESERVED_START + 255
+RESERVED_END            .EQU    RESERVED_START + (511 - 349)
 
 CF_BUFFER_START         .EQU    RESERVED_END + 1
 CF_BUFFER_END           .EQU    CF_BUFFER_START + 511

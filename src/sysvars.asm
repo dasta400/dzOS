@@ -141,6 +141,26 @@ RTC_day                     .EXPORT         RTC_day
                 .BYTE    0
 RTC_day_of_the_week         .EXPORT         RTC_day_of_the_week
                 .BYTE    0
+;==============================================================================
+; Real-Time Clock NVRAM variables
+;==============================================================================
+NVRAM_battery_status        .EXPORT         NVRAM_battery_status
+                .BYTE   0
+;==============================================================================
+; Math variables
+;==============================================================================
+MATH_multcnd_divend         .EXPORT         MATH_multcnd_divend
+                .BYTE    0, 0
+MATH_multplr_divsor         .EXPORT         MATH_multplr_divsor
+                .BYTE    0, 0
+MATH_prod_quot              .EXPORT         MATH_prod_quot
+                .BYTE    0, 0
+MATH_remainder              .EXPORT         MATH_remainder
+                .BYTE    0, 0
+MATH_CRC                    .EXPORT         MATH_CRC
+                .BYTE    0, 0
+MATH_polynomial             .EXPORT         MATH_polynomial
+                .BYTE    0, 0
 
 ;==============================================================================
 ; END of CODE

@@ -45,7 +45,7 @@ BIOS_RTC_GET_TIME:
 ; and stores hour, minutes and seconds as hexadecimal values in SYSVARS
 ; IN <= none
 ; OUT => time is stored in SYSVARS
-; TODO - BIOS_RTC_GET_TIME - get time from RTC chip
+; ToDo - BIOS_RTC_GET_TIME
         ld      A, 16
         ld      (RTC_hour), A
         ld      A, 24
@@ -59,7 +59,7 @@ BIOS_RTC_GET_DATE:
 ; and stores day, month, year and day of the week as hexadecimal values in SYSVARS
 ; IN <= none
 ; OUT => date is stored in SYSVARS
-; TODO - BIOS_RTC_GET_DATE - get date from RTC chip
+; ToDo - BIOS_RTC_GET_DATE
         ld      A, 20
         ld      (RTC_century), A
         ld      A, 22
@@ -75,9 +75,28 @@ BIOS_RTC_GET_DATE:
         ret
 ;------------------------------------------------------------------------------
 BIOS_RTC_SET_TIME:
-; TODO - BIOS_RTC_SET_TIME
+; ToDo - BIOS_RTC_SET_TIME
         ret
 ;------------------------------------------------------------------------------
 BIOS_RTC_SET_DATE:
-; TODO - BIOS_RTC_SET_DATE
+; ToDo - BIOS_RTC_SET_DATE
+        ret
+;------------------------------------------------------------------------------
+BIOS_RTC_CHECK_BATTERY:
+; Checks if the battery is healthy or has to be replaced.
+; The  Ricoh RP-5C01 hasn't, like more modern RTC chips, a way of telling
+;   the status of the battery. Therefore I use the same trick that the MSX
+;   computers do: Store a value at register $00 of RAM BLOCK 10
+; Store $0C in bits 3 and 2 of register $00 of RAM BLOCK 10
+; If the battery failed, reading this value will return a $00
+        
+; ToDo - BIOS_RTC_CHECK_BATTERY
+        ; ld      A, (NVRAM_battery_status)   ; The value is stored in SYSVARS
+        ld      A, $0C  ; ToDo - delete after tests
+        ret
+;------------------------------------------------------------------------------
+BIOS_RTC_BATTERY_RPLCED:
+; Tells the OS that the battery was replaced
+; The OS will write $0A in the high nibble of register $00 of RAM BLOCK 10
+; ToDo - BIOS_RTC_BATTERY_RPLCED
         ret

@@ -115,6 +115,10 @@ F_KRN_MULTIPLY1616:                 .EXPORT         F_KRN_MULTIPLY1616
         jp      KRN_MULTIPLY1616
 F_KRN_DIV1616:                      .EXPORT         F_KRN_DIV1616
         jp      KRN_DIV1616
+F_KRN_CRC16_INI:                    .EXPORT         F_KRN_CRC16_INI
+        jp      KRN_CRC16_INI
+F_KRN_CRC16_GEN:                    .EXPORT         F_KRN_CRC16_GEN
+        jp      KRN_CRC16_GEN
 
         ; DZFS subroutines
 F_KRN_DZFS_READ_SUPERBLOCK:         .EXPORT         F_KRN_DZFS_READ_SUPERBLOCK
