@@ -171,10 +171,6 @@ KRN_DZFS_GET_FILE_BATENTRY:
 ; Gets the BAT's entry number of a specified filename
 ; IN <= HL = Address where the filename to check is stored
 ; OUT => HL = BAT Entry is stored in the SYSVARS
-        ld      DE, $BAAB                       ; Store a default value
-        ld      (tmp_addr3), DE                 ;   so that we can use it to check
-                                                ;   if filename was found
-
         ld      (tmp_addr2), HL                 ; Store address of filename to check
         ld      A, 1                            ; BAT starts at sector 1
         ld      (CF_cur_sector), A
@@ -186,25 +182,36 @@ bat_nextsector:
         ; each read will put 16 entries in the buffer.
         ; We need to read a maxmimum of 1024 entries (i.e BAT max entries),
         ; therefore 64 sectors.
-        ld      A, 0                ; entry counter
+        ld      A, 0                            ; entry counter
 bat_entry:
         push    AF                              ; backup entry counter
         call    F_KRN_DZFS_BATENTRY2BUFFER
         ; Get length of specified filename
         ld      A, $00                          ; filename to check ends with zero
-        ld      HL, (tmp_addr2)                 ; HL = address of filename to check
-        call    F_KRN_STRLEN                    ; B = length of filename to check
-        ; Check if filename in buffer is equal to the specified filename
-        ld      DE, (tmp_addr2)                 ; DE = address of filename to check
+        ld      HL, (tmp_addr2)                 ; HL = address of specified filename
+        call    F_KRN_STRLEN                    ; B = length of specified filename
+        ld      C, B                            ; backup length of specified filename
+        ; Get length of filename in BAT entry
+        ld      A, SPACE                        ; filename to check ends with a space character
         ld      HL, CF_cur_file_name            ; HL = address of filename in BAT entry
-        ld      A, 14                           ; filename in BAT entry is 14 characters
+        call    F_KRN_STRLEN                    ; B = length of filename
+        ; Are both filenames equal in length?
+        ld      A, C                            ; restore length of specified filename
+        cp      B                               ; Is the same length as filename in BAT entry?
+        jp      nz, bat_nextentry               ; No, skip entry
+
+        ; Check if filename in buffer (str2) is equal to the specified filename (str1)
+        ld      HL, (tmp_addr2)                 ; DE = address of filename to check (str1)
+        ld      DE, CF_cur_file_name            ; HL = address of filename in BAT entry (str2)
+        ; ld      B, 14                           ; filename in BAT entry is 14 characters (str2)
         call    F_KRN_STRCMP                    ; Are the same?
         jp      nz, bat_nextentry               ; No, skip entry
         ld      DE, $0000                       ; Yes, reset tmp_addr3
         ld      (tmp_addr3), DE                 ; if equal $0000, filename was found
                                                 ; if equal $ABBA, not found
+bat_exit:
         pop     AF                              ; needed because previous push AF
-        ret                                     ; exit subroutine
+        ret                                     ; exit
 bat_nextentry:
         pop     AF                              ; restore entry counter
         inc     A                               ; next entry
@@ -1032,3 +1039,21 @@ KRN_DZFS_SHOW_DISKINFO:
         ld      A, (tmp_addr1 + 5)              ;   the last
         call    F_BIOS_SERIAL_CONOUT_A          ;   two digits
         ret
+;------------------------------------------------------------------------------
+KRN_CHECK_FILE_EXISTS:
+; Checks if a filename exists in the disk
+; IN <= HL = Address where the filename to check is stored
+; OUT => Zero Flag set if filename not found
+        ld      DE, $BAAB                       ; Store a default value
+        ld      (tmp_addr3), DE                 ;   so that we can use it to check
+                                                ;   if filename was found
+        call    F_KRN_DZFS_GET_FILE_BATENTRY    ; if a file is found, tmp_addr3 = $0000 
+
+        ; Check that the bytes where replaced (i.e. are not $BAAB)
+        ;   meaning the file exists
+        ld      A, (tmp_addr3)
+        cp      $AB
+        ret     z                               ; Zero Flag set if bytes not replaced
+        ld      A, (tmp_addr3 + 1)
+        cp      $BA
+        ret                                     ; Zero Flag set if bytes not replaced

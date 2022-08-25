@@ -17,12 +17,8 @@ CLI_buffer_parm1_val .EQU  $40df
 CLI_buffer_parm2_val .EQU  $40ef
 CLI_buffer_pgm   .EQU  $40ff
 CLI_buffer_full_cmd .EQU  $411f
-MATH_multcnd_divend .EQU  $4171
-MATH_multplr_divsor .EQU  $4173
-MATH_prod_quot   .EQU  $4175
-MATH_remainder   .EQU  $4177
-MATH_CRC         .EQU  $4179
-MATH_polynomial  .EQU  $417b
+MATH_CRC         .EQU  $4171
+MATH_polynomial  .EQU  $4173
 NVRAM_battery_status .EQU  $4170
 RTC_hour         .EQU  $4166
 RTC_minutes      .EQU  $4167

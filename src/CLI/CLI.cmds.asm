@@ -245,12 +245,14 @@ CLI_CMD_RUN:    ; TODO - It is running without full filename (e.g. disk runs dis
 runner_filename:                        ; No, load and run file
         ; filename is the first parameter, so can call load command directly
         ld      A, $AB                  ; This is a flag to tell CLI_CMD_CF_LOAD that the call
-        ld      (tmp_byte), A           ; didn't come from the jumptable, so that it can return here
+        ld      (tmp_byte), A           ;   didn't come from the jumptable, so that it can return here
         call    CLI_CMD_CF_LOAD_NOCHECK
         ld      A, (tmp_byte)           ; Was the file loaded correctly?
         cp      $EF                     ; EF means there was an error
         jp      z, cli_promptloop       ; exit subroutine if param1 was not specified
         ; file was loaded, run it
+        ld      A, ANSI_COLR_WHT        ; Set text colour
+        call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
         ld      HL, (CF_cur_file_load_addr)
         jp      (HL)                    ; jump execution to address in HL
 runner_addr:
@@ -288,7 +290,7 @@ CLI_CMD_CF_CAT:
 ;------------------------------------------------------------------------------
 ;     load - Load filename from disk to RAM
 ;------------------------------------------------------------------------------
-CLI_CMD_CF_LOAD:    ; TODO - It is loading without full filename (e.g. disk loads diskinfo)
+CLI_CMD_CF_LOAD:
 ; IN <= CLI_buffer_parm1_val = Filename
 ; OUT => OK message on default output (e.g. screen, I/O) if file found
         ; Only allow disk commands if the disk is formatted
@@ -298,16 +300,10 @@ CLI_CMD_CF_LOAD:    ; TODO - It is loading without full filename (e.g. disk load
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
 CLI_CMD_CF_LOAD_NOCHECK:                ; When called from CLI_CMD_RUN, the paramter was already checked
         ; Search filename in BAT
+        ; Check that filename exists
         ld      HL, CLI_buffer_parm1_val
-        call    F_KRN_DZFS_GET_FILE_BATENTRY
-        ; Was the filename found?
-        call    is_filename_found
-        ; ld      A, (tmp_addr3)
-        ; cp      $AB
-        ; jp      z, load_filename_not_found        ; No, show error message
-        ; ld      A, (tmp_addr3 + 1)
-        ; cp      $BA
-        jp      z, load_filename_not_found ; No, show error message
+        call    F_KRN_CHECK_FILE_EXISTS
+        jp      z, filename_notfound    ; filename not found, error and exit
         ; yes, continue
         ld      DE, (CF_cur_file_1st_sector)
         ld      IX, (CF_cur_file_size_sectors)
@@ -326,13 +322,6 @@ CLI_CMD_CF_LOAD_NOCHECK:                ; When called from CLI_CMD_RUN, the para
         cp      $AB                     ; called from CLI_CMD_RUN?
         ret     z                       ; yes, then do a return
         jp      cli_promptloop          ; no, then transfer control back to CLI prompt
-load_filename_not_found:
-        ld      A, $EF                  ; Flag for 'run' command
-        ld      (tmp_byte), A           ; to indicate that the file was not run
-        ld      HL, error_2003
-        ld      A, ANSI_COLR_RED
-        call    F_KRN_SERIAL_WRSTRCLR
-        jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;     formatdsk - Format CompactFlash disk
 ;------------------------------------------------------------------------------
@@ -398,7 +387,7 @@ CLI_CMD_CF_DISKINFO:
 ;------------------------------------------------------------------------------
 ;   rename - Renames a file with a specified filename to a new filename
 ;------------------------------------------------------------------------------
-CLI_CMD_CF_RENAME:  ; TODO - It is renaming without full filename (e.g. disk renames diskinfo)
+CLI_CMD_CF_RENAME:
 ; IN <= CLI_buffer_parm1_val = old filename
 ;       CLI_buffer_parm2_val = new filename
 ;
@@ -409,11 +398,9 @@ CLI_CMD_CF_RENAME:  ; TODO - It is renaming without full filename (e.g. disk ren
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; Check that new filename doesn't already exists
         ld      HL, CLI_buffer_parm2_val
-        call    F_KRN_DZFS_GET_FILE_BATENTRY
-        ; Was the filename found?
-        call    is_filename_found
-        jp      z, check_old_filename   ; No, continue
-        ; Old filename already exists, show error an exit
+        call    F_KRN_CHECK_FILE_EXISTS
+        jp      z, check_old_filename   ; File not found, check that old filename exists
+        ; New filename already exists, show error an exit
         ld      HL, error_2004
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
@@ -421,24 +408,22 @@ CLI_CMD_CF_RENAME:  ; TODO - It is renaming without full filename (e.g. disk ren
 check_old_filename:
         ; Check that old filename exists
         ld      HL, CLI_buffer_parm1_val
-        call    F_KRN_DZFS_GET_FILE_BATENTRY
-        ; Was the filename found?
-        call    is_filename_found
-        jp      z, filename_notfound    ; No, error and exit
-                                        ; Yes, check that is not Read Only or System
-        call    is_rosys
+        call    F_KRN_CHECK_FILE_EXISTS
+        jp      z, filename_notfound    ; Old filename not found, error and exit
+        call    is_rosys                ; Old filename found, check that is not Read Only or System
         jp      nz, action_notallowed   ; Yes, error and exit
-                                        ; No, continue
+
+        ; Old filename exists, new filename doesn't. All good to do the renaming
         ld      DE, (CF_cur_file_entry_number)
         ld      IY, CLI_buffer_parm2_val
         call    F_KRN_DZFS_RENAME_FILE
-        ; show success message
+        ; Show success message
         ld      HL, msg_cf_file_renamed
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 filename_notfound:
-        ; Old filename already exists, show error an exit
+        ; File not found, show error an exit
         ld      HL, error_2003
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
@@ -454,7 +439,7 @@ action_notallowed:
 ;            The Kernel doesn't delete the file data. It just changes the
 ;               first character of the filename to ~
 ;------------------------------------------------------------------------------
-CLI_CMD_CF_DELETE:      ; TODO - It is deleting without full filename (e.g. disk deletes diskinfo)
+CLI_CMD_CF_DELETE:
 ; IN <= CLI_buffer_parm1_val = filename
 ;
         ; Only allow disk commands if the disk is formatted
@@ -462,13 +447,10 @@ CLI_CMD_CF_DELETE:      ; TODO - It is deleting without full filename (e.g. disk
         cp      $FF
         jp      nz, _error_diskunformatted
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
-        ; Search filename in BAT
+        ; Check that filename exists
         ld      HL, CLI_buffer_parm1_val
-        call    F_KRN_DZFS_GET_FILE_BATENTRY
-        ; Was the filename found?
-        call    is_filename_found
-        jp      z, filename_notfound    ; No, error and exit
-                                        ; Yes, check that is not Read Only or System
+        call    F_KRN_CHECK_FILE_EXISTS
+        jp      z, filename_notfound    ; filename not found, error and exit
         call    is_rosys
         jp      nz, action_notallowed   ; Yes, error and exit
                                         ; No, continue
@@ -484,7 +466,7 @@ CLI_CMD_CF_DELETE:      ; TODO - It is deleting without full filename (e.g. disk
 ;             The attributes entered by the user will become the new attributes
 ;               of the file. There is no option to remove a single attribute.
 ;------------------------------------------------------------------------------
-CLI_CMD_CF_CHGATTR:     ; TODO - It is changing attribs without full filename (e.g. disk changes diskinfo)
+CLI_CMD_CF_CHGATTR:
 ; IN <= CLI_buffer_parm1_val = filename
 ;       CLI_buffer_parm2_val = new attributes
 ;
@@ -493,17 +475,10 @@ CLI_CMD_CF_CHGATTR:     ; TODO - It is changing attribs without full filename (e
         cp      $FF
         jp      nz, _error_diskunformatted
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
-        ; Check filename exists
+        ; Check that filename exists
         ld      HL, CLI_buffer_parm1_val
-        call    F_KRN_DZFS_GET_FILE_BATENTRY
-        ; Was the filename found?
-        call    is_filename_found
-        jp      nz, chgattr             ; exists, continue
-                                        ; doesn't exists, error and exit
-        ld      HL, error_2003
-        ld      A, ANSI_COLR_RED
-        call    F_KRN_SERIAL_WRSTRCLR
-        jp      cli_promptloop
+        call    F_KRN_CHECK_FILE_EXISTS
+        jp      z, filename_notfound    ; filename not found, error and exit
 chgattr:
         ; Do not allow change attributes on System files
         ld      A, (CF_cur_file_attribs)
@@ -575,22 +550,22 @@ mask_done:
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
-;------------------------------------------------------------------------------
-is_filename_found:
-; IN <= tmp_addr3 filled by F_KRN_DZFS_GET_FILE_BATENTRY
-; OUT => z is set if file not found
-;
-        ; When getting a BAT entry, the Kernel stores two bytes ($ABBA)
-        ;   as default value in SYSVARS.tmp_addr3.
-        ; These two bytes get replaced ($0000) if a file is found.
-        ; Therefore, we can use it to detect if a file was found or not.
-        ; Was the filename found?
-        ld      A, (tmp_addr3)
-        cp      $AB
-        ret     z
-        ld      A, (tmp_addr3 + 1)
-        cp      $BA
-        ret
+; ;------------------------------------------------------------------------------
+; is_filename_found:
+; ; IN <= tmp_addr3 filled by F_KRN_DZFS_GET_FILE_BATENTRY
+; ; OUT => z is set if file not found
+; ;
+;         ; When getting a BAT entry, the Kernel stores two bytes ($ABBA)
+;         ;   as default value in SYSVARS.tmp_addr3.
+;         ; These two bytes get replaced ($0000) if a file is found.
+;         ; Therefore, we can use it to detect if a file was found or not.
+;         ; Was the filename found?
+;         ld      A, (tmp_addr3)
+;         cp      $AB
+;         ret     z
+;         ld      A, (tmp_addr3 + 1)
+;         cp      $BA
+;         ret
 ;------------------------------------------------------------------------------
 is_rosys:
 ; return error if file is Read Only and/or System
@@ -632,7 +607,7 @@ end_get_fname:
         ld      HL, CLI_buffer_cmd
         call    F_KRN_DZFS_GET_FILE_BATENTRY
         ; Was the filename found?
-        call    is_filename_found
+        ; call    is_filename_found
         jp      z, save_filename        ; doesn't exist, do the saving
         ; exists, error and exit
         ld      HL, error_2004

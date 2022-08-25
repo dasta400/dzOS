@@ -41,7 +41,7 @@
 ; Arithmetic Routines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-KRN_MULTIPLY816_SLOW:   ;ToDo - Change IN and OUT, and all places were is called, to instead use SYSVARS
+KRN_MULTIPLY816_SLOW:
 ; Multiplies an 8-bit number by a 16-bit number (HL = A * DE)
 ; It does a slow multiplication by adding multiplier to itself as many
 ; times as multiplicand (e.g. 8 * 4 = 8+8+8+8)
@@ -55,7 +55,7 @@ mult8loop:
         djnz    mult8loop               ; decrease multiplicand. Is multiplicand = 0? No, do it again
         ret                             ; Yes, exit routine
 ;------------------------------------------------------------------------------
-KRN_MULTIPLY1616:       ;ToDo - Change IN and OUT, and all places were is called, to instead use SYSVARS
+KRN_MULTIPLY1616:
 ; Multiplies two 16-bit numbers (HL = HL * DE)
 ; (c) 1993 by McGraw-Hill, Inc. (Z80 Assembly Language Subroutines)
 ; IN <= HL = Multiplicand
@@ -79,7 +79,7 @@ MLP1:
         add     HL, BC
         ret
 ;------------------------------------------------------------------------------
-KRN_DIV1616:            ;ToDo - Change IN and OUT, and all places were is called, to instead use SYSVARS
+KRN_DIV1616:
 ; Divides two 16-bit numbers (BC = BC / DE, HL = remainder)
 ; (c) https://map.grauw.nl/articles/mult_div_shifts.php
 ; IN <= BC = dividend

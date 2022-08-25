@@ -85,7 +85,7 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
       * ✔ <del>Do not allow deleting System or Read Only files.</del>
       * ✔ <del>Disable disk commands if at boot the CF card was detected as not formatted.</del>
     * **BUGS**:
-      * *run*, *rename*, *delete* and *chgaatr*, are not taking in consideration the full filename (e.g. *disk* is acting on file *diskinfo*)
+      * ✔ <del>*run*, *rename*, *delete* and *chgaatr*,</del> are not taking in consideration the full filename (e.g. *disk* is acting on file *diskinfo*)
 
 ---
 
