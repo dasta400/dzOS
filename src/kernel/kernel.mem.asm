@@ -51,20 +51,6 @@ KRN_SETMEMRNG:
         jp      pe, KRN_SETMEMRNG
         ret
 ;------------------------------------------------------------------------------
-KRN_WHICH_RAMSIZE:
-; Check how much RAM we have
-; OUT => Z set for 64 KB, cleare for 32 KB
-
-; Test for 64 KB
-        ; Write 1 byte to $FFFF
-        ld      A, $AB
-        ld      ($FFFF), A
-        xor     A
-        ; Read it back to see if it was stored
-        ld      A, ($FFFF)
-        cp      $AB
-        ret
-;------------------------------------------------------------------------------
 KRN_COPYMEM512:
 ; Copy bytes from one area of memory to another, in group of 512 bytes (i.e. max. 512 bytes).
 ; If less than 512 bytes are to be copied, the rest will be filled with zeros.

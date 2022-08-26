@@ -44,7 +44,7 @@ KRN_SERIAL_SETFGCOLR:
 ; Set the colour that will be used for the foreground.
 ; The colour will remain until a new set is done.
 ; IN <= A = Colour number (as listed in equates.inc)
-        push    HL                      ; Backup pointer to first character of the string
+        ld      B, 5                    ; ANSI escape codes for colours are 5 bytes
         cp      ANSI_COLR_BLK
         jp      z, colour_is_black
         cp      ANSI_COLR_RED
@@ -63,45 +63,36 @@ KRN_SERIAL_SETFGCOLR:
         jp      z, colour_is_white
         cp      ANSI_COLR_GRY
         jp      z, colour_is_grey
-        jp      colour_is_other         ; White will be choosen
+        jp      colour_is_other         ; White will be sent
 
 colour_is_black:
-        ld      HL, KRN_ANSI_COLR_BLK
-        jp      output_ANSI_codes
+        ld      DE, KRN_ANSI_COLR_BLK
+        jp      KRN_SEND_ANSI_CODE
 colour_is_red:
-        ld      HL, KRN_ANSI_COLR_RED
-        jp      output_ANSI_codes
+        ld      DE, KRN_ANSI_COLR_RED
+        jp      KRN_SEND_ANSI_CODE
 colour_is_green:
-        ld      HL, KRN_ANSI_COLR_GRN
-        jp      output_ANSI_codes
+        ld      DE, KRN_ANSI_COLR_GRN
+        jp      KRN_SEND_ANSI_CODE
 colour_is_yellow:
-        ld      HL, KRN_ANSI_COLR_YLW
-        jp      output_ANSI_codes
+        ld      DE, KRN_ANSI_COLR_YLW
+        jp      KRN_SEND_ANSI_CODE
 colour_is_blue:
-        ld      HL, KRN_ANSI_COLR_BLU
-        jp      output_ANSI_codes
+        ld      DE, KRN_ANSI_COLR_BLU
+        jp      KRN_SEND_ANSI_CODE
 colour_is_magenta:
-        ld      HL, KRN_ANSI_COLR_MGT
-        jp      output_ANSI_codes
+        ld      DE, KRN_ANSI_COLR_MGT
+        jp      KRN_SEND_ANSI_CODE
 colour_is_cyan:
-        ld      HL, KRN_ANSI_COLR_CYA
-        jp      output_ANSI_codes
+        ld      DE, KRN_ANSI_COLR_CYA
+        jp      KRN_SEND_ANSI_CODE
 colour_is_white:
 colour_is_other:
-        ld      HL, KRN_ANSI_COLR_WHT
-        jp      output_ANSI_codes
+        ld      DE, KRN_ANSI_COLR_WHT
+        jp      KRN_SEND_ANSI_CODE
 colour_is_grey:
-        ld      HL, KRN_ANSI_COLR_GRY
-        jp      output_ANSI_codes
-output_ANSI_codes:
-        ld      B, 5                    ; Need to send 4 bytes
-loop_ANSI_codes:
-        ld      A, (HL)
-        rst     08h
-        inc     HL
-        djnz    loop_ANSI_codes
-        pop     HL                      ; Restore pointer to first character of the string
-        ret
+        ld      DE, KRN_ANSI_COLR_GRY
+        jp      KRN_SEND_ANSI_CODE
 ;------------------------------------------------------------------------------
 KRN_SERIAL_WRSTRCLR:
 ; Output a string to the Console, with a specific foreground colour
@@ -113,12 +104,36 @@ KRN_SERIAL_WRSTRCLR:
 KRN_SERIAL_WRSTR:
 ; Output to the Console a string of ASCII characters terminated with CR
 ; IN <= HL = pointer to first character of the string
-        ld      A, (hl)                 ; Get character of the string
+        ld      A, (HL)                 ; Get character of the string
         or      A                       ; is it 00h? (i.e. end of string)
         ret     z                       ; if yes, then return
         rst     08h                     ; otherwise, print it
         inc     HL                      ; pointer to next character of the string
         jr      KRN_SERIAL_WRSTR        ; repeat (until character = 00h)
+        ret
+;------------------------------------------------------------------------------
+KRN_SERIAL_WR6DIG_NOLZEROS:
+; Output to the Console a string of ASCII characters representing number
+;   without outputing leading zeros
+; (.e.g. 30 30 31 32 30 34 is 001204, but the output is 1024)
+; IN <= IX = address where the ASCII characters are stored
+        or      A                       ; clear Carry Flag
+        ld      DE, 0                   ; will use DE as a flag for leading zeros
+        ld      B, 6                    ; 6 digits to print
+_wr6dig_print:
+        ld      A, (IX+0)               ; get digit
+        cp      $30                     ; is it a zero? (in ASCII hex 0=$30)
+        jp      nz, _wr6dig_print_digit ; no, then print digit
+        bit     0, E                    ; if bit is set,
+        jp      nz, _wr6dig_print_digit ;   it's not a leading zero, then print digit
+        jp      _wr6dig_next_digit      ; otherwise, next digit
+_wr6dig_print_digit:
+        call    F_BIOS_SERIAL_CONOUT_A  ; print digit
+        ld      E, 1                    ; set bit to indicate that a non zero was printed
+                                        ;   and therefore there no more leading zeros
+_wr6dig_next_digit:
+        inc     IX                      ; point to next digit
+        djnz    _wr6dig_print           ; and loop
         ret
 ;------------------------------------------------------------------------------
 KRN_SERIAL_RDCHARECHO:
@@ -206,10 +221,28 @@ KRN_SERIAL_PRN_WORD:
         ld      A, L
         call    F_KRN_SERIAL_PRN_BYTE
         ret
-
+;------------------------------------------------------------------------------
+KRN_SERIAL_BACKSPACE:
+; Routine for when user presses BACKSPACE key
+        ld      DE, KRN_ANSI_BSPACE
+        ld      B, 3
+        ; jp      KRN_SEND_ANSI_CODE    ; Uncomment if other code is added after
+                                        ; this subroutine, and before the next
+;------------------------------------------------------------------------------
+KRN_SEND_ANSI_CODE:
+; Writes an ANSI code to the serial channel
+; IN <= DE = first byte of ANSI escape code
+;       B = number of bytes in the ANSI escape code
+        ld      A, (DE)
+        rst     08h
+        inc     DE
+        djnz    KRN_SEND_ANSI_CODE
+        ret
 ;==============================================================================
 ; ANSI escape codes for Serial (https://en.wikipedia.org/wiki/ANSI_escape_code)
 ;==============================================================================
+KRN_ANSI_BSPACE                 .BYTE   $1B, "\b"      ; Move cursor left 1 column
+
 KRN_ANSI_COLR_BLK               .BYTE   $1B, "[30m"     ; Colour 0
 KRN_ANSI_COLR_RED               .BYTE   $1B, "[31m"     ; Colour 1
 KRN_ANSI_COLR_GRN               .BYTE   $1B, "[32m"     ; Colour 2

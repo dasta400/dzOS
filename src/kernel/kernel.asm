@@ -36,8 +36,6 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-; ToDo - Calls to functions should be to RAM jumpblock addresses
-
 ;==============================================================================
 ; Includes
 ;==============================================================================
@@ -66,26 +64,25 @@
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
 
-        ; Detect RAM size
-        ld      HL, krn_msg_ramsize_detect
+        ; Detect RAM
+        ld      HL, krn_msg_ram_detect
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
-        ld      HL, krn_msg_ramsize_lead
+        ld      HL, krn_msg_left_brkt
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
-        call    F_KRN_WHICH_RAMSIZE
-        jp      nz, ramsize_32k
-ramsize_64k:
-        ld      HL, krn_msg_ramsize_64k
-        jp      ramsize_print
-ramsize_32k:
-        ld      HL, krn_msg_ramsize_32k
-ramsize_print:
+        ; Show Free available RAM
+        ld      HL, FREERAM_TOTAL
+        call    F_KRN_BIN_TO_BCD6       ; CDE = 6-digit decimal number
+        ex      DE, HL
+        ld      DE, tmp_addr1
+        call    F_KRN_BCD_TO_ASCII
+        ld      IX, tmp_addr1
+        call    KRN_SERIAL_WR6DIG_NOLZEROS
+        ld      HL, krn_msg_ram_trail
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
-        ld      HL, krn_msg_ramsize_trail
-        ld      A, ANSI_COLR_GRN
-        call    F_KRN_SERIAL_WRSTRCLR
+
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
 
@@ -94,12 +91,65 @@ ramsize_print:
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
         call    F_BIOS_CF_INIT
-        ld      HL, krn_msg_OK
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+        call    F_KRN_DZFS_READ_SUPERBLOCK
+        ld      A, (CF_SBLOCK_SIGNATURE)
+        cp      $AB
+        jp      nz, error_signature
+        call    F_KRN_DZFS_SHOW_DISKINFO_SHORT
+
+        ; Detect RTC
+        ld      HL, krn_msg_rtc_detect
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, krn_msg_left_brkt
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
-        call    F_KRN_DZFS_READ_SUPERBLOCK
+        ; Show battery status
+        call    F_BIOS_RTC_CHECK_BATTERY
+        cp      $00
+        jp      z, battery_failed
+battery_healthy:
+        ld      HL, msg_rtc_batok
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+rtc_show_datetime:
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
+        ; Show current Date
+        call    F_BIOS_RTC_GET_DATE
+        call    F_KRN_RTC_SHOW_DATE
+        ; Separate Date and Time
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      A, '-'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
+        ;Show current Time
+        call    F_BIOS_RTC_GET_TIME
+        call    F_KRN_RTC_SHOW_TIME
+        ld      HL, krn_msg_right_brkt
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      CLI_START               ; Transfer control to CLI
 
-        jp      CLI_START                ; transfer control to CLI
+error_signature:
+        ; Show a message telling that the disk is unformatted
+        ld      HL, error_1001
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      CLI_START               ; Transfer control to CLI
+
+battery_failed:
+        ld      HL, error_1002
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, krn_msg_right_brkt
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      CLI_START               ; Transfer control to CLI
 
 ;==============================================================================
 ; Kernel Modules
@@ -110,7 +160,15 @@ ramsize_print:
 #include "src/kernel/kernel.conv.asm"
 #include "src/kernel/kernel.math.asm"
 #include "src/kernel/kernel.dzfs.asm"
+#include "src/kernel/kernel.rtc.asm"
 
+;==============================================================================
+; Constants
+;==============================================================================
+const_fd_id:
+        .BYTE   "DZFSV1  "
+const_copyright:
+        .BYTE   "Copyright 2022David Asta      The MIT License (MIT)"
 ;==============================================================================
 ; Messages
 ;==============================================================================
@@ -125,18 +183,16 @@ msg_krn_version:
         .BYTE    "Kernel v1.0.0", 0
 krn_msg_cf_init:
         .BYTE    "....Initialising CompactFlash reader ", 0
-krn_msg_ramsize_detect:
-        .BYTE   "....Detecting RAM size", 0
-krn_msg_ramsize_32k:
-        .BYTE   "32", 0
-krn_msg_ramsize_64k:
-        .BYTE   "64", 0
-krn_msg_ramsize_lead:
+krn_msg_ram_detect:
+        .BYTE   "....Detecting RAM ", 0
+krn_msg_ram_trail:
+        .BYTE   " Bytes free ]", 0
+krn_msg_rtc_detect:
+        .BYTE   "....Detecting RTC ", 0
+krn_msg_left_brkt:
         .BYTE   " [ ", 0
-krn_msg_ramsize_trail:
-        .BYTE   " KB ]", 0
-krn_msg_OK:
-        .BYTE   "[ OK ]", CR, LF, 0
+krn_msg_right_brkt:
+        .BYTE   " ] ", 0
 msg_volsn:
         .BYTE   " (S/N: ",0
 msg_vol_label:
@@ -151,7 +207,22 @@ msg_bytes_sector:
         .BYTE   "       Bytes per Sector: ", 0
 msg_sectors_block:
         .BYTE   "      Sectors per Block: ", 0
+msg_format_start:
+        .BYTE    CR, LF
+        .BYTE    "Formatting", 0
+msg_rtc_batok:
+        .BYTE   "RTC Battery is healthy", 0
+;------------------------------------------------------------------------------
+;             ERROR MESSAGES
+;------------------------------------------------------------------------------
+error_1001:
+        .BYTE   "    Disk appears to be unformatted", 0
+error_1002:
+        .BYTE   "RTC Battery needs replacement", 0
 
+;==============================================================================
+; DZOS Version
+;==============================================================================
         .ORG    KRN_DZOS_VERSION
 dzos_version:            .EXPORT        dzos_version
         .BYTE    "vYYYY.MM.DD.   ", 0    ; This is overwritten by Makefile with

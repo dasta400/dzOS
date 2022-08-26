@@ -48,10 +48,10 @@ KRN_DZFS_READ_SUPERBLOCK:
         ; $20-$21 must be AB BA
         ld      A, (CF_SBLOCK_SIGNATURE)
         cp      $AB
-        jp      nz, error_signature
+        jp      nz, sb_error_signature
         ld      A, (CF_SBLOCK_SIGNATURE + 1)
         cp      $BA
-        jp      nz, error_signature
+        jp      nz, sb_error_signature
 
         ; change flag in SYSVARS
         ld      A, $FF
@@ -62,14 +62,11 @@ KRN_DZFS_READ_SUPERBLOCK:
         ld      (CF_cur_partition), A
         ret
 
-error_signature:
-        ; Superblock didn't have the correct signature
+sb_error_signature:
+        ; Superblock hasn't the correct signature
         ; change flag in SYSVARS
         ld      A, $00
         ld      (CF_is_formatted), A
-        ; Show a message telling that the disk is unformatted
-        ld      HL, msg_unformatted
-        call    F_KRN_SERIAL_WRSTR
         ret
 ;------------------------------------------------------------------------------
 KRN_DZFS_READ_BAT_SECTOR:
@@ -107,8 +104,8 @@ batentry_no_mult:
         add     IX, DE                      ; IX  = CF_BUFFER_START + (A * 32)
         ld      (tmp_addr1), IX
 
-        ; Filename (16 bytes)
-        ld      BC, 16
+        ; Filename (14 bytes)
+        ld      BC, 14
         ld      HL, (tmp_addr1)             ; source address
         ld      DE, CF_cur_file_name           ; destination address
         ldir                                ; copy BC bytes from HL to DE
@@ -149,7 +146,7 @@ batentry_no_mult:
         ld      A, (IX + $1B)
         ld      (CF_cur_file_entry_number + 1), A
     ; First sector (2 bytes) starting at offset $1C
-    ld      A, (IX + $1C)
+        ld      A, (IX + $1C)
         ld      (CF_cur_file_1st_sector), A
         ld      A, (IX + $1D)
         ld      (CF_cur_file_1st_sector + 1), A
@@ -174,10 +171,6 @@ KRN_DZFS_GET_FILE_BATENTRY:
 ; Gets the BAT's entry number of a specified filename
 ; IN <= HL = Address where the filename to check is stored
 ; OUT => HL = BAT Entry is stored in the SYSVARS
-        ld      DE, $BAAB                       ; Store a default value
-        ld      (tmp_addr3), DE                 ;   so that we can use it to check
-                                                ;   if filename was found
-
         ld      (tmp_addr2), HL                 ; Store address of filename to check
         ld      A, 1                            ; BAT starts at sector 1
         ld      (CF_cur_sector), A
@@ -189,25 +182,36 @@ bat_nextsector:
         ; each read will put 16 entries in the buffer.
         ; We need to read a maxmimum of 1024 entries (i.e BAT max entries),
         ; therefore 64 sectors.
-        ld      A, 0                ; entry counter
+        ld      A, 0                            ; entry counter
 bat_entry:
         push    AF                              ; backup entry counter
         call    F_KRN_DZFS_BATENTRY2BUFFER
         ; Get length of specified filename
-        ld      A, $00                          ; filename to check ends with space  TODO - Space or zero?!
-        ld      HL, (tmp_addr2)                 ; HL = address of filename to check
-        call    F_KRN_STRLEN                    ; B = length of filename to check
-        ; Check if filename in buffer is equal to the specified filename
-        ld      DE, (tmp_addr2)                 ; DE = address of filename to check
+        ld      A, $00                          ; filename to check ends with zero
+        ld      HL, (tmp_addr2)                 ; HL = address of specified filename
+        call    F_KRN_STRLEN                    ; B = length of specified filename
+        ld      C, B                            ; backup length of specified filename
+        ; Get length of filename in BAT entry
+        ld      A, SPACE                        ; filename to check ends with a space character
         ld      HL, CF_cur_file_name            ; HL = address of filename in BAT entry
-        ld      A, 14                           ; filename in BAT entry is 14 characters
+        call    F_KRN_STRLEN                    ; B = length of filename
+        ; Are both filenames equal in length?
+        ld      A, C                            ; restore length of specified filename
+        cp      B                               ; Is the same length as filename in BAT entry?
+        jp      nz, bat_nextentry               ; No, skip entry
+
+        ; Check if filename in buffer (str2) is equal to the specified filename (str1)
+        ld      HL, (tmp_addr2)                 ; DE = address of filename to check (str1)
+        ld      DE, CF_cur_file_name            ; HL = address of filename in BAT entry (str2)
+        ; ld      B, 14                           ; filename in BAT entry is 14 characters (str2)
         call    F_KRN_STRCMP                    ; Are the same?
         jp      nz, bat_nextentry               ; No, skip entry
         ld      DE, $0000                       ; Yes, reset tmp_addr3
         ld      (tmp_addr3), DE                 ; if equal $0000, filename was found
                                                 ; if equal $ABBA, not found
+bat_exit:
         pop     AF                              ; needed because previous push AF
-        ret                                     ; exit subroutine
+        ret                                     ; exit
 bat_nextentry:
         pop     AF                              ; restore entry counter
         inc     A                               ; next entry
@@ -291,13 +295,10 @@ KRN_DZFS_RENAME_FILE:
 ; Changes the name of a file
 ; IN <= IY = Address where the new filename is stored
 ;       DE = BAT Entry number
-        ; ld      DE, $0003             ; TODO - delete this after tests
-        ; ld      ($3000), DE             ; TODO - delete this after tests
         ld      A, 32                   ; 32 bytes per entry
         call    F_KRN_MULTIPLY816_SLOW  ; HL = A * DE
         ld      DE, CF_BUFFER_START
         add     HL, DE                  ; HL points to 1st character in CF buffer (old filename)
-        ; ld      ($3002), HL             ; TODO - delete this after tests
         ; copy characters from new filename to CF buffer
         ld      B, 1                    ; character counter
 rename_loop:
@@ -332,10 +333,11 @@ KRN_DZFS_FORMAT_CF:
 ; IN <= HL = Address where the disk label is stored
 ;       DE = Address where the number of partitions is stored
         push    DE                      ; backup DE
-        push    HL                      ; backup HL
+        ; push    HL                      ; backup HL
         ld      HL, msg_format_start
         call    F_KRN_SERIAL_WRSTR
     ; Superblock - Step 1: prepare data in CF_BUFFER_START
+        
         ; Signature
         ld      HL, $BAAB               ; in little-endian will become ABBA ;-)
         ld      (CF_BUFFER_START), HL
@@ -344,93 +346,141 @@ KRN_DZFS_FORMAT_CF:
         ld      A, $FF
         ld      (CF_BUFFER_START + $02), A
         call    format_progress
+        
         ; File System identifier ('DZFSV1' in ASCII)
         ld      BC, 8
         ld      DE, CF_BUFFER_START + $03
         ld      HL, const_fd_id
         ldir
         call    format_progress
+        
         ; Volume Serial Number
-        call    F_KRN_DZFS_CALC_SN
-        ld      DE, CF_BUFFER_START + $0B
-        ld      B, 4
-        ldir
+        ld      IX, CF_BUFFER_START + $0B
+        call    KRN_DZFS_CALC_SN
         call    format_progress
+        
         ; Not used
         ld      A, $00
         ld      (CF_BUFFER_START + $0F), A
         call    format_progress
-; TODO        ; Volume label
-        ld      B, 16
-        ld      DE, CF_BUFFER_START + $10
-        pop     HL                      ; restore HL
-        ldir
-        ; Needs to be padded to 16 characters
+        
+        ; Volume label
+        ld      IY, CLI_buffer_parm1_val    ; IY = address where the volname is stored (user input)
+        ld      HL, CF_BUFFER_START + $10   ; Hl = address where the volname will be stored (CF buffer)
+        ld      B, 1                    ; character counter
+_volname_loop:
+        ld      A, (IY)                 ; volname character
+        cp      0                       ; end of volname?
+        jp      z, _volname_padding     ; yes, do the padding to 16 characters
+        ld      (HL), A                 ; no, store it in CF buffer
+        inc     HL                      ; next char in CF buffer
+        inc     IY                      ;next char in old name
+        inc     B
+        jp      _volname_loop
+_volname_padding:
+        ld      A, B                    ; did we renamed
+        cp      16                      ;   16 characters?
+        jp      z, _volname_finish      ; yes, finish padding
+        ; no, do padding (with spaces) for the remaining characters
+        ld      A, $20
+        ld      (HL), A
+        inc     HL
+        inc     B
+        jp      _volname_padding
+_volname_finish:
+        ld      A, $20                  ; one last space
+        ld      (HL), A                 ;   needed on the padding
         call    format_progress
-; TODO        ; Volume Date creation
-        call    F_BIOS_RTC_GET_DATE
-
-        ; ; ld      A, (RTC_day)            ; TODO - value is in Hex
-        ; ld      A, $04
-        ; ld      (CF_BUFFER_START + $20), A
-        ; call    F_KRN_BIN_TO_BCD4
-        ; ld      A, L
-        ; ld      (CF_BUFFER_START + $21), A
-        ; ; call    F_KRN_HEX_TO_ASCII
-        ; ; ld      A, H
-        ; ; ld      A, L
-
-        ; ld      A, (RTC_month)
-        ; call    F_KRN_BIN_TO_BCD4
-        ; ld      A, L
-        ; ; call    F_KRN_HEX_TO_ASCII
-        ; ; ld      A, H
-        ; ld      (CF_BUFFER_START + $22), A
-        ; ; ld      A, L
-        ; ; ld      (CF_BUFFER_START + $23), A
-
-        ; ld      A, (RTC_century)
-        ; call    F_KRN_BIN_TO_BCD4
-        ; ld      A, L
-        ; ; call    F_KRN_HEX_TO_ASCII
-        ; ; ld      A, H
-        ; ld      (CF_BUFFER_START + $24), A
-        ; ; ld      A, L
-        ; ; ld      (CF_BUFFER_START + $25), A
-
-        ; ld      A, (RTC_year)
-        ; call    F_KRN_BIN_TO_BCD4
-        ; ld      A, L
-        ; ; call    F_KRN_HEX_TO_ASCII
-        ; ; ld      A, H
-        ; ld      (CF_BUFFER_START + $26), A
-        ; ; ld      A, L
-        ; ; ld      (CF_BUFFER_START + $27), A
-
+        
+        ; Volume Date creation
+        call    F_BIOS_RTC_GET_DATE     ; SYSVARS = day, month, year in hex
+        call    F_BIOS_RTC_GET_TIME     ; Get time at the same time as date to avoid differences
+        ld      A, (RTC_day)
+        call    F_KRN_BIN_TO_BCD4
+        ld      DE, tmp_addr1
+        ld      C, 0
+        call    F_KRN_BCD_TO_ASCII
+        ld      A, (tmp_addr1 + 4)
+        ld      (CF_BUFFER_START + $20), A
+        ld      A, (tmp_addr1 + 5)
+        ld      (CF_BUFFER_START + $21), A
+        ld      A, (RTC_month)
+        call    F_KRN_BIN_TO_BCD4
+        ld      DE, tmp_addr1
+        ld      C, 0
+        call    F_KRN_BCD_TO_ASCII
+        ld      A, (tmp_addr1 + 4)
+        ld      (CF_BUFFER_START + $22), A
+        ld      A, (tmp_addr1 + 5)
+        ld      (CF_BUFFER_START + $23), A
+        ld      HL, (RTC_year4)
+        call    F_KRN_BIN_TO_BCD6
+        ld      C, 0
+        ex      DE, HL
+        ld      DE, tmp_addr1
+        call    F_KRN_BCD_TO_ASCII
+        ld      A, (tmp_addr1 + 2)
+        ld      (CF_BUFFER_START + $24), A
+        ld      A, (tmp_addr1 + 3)
+        ld      (CF_BUFFER_START + $25), A
+        ld      A, (tmp_addr1 + 4)
+        ld      (CF_BUFFER_START + $26), A
+        ld      A, (tmp_addr1 + 5)
+        ld      (CF_BUFFER_START + $27), A
         call    format_progress
+        
+        ; Volume Time creation
+        ld      A, (RTC_hour)
+        call    F_KRN_BIN_TO_BCD4
+        ld      DE, tmp_addr1
+        ld      C, 0
+        call    F_KRN_BCD_TO_ASCII
+        ld      A, (tmp_addr1 + 4)
+        ld      (CF_BUFFER_START + $28), A
+        ld      A, (tmp_addr1 + 5)
+        ld      (CF_BUFFER_START + $29), A
+        ld      A, (RTC_minutes)
+        call    F_KRN_BIN_TO_BCD4
+        ld      DE, tmp_addr1
+        ld      C, 0
+        call    F_KRN_BCD_TO_ASCII
+        ld      A, (tmp_addr1 + 4)
+        ld      (CF_BUFFER_START + $2A), A
+        ld      A, (tmp_addr1 + 5)
+        ld      (CF_BUFFER_START + $2B), A
+        ld      A, (RTC_seconds)
+        call    F_KRN_BIN_TO_BCD4
+        ld      DE, tmp_addr1
+        ld      C, 0
+        call    F_KRN_BCD_TO_ASCII
+        ld      A, (tmp_addr1 + 4)
+        ld      (CF_BUFFER_START + $2C), A
+        ld      A, (tmp_addr1 + 5)
+        ld      (CF_BUFFER_START + $2D), A
 
-; ; TODO        ; Volume Time creation
-;         call    F_BIOS_RTC_GET_TIME
-;         call    format_progress
         ; Bytes per Sector
         ld      HL, $0200
         ld      (CF_BUFFER_START + $2E), HL
         call    format_progress
+        
         ; Sectors per Block
         ld      A, $40
         ld      (CF_BUFFER_START + $30), A
         call    format_progress
+        
         ; Number of partitions
         pop     DE                      ; restore DE
         ld      A, (DE)
         sub     $30                     ; convert digit to Hex
         ld      (CF_BUFFER_START + $31), A
         call    format_progress
+        
         ; Copyright notice
         ld      BC, 51
         ld      DE, CF_BUFFER_START + $32
         ld      HL, const_copyright
         ldir
+        
         ; Rest 411 bytes are not used, lets set them as zeros.
         ld      IX, CF_BUFFER_START + $65
         ld      B, $FF                  ; We do 255 bytes first
@@ -466,6 +516,9 @@ write_bat:
         dec     (IX)
         jp      nz, write_bat
         call    format_progress
+        ; Change SYSVARS.CF_is_formatted to $FF
+        ld      A, $FF
+        ld      (CF_is_formatted), A
         ret
 
 ; ------------------------------------
@@ -484,19 +537,39 @@ format_progress:
         call    F_BIOS_SERIAL_CONOUT_A
         ret
 ;------------------------------------------------------------------------------
-F_KRN_DZFS_CALC_SN:     ; TODO
-; Calculates the Serial Number for a disk
-; IN <= none
-; OUT => HL = Address where the Serial Number has been stored
-        ld      A, $35
-        ld      (tmp_addr1), A
-        ld      A, $2A
-        ld      (tmp_addr1 + 1), A
-        ld      A, $15
-        ld      (tmp_addr1 + 2), A
-        ld      A, $F2
-        ld      (tmp_addr1 + 3), A
-        ld      HL, tmp_addr1
+KRN_DZFS_CALC_SN:
+; Calculates the Serial Number (4 bytes) for a disk
+; Formula is:
+;               1st byte: day + seconds (in Hexadecimal)
+;               2nd byte: month + seconds (in Hexadecimal)
+;               3rd & 4th bytes: hours (24h) * 256 + minutes + year 4 digits (in Hexadecimal)
+; IN <= IX = Address where the Serial Number will be stored
+        call    F_BIOS_RTC_GET_DATE
+        call    F_BIOS_RTC_GET_TIME
+        ; 1st byte: day + seconds
+        ld      A, (RTC_seconds)
+        ld      HL, RTC_day
+        add     A, (HL)
+        ld      (IX), A
+        inc     IX
+        ; 2nd byte: month + seconds
+        ld      A, (RTC_seconds)
+        ld      HL, RTC_month
+        add     A, (HL)
+        ld      (IX), A
+        inc     IX
+        ; 3rd & 4th bytes: hours (24h) * 256 + minutes + year 4 digits
+        ld      A, (RTC_hour)
+        ld      DE, 256
+        call    F_KRN_MULTIPLY816_SLOW  ; HL = hour * 256
+        ld      A, (RTC_minutes)
+        ld      B, 0
+        ld      C, A
+        add     HL, BC                  ; HL = (hour * 256) + minutes
+        ld      BC, (RTC_year4)
+        add     HL, BC                  ; HL = (hour * 256) + minutes + year 4 digits
+        ld      (IX), H
+        ld      (IX + 1), L
         ret
 ;------------------------------------------------------------------------------
 KRN_DZFS_SECTOR_TO_CF:
@@ -856,17 +929,18 @@ F_KRN_DZFS_CALC_FILEDATE:
         ; Add day to month and year
         add     HL, DE
         ret
-KRN_DZFS_SHOW_DISKINFO:
+;------------------------------------------------------------------------------
+KRN_DZFS_SHOW_DISKINFO_SHORT:
         ; Volume Label
         ld      HL, msg_vol_label
-        ld      A, ANSI_COLR_YLW
+        ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
-        ld      B, 16                   ; counter = 4 bytes
+        ld      B, 16                   ; counter
         ld      HL, CF_SBLOCK_LABEL     ; point HL to offset in the buffer
         call    F_KRN_SERIAL_PRN_BYTES
         ; Volume Serial Number
         ld      HL, msg_volsn
-        ld      A, ANSI_COLR_YLW
+        ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, (CF_SBLOCK_SERNUM)
         call    F_KRN_SERIAL_PRN_BYTE
@@ -880,18 +954,9 @@ KRN_DZFS_SHOW_DISKINFO:
         call    F_BIOS_SERIAL_CONOUT_A
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
-        ; File System id
-        ld      HL, msg_filesys
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      B, 8                            ; counter = 4 bytes
-        ld      HL, CF_SBLOCK_FSID              ; point HL to offset in the buffer
-        call    F_KRN_SERIAL_PRN_BYTES
-        ld        B, 1
-        call    F_KRN_SERIAL_EMPTYLINES
         ; Volume Date/Time Creation
         ld      HL, msg_vol_creation
-        ld      A, ANSI_COLR_YLW
+        ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
         ld      B, 2                            ; counter = 2 bytes
         ld      HL, CF_SBLOCK_DATECREA          ; day
@@ -923,46 +988,72 @@ KRN_DZFS_SHOW_DISKINFO:
         call    F_KRN_SERIAL_PRN_BYTES
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
+        ret
+KRN_DZFS_SHOW_DISKINFO:
+        call    F_KRN_DZFS_SHOW_DISKINFO_SHORT
+
+        ; File System id
+        ld      HL, msg_filesys
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      B, 8                            ; counter = 4 bytes
+        ld      HL, CF_SBLOCK_FSID              ; point HL to offset in the buffer
+        call    F_KRN_SERIAL_PRN_BYTES
+        ld        B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
         ; Number of partitions
         ld      HL, msg_num_partitions
-        ld      A, ANSI_COLR_YLW
+        ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, (CF_SBLOCK_NUMPARTITIONS)
         call    F_KRN_SERIAL_PRN_BYTE
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
-;TODO        ; Bytes per Sector
+        ; Bytes per Sector
         ld      HL, msg_bytes_sector
-        ld      A, ANSI_COLR_YLW
+        ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, (CF_SBLOCK_BYTESSEC)
+        call    F_KRN_BIN_TO_BCD6               ; convert from hex to decimal
+        ex      DE, HL                          ; HL = last 4 digits
+        ld      DE, tmp_addr1                   ; temp storage for converted digits
+        call    F_KRN_BCD_TO_ASCII              ; convert decimal to hex ASCII string
+        ld      A, (tmp_addr1 + 3)              ; only need
+        call    F_BIOS_SERIAL_CONOUT_A          ;   to print
+        ld      A, (tmp_addr1 + 4)              ;   the
+        call    F_BIOS_SERIAL_CONOUT_A          ;   last
+        ld      A, (tmp_addr1 + 5)              ;   three digits
+        call    F_BIOS_SERIAL_CONOUT_A
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
-;TODO        ; Sectors per Block
+        ; Sectors per Block
         ld      HL, msg_sectors_block
-        ld      A, ANSI_COLR_YLW
+        ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
-        ; ld      A, (CF_SBLOCK_SECBLOCK)
-        ; call    F_KRN_BIN_TO_BCD4
-        ; ld      A, 64
-        ; call    F_KRN_HEX_TO_ASCII
-        ; ld      A, H
-        ; call    F_BIOS_SERIAL_CONOUT_A
-        ; ld      A, L
-        ; call    F_BIOS_SERIAL_CONOUT_A
+        ld      A, (CF_SBLOCK_SECBLOCK)
+        call    F_KRN_BIN_TO_BCD4
+        ld      DE, tmp_addr1                   ; temp storage for converted digits
+        call    F_KRN_BCD_TO_ASCII              ; convert decimal to hex ASCII string
+        ld      A, (tmp_addr1 + 4)              ; only need
+        call    F_BIOS_SERIAL_CONOUT_A          ;   to print
+        ld      A, (tmp_addr1 + 5)              ;   the last
+        call    F_BIOS_SERIAL_CONOUT_A          ;   two digits
         ret
+;------------------------------------------------------------------------------
+KRN_CHECK_FILE_EXISTS:
+; Checks if a filename exists in the disk
+; IN <= HL = Address where the filename to check is stored
+; OUT => Zero Flag set if filename not found
+        ld      DE, $BAAB                       ; Store a default value
+        ld      (tmp_addr3), DE                 ;   so that we can use it to check
+                                                ;   if filename was found
+        call    F_KRN_DZFS_GET_FILE_BATENTRY    ; if a file is found, tmp_addr3 = $0000 
 
-;==============================================================================
-; Constants
-;==============================================================================
-const_fd_id:
-        .BYTE   "DZFSV1  "
-const_copyright:
-        .BYTE   "Copyright 2022David Asta      The MIT License (MIT)"
-;==============================================================================
-; Messages
-;==============================================================================
-msg_unformatted:
-        .BYTE   "    The CF disk appears to be unformatted", 0
-msg_format_start:
-        .BYTE    CR, LF
-        .BYTE    "Formatting", 0
+        ; Check that the bytes where replaced (i.e. are not $BAAB)
+        ;   meaning the file exists
+        ld      A, (tmp_addr3)
+        cp      $AB
+        ret     z                               ; Zero Flag set if bytes not replaced
+        ld      A, (tmp_addr3 + 1)
+        cp      $BA
+        ret                                     ; Zero Flag set if bytes not replaced

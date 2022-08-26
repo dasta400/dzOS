@@ -133,12 +133,26 @@ RTC_century                 .EXPORT         RTC_century
                 .BYTE    0
 RTC_year                    .EXPORT         RTC_year
                 .BYTE    0
+RTC_year4                   .EXPORT         RTC_year4
+                .BYTE    0, 0
 RTC_month                   .EXPORT         RTC_month
                 .BYTE    0
 RTC_day                     .EXPORT         RTC_day
                 .BYTE    0
 RTC_day_of_the_week         .EXPORT         RTC_day_of_the_week
                 .BYTE    0
+;==============================================================================
+; Real-Time Clock NVRAM variables
+;==============================================================================
+NVRAM_battery_status        .EXPORT         NVRAM_battery_status
+                .BYTE   0
+;==============================================================================
+; Math variables
+;==============================================================================
+MATH_CRC                    .EXPORT         MATH_CRC
+                .BYTE    0, 0
+MATH_polynomial             .EXPORT         MATH_polynomial
+                .BYTE    0, 0
 
 ;==============================================================================
 ; END of CODE

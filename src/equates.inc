@@ -70,15 +70,13 @@ FREEROM_SIZE            .EQU    FREEROM_END - FREEROM_START
 STACK_START             .EQU    $4000               ; Top of the dastaZ80's Stack location
 STACK_END               .EQU    STACK_START + 31    ; Bottom of the dastaZ80's Stack location
 
-BIOS_JBLK_COPY_START    .EQU    STACK_END + 1
-BIOS_JBLK_COPY_END      .EQU    BIOS_JBLK_COPY_START + 255
-KRN_JBLK_COPY_START     .EQU    BIOS_JBLK_COPY_END + 1
-KRN_JBLK_COPY_END       .EQU    KRN_JBLK_COPY_START + 255
+SYSVARS_START           .EQU    STACK_END + 1
+SYSVARS_END             .EQU    SYSVARS_START + 348
 
-SYSVARS_START           .EQU    KRN_JBLK_COPY_END + 1
-SYSVARS_END             .EQU    SYSVARS_START + 335
+RESERVED_START          .EQU    SYSVARS_END + 1
+RESERVED_END            .EQU    RESERVED_START + (511 - 349)
 
-CF_BUFFER_START         .EQU    SYSVARS_END + 1
+CF_BUFFER_START         .EQU    RESERVED_END + 1
 CF_BUFFER_END           .EQU    CF_BUFFER_START + 511
 
 FREERAM_START           .EQU    CF_BUFFER_END + 1
@@ -90,12 +88,13 @@ START_HIGHRAM           .EQU    $8000
 ;==============================================================================
 ; Key codes over Serial
 ;==============================================================================
-CR                      .EQU    $0D     ; Carriage Return
-LF                      .EQU    $0A     ; Line Feed
-SPACE                   .EQU    $20     ; Space
-ESC                     .EQU    $1B     ; Escape
 CTRLC                   .EQU    $03     ; Ctrl + C
+LF                      .EQU    $0A     ; Line Feed
 CLS                     .EQU    $0C     ; CLear Screen
+CR                      .EQU    $0D     ; Carriage Return
+ESC                     .EQU    $1B     ; Escape
+SPACE                   .EQU    $20     ; Space
+BSPACE                  .EQU    $7F     ; Backspace
 
 ;==============================================================================
 ; SIO/2

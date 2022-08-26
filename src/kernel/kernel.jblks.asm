@@ -45,6 +45,8 @@ F_KRN_SERIAL_WRSTRCLR:              .EXPORT         F_KRN_SERIAL_WRSTRCLR
         jp      KRN_SERIAL_WRSTRCLR
 F_KRN_SERIAL_WRSTR:                 .EXPORT         F_KRN_SERIAL_WRSTR
         jp      KRN_SERIAL_WRSTR
+F_KRN_SERIAL_WR6DIG_NOLZEROS        .EXPORT         F_KRN_SERIAL_WR6DIG_NOLZEROS
+        jp      KRN_SERIAL_WR6DIG_NOLZEROS
 F_KRN_SERIAL_RDCHARECHO:            .EXPORT         F_KRN_SERIAL_RDCHARECHO
         jp      KRN_SERIAL_RDCHARECHO
 F_KRN_SERIAL_EMPTYLINES:            .EXPORT         F_KRN_SERIAL_EMPTYLINES
@@ -57,6 +59,8 @@ F_KRN_SERIAL_PRN_NIBBLE:            .EXPORT         F_KRN_SERIAL_PRN_NIBBLE
         jp      KRN_SERIAL_PRN_NIBBLE
 F_KRN_SERIAL_PRN_WORD:              .EXPORT         F_KRN_SERIAL_PRN_WORD
         jp      KRN_SERIAL_PRN_WORD
+F_KRN_SERIAL_BACKSPACE:             .EXPORT         F_KRN_SERIAL_BACKSPACE
+        jp      KRN_SERIAL_BACKSPACE
 
         ; String subroutines
 F_KRN_TOUPPER:                      .EXPORT         F_KRN_TOUPPER
@@ -75,8 +79,6 @@ F_KRN_STRLEN:                       .EXPORT         F_KRN_STRLEN
         ; Memory subroutines
 F_KRN_SETMEMRNG:                    .EXPORT         F_KRN_SETMEMRNG
         jp      KRN_SETMEMRNG
-F_KRN_WHICH_RAMSIZE:                .EXPORT         F_KRN_WHICH_RAMSIZE
-        jp      KRN_WHICH_RAMSIZE
 F_KRN_COPYMEM512:                   .EXPORT         F_KRN_COPYMEM512
         jp      KRN_COPYMEM512
 F_KRN_SHIFT_BYTES_BY1:              .EXPORT         F_KRN_SHIFT_BYTES_BY1
@@ -103,6 +105,10 @@ F_KRN_BIN_TO_ASCII:                 .EXPORT         F_KRN_BIN_TO_ASCII
         jp      KRN_BIN_TO_ASCII
 F_KRN_DEC_TO_BIN:                   .EXPORT         F_KRN_DEC_TO_BIN
         jp      KRN_DEC_TO_BIN
+F_KRN_PKEDDATE_TO_DMY:              .EXPORT         F_KRN_PKEDDATE_TO_DMY
+        jp      KRN_PKEDDATE_TO_DMY
+F_KRN_PKEDTIME_TO_HMS:              .EXPORT         F_KRN_PKEDTIME_TO_HMS
+        jp      KRN_PKEDTIME_TO_HMS
 
         ; Math subroutines
 F_KRN_MULTIPLY816_SLOW:             .EXPORT         F_KRN_MULTIPLY816_SLOW
@@ -111,6 +117,10 @@ F_KRN_MULTIPLY1616:                 .EXPORT         F_KRN_MULTIPLY1616
         jp      KRN_MULTIPLY1616
 F_KRN_DIV1616:                      .EXPORT         F_KRN_DIV1616
         jp      KRN_DIV1616
+F_KRN_CRC16_INI:                    .EXPORT         F_KRN_CRC16_INI
+        jp      KRN_CRC16_INI
+F_KRN_CRC16_GEN:                    .EXPORT         F_KRN_CRC16_GEN
+        jp      KRN_CRC16_GEN
 
         ; DZFS subroutines
 F_KRN_DZFS_READ_SUPERBLOCK:         .EXPORT         F_KRN_DZFS_READ_SUPERBLOCK
@@ -141,9 +151,18 @@ F_KRN_DZFS_ADD_BAT_ENTRY:           .EXPORT         F_KRN_DZFS_ADD_BAT_ENTRY
         jp      KRN_DZFS_ADD_BAT_ENTRY
 F_KRN_DZFS_CREATE_NEW_FILE:         .EXPORT         F_KRN_DZFS_CREATE_NEW_FILE
         jp      KRN_DZFS_CREATE_NEW_FILE
+F_KRN_DZFS_SHOW_DISKINFO_SHORT      .EXPORT         F_KRN_DZFS_SHOW_DISKINFO_SHORT
+        jp      KRN_DZFS_SHOW_DISKINFO_SHORT
 F_KRN_DZFS_SHOW_DISKINFO:           .EXPORT         F_KRN_DZFS_SHOW_DISKINFO
         jp      KRN_DZFS_SHOW_DISKINFO
+F_KRN_CHECK_FILE_EXISTS:            .EXPORT         F_KRN_CHECK_FILE_EXISTS
+        jp      KRN_CHECK_FILE_EXISTS
 
+        ; RTC subroutines
+F_KRN_RTC_SHOW_TIME                 .EXPORT         F_KRN_RTC_SHOW_TIME
+        jp      KRN_RTC_SHOW_TIME
+F_KRN_RTC_SHOW_DATE                 .EXPORT         F_KRN_RTC_SHOW_DATE
+        jp      KRN_RTC_SHOW_DATE
 
         .ORG	KRN_JBLK_END
         .BYTE	0

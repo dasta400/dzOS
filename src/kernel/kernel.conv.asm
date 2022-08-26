@@ -39,19 +39,6 @@
 ;==============================================================================
 ; Code Conversion Routines
 ;==============================================================================
-;------------------------------------------------------------------------------
-;TODO - F_KRN_TRANSLT_TIME:
-; In DZFS, file created/modified time is stored in 2 bytes in the format:
-;   5 bits for hour (binary number of hours 0-23)
-;   6 bits for minutes (binary number of minutes 0-59)
-;   5 bits for seconds (binary number of seconds / 2)
-; <-------- MSB --------> <-------- LSB -------->
-; 07 06 05 04 03 02 01 00 07 06 05 04 03 02 01 00
-; h  h  h  h  h  m  m  m  m  m  m  x  x  x  x  x
-; This subroutine translates from that format into a human readable hh:mm:ss
-; IN <= HL = address where the time to translate (source) is stored
-;       DE = address where the translated time (result) will be stored
-
 
 ;------------------------------------------------------------------------------
 KRN_ASCIIADR_TO_HEX:
@@ -230,36 +217,36 @@ KRN_BITEXTRACT:
 ;        D = number of bits to extract
 ;        A = start extraction at bit number
 ; OUT => A = extracted group of bits
-        and        00000111b                ; only allow 0 through 7
-        jr        z, bitex                ; if shifted not needed, then start extraction
-        ld        b, a                    ; B = start extraction at bit number
+        and     00000111b               ; only allow 0 through 7
+        jr      z, bitex                ; if shifted not needed, then start extraction
+        ld      B, A                    ; B = start extraction at bit number
 bitexshift:
-        srl        e                        ; shift E right 1-bit position
-        djnz    bitexshift                ; continue shifting until reached start position
+        srl     E                       ; shift E right 1-bit position
+        djnz    bitexshift              ; continue shifting until reached start position
 bitex:
         ; if bits to extract is 0, then exit routine
-        ld        a, d
-        or        a
-        ret        z
-        dec        a
-        and        00000111b                ; only allow 0 through 7
-        ld        c, a                    ; BC = index into mask array
-        ld        b, 0
-        ld        hl, maskarray            ; Hl = base address of the mask array
-        add        hl, bc                    ; position inside the mask array
-        ld        a, e                    ; A = byte to extract
-        and        (hl)                    ; mask off unwanted bits
+        ld      A, D
+        or      A
+        ret     z
+        dec     A
+        and     00000111b               ; only allow 0 through 7
+        ld      C, A                    ; BC = index into mask array
+        ld      B, 0
+        ld      HL, maskarray           ; HL = base address of the mask array
+        add     HL, BC                  ; position inside the mask array
+        ld      A, E                    ; A = byte to extract
+        and     (HL)                    ; mask off unwanted bits
         ret
 
 maskarray:
-        .BYTE    00000001b
-        .BYTE    00000011b
-        .BYTE    00000111b
-        .BYTE    00001111b
-        .BYTE    00011111b
-        .BYTE    00111111b
-        .BYTE    01111111b
-        .BYTE    11111111b
+        .BYTE   00000001b
+        .BYTE   00000011b
+        .BYTE   00000111b
+        .BYTE   00001111b
+        .BYTE   00011111b
+        .BYTE   00111111b
+        .BYTE   01111111b
+        .BYTE   11111111b
 
 ;------------------------------------------------------------------------------
 KRN_BIN_TO_ASCII:
@@ -463,4 +450,131 @@ dec2bn_okexit:
 dec2bn_erexit:
         ex      DE, HL                      ; HL = VALUE
         scf                                 ; SET CARRY TO INDICATE ERROR
+        ret
+;------------------------------------------------------------------------------
+KRN_PKEDDATE_TO_DMY:
+; Extracts day, month and year from a packed date (used by DZFS to store dates)
+; IN <= HL = packed date
+; OUT => A = day
+;        B = month
+;        C = year
+
+        ld      (tmp_addr1), HL         ; backup input packed date
+
+        ; Extract year,
+        ;   by shifting right 9 places
+        srl     H
+        ld      L, H
+        ld      H, 0
+        push    HL                      ; backup year
+    
+        ; Extract month,
+        ;   by shifting left 7 places (to get rid of the year bits)
+        ;   and shifting right 12 places
+        ld      HL, (tmp_addr1)             ; restore input packed date
+
+        xor     A
+        srl     H
+        rr      L
+        rra
+        ld      H, L
+        ld      L, A
+
+        ld      A, H
+        rra
+        rra
+        rra
+        rra
+        and     15
+        ld      L, A
+        ld      H, 0                    ; L = month
+        push    HL                      ; backup month
+
+        ; Extract day,
+        ;   by shifting left 11 places (to get rid of the year and month bits)
+        ;   and shifting right 11 places
+        ld      HL, (tmp_addr1)         ; restore input packed date
+
+        call    _shift_left_11
+        call    _shift_right_11         ; L = day
+
+        ; Prepare outputs
+        ld      A, L                    ; A = day
+        pop     HL                      ; restore month
+        ld      B, L                    ; B = month
+        pop     HL                      ; restore year
+        ld      C, L                    ; C = year
+        ret
+;------------------------------------------------------------------------------
+KRN_PKEDTIME_TO_HMS:
+; Extracts hour, minutes and seconds from a packed time (used by DZFS to store times)
+; IN <= HL = packed time
+; OUT => A = hour
+;        B = minutes
+;        C = seconds
+
+        ld      (tmp_addr1), HL         ; backup input packed time
+
+        ; Extract hour,
+        ;   by shifting right 11 places
+        call    _shift_right_11         ; L = hour
+        push    HL                      ; backup hour
+
+        ; Extract minutes,
+        ;   by shifting left 5 places (to get rid of the hour bits)
+        ;   and shifting right 10 places
+        ld      HL, (tmp_addr1)         ; restore input packed time
+
+        add     HL, HL
+        add     HL, HL
+        add     HL, HL
+        add     HL, HL
+        add     HL, HL
+
+        call    _shift_right_10         ; L = minutes
+        push    HL                      ; backup minutes
+
+        ; Extract seconds,
+        ;   by shifting left 11 places (to get rid of the hour and minutes bits)
+        ;   and shifting right 10 places
+        ld      HL, (tmp_addr1)         ; restore input packed time
+
+        call    _shift_left_11
+        call    _shift_right_10         ; L = seconds
+
+        ; Prepare outputs
+        ld      C, L                    ; C = seconds
+        pop     HL                      ; restore minutes
+        ld      B, L                    ; B = minutes
+        pop     HL                      ; restore hour
+        ld      A, L                    ; A = hour
+        ret
+;------------------------------------------------------------------------------
+_shift_left_11:
+; Shift HL left 11 places
+        ld      A, L
+        add     A, A
+        add     A, A
+        add     A, A
+        ld      H, A
+        ld      L, 0
+        ret
+;------------------------------------------------------------------------------
+_shift_right_10:
+; Shift HL right 10 places
+        srl     H
+        srl     H
+        ld      L, H
+        ld      H, 0
+        ret
+;------------------------------------------------------------------------------
+_shift_right_11:
+; Shift HL right 11 places
+        ld      A, H
+        rra
+        rra
+        rra
+        and     31
+        ld      L, A
+        ld      H, 0
         ret

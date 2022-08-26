@@ -22,7 +22,7 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
   * **Hardware**:
     * **CPU**: Z80 @ 7.3728 Mhz
     * **ROM**: 16 KB with DZOS ([User Modifiable Operating System](#user-modifiable-operating-system-paged-rom-and-jumpblocks))
-    * **RAM**: 64 KB (~48 KB free). Lower 16 KB used by DZOS. Then approx. 1 KB for Stack, variables and Buffers. Free RAM starts at address $4570
+    * **RAM**: 64 KB (~48 KB free). Lower 16 KB used by DZOS. Then approx. 1 KB for Stack, variables and Buffers. Free RAM starts at address 0x4420
     * **Video output**: 80x25 Colour ANSI Terminal, via [LILYGO TTGO VGA32 V1.4 ](http://www.lilygo.cn/prod_view.aspx?TypeId=50033&Id=1083&FId=t3:50033:3) connected to the TX signal of the SIO/2 Channel A
     * **Keyboard**: Acorn Archimedes A3010 keyboard connected to the RX signal of the SIO/2 Channel A
       * Implemented:
@@ -38,7 +38,6 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
         * Multiple modifier keys (e.g. Ctrl + Shift + key, Alt + Shift + key)
         * LEDs: CapsLock, Scroll Lock, Num Lock, Power, Disk activity
         * Pound key
-    * **Expansion Port**: 2x20 pin header for connecting external devices
     * **Power Supply**: 12V External Power Supply with 5V/3A Regulator
     * **Removable storage**: 128 MB CompactFlash formatted with DZFS (1 single partition)
     * **Case**: Acorn Archimedes A3010 all-in-one computer case
@@ -46,15 +45,14 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
         * DE-15 female connecto (VGA)
         * CompactFlash card slot (CF)
         * 2.1mm Barrel Power Jack (Power Supply)
-        * 2/54mm 40-pin male double row (2×20) pin header (Expansion port)
       * Others:
         * Switch ON/OF (Power)
         * Tactile switch (reset)
         * DIP switch 2 way, for selecting ROM address to boot from (e.g. DZOS, [DRI CP/M](https://en.wikipedia.org/wiki/CP/M) or [Small Computer Monitor (SCM)](https://smallcomputercentral.wordpress.com/small-computer-monitor/))
 
   * **Software**:
-    * Keyboard Controller Arduino code for Teensy++ 2.0 (folder *A3010KBD*)
-    * [FabGL Library](http://www.fabglib.org/) Arduino code for VGA32
+    * Keyboard Controller Arduino code for Teensy++ 2.0 ([folder src/A3010KBD](https://github.com/dasta400/dzOS/tree/master/src/A3010KBD))
+    * [FabGL Library](http://www.fabglib.org/) Arduino code for VGA32 ([folder src/VGA32](https://github.com/dasta400/dzOS/tree/master/src/VGA32))
     * **OS**:
       * **BIOS** & **Kernel**:
         * Talks with the Keyboard Controller to communicate with the Keyboard.
@@ -62,7 +60,7 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
         * **DZFS** (dastaZ80 File System) read/write, 1 partition. **This file system is still in experimental phase. Lost of data may occur due to unknown bugs.**
       * **Command Line Interface (CLI)**:
         * Shows prompt, reads input from keyboard and calls subroutines corresponding to commands entered by the user.
-        * Available commands:
+        * Available commands (check [dastaZ80 User's Manual](https://github.com/dasta400/dzOS/blob/master/docs/dastaZ80%20(Mark%20I)%20Manual%20-%20User%E2%80%99s%20Manual.pdf) for more details):
           * **cat**: shows disk (CompactFlash) catalogue.
           * **halt**: halts the system.
           * **help**: shows list of available commands, with a short description and usage example.
@@ -77,13 +75,17 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
           * **formatdsk *[label]*,*[num_partitions]***: formats a CompactFlash card with DZFS.
           * **rename *[old_filename]*,*[new_filename]***: changes the name of file old_filename to new_filename.
           * **delete *[filename]***: deletes filename. Data isn't deleted, just the first character of the filename in the BAT is set to 7E (~), so it can be undeleted. Be aware, that the save command will always search for an empty entry in the BAT, but if it finds none, then it will re-use the first entry of a deleted file. Therefore, undelete of a file is only guaranteed if no file was created since the delete command was issued.
-          * **chgattr** *[filename]*,*[new_attributes(RHSE)]*: changes the attributes of filename to the new specified attributes.
+          * **chgattr *[filename]*,*[new_attributes(RHSE)]***: changes the attributes of filename to the new specified attributes.
+          * **save *[address_start]*,*[number_bytes]***: creates a new file on the CF card, that will contain *n* number of bytes, starting at the specified address. After entering the command, the user will be prompted to type the filename.
+          * **date**: shows the current date (my RTC circuit is not yet ready, so date is hardcoded to 12/08/2022)
+          * **time**: shows the current time (my RTC circuit is not yet ready, so date is hardcoded to 16:24:45)
+          * **crc16 *[address_start]*,*[address_end]***: Generates and prints a 16-bit cyclic redundancy check (CRC) based on the IBM Binary Synchronous Communications protocol (BSC or Bisync), for the bytes between start and end address.
     * **TODOs**:
-      * Do not allow renaming System or Read Only files.
-      * Do not allow deleting System or Read Only files.
-      * Disable disk commands if at boot the CF card was detected as not formatted.
+      * ✔ <del>Do not allow renaming System or Read Only files.</del>
+      * ✔ <del>Do not allow deleting System or Read Only files.</del>
+      * ✔ <del>Disable disk commands if at boot the CF card was detected as not formatted.</del>
     * **BUGS**:
-      * *run*, *rename*, *delete* and *chgaatr*, are not taking in consideration the full filename (e.g. *disk* is acting on file *diskinfo*)
+      * ✔ <del>*run*, *rename*, *delete* and *chgaatr*,</del> are not taking in consideration the full filename (e.g. *disk* is acting on file *diskinfo*)
 
 ---
 

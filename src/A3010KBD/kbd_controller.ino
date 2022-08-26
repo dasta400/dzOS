@@ -69,16 +69,14 @@
 #error Something went wrong when including kbd_defs.h
 #endif
 
-#define LED_BUILTIN 6     // LED on Teensy++ 2.0 will flash everytime time a key is pressed
-
 #define DEBOUNCE_VALUE 40
 
 // LEDs
-#define LED_CAPSLOCK 14    // C4
-#define LED_SCROLLLOCK 15  // C5
-#define LED_NUMLOCK 16     // C6
-#define LED_POWERON 45     // F7
-//#define LED_DISKACTIV      // Not used
+#define LED_CAPSLOCK    27
+#define LED_SCROLLLOCK  16
+#define LED_NUMLOCK     17
+// Power On LED is connected to +5V
+// Disk Activity LED is connected to CF Card BUSY signal
 
 int debouncerCount[NUM_ROWS][NUM_COLS];
 
@@ -87,18 +85,10 @@ void setup() {
   // Uncomment for debugging Serial.begin(9600);
   Serial1.begin(115200);
   
-  // turn off Arduino on-board LED
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
-
-  // set all LED pins as outputs and turn them OFF
+  // set all LED pins as outputs and turn them OFF (HIGH=OFF, LOW=ON)
   pinMode(LED_CAPSLOCK,   OUTPUT); digitalWrite(LED_CAPSLOCK,   HIGH);
   pinMode(LED_SCROLLLOCK, OUTPUT); digitalWrite(LED_SCROLLLOCK, HIGH);
   pinMode(LED_NUMLOCK,    OUTPUT); digitalWrite(LED_NUMLOCK,    HIGH);
-  pinMode(LED_POWERON,    OUTPUT); digitalWrite(LED_POWERON,    HIGH);
-  //pinMode(LED_DISKACTIV,  OUTPUT); digitalWrite(LED_DISKACTIV,  HIGH);  // Not used
-  pinMode(LED_BUILTIN,    OUTPUT); digitalWrite(LED_BUILTIN,    LOW);
-
 
   // set all ROWS pins as input pull-up
   for(int r=0; r<NUM_ROWS; r++){
@@ -116,9 +106,6 @@ void setup() {
   }
 
   capslock_on = false;
-
-  // Switch ON the Power On LED
-  digitalWrite(LED_POWERON, LOW);
 }
 
 /*****************************************************************************/
@@ -160,9 +147,6 @@ bool check_modifer_key_shift(){
 
 /*****************************************************************************/
 void sendKey(int row, int col, bool shift_pressed){
-  digitalWrite(LED_BUILTIN, HIGH);
-  // Uncomment for debugging Serial.println(keyMap_shift[row][col], HEX);
-  
   if(shift_pressed){
     Serial1.write(keyMap_shift[row][col]);
   }else{
@@ -208,7 +192,6 @@ void readMatrixKBD(){
 
       // disable the row, by setting it as INPUT_PULLUP
       pinMode(rowPins[r], INPUT_PULLUP);
-      digitalWrite(LED_BUILTIN, LOW);
     }
 
     // disable the column, by setting it as INPUT

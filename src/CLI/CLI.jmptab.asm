@@ -62,7 +62,7 @@ msg_help:
         .BYTE   "| rename      | Rename a file                     | rename old,new     |", CR, LF
         .BYTE   "| delete      | Deletes a file                    | delete myfile      |", CR, LF
         .BYTE   "| chgattr     | Assigns new Attributes to a file  | chgattr myfile,RSE |", CR, LF
-        ; .BYTE   "| save        | Save from addr. n bytes to a file | save 4570,64       |", CR, LF
+        .BYTE   "| save        | Save from addr. n bytes to a file | save 4570,64       |", CR, LF
         .BYTE   "|             |                                   |                    |", CR, LF
         .BYTE   "| date        | Show current date                 | date               |", CR, LF
         .BYTE   "| time        | Show current time                 | time               |", CR, LF
@@ -82,6 +82,7 @@ _CMD_RESET          .BYTE   "reset", 0
 _CMD_RUN            .BYTE   "run", 0
 _CMD_HALT           .BYTE   "halt", 0
 _CMD_MEMDUMP        .BYTE   "memdump", 0
+_CMD_CRC16BSC       .BYTE   "crc16", 0
 
 ; CompactFlash commands
 _CMD_CF_CAT         .BYTE   "cat", 0        ; show files catalogue
@@ -121,11 +122,12 @@ cmd_list_table:
         .WORD       _CMD_CF_RENAME
         .WORD       _CMD_CF_DELETE
         .WORD       _CMD_CF_CHGATTR
-;        .WORD       _CMD_CF_SAVE
+        .WORD       _CMD_CF_SAVE
         .WORD       _CMD_RTC_DATE
         .WORD       _CMD_RTC_TIME
         .WORD       _CMD_RTC_SETDATE
         .WORD       _CMD_RTC_SETTIME
+        .WORD       _CMD_CRC16BSC
 
 ; Jump table for available CLI commands
 cmd_jmptable:
@@ -145,16 +147,17 @@ cmd_jmptable:
         .WORD       CLI_CMD_CF_RENAME
         .WORD       CLI_CMD_CF_DELETE
         .WORD       CLI_CMD_CF_CHGATTR
-;        .WORD       CLI_CMD_CF_SAVE
+        .WORD       CLI_CMD_CF_SAVE
         .WORD       CLI_CMD_RTC_DATE
         .WORD       CLI_CMD_RTC_TIME
         .WORD       CLI_CMD_RTC_SETDATE
         .WORD       CLI_CMD_RTC_SETTIME
+        .WORD       CLI_CMD_CRC16BSC
 
 ;==============================================================================
 ; Local Equates
 ;==============================================================================
-JMPTABLE_LENGTH     .EQU        17      ; total number of available commands
+JMPTABLE_LENGTH     .EQU        22      ; total number of available commands
                                         ; in jump table above
 
 CLI_NOCMD:
