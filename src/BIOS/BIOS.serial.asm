@@ -119,6 +119,7 @@ rts_ch_b:
 ;------------------------------------------------------------------------------
 ; Serial input Channel A
 BIOS_SERIAL_CONIN_A:
+; OUT => A = character read from serial Channel A
         push    HL
 waitForCharA:
         ld      A, (SIO_CH_A_BUFFER_USED)
@@ -146,11 +147,12 @@ rtsA1:
         ld      A, (HL)
         ei
         pop     HL
-        ret                             ; Char ready in A
+        ret
 
 ;------------------------------------------------------------------------------
 ; Serial input Channel B
 BIOS_SERIAL_CONIN_B:
+; OUT => A = character read from serial Channel B
         push    HL
 waitForCharB:
         ld      A, (SIO_CH_B_BUFFER_USED)
@@ -178,10 +180,11 @@ rtsB1:
         ld      A, (HL)
         ei
         pop     HL
-        ret                             ; Char ready in A
+        ret
 
 ;------------------------------------------------------------------------------
 ; Serial output Channel A
+; IN <= A = character to be sent to the serial Channel A
 BIOS_SERIAL_CONOUT_A:
         push    AF
 conoutA1:
@@ -199,6 +202,7 @@ conoutA1:
 
 ;------------------------------------------------------------------------------
 ; Serial output Channel B
+; IN <= A = character to be sent to the serial Channel B
 BIOS_SERIAL_CONOUT_B:
         push    AF
 conoutB1:
@@ -218,32 +222,32 @@ conoutB1:
 ; Filtered Character I/O
 ;------------------------------------------------------------------------------
 
-RDCHR:
-        rst     10h
-        cp      LF
-        jr	    z, RDCHR                ; Ignore LF
-        cp      ESC
-        jr      nz, RDCHR1
-        ld      A, CTRLC                ; Change ESC to CTRL-C
-RDCHR1:	ret
+; RDCHR:
+;         rst     10h
+;         cp      LF
+;         jr      z, RDCHR                ; Ignore LF
+;         cp      ESC
+;         jr      nz, RDCHR1
+;         ld      A, CTRLC                ; Change ESC to CTRL-C
+; RDCHR1: ret
 
-WRCHR:
-        cp      CR
-        jr      z, WRCRLF               ; When CR, write CRLF
-        cp      CLS
-        jr      z,WR                    ; Allow write of "CLS"
-        cp      ' '                     ; Don't write out any other control codes
-        jr      c,NOWR                  ; ie. < space
-WR:     rst     08h
-NOWR:	ret
+; WRCHR:
+;         cp      CR
+;         jr      z, WRCRLF               ; When CR, write CRLF
+;         cp      CLS
+;         jr      z,WR                    ; Allow write of "CLS"
+;         cp      ' '                     ; Don't write out any other control codes
+;         jr      c,NOWR                  ; ie. < space
+; WR:     rst     08h
+; NOWR:	ret
 
-WRCRLF:
-        ld	    A, CR
-        rst     08h
-        ld      A, LF
-        rst     08h
-        ld      A, CR
-        ret
+; WRCRLF:
+;         ld      A, CR
+;         rst     08h
+;         ld      A, LF
+;         rst     08h
+;         ld      A, CR
+;         ret
 
 ;------------------------------------------------------------------------------
 ; Initialise SIO/2

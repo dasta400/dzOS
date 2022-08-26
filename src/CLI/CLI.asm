@@ -63,10 +63,10 @@ cli_promptloop:         .EXPORT     cli_promptloop
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, ANSI_COLR_WHT        ; Set text colour
         call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
-        ld      HL, CLI_buffer_cmd      ; address where commands are buffered
+        ; ld      HL, CLI_buffer_cmd      ; address where commands are buffered
 
-        ld      A, 0
-        ld      (CLI_buffer_cmd), A
+        ; ld      A, 0
+        ; ld      (CLI_buffer_cmd), A
         call    F_CLI_READCMD
         call    F_CLI_PARSECMD
         jp      c, cli_command_unknown
@@ -82,18 +82,22 @@ F_CLI_READCMD:
 ; Read characters from the Console into a memory buffer until RETURN is pressed.
 ; Parameters (identified by comma) are detected and stored in 'parameters buffer',
 ; meanwhile the command is stored in 'command buffer'.
-        ld      IX, CLI_buffer_full_cmd
+        ld      HL, CLI_buffer_cmd      ; address where command (no params) is stored
+        ld      IX, CLI_buffer_full_cmd ; address where commands + params is stored
 readcmd_loop:
-        call    F_KRN_SERIAL_RDCHARECHO
-        ld      (IX), A                 ; store full command
-        inc     IX                      ;   in special buffer
-        cp      ' '                     ; test for 1st parameter entered
+        call    F_KRN_SERIAL_RDCHARECHO ; A = character read from serial (keyboard)
+        ld      (IX), A                 ; store character
+        inc     IX                      ;   in full command buffer
+
+        ; Test for parameter entered (comma or space separated)
+        cp      ' '
         jp      z, was_param
-        cp      ','                     ; test for 2nd parameter entered
+        cp      ','
         jp      z, was_param
-        ; test for special keys
-;        cp        key_backspace            ; Backspace?
-;        jp        z, was_backspace        ; yes, don't add to buffer
+
+        ; Test for special keys
+        cp      BSPACE                  ; Backspace?
+        jp      z, was_backspace        ; yes, don't add to buffer
 ;        cp        key_up                    ; up arrow?
 ;        jp        z, no_buffer            ; yes, don't add to buffer
 ;        cp        key_down                ; down arrow?
@@ -105,13 +109,19 @@ readcmd_loop:
 
         cp      CR                      ; ENTER?
         jp      z, end_get_cmd          ; yes, command was fully entered
-        ld      (HL), A                 ; store character in buffer
-        inc     HL                      ; buffer pointer + 1
+
+        ; Store character in buffer
+        ld      (HL), A
+        inc     HL
 no_buffer:
         jp      readcmd_loop            ; don't add last entered char to buffer
         ret
-was_backspace:    
-        dec     HL                      ; go back 1 unit on the buffer pointer
+was_backspace:
+        call    F_KRN_SERIAL_BACKSPACE
+        dec     HL                      ; go back 1 unit on this buffer pointer
+        ld      (HL), 0                 ; and clear whatever was there before
+        dec     IX                      ; go back 2 units
+        dec     IX                      ;    on this buffer pointer
         jp      readcmd_loop            ; read another character
 was_param:
         ld      A, (CLI_buffer_parm1_val)

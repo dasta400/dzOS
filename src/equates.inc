@@ -88,12 +88,13 @@ START_HIGHRAM           .EQU    $8000
 ;==============================================================================
 ; Key codes over Serial
 ;==============================================================================
-CR                      .EQU    $0D     ; Carriage Return
-LF                      .EQU    $0A     ; Line Feed
-SPACE                   .EQU    $20     ; Space
-ESC                     .EQU    $1B     ; Escape
 CTRLC                   .EQU    $03     ; Ctrl + C
+LF                      .EQU    $0A     ; Line Feed
 CLS                     .EQU    $0C     ; CLear Screen
+CR                      .EQU    $0D     ; Carriage Return
+ESC                     .EQU    $1B     ; Escape
+SPACE                   .EQU    $20     ; Space
+BSPACE                  .EQU    $7F     ; Backspace
 
 ;==============================================================================
 ; SIO/2

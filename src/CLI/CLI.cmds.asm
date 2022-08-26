@@ -235,7 +235,7 @@ wantsmore:
 ;------------------------------------------------------------------------------
 ;    run - Starts running instructions from a specific memory address
 ;------------------------------------------------------------------------------
-CLI_CMD_RUN:    ; TODO - It is running without full filename (e.g. disk runs diskinfo)
+CLI_CMD_RUN:
 ; IN <=     CLI_buffer_parm1_val = address or filename
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
         ; Check if param1 is an address (i.e. starts with a number) or a filename

@@ -59,6 +59,8 @@ F_KRN_SERIAL_PRN_NIBBLE:            .EXPORT         F_KRN_SERIAL_PRN_NIBBLE
         jp      KRN_SERIAL_PRN_NIBBLE
 F_KRN_SERIAL_PRN_WORD:              .EXPORT         F_KRN_SERIAL_PRN_WORD
         jp      KRN_SERIAL_PRN_WORD
+F_KRN_SERIAL_BACKSPACE:             .EXPORT         F_KRN_SERIAL_BACKSPACE
+        jp      KRN_SERIAL_BACKSPACE
 
         ; String subroutines
 F_KRN_TOUPPER:                      .EXPORT         F_KRN_TOUPPER
