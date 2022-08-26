@@ -294,7 +294,7 @@ F_CLI_CLRCLIBUFFS:
 ;==============================================================================
 msg_cli_version:
         .BYTE   CR, LF
-        .BYTE   "CLI    v1.0.0", 0
+        .BYTE   "CLI    v0.1.0", 0
 msg_prompt:
         .BYTE   CR, LF
         .BYTE   "> "

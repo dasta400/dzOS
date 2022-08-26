@@ -180,7 +180,7 @@ msg_dzos:
         .BYTE    "#####   ######   ####    ####  ", 0
 msg_krn_version:
         .BYTE    CR, LF
-        .BYTE    "Kernel v1.0.0", 0
+        .BYTE    "Kernel v0.1.0", 0
 krn_msg_cf_init:
         .BYTE    "....Initialising CompactFlash reader ", 0
 krn_msg_ram_detect:

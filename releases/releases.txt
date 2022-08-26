@@ -11,7 +11,7 @@ dzOS.2019.05.26.1.bin (old)
 dzOS.2019.05.27.7.bin (old)
 	ld shows file size in decimal notation
 
-dzOS.2022.07.19.16.bin (latest)
+dzOS.2022.07.19.16.bin (old)
     BIOS & Kernel talk to Serial Interface to communicate with the Keyboard
     BIOS & Kernel talk with the Video Interface to generate VGA output
     Dropped FAT16 and implemented my own file system (DZFS). For now read only with 1 partition
@@ -22,5 +22,11 @@ dzOS.2022.07.19.16.bin (latest)
 dzOS.2022.07.20.21.bin (old)
     Solved bug in 'cat' and 'run' commands.
 
-dzOS.2022.08.09.59.bin (latest)
+dzOS.2022.08.09.59.bin (old)
     Implemented ROM paging and Jumpblocks.
+
+dzOS.2022.08.26.8.bin (current)
+    Added commands: save, crc16
+    Solved bug that allowed file commands to work with partial filenames
+    Added partial support for backspace (works well at the end of the line, but not so well in the middle)
+    BIOS, Kernel and CLI are now set as v0.1.0 until I decide are stable enough toi move to v1.0.0

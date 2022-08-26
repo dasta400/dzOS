@@ -112,3 +112,26 @@ Jumpblocks also allow me to change the subroutines in DZOS without altering the 
 ## DZOS Compatibility
 
 It works with [RC2014](https://rc2014.co.uk/). You just need to assemble using the included *portmap_RC2014.inc*, by creating a symbolic link: ```ln -s portmap_RC2014.inc portmappings.inc```
+
+---
+
+## Versioning System
+
+### Releases
+
+A release of DZOS contains all three parts (referred as *Components*), and is named as *dzOS.yyyy.mm.dd.n.bin*, where:
+
+* ***yyyy*** is the **year** the released binary was created.
+* ***mm***  is the **month** the released binary was created.
+* ***dd*** is the **day** the released binary was created.
+* ***n*** is the **compilation number** within the same day, month and year that the released binary was created.
+
+### Components
+
+As components we understand the **BIOS**, the **Kernel** and the **Command-Line Interface (CLI)**. These components are versioned as *component_name v* and then *maj.min.patch* (e.g. Kernel v0.1.0), where:
+
+* ***maj*** indicates a **major change** in functionality. Some features may be imcompatible with previous major version.
+* ***min*** indicates adding of **new features**.
+* ***patch*** indicates **bug solving** of current functionality/features.
+
+During initial development, until I decide that DZOS is stable enough to be used, all components will have v0.1.0. After that, I will release v1.0.0 and then the *maj.min.patch* will apply.
