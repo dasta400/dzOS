@@ -216,6 +216,7 @@ dump_next:
         jp      z, askmoreorquit        ; we have printed 23 lines. More?
         jp      dump_line               ; print another line
 askmoreorquit:
+        push    DE                      ; backup DE
         push    HL                      ; backup HL
         ld      HL, msg_moreorquit
         ld      A, ANSI_COLR_CYA
@@ -224,6 +225,7 @@ askmoreorquit:
         cp      SPACE                   ; was the SPACE key?
         jp      z, wantsmore            ; user wants more
         pop     HL                      ; yes, user wants more. Restore HL
+        pop     DE                      ; restore DE
         jp      cli_promptloop          ; no, user wants to quit
 wantsmore:
         ; print header
@@ -231,6 +233,7 @@ wantsmore:
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
         pop     HL                      ; restore HL
+        pop     DE                      ; restore DE
         jp      start_dump_line         ; return to start, so we print 23 more lines
 ;------------------------------------------------------------------------------
 ;    run - Starts running instructions from a specific memory address
@@ -732,6 +735,15 @@ crc16_gen_loop:
         call    F_KRN_SERIAL_PRN_WORD
 
         jp      cli_promptloop
+;------------------------------------------------------------------------------
+; clrram - fill the entire free ram with zeros
+;------------------------------------------------------------------------------
+CLI_CMD_CLRRAM:
+        ld      HL, FREERAM_START
+        ld      BC, FREERAM_END - FREERAM_START
+        ld      A, 0
+        call    F_KRN_SETMEMRNG
+        jp      cli_promptloop
 
 ;==============================================================================
 ; Subroutines
@@ -853,11 +865,17 @@ diskcat_print:
         ;   Print each of the 6 digits (without leading zeros)
         ld      IX, CLI_buffer_pgm
         call    F_KRN_SERIAL_WR6DIG_NOLZEROS
-        call    print_a_space
-        call    print_a_space
-        call    print_a_space
-        ; Attributes (RHSE, R=Read Only, H=Hidden, S=System, E=Executable)
+        ld      B, 3                    ; print 3 spaces
+        call    print_n_spaces
+        ;   Attributes (RHSE, R=Read Only, H=Hidden, S=System, E=Executable)
+; ToDo - make it print always in the same column
         call    F_CLI_CF_PRINT_ATTRBS
+        ld      B, 8                    ; print 8 spaces
+        call    print_n_spaces
+        ; Load Address
+; ToDo - make it print always in the same column
+        ld      HL, (CF_cur_file_load_addr)
+        call    F_KRN_SERIAL_PRN_WORD
         
         ; Add CR + LF
         ld      B, 1
@@ -926,6 +944,11 @@ cf_attrb_is_exec:                       ; Yes, print a dot
 print_a_space:
         ld      A, ' '
         call    F_BIOS_SERIAL_CONOUT_A
+        ret
+print_n_spaces:
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
+        djnz    print_n_spaces
         ret
 ;------------------------------------------------------------------------------
 _print_DDMMYYYY:

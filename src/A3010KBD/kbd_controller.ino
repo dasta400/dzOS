@@ -47,13 +47,13 @@
   *         Symbols: `~!@#$%^&*()-_=+[{]}\|;:'",<.>/?
   *         Shift key modifier: for capital alphanumeric letters and symbols
   *         Keypad: 1 to 0, /*#-+. and Enter
+  *         CapsLock key
   *     Not implemented:
   *         Function keys: F1 to F12
   *         Esc key
   *         Tab key
   *         Ctrl keys
   *         Alt keys
-  *         CapsLock key
   *         NumLock key
   *         Special keys: Print, Break, Insert, Home, Delete, etc.
   *         Cursor keys
@@ -77,18 +77,20 @@
 #define LED_NUMLOCK     17
 // Power On LED is connected to +5V
 // Disk Activity LED is connected to CF Card BUSY signal
+#define LED_ON LOW
+#define LED_OFF HIGH
 
 int debouncerCount[NUM_ROWS][NUM_COLS];
 
 /*****************************************************************************/
 void setup() {
-  // Uncomment for debugging Serial.begin(9600);
+  // Uncomment for debugging  Serial.begin(9600);
   Serial1.begin(115200);
   
   // set all LED pins as outputs and turn them OFF (HIGH=OFF, LOW=ON)
-  pinMode(LED_CAPSLOCK,   OUTPUT); digitalWrite(LED_CAPSLOCK,   HIGH);
-  pinMode(LED_SCROLLLOCK, OUTPUT); digitalWrite(LED_SCROLLLOCK, HIGH);
-  pinMode(LED_NUMLOCK,    OUTPUT); digitalWrite(LED_NUMLOCK,    HIGH);
+  pinMode(LED_CAPSLOCK,   OUTPUT); digitalWrite(LED_CAPSLOCK,   LED_OFF);
+  pinMode(LED_SCROLLLOCK, OUTPUT); digitalWrite(LED_SCROLLLOCK, LED_OFF);
+  pinMode(LED_NUMLOCK,    OUTPUT); digitalWrite(LED_NUMLOCK,    LED_OFF);
 
   // set all ROWS pins as input pull-up
   for(int r=0; r<NUM_ROWS; r++){
@@ -147,10 +149,32 @@ bool check_modifer_key_shift(){
 
 /*****************************************************************************/
 void sendKey(int row, int col, bool shift_pressed){
-  if(shift_pressed){
-    Serial1.write(keyMap_shift[row][col]);
-  }else{
-    Serial1.write(keyMap_normal[row][col]);
+  int pressed_key = keyMap_normal[row][col];
+  
+  switch(keyMap_normal[row][col]){
+    case KEY_CAPS_LOCK:
+      if(capslock_on){
+        digitalWrite(LED_CAPSLOCK, LED_OFF);
+        capslock_on = false;
+      }else{
+        digitalWrite(LED_CAPSLOCK, LED_ON);
+        capslock_on = true;
+      }
+      break;
+    case KEY_LEFT_SHIFT:
+      // Do not send key press
+      break;
+    default:
+      if(shift_pressed || (capslock_on && pressed_key >= 97 && pressed_key <= 122)){
+        // Uncomment for debugging        Serial.print("Shifted: ");
+        // Uncomment for debugging        Serial.println(keyMap_shift[row][col]);
+        Serial1.write(keyMap_shift[row][col]);
+      }else{
+        // Uncomment for debugging        Serial.print("Normal: ");
+        // Uncomment for debugging        Serial.println(keyMap_normal[row][col]);
+        Serial1.write(keyMap_normal[row][col]);
+      }
+      break;
   }
 }
 

@@ -30,13 +30,15 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
         * Number: 1 to 0
         * Symbols: `~!@#$%^&*()-_=+[{]}\|;:'",<.>/?
         * Shift key modifier: for capital alphanumeric letters and symbols
+        * CapsLock key modifier
+        * LEDs: Power, CapsLock, Disk activity
         * Keypad: 1 to 0, /*#-+. and Enter
       * Not implemented:
         * Function keys: F1 to F12
-        * Control keys: Esc, Tab, Ctrl, Alt, CapsLock, NumLock, Backspace, Cursor
+        * Control keys: Esc, Tab, Ctrl, Alt, NumLock, Backspace, Cursor
         * Special keys: Print, Break, Insert, Home, Delete, etc.
         * Multiple modifier keys (e.g. Ctrl + Shift + key, Alt + Shift + key)
-        * LEDs: CapsLock, Scroll Lock, Num Lock, Power, Disk activity
+        * LEDs: Scroll Lock, Num Lock
         * Pound key
     * **Power Supply**: 12V External Power Supply with 5V/3A Regulator
     * **Removable storage**: 128 MB CompactFlash formatted with DZFS (1 single partition)
@@ -80,12 +82,16 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
           * **date**: shows the current date (my RTC circuit is not yet ready, so date is hardcoded to 12/08/2022)
           * **time**: shows the current time (my RTC circuit is not yet ready, so date is hardcoded to 16:24:45)
           * **crc16 *[address_start]*,*[address_end]***: Generates and prints a 16-bit cyclic redundancy check (CRC) based on the IBM Binary Synchronous Communications protocol (BSC or Bisync), for the bytes between start and end address.
+          * **clrram**: fills with zeros the entire Free RAM area (i.e. from 0x4420 to 0xFFFF).
     * **TODOs**:
       * ✔ <del>Do not allow renaming System or Read Only files.</del>
       * ✔ <del>Do not allow deleting System or Read Only files.</del>
       * ✔ <del>Disable disk commands if at boot the CF card was detected as not formatted.</del>
+      * Make "*Attributes*" and "*Load Address*", of command *cat*, to print in the same column.
+      * When *load* or *run*, if the file has the attribute *E*, ignore the load address stored in BAT and instead load at the address specified in the binary.
     * **BUGS**:
-      * ✔ <del>*run*, *rename*, *delete* and *chgaatr*,</del> are not taking in consideration the full filename (e.g. *disk* is acting on file *diskinfo*)
+      * ✔ <del>*run*, *rename*, *delete* and *chgaatr*, are not taking in consideration the full filename (e.g. *disk* is acting on file *diskinfo*)</del> 
+      * ✔ <del>Keyboard controller is sending character for each press of special keys (e.g. Shift)</del>
 
 ---
 

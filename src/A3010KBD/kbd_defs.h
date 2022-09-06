@@ -64,53 +64,53 @@
 #define CAPSLOCK_ROW 15
 
 // Modifier keys
-#define KEY_CAPS_LOCK			0x00		// Not implemented
+#define KEY_CAPS_LOCK			0x05
 #define KEY_LEFT_CTRL			0x01
-#define KEY_LEFT_SHIFT			0x02
+#define KEY_LEFT_SHIFT		0x02
 #define KEY_LEFT_ALT			0x04
-#define KEY_RIGHT_SHIFT			0x12
-#define KEY_RIGHT_CTRL			0x11
+#define KEY_RIGHT_SHIFT		0x12
+#define KEY_RIGHT_CTRL		0x11
 #define KEY_RIGHT_ALT			0x14
 
 // Function keys
-#define KEY_F1					0x00		// Not implemented
-#define KEY_F2					0x00		// Not implemented
-#define KEY_F3					0x00		// Not implemented
-#define KEY_F4					0x00		// Not implemented
-#define KEY_F5					0x00		// Not implemented
-#define KEY_F6					0x00		// Not implemented
-#define KEY_F7					0x00		// Not implemented
-#define KEY_F8					0x00		// Not implemented
-#define KEY_F9					0x00		// Not implemented
-#define KEY_F10					0x00		// Not implemented
-#define KEY_F11					0x00		// Not implemented
-#define KEY_F12					0x00		// Not implemented
+#define KEY_F1					  0x00		// Not implemented
+#define KEY_F2					  0x00		// Not implemented
+#define KEY_F3					  0x00		// Not implemented
+#define KEY_F4					  0x00		// Not implemented
+#define KEY_F5					  0x00		// Not implemented
+#define KEY_F6					  0x00		// Not implemented
+#define KEY_F7					  0x00		// Not implemented
+#define KEY_F8					  0x00		// Not implemented
+#define KEY_F9					  0x00		// Not implemented
+#define KEY_F10					  0x00		// Not implemented
+#define KEY_F11					  0x00		// Not implemented
+#define KEY_F12					  0x00		// Not implemented
 
 // Symbol keys
-#define KEY_POUND				0x00		// Not implemented
+#define KEY_POUND				  0x00		// Not implemented
 
 // Special keys
-#define KEY_ESC					0x00		// Not implemented
-#define KEY_TAB					0x00		// Not implemented
+#define KEY_ESC					  0x00		// Not implemented
+#define KEY_TAB					  0x00		// Not implemented
 #define KEY_BACKSPACE			0x00		// Not implemented
 #define KEY_RETURN				0x0D
-#define KEY_PRINTSCREEN			0x00		// Not implemented
-#define KEY_SCROLL_LOCK			0x00		// Not implemented
-#define KEY_PAUSE				0x00		// Not implemented
+#define KEY_PRINTSCREEN		0x00		// Not implemented
+#define KEY_SCROLL_LOCK		0x00		// Not implemented
+#define KEY_PAUSE				  0x00		// Not implemented
 #define KEY_INSERT				0x00		// Not implemented
-#define KEY_HOME				0x00		// Not implemented
+#define KEY_HOME				  0x00		// Not implemented
 #define KEY_PAGE_UP				0x00		// Not implemented
 #define KEY_DELETE				0x00		// Not implemented
-#define KEY_END					0x00		// Not implemented
+#define KEY_END					  0x00		// Not implemented
 #define KEY_PAGE_DOWN			0x00		// Not implemented
-#define KEY_UP					0x00		// Not implemented
-#define KEY_DOWN				0x00		// Not implemented
-#define KEY_RIGHT				0x00		// Not implemented
-#define KEY_LEFT				0x00		// Not implemented
+#define KEY_UP					  0x00		// Not implemented
+#define KEY_DOWN				  0x00		// Not implemented
+#define KEY_RIGHT				  0x00		// Not implemented
+#define KEY_LEFT				  0x00		// Not implemented
 
 // Keypad keys
 #define KEY_NUM_LOCK			0x00		// Not implemented
-#define KEY_ENTER				0x0D
+#define KEY_ENTER				  0x0D
 
 bool capslock_on;
 bool modifier_key;
@@ -224,9 +224,9 @@ bool modifierkey_shift;
  *      Numpad 0           15      8
  */
 
-// Pins for Teensy++ 2.0     0   1   2    3    4   5   6   7   8   9  10  11  12  13  14  15
-// bottom cable -> columns (B7, D0, D1,  D2,  D3, D4, D5, D7, E0, E1, C0, C1, C2, C3)
-int colPins[NUM_COLS] =    {27,  0,  1,  14,  15,  4,  5,  7,  8,  9, 10, 11, 12, 13};
+//                          Pins on Teensy++ 2.0
+// bottom cable -> columns (B7, D0, D4,  D5,  D6, D7, E0, E1, C0, C1, C2, C3, C4, C5)
+int colPins[NUM_COLS] =    { 0,  1,  4,   5,   6,  7,  8,  9, 10, 11, 12, 13, 14, 15                                                                     };
 // top cable ----> rows    (F6, F5, F4, F3, F2, F1, F0, E6, E7, B0, B1, B2, B3, B4, B5, B6)
 int rowPins[NUM_ROWS] =    {44, 43, 42, 41, 40, 39, 38, 18, 19, 20, 21, 22, 23, 24, 25, 26};
 

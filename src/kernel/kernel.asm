@@ -78,7 +78,7 @@
         ld      DE, tmp_addr1
         call    F_KRN_BCD_TO_ASCII
         ld      IX, tmp_addr1
-        call    KRN_SERIAL_WR6DIG_NOLZEROS
+        call    F_KRN_SERIAL_WR6DIG_NOLZEROS
         ld      HL, krn_msg_ram_trail
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR

@@ -317,9 +317,9 @@ msg_cf_cat_title:
         .BYTE   CR, LF
         .BYTE   "Disk Catalogue", CR, LF, 0
 msg_cf_cat_sep:
-        .BYTE   "-----------------------------------------------------------------------------", CR, LF, 0
+        .BYTE   "------------------------------------------------------------------------------------------", CR, LF, 0
 msg_cf_cat_detail:
-        .BYTE   "File            Created               Modified              Size   Attributes", CR, LF, 0
+        .BYTE   "File            Created               Modified              Size   Attributes Load Address", CR, LF, 0
 msg_cf_file_loaded:
         .BYTE   CR, LF
         .BYTE   "File loaded successfully at address: $", 0

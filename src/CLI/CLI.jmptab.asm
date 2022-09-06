@@ -46,19 +46,17 @@ msg_help:
         .BYTE   "|-------------|-----------------------------------|--------------------|", CR, LF
         .BYTE   "| Command     | Description                       | Usage              |", CR, LF
         .BYTE   "|-------------|-----------------------------------|--------------------|", CR, LF
-        .BYTE   "| help        | Shows this help                   | help               |", CR, LF
+        .BYTE   "| clrram      | Fill the Free RAM with zeros      | freeram            |", CR, LF
         .BYTE   "| memdump     | Shows contents of memory          | memdump 2200,2300  |", CR, LF
         .BYTE   "| peek        | Show a Memory Address value       | peek 20cf          |", CR, LF
         .BYTE   "| poke        | Change a Memory Address value     | poke 20cf,ff       |", CR, LF
         .BYTE   "| autopoke    | Like poke, but autoincrement addr.| autopoke 2570      |", CR, LF
         .BYTE   "| run         | Run from Memory Address           | run 2570           |", CR, LF
-        .BYTE   "| reset       | Clears RAM and resets the system  | reset              |", CR, LF
         .BYTE   "| halt        | Halt the system                   | halt               |", CR, LF
         .BYTE   "|             |                                   |                    |", CR, LF
         .BYTE   "| cat         | Show Disk Catalogue               | cat                |", CR, LF
         .BYTE   "| run         | Run a file on disk                | run diskinfo       |", CR, LF
         .BYTE   "| load        | Load filename from disk to RAM    | load file1         |", CR, LF
-        .BYTE   "| formatdsk   | Format CompactFlash disk          | formatdsk mydisk,3 |", CR, LF
         .BYTE   "| rename      | Rename a file                     | rename old,new     |", CR, LF
         .BYTE   "| delete      | Deletes a file                    | delete myfile      |", CR, LF
         .BYTE   "| chgattr     | Assigns new Attributes to a file  | chgattr myfile,RSE |", CR, LF
@@ -66,8 +64,6 @@ msg_help:
         .BYTE   "|             |                                   |                    |", CR, LF
         .BYTE   "| date        | Show current date                 | date               |", CR, LF
         .BYTE   "| time        | Show current time                 | time               |", CR, LF
-        .BYTE   "| setdate     | Change current date (ddmmyyyy)    | setdate 30072022   |", CR, LF
-        .BYTE   "| settime     | Change current time (hhmmss)      | settime 193900     |", CR, LF
         .BYTE   "|-------------|-----------------------------------|--------------------|", 0
 
 ;==============================================================================
@@ -83,6 +79,7 @@ _CMD_RUN            .BYTE   "run", 0
 _CMD_HALT           .BYTE   "halt", 0
 _CMD_MEMDUMP        .BYTE   "memdump", 0
 _CMD_CRC16BSC       .BYTE   "crc16", 0
+_CMD_CLRRAM         .BYTE   "clrram", 0
 
 ; CompactFlash commands
 _CMD_CF_CAT         .BYTE   "cat", 0        ; show files catalogue
@@ -128,6 +125,7 @@ cmd_list_table:
         .WORD       _CMD_RTC_SETDATE
         .WORD       _CMD_RTC_SETTIME
         .WORD       _CMD_CRC16BSC
+        .WORD       _CMD_CLRRAM
 
 ; Jump table for available CLI commands
 cmd_jmptable:
@@ -153,11 +151,12 @@ cmd_jmptable:
         .WORD       CLI_CMD_RTC_SETDATE
         .WORD       CLI_CMD_RTC_SETTIME
         .WORD       CLI_CMD_CRC16BSC
+        .WORD       CLI_CMD_CLRRAM
 
 ;==============================================================================
 ; Local Equates
 ;==============================================================================
-JMPTABLE_LENGTH     .EQU        22      ; total number of available commands
+JMPTABLE_LENGTH     .EQU        23      ; total number of available commands
                                         ; in jump table above
 
 CLI_NOCMD:
