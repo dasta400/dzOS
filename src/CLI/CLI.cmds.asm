@@ -305,7 +305,7 @@ CLI_CMD_CF_LOAD_NOCHECK:                ; When called from CLI_CMD_RUN, the para
         ; Search filename in BAT
         ; Check that filename exists
         ld      HL, CLI_buffer_parm1_val
-        call    F_KRN_CHECK_FILE_EXISTS
+        call    F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      z, filename_notfound    ; filename not found, error and exit
         ; yes, continue
         ld      DE, (CF_cur_file_1st_sector)
@@ -401,7 +401,7 @@ CLI_CMD_CF_RENAME:
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; Check that new filename doesn't already exists
         ld      HL, CLI_buffer_parm2_val
-        call    F_KRN_CHECK_FILE_EXISTS
+        call    F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      z, check_old_filename   ; File not found, check that old filename exists
         ; New filename already exists, show error an exit
         ld      HL, error_2004
@@ -411,7 +411,7 @@ CLI_CMD_CF_RENAME:
 check_old_filename:
         ; Check that old filename exists
         ld      HL, CLI_buffer_parm1_val
-        call    F_KRN_CHECK_FILE_EXISTS
+        call    F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      z, filename_notfound    ; Old filename not found, error and exit
         call    is_rosys                ; Old filename found, check that is not Read Only or System
         jp      nz, action_notallowed   ; Yes, error and exit
@@ -452,7 +452,7 @@ CLI_CMD_CF_DELETE:
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
         ; Check that filename exists
         ld      HL, CLI_buffer_parm1_val
-        call    F_KRN_CHECK_FILE_EXISTS
+        call    F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      z, filename_notfound    ; filename not found, error and exit
         call    is_rosys
         jp      nz, action_notallowed   ; Yes, error and exit
@@ -480,7 +480,7 @@ CLI_CMD_CF_CHGATTR:
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; Check that filename exists
         ld      HL, CLI_buffer_parm1_val
-        call    F_KRN_CHECK_FILE_EXISTS
+        call    F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      z, filename_notfound    ; filename not found, error and exit
 chgattr:
         ; Do not allow change attributes on System files
@@ -807,7 +807,7 @@ diskcat_nextsector:
         ld      A, 0                    ; entry counter
 diskcat_print:
         push    AF
-        call    F_KRN_DZFS_BATENTRY2BUFFER
+        call    F_KRN_DZFS_BATENTRY_TO_BUFFER
 
         ; Check if the file should be displayed
         ; i.e. first character is not 7E (deleted)

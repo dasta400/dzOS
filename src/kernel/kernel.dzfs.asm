@@ -84,7 +84,7 @@ load_sector:
         ; call    F_BIOS_CF_READ_SEC
         ret
 ;------------------------------------------------------------------------------
-KRN_DZFS_BATENTRY2BUFFER:
+KRN_DZFS_BATENTRY_TO_BUFFER:
 ; Extracts the data of a BAT entry from the RAM buffer,
 ; and puts the values in RAM SYSVARS
 ; IN <= A = Entry number
@@ -170,7 +170,8 @@ KRN_DZFS_SEC_TO_BUFFER:
 KRN_DZFS_GET_FILE_BATENTRY:
 ; Gets the BAT's entry number of a specified filename
 ; IN <= HL = Address where the filename to check is stored
-; OUT => HL = BAT Entry is stored in the SYSVARS
+; OUT => BAT Entry values are stored in the SYSVARS
+;        DE = $0000 if filename found. Otherwise, whatever value had at start
         ld      (tmp_addr2), HL                 ; Store address of filename to check
         ld      A, 1                            ; BAT starts at sector 1
         ld      (CF_cur_sector), A
@@ -185,7 +186,7 @@ bat_nextsector:
         ld      A, 0                            ; entry counter
 bat_entry:
         push    AF                              ; backup entry counter
-        call    F_KRN_DZFS_BATENTRY2BUFFER
+        call    F_KRN_DZFS_BATENTRY_TO_BUFFER
         ; Get length of specified filename
         ld      A, $00                          ; filename to check ends with zero
         ld      HL, (tmp_addr2)                 ; HL = address of specified filename
@@ -608,7 +609,7 @@ getbat_nextsector:
         ld      A, 0                            ; entry counter
 getbat_entry:
         push    AF                              ; backup entry counter
-        call    F_KRN_DZFS_BATENTRY2BUFFER
+        call    F_KRN_DZFS_BATENTRY_TO_BUFFER
         ; is the entry free (i.e. $00 as first byte of filename)?
         ld      A, (CF_cur_file_name)
         cp      $00                             ; is it a free entry?
@@ -931,6 +932,7 @@ KRN_DZFS_SHOW_DISKINFO_SHORT:
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
         ret
+;------------------------------------------------------------------------------
 KRN_DZFS_SHOW_DISKINFO:
         call    F_KRN_DZFS_SHOW_DISKINFO_SHORT
 
@@ -982,7 +984,7 @@ KRN_DZFS_SHOW_DISKINFO:
         call    F_BIOS_SERIAL_CONOUT_A          ;   two digits
         ret
 ;------------------------------------------------------------------------------
-KRN_CHECK_FILE_EXISTS:
+KRN_DZFS_CHECK_FILE_EXISTS:
 ; Checks if a filename exists in the disk
 ; IN <= HL = Address where the filename to check is stored
 ; OUT => Zero Flag set if filename not found

@@ -83,7 +83,7 @@ KRN_SHIFT_BYTES_BY1:
 ; Moves bytes (by one) to the right
 ; and replaces first byte with bytes counter
 ; IN <= HL = address of last byte to move
-;       B = number of bytes to move
+;       BC = number of bytes to move
         push    BC                      ; backup bytes counter
         ld      D, H
         ld      E, L                    ; DE = HL

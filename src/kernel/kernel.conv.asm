@@ -48,17 +48,17 @@ KRN_ASCIIADR_TO_HEX:
 ;    OUT => HL = converted hex value
 ;
         ; Convert 1st byte
-        ld        H, (IX)                    ; H = hex ASCII value of 1st digit
-        ld        L, (IX + 1)                ; L = hex ASCII value of 2nd digit
-        call    F_KRN_ASCII_TO_HEX        ; A = hex value of HL
-        push    AF                        ; Backup 1st converted byte
+        ld      H, (IX)                 ; H = hex ASCII value of 1st digit
+        ld      L, (IX + 1)             ; L = hex ASCII value of 2nd digit
+        call    F_KRN_ASCII_TO_HEX      ; A = hex value of HL
+        push    AF                      ; Backup 1st converted byte
         ; Convert 2nd byte
-        ld        H, (IX + 2)                ; H = hex ASCII value of 1st digit
-        ld        L, (IX + 3)                ; L = hex ASCII value of 2nd digit
-        call    F_KRN_ASCII_TO_HEX        ; A = hex value of HL
+        ld      H, (IX + 2)             ; H = hex ASCII value of 1st digit
+        ld      L, (IX + 3)             ; L = hex ASCII value of 2nd digit
+        call    F_KRN_ASCII_TO_HEX      ; A = hex value of HL
         ; Store converted bytes into HL
-        pop        HL                        ; Restore 1st converted byte
-        ld        L, A                    ; 2nd converted byte
+        pop     HL                      ; Restore 1st converted byte
+        ld      L, A                    ; 2nd converted byte
         ret
 
 ;------------------------------------------------------------------------------
@@ -69,22 +69,22 @@ KRN_ASCII_TO_HEX:
 ;    IN <= H = Most significant ASCII digit
 ;          L = Less significant ASCII digit
 ;    OUT => A = Converted binary data
-        ld        a, l                     ; get low character
-        call    a2hex                    ; convert it to hexadecimal
-        ld        b, a                    ; save hex value in b
-        ld        a, h                    ; get high character
-        call    a2hex                    ; convert it to hexadecimal
+        ld      a, l                    ; get low character
+        call    a2hex                   ; convert it to hexadecimal
+        ld      b, a                    ; save hex value in b
+        ld      a, h                    ; get high character
+        call    a2hex                   ; convert it to hexadecimal
         rrca                            ; shift hex value to upper 4 bits
         rrca
         rrca
         rrca
-        or        b                        ; or in low hex value
+        or      b                       ; or in low hex value
         ret
 a2hex: ; convert ascii digit to a hex digit
-        sub        '0'                        ; subtract ascii offset
-        cp        10                        ; is it a decimal digit?
-        jr        c, a2hex1                ; yes, then return
-        sub        7                        ; no, then subtract offset for letters
+        sub     '0'                     ; subtract ascii offset
+        cp      10                      ; is it a decimal digit?
+        jr      c, a2hex1               ; yes, then return
+        sub     7                       ; no, then subtract offset for letters
 a2hex1:
         ret
 ;------------------------------------------------------------------------------
@@ -95,27 +95,27 @@ KRN_HEX_TO_ASCII:
 ;    OUT => H = Most significant ASCII digit
 ;            L = Less significant ASCII digit
         ; Convert High Nibble
-        ld        b, a                    ; save original binary value
-        and        0F0h                    ; get high nibble
+        ld      b, a                    ; save original binary value
+        and     0F0h                    ; get high nibble
         rrca                            ; move high nibble to low nibble
         rrca
         rrca
         rrca
-        call    nascii                    ; convert high nibble to ASCII
-        ld        h, a                    ; return high nibble in H
+        call    nascii                  ; convert high nibble to ASCII
+        ld      h, a                    ; return high nibble in H
         ; Convert Low Nibble
-        ld        a, b
-        and     0Fh                        ; get low nibble
-        call    nascii                    ; convert low nibble to ASCII
-        ld        l, a                    ; return low nibble in H
+        ld      a, b
+        and     0Fh                     ; get low nibble
+        call    nascii                  ; convert low nibble to ASCII
+        ld      l, a                    ; return low nibble in H
         ret
 nascii:
-        cp        10
-        jr        c, nas1                    ; jump if high nibble < 10
-        add        a, 7                    ; else add 7 so after adding '0' the
+        cp      10
+        jr      c, nas1                 ; jump if high nibble < 10
+        add     a, 7                    ; else add 7 so after adding '0' the
                                         ; character will be in 'A'..'F'
 nas1:
-        add        a, '0'                    ; add ASCII 0 to make a character
+        add     a, '0'                  ; add ASCII 0 to make a character
         ret
 ;------------------------------------------------------------------------------
 KRN_BIN_TO_BCD4:
@@ -123,30 +123,30 @@ KRN_BIN_TO_BCD4:
 ; (e.g. 0x80 is converted into H = 01, L = 28)
 ; IN <= A = unsigned integer
 ; OUT => H = hundreds digit
-;         L = tens digit
-        ld        h, 255                    ; counter. Start at -1
+;        L = tens digit
+        ld      h, 255                  ; counter. Start at -1
 hundreds:
-        inc        h                        ; add 1 to quotient
-        sub        100                        ; subtract 100
-        jr        nc, hundreds            ; still positive? Yes, loop again
-        add        a, 100                    ; no, add the last 100 back
+        inc     h                       ; add 1 to quotient
+        sub     100                     ; subtract 100
+        jr      nc, hundreds            ; still positive? Yes, loop again
+        add     a, 100                  ; no, add the last 100 back
 
-        ld        l, 255                    ; counter. Start at -1
+        ld      l, 255                  ; counter. Start at -1
 tens:
-        inc        l                        ; add 1 to quotient
-        sub        10                        ; subtratc 10
-        jr        nc, tens                ; still positive? Yes, loop again
-        add        a, 10                    ; no, add the last 10 back
+        inc     l                       ; add 1 to quotient
+        sub     10                      ; subtratc 10
+        jr      nc, tens                ; still positive? Yes, loop again
+        add     a, 10                   ; no, add the last 10 back
 
-        ld        c, a                    ; save units digit in C
-        ld        a, l
+        ld      c, a                    ; save units digit in C
+        ld      a, l
         rlca                            ; move the tens to high nibble of A
         rlca
         rlca
         rlca
-        or        c                        ; or the units digit
+        or      c                       ; or the units digit
 
-        ld        l, a
+        ld      l, a
         ret
 ;------------------------------------------------------------------------------
 KRN_BIN_TO_BCD6:
@@ -155,24 +155,24 @@ KRN_BIN_TO_BCD6:
 ; https://de.comp.lang.assembler.x86.narkive.com/EjY9sEbE/z80-binary-to-ascii
 ;    IN <= HL = unsigned integer
 ;    OUT => CDE = 6-digit BCD
-        ld        bc, 4096                ; counter
-        ld         de, 0
+        ld      bc, 4096                ; counter
+        ld      de, 0
 bin2bcdloop:
         add     hl, hl
-        ld         a, e
+        ld      a, e
         adc     a, a
         daa
-        ld         e, a
-        ld         a, d
+        ld      e, a
+        ld      a, d
         adc     a, a
         daa
-        ld         d, a
-        ld         a, c
+        ld      d, a
+        ld      a, c
         adc     a, a
         daa
-        ld         c, a
-        djnz     bin2bcdloop                ; all bits done? No, continue with more bits
-        ret                                ; yes, exit routine
+        ld      c, a
+        djnz    bin2bcdloop             ; all bits done? No, continue with more bits
+        ret                             ; yes, exit routine
 ;------------------------------------------------------------------------------
 KRN_BCD_TO_ASCII:
 ; Converts 6-digit BCD to hex ASCII string in a memory location
@@ -183,18 +183,18 @@ KRN_BCD_TO_ASCII:
 ;       H = next two digits of 6-digit BCD to convert
 ;       L = last 2 digits of 6-digit BCD to convert
 ; OUT => DE = pointer past end of ASCII string
-        ld         a, c
-        call     uppernibble
-        ld         a, c
+        ld      a, c
+        call    uppernibble
+        ld      a, c
         call    lowernibble
-        ld         a, h
-        call     uppernibble
-        ld         a, h
-        call     lowernibble
-        ld         a, l
-        call     uppernibble
-        ld         a, l
-        jr         lowernibble
+        ld      a, h
+        call    uppernibble
+        ld      a, h
+        call    lowernibble
+        ld      a, l
+        call    uppernibble
+        ld      a, l
+        jr      lowernibble
 uppernibble:
         rra                             ; move high nibble to low nibble
         rra
@@ -206,7 +206,7 @@ lowernibble:
         daa
         adc     a, 40h
         daa
-        ld         (de), a
+        ld      (de), a
         inc     de
         ret
 ;------------------------------------------------------------------------------
