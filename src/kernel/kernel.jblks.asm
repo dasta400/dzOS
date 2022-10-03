@@ -61,6 +61,8 @@ F_KRN_SERIAL_PRN_WORD:              .EXPORT         F_KRN_SERIAL_PRN_WORD
         jp      KRN_SERIAL_PRN_WORD
 F_KRN_SERIAL_BACKSPACE:             .EXPORT         F_KRN_SERIAL_BACKSPACE
         jp      KRN_SERIAL_BACKSPACE
+F_KRN_SERIAL_SEND_ANSI_CODE:        .EXPORT         F_KRN_SERIAL_SEND_ANSI_CODE
+        jp      KRN_SERIAL_SEND_ANSI_CODE
 
         ; String subroutines
 F_KRN_TOUPPER:                      .EXPORT         F_KRN_TOUPPER
@@ -85,6 +87,8 @@ F_KRN_SHIFT_BYTES_BY1:              .EXPORT         F_KRN_SHIFT_BYTES_BY1
         jp      KRN_SHIFT_BYTES_BY1
 F_KRN_CLEAR_MEMAREA:                .EXPORT         F_KRN_CLEAR_MEMAREA
         jp      KRN_CLEAR_MEMAREA
+F_KRN_CLEAR_CFBUFFER:               .EXPORT         F_KRN_CLEAR_CFBUFFER
+        jp      KRN_CLEAR_CFBUFFER
 
         ; Conversion subroutines
 F_KRN_ASCIIADR_TO_HEX:              .EXPORT         F_KRN_ASCIIADR_TO_HEX

@@ -67,32 +67,32 @@ KRN_SERIAL_SETFGCOLR:
 
 colour_is_black:
         ld      DE, KRN_ANSI_COLR_BLK
-        jp      KRN_SEND_ANSI_CODE
+        jp      F_KRN_SERIAL_SEND_ANSI_CODE
 colour_is_red:
         ld      DE, KRN_ANSI_COLR_RED
-        jp      KRN_SEND_ANSI_CODE
+        jp      F_KRN_SERIAL_SEND_ANSI_CODE
 colour_is_green:
         ld      DE, KRN_ANSI_COLR_GRN
-        jp      KRN_SEND_ANSI_CODE
+        jp      F_KRN_SERIAL_SEND_ANSI_CODE
 colour_is_yellow:
         ld      DE, KRN_ANSI_COLR_YLW
-        jp      KRN_SEND_ANSI_CODE
+        jp      F_KRN_SERIAL_SEND_ANSI_CODE
 colour_is_blue:
         ld      DE, KRN_ANSI_COLR_BLU
-        jp      KRN_SEND_ANSI_CODE
+        jp      F_KRN_SERIAL_SEND_ANSI_CODE
 colour_is_magenta:
         ld      DE, KRN_ANSI_COLR_MGT
-        jp      KRN_SEND_ANSI_CODE
+        jp      F_KRN_SERIAL_SEND_ANSI_CODE
 colour_is_cyan:
         ld      DE, KRN_ANSI_COLR_CYA
-        jp      KRN_SEND_ANSI_CODE
+        jp      F_KRN_SERIAL_SEND_ANSI_CODE
 colour_is_white:
 colour_is_other:
         ld      DE, KRN_ANSI_COLR_WHT
-        jp      KRN_SEND_ANSI_CODE
+        jp      F_KRN_SERIAL_SEND_ANSI_CODE
 colour_is_grey:
         ld      DE, KRN_ANSI_COLR_GRY
-        jp      KRN_SEND_ANSI_CODE
+        jp      F_KRN_SERIAL_SEND_ANSI_CODE
 ;------------------------------------------------------------------------------
 KRN_SERIAL_WRSTRCLR:
 ; Output a string to the Console, with a specific foreground colour
@@ -226,17 +226,17 @@ KRN_SERIAL_BACKSPACE:
 ; Routine for when user presses BACKSPACE key
         ld      DE, KRN_ANSI_BSPACE
         ld      B, 3
-        ; jp      KRN_SEND_ANSI_CODE    ; Uncomment if other code is added after
-                                        ; this subroutine, and before the next
+        ; jp      F_KRN_SERIAL_SEND_ANSI_CODE ; Uncomment if other code is added after
+                                            ; this subroutine, and before the next
 ;------------------------------------------------------------------------------
-KRN_SEND_ANSI_CODE:
+KRN_SERIAL_SEND_ANSI_CODE:
 ; Writes an ANSI code to the serial channel
 ; IN <= DE = first byte of ANSI escape code
 ;       B = number of bytes in the ANSI escape code
         ld      A, (DE)
         rst     08h
         inc     DE
-        djnz    KRN_SEND_ANSI_CODE
+        djnz    KRN_SERIAL_SEND_ANSI_CODE
         ret
 ;==============================================================================
 ; ANSI escape codes for Serial (https://en.wikipedia.org/wiki/ANSI_escape_code)

@@ -652,30 +652,105 @@ KRN_DZFS_ADD_BAT_ENTRY:
         ret
 ;------------------------------------------------------------------------------
 KRN_DZFS_CREATE_NEW_FILE:
-; Creates a new file in the disc, from bytes stored in RAM
+; Creates a new file in the CF card, from bytes stored in RAM
 ; Also creates a BAT entry for the created file
 ; IN <= HL = address in memory of first byte to be stored
 ;       BC = number of bytes to be stored
 ;       IX = address where the filename is stored
-        push    HL                      ; backup first byte to be stored
-        push    BC                      ; backup number of bytes
-        push    IX                      ; backup filename address
 
-        call    F_KRN_DZFS_GET_BAT_FREE_ENTRY   ; returns available entry number
+        push    IX                      ; backup filename address
+        push    BC                      ; backup number of bytes
+        push    HL                      ; backup address first byte to be stored
+
+        call    F_KRN_DZFS_GET_BAT_FREE_ENTRY   ; CF_cur_file_entry_number = available entry number
                                                 ; $FFFF means no space for more files
-        ld      HL, (CF_cur_file_entry_number)  ; backup
-        ld      (tmp_addr1), HL                  ;   entry number
-; ToDo - F_KRN_DZFS_CREATE_NEW_FILE - Return error if $FFFF (watch for the PUSH done before)
-        
-        ; Create BAT entry
+        ld      HL, (CF_cur_sector)             ; backup
+        ld      (tmp_addr1), HL                 ;   BAT sector
+        ld      HL, (CF_cur_file_entry_number)  ; backup BAT entry number
         ;   Clear (set to zeros) the BAT entry variables in SYSVARS
         ld      B, 32                   ; BAT entry in SYSVARS is 32 bytes
         ld      IX, CF_cur_file_name    ; IX points to first byte of BAT entry
         call    F_KRN_CLEAR_MEMAREA
+
+        ld      (CF_cur_file_entry_number), HL  ; restore BAT entry number
+        pop     HL                              ; restore address first byte to be stored
+        ld      (CF_cur_file_load_addr), HL     ; and store it in SYSVARS
+        ld      (tmp_addr3), HL                 ; use tmp_addr for adding to original address
+        pop     BC                              ; restore number of bytes
+        ld      (CF_cur_file_size_bytes), BC    ; and store it in SYSVARS
+
+        ; How many sectors to write?
+        ;   File size in sectors
+        ld      DE, 512
+        call    F_KRN_DIV1616           ; BC = BC (num bytes) / DE (512), HL = remainder
+        ; A Block (64 Sectors) can store a single file. Hence, max. is 64
+        ; Therefore, the result of the division will be stored in C
+        ld      A, C
+        ld      (CF_cur_file_size_sectors), A   ; store it in SYSVARS
+        ld      (tmp_byte), A                   ; backup sector counter, to use it to countdown saved sectors
+        ld      (tmp_addr2), HL                 ; store remainder in temporary location for later use will saving
+
+        ;   First Sector (65 + 64 * entry_number)
+        ld      HL, 64
+        ld      DE, (CF_cur_file_entry_number)
+        call    F_KRN_MULTIPLY1616
+        ld      DE, 65
+        add     HL, DE
+        ld      (CF_cur_file_1st_sector), HL  ; 1st Sector address
+        ld      (CF_cur_sector), HL
+        jp      savef_multiple_sectors
+
+savef_one_sector:
+        ; Copy 512 bytes from original address into into CF Buffer
+        ld      BC, 512
+        call    F_KRN_COPYMEM512
+        ; Save CF buffer to disk at SYSVARS.CF_cur_sector
+        call    F_KRN_DZFS_SECTOR_TO_CF
+        ; Add 512 to the address, so that next time we copy the next bytes
+        ld      HL, (tmp_addr3)                 ; HL = start address of bytes to save
+        ld      DE, 512
+        add     HL, DE
+        ld      (tmp_addr3), HL
+        ; Decrement remaining sector counter by 1
+        ld      HL, tmp_byte
+        dec     (HL)
+        ; Increment current sector by 1
+        ld      HL, CF_cur_sector
+        inc     (HL)
+savef_multiple_sectors:
+        call    F_KRN_CLEAR_CFBUFFER
+        ld      HL, (tmp_addr3)             ; HL = start address of bytes to save
+        ld      DE, CF_BUFFER_START
+        ; If CF_cur_file_size_sectors > 0, then need to save multiple sectors
+        ;                                   and n bytes (if tmp_addr2 > 0)
+        ; Else, only need to save n bytes (n=tmp_addr2)
+        ld      A, (tmp_byte)               ; remaining sectors to save
+        cp      0                           ; more sectors?
+        jp      nz, savef_one_sector        ; yes, save sector
+savef_savelastbytes:                        ; no, save last bytes
+        ; Any last bytes to copy?
+        ld      HL, (tmp_addr2)
+        ld      A, H
+        or      L
+        jp      z, savef_batentry           ; no, create BAT entry
+                                            ; yes,  save last bytes
+        ld      HL, CF_cur_file_size_sectors
+        inc     (HL)                        ; +1 sector, for the n bytes
+        call    F_KRN_CLEAR_CFBUFFER
+        ; Copy n bytes from original address into into CF Buffer
+        ld      HL, (tmp_addr3)
+        ld      DE, CF_BUFFER_START
+        ld      BC, (tmp_addr2)
+        call    F_KRN_COPYMEM512
+        ; Save CF buffer to disk at SYSVARS.CF_cur_sector
+        call    F_KRN_DZFS_SECTOR_TO_CF
+
+savef_batentry:
+        ; Create BAT entry
         ;   Filename
         ld      B, 14                   ; filenames are max. 14 characters
         pop     IX                      ; restore filename address
-        ld      HL, CF_cur_file_name    ; HL points to where the filename in SYSVARS
+        ld      HL, CF_cur_file_name
 loop_copy_fname:
         ld      A, (IX)                 ; A = filename character
         cp      0                       ; is it zero (no character)?
@@ -691,151 +766,18 @@ loop_copy_fname_padded:
         ;   Attributes ($08 = executable)
         ld      A, $08
         ld      (CF_cur_file_attribs), A
-        ;   Time created (and set modified as the same)
+        ;   Time created (and set Modified as the same)
         call    F_KRN_DZFS_CALC_FILETIME
         ld      (CF_cur_file_time_created), HL
         ld      (CF_cur_file_time_modified), HL
-        ;   Date created (and set modified as the same)
+        ;   Date created (and set Modified as the same)
         call    F_KRN_DZFS_CALC_FILEDATE
         ld      (CF_cur_file_date_created), HL
         ld      (CF_cur_file_date_modified), HL
-        ;   File size in bytes
-        pop     BC                              ; restore number of bytes
-        ld      (CF_cur_file_size_bytes), BC    ; and store them in BAT
-        ;   File size in sectors
-        ld      DE, 512
-        call    F_KRN_DIV1616           ; BC = BC / DE, HL = remainder
-        ld      A, C
-        ld      (CF_cur_file_size_sectors), A
-        ld      (tmp_addr2), HL         ; store remainder in temporary location for later use will saving
-        ;   If remainder > 0, size_sectors + 1
-        ; ld      A, H
-        ; cp      0
-        ; jp      nz, savef_remainder
-        ; ld      A, L
-        ; cp      0
-        ld      A, H
-        or      L
-        jp      z, savef_noremainder
-savef_remainder:
-        ld      HL, CF_cur_file_size_sectors
-        inc     (HL)                    ; sectors + 1, for the remaining last bytes
-savef_noremainder:
-        ;   BAT entry number
-        ld      HL, (tmp_addr1)
-        ld      (CF_cur_file_entry_number), HL
-        ;   First Sector (65 + 64 * entry_number)
-        ld      HL, 64
-        ld      DE, (CF_cur_file_entry_number)
-        call    F_KRN_MULTIPLY1616
-        ld      DE, 65
-        add     HL, DE
-        ld      (CF_cur_file_1st_sector), HL  ; 1st Sector address
-        ;   Load address
-        pop     HL                      ; restore start mem address to save
-        ld      (CF_cur_file_load_addr), HL
 
-        ; Copy all bytes, in blocks of 512 bytes, from RAM to CF Card Buffer
-; Examples:
-;   bytes   sectors remainder   extra
-;   32768   64      0           0
-;   32200   62      456         456
-;   1024    2       0           0
-;   824     1       312         312
-;   512     1       0           0
-;   320     0       320         320
-;   100     0       100         100
-;         ld      A, (CF_cur_file_size_sectors)   ; number of sectors to save
-;         ld      (tmp_byte), A                   ; store it in temp, to count down
-        
-;   Decrement sector count by 1, so that we don't have a full sector at the end
-;   Loop:
-;       Decrement sector count
-;       If remaining sectors to copy > 0
-;           BC = 512
-;           DE = CF_BUFFER_START
-;           Call F_KRN_COPYMEM512
-;           Call F_KRN_DZFS_SECTOR_TO_CF
-;           Loop
-;       Else
-;           If remaining bytes > 0
-;           BC = remaining bytes
-;           DE = CF_BUFFER_START
-;           Call F_KRN_COPYMEM512
-;           Call F_KRN_DZFS_SECTOR_TO_CF
-
-        ld      A, (CF_cur_file_size_sectors)   ; number of sectors to save
-        ld      (tmp_byte), A                   ; store it in temp, to count down
-        ld      HL, (CF_cur_sector)             ; It contains the BAT's sector. We need it for later
-        ld      (tmp_addr3), HL                 ;   to save the BAT. Hence, backup it up because we'll
-                                                ;   use it now for counting the data sectors
-        ld      A, (CF_cur_file_1st_sector)     ; Set CF_cur_sector to
-        ld      (CF_cur_sector), A              ;   the address of the
-        ld      A, (CF_cur_file_1st_sector + 1) ;   1st sector of the
-        ld      (CF_cur_sector + 1), A          ;   new file
-        ld      HL, (CF_cur_file_load_addr)     ; Store load address in a temporary address, because we'll
-        ld      (tmp_addr1), HL                 ;   use it for incrementing by 512 each time in the loop
-savef_save_sectors:
-        ; ld      HL, tmp_byte            ; start the loop by decrementing sector count down
-        ; dec     (HL)                    ; so that we don't have a full sector at the end
-        ;                                 ; but just the remaining bytes
-        ld      A, (tmp_byte)           ; load A with count down, inside the loop
-        ; Copy 512 bytes from memory address to CF Card Buffer
-        cp      0                               ; sectors > 0?
-        jp      z, savef_lastbytes              ; yes, copy remaining bytes
-        ; call    F_KRN_CLEAR_CFBUFFER
-        ld      BC, 512                         ; no, copy full sector (512 bytes)
-        ld      HL, (tmp_addr1)                 ; Bytes from address at tmp_addr1
-        ld      DE, CF_BUFFER_START             ;   will be copied to the CF buffer
-        call    F_KRN_COPYMEM512
-        ; Save from CF Card Buffer to disc
-        call    F_KRN_DZFS_SECTOR_TO_CF
-        ; Increment sector counter
-        ld      HL, CF_cur_sector
-        inc     (HL)
-        ; Update (+512) CF_cur_sector with next sector address
-        ; ld      HL, (CF_cur_sector)
-        ; ld      DE, 512
-        ; add     HL, DE
-        ; ld      (CF_cur_sector), HL
-        ; Update (+512) tmp_addr1 with the next address from where to get the next 512 bytes to save
-        ld      HL, (tmp_addr1)
-        ld      DE, 512
-        add     HL, DE
-        ld      (tmp_addr1), HL
-        ; Decrement sector count
-        ld      HL, tmp_byte
-        dec     (HL)
-        ; Continue with more bytes
-        jp      savef_save_sectors
-savef_lastbytes:
-        ; tmp_addr2 contains the number of bytes remaining that were not filling an entire sector
-        ; If it's zero, nothing to do (i.e. divison remainder was zero)
-        ; Otherwise save remaining bytes to an entire sector of 512 bytes padded with zeros
-        ld      BC, (tmp_addr2)         ; remaining bytes
-        ; ld      A, B
-        ; cp      0
-        ; jp      nz, savef_savelastbytes
-        ; ld      A, C
-        ; cp      0
-        ld      A, B
-        or      C
-        jp      z, savef_batentry
-; savef_savelastbytes:
-        ; We added 512 in the loop, but last remaining bytes were less
-        ; call    F_KRN_CLEAR_CFBUFFER
-        ld      HL, (tmp_addr1)         ; Bytes from address at tmp_addr1
-        ld      DE, 512                 ; count 512 bytes backwards
-        or      A
-        sbc     HL, DE
-        ld      DE, CF_BUFFER_START     ;   will be copied to the CF buffer
-        call    F_KRN_COPYMEM512
-        ; Save from CF Card Buffer to disc
-        call    F_KRN_DZFS_SECTOR_TO_CF
-savef_batentry:
         ; Save BAT entry to disc
         ;   Read BAT from disc again, to finally update it
-        ld      HL, (tmp_addr3)             ; restore sector number
+        ld      HL, (tmp_addr1)             ; restore BAT sector number
         ld      (CF_cur_sector), HL         ;   where the BAT entry was
         ld      DE, (CF_cur_file_entry_number)
         push    DE                          ; backup BAT entry number

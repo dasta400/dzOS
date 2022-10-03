@@ -1,6 +1,16 @@
 bin/*
 lst/*
 
+# LateX
+docs/*.aux
+docs/*.fdb_latexmk
+docs/*.fls
+docs/*.log
+docs/*.out
+docs/*.synctex.gz
+docs/*.tex~
+docs/*.toc
+
 builddate
 buildnum
 
