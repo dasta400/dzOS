@@ -10,6 +10,7 @@ docs/*.out
 docs/*.synctex.gz
 docs/*.tex~
 docs/*.toc
+docs/*.xcf
 
 builddate
 buildnum

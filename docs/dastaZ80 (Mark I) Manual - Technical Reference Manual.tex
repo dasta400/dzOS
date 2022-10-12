@@ -210,7 +210,9 @@
     $T = 1.1 * R2 * C2$. (e.g. $1.1 * 270000 (270K) * 0.000022 (22\mu F) = 
     6.534 seconds$).
 
-    \includegraphics[scale=0.3]{dastaz80resetcircuit.png}
+    \begin{center}
+        \includegraphics[scale=0.3]{dastaz80resetcircuit.png}
+    \end{center}
 
     The \textit{RESET\_CON1} is connected to a push-button. R5 and C1 are used as 
     anti-debounce for the button.
@@ -298,6 +300,19 @@
     connected via its ribbon cable to a Teensy++ 2.0, which reads the status of
     the keys and sends the keystrokes via the Teensy serial pin to the SIO/2
     Channel A.
+
+    A debouncing delay is applied to avoid the mechanical bouncing effect of
+    keyboards, and keys are sent at a configurable (in the controller code)
+    interval for as long as the key is pressed down.
+
+    The interface sends ASCII values for all printable keys (i.e. alphabetical
+    A to Z, numerical 0 to 9, and symbols lile !, @, \%, etc.). The rest of the
+    keys are interpreted as special keys and special codes between 0x01 to 0x31
+    are sent. With exception of the pound key, which sends the code 0x9C.
+
+    \begin{center}
+        \includegraphics[scale=0.3]{a3010_kbd_layout.png}
+    \end{center}
 
     % ==========================================================================
     \subsection{VGA Interface}
