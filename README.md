@@ -33,13 +33,14 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
         * CapsLock key modifier
         * LEDs: Power, CapsLock, Disk activity
         * Keypad: 1 to 0, /*#-+. and Enter
-      * Not implemented:
         * Function keys: F1 to F12
+        * Pound key
+        * Control keys: Esc, Tab, Ctrl, Alt, Backspace
+      * Not implemented:
         * Control keys: Esc, Tab, Ctrl, Alt, NumLock, Backspace, Cursor
         * Special keys: Print, Break, Insert, Home, Delete, etc.
         * Multiple modifier keys (e.g. Ctrl + Shift + key, Alt + Shift + key)
         * LEDs: Scroll Lock, Num Lock
-        * Pound key
     * **Power Supply**: 12V External Power Supply with 5V/3A Regulator
     * **Removable storage**: 128 MB CompactFlash formatted with DZFS (1 single partition)
     * **Case**: Acorn Archimedes A3010 all-in-one computer case
