@@ -5,6 +5,7 @@ lst/*
 docs/*.aux
 docs/*.fdb_latexmk
 docs/*.fls
+docs/*.lof
 docs/*.log
 docs/*.out
 docs/*.synctex.gz
