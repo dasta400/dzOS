@@ -228,8 +228,8 @@ bool modifierkey_alt;
  */
 
 //                          Pins on Teensy++ 2.0
-// bottom cable -> columns (B7, D0, D4,  D5,  D6, D7, E0, E1, C0, C1, C2, C3, C4, C5)
-int colPins[NUM_COLS] =    { 0,  1,  4,   5,   6,  7,  8,  9, 10, 11, 12, 13, 14, 15};
+// bottom cable -> columns (D0, D1, D4, D5, D6, D7, E0, E1, C0, C1, C2, C3, C4, C5)
+int colPins[NUM_COLS] =    { 0,  1,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15};
 // top cable ----> rows    (F6, F5, F4, F3, F2, F1, F0, E6, E7, B0, B1, B2, B3, B4, B5, B6)
 int rowPins[NUM_ROWS] =    {44, 43, 42, 41, 40, 39, 38, 18, 19, 20, 21, 22, 23, 24, 25, 26};
 
