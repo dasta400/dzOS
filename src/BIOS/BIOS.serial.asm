@@ -6,6 +6,8 @@
 ; by David Asta (June 2022)
 ; Adapted from original routines by Grant Searle 
 ;                                   at http://searle.hostei.com/grant/index.html
+; No need for SIO_PRIMARY_IO anymore, as it jumps to the corresponding subroutine
+;   based on the Status Affects Vector (D2). 
 ;
 ; Version 1.0.0
 ; Created on 04 Jun 2022
@@ -38,6 +40,8 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
+; Restarts are not used directly by dzOS,
+; but are kept for compatibility with for example MS BASIC
 ;------------------------------------------------------------------------------
 ; Transmit a character over Channel A
         .ORG    $0008
@@ -54,17 +58,57 @@
 ; Receive a character over Channel B
         .ORG    $0020
         jp      F_BIOS_SERIAL_CONIN_B
+
 ;------------------------------------------------------------------------------
 ; SIO INTerrupt Vector
         .ORG    $0060
-        .DW	    serial_interrupt
-serial_interrupt:
+        .WORD   int_chB_60              ; Ch B Transmit Buffer Empty
+        .ORG    $0062
+        .WORD   int_chB_62              ; Ch B External/Status Change
+        .ORG    $0064
+        .WORD   int_chB_64              ; Ch B Receive Character Available
+        .ORG    $0066
+        .WORD   int_chB_66              ; Ch B Special Receive Condition
+        .ORG    $0068
+        .WORD   int_chA_68              ; Ch A Transmit Buffer Empty
+        .ORG    $006A
+        .WORD   int_chA_6A              ; Ch A External/Status Change
+        .ORG    $006C
+        .WORD   int_chA_6C              ; Ch A Receive Character Available
+        .ORG    $006E
+        .WORD   int_chA_6E              ; Ch A Special Receive Condition
+
+;------------------------------------------------------------------------------
+int_chB_60:
+        nop
+        ei
+        reti
+int_chB_62:
+        nop
+        ei
+        reti
+int_chB_66:
+        nop
+        ei
+        reti
+int_chA_68:
+        nop
+        ei
+        reti
+int_chA_6A:
+        nop
+        ei
+        reti
+int_chA_6E:
+        nop
+        ei
+        reti
+
+;------------------------------------------------------------------------------
+; Ch A Receive Character Available
+int_chA_6C:
         push    AF
         push    HL
-        ld      A, (SIO_PRIMARY_IO)
-        cp      0
-        jr      nz, serial_int_ch_b
-serial_int_ch_a:
         ld      HL, (SIO_CH_A_IN_PTR)
         inc     HL
         ld      A, L
@@ -90,7 +134,11 @@ rts_ch_a:
         ei
         reti
 
-serial_int_ch_b:
+;------------------------------------------------------------------------------
+; Ch B Receive Character Available
+int_chB_64:
+        push    AF
+        push    HL
         ld      HL, (SIO_CH_B_IN_PTR)
         inc     HL
         ld      A, L
@@ -118,8 +166,8 @@ rts_ch_b:
 
 ;------------------------------------------------------------------------------
 ; Serial input Channel A
-BIOS_SERIAL_CONIN_A:
 ; OUT => A = character read from serial Channel A
+BIOS_SERIAL_CONIN_A:
         push    HL
 waitForCharA:
         ld      A, (SIO_CH_A_BUFFER_USED)
@@ -151,8 +199,8 @@ rtsA1:
 
 ;------------------------------------------------------------------------------
 ; Serial input Channel B
-BIOS_SERIAL_CONIN_B:
 ; OUT => A = character read from serial Channel B
+BIOS_SERIAL_CONIN_B:
         push    HL
 waitForCharB:
         ld      A, (SIO_CH_B_BUFFER_USED)
@@ -188,14 +236,14 @@ rtsB1:
 BIOS_SERIAL_CONOUT_A:
         push    AF
 conoutA1:
-        ; Seems to work fine without this check
-        ; call  CKSIOA                    ; See if SIO channel A is finished transmitting
+        ; Check if still transmitting
         sub     A
         out     (SIO_CH_A_CONTROL), A
         in      A, (SIO_CH_A_CONTROL)   ; Status byte D2=TX Buff Empty, D0=RX char ready	
         rrca                            ; Rotates RX status into Carry Flag,	
         bit     1, A                    ; Set Zero flag if still transmitting character
         jr      z, conoutA1             ; Loop until SIO flag signals ready
+        ; No transmitting, then send
         pop     AF
         out     (SIO_CH_A_DATA), A      ; OUTput the character
         ret
@@ -206,48 +254,17 @@ conoutA1:
 BIOS_SERIAL_CONOUT_B:
         push    AF
 conoutB1:
-        ; Seems to work fine without this check
-        ; call  CKSIOB                    ; See if SIO channel B is finished transmitting
+        ; Check if still transmitting
         sub     A
         out     (SIO_CH_B_CONTROL), A
         in      A, (SIO_CH_B_CONTROL)   ; Status byte D2=TX Buff Empty, D0=RX char ready	
         rrca                            ; Rotates RX status into Carry Flag,	
         bit     1, A                    ; Set Zero flag if still transmitting character
         jr      z, conoutB1             ; Loop until SIO flag signals ready
+        ; No transmitting, then send
         pop     AF
         out     (SIO_CH_B_DATA), A      ; OUTput the character
         ret
-
-;------------------------------------------------------------------------------
-; Filtered Character I/O
-;------------------------------------------------------------------------------
-
-; RDCHR:
-;         rst     10h
-;         cp      LF
-;         jr      z, RDCHR                ; Ignore LF
-;         cp      ESC
-;         jr      nz, RDCHR1
-;         ld      A, CTRLC                ; Change ESC to CTRL-C
-; RDCHR1: ret
-
-; WRCHR:
-;         cp      CR
-;         jr      z, WRCRLF               ; When CR, write CRLF
-;         cp      CLS
-;         jr      z,WR                    ; Allow write of "CLS"
-;         cp      ' '                     ; Don't write out any other control codes
-;         jr      c,NOWR                  ; ie. < space
-; WR:     rst     08h
-; NOWR:	ret
-
-; WRCRLF:
-;         ld      A, CR
-;         rst     08h
-;         ld      A, LF
-;         rst     08h
-;         ld      A, CR
-;         ret
 
 ;------------------------------------------------------------------------------
 ; Initialise SIO/2
@@ -266,78 +283,75 @@ BIOS_SERIAL_INIT:
         ld      (SIO_CH_B_BUFFER_USED), A
 
         ; Initialise SIO/2 Channel A
-        ld      A, $00
-        out     (SIO_CH_A_CONTROL), A   ; Write into WR0: Select WR0
-        ld      A, $18
-        out     (SIO_CH_A_CONTROL), A   ; Write into WR0: Channel Reset
-        
-        ld      A, $04
-        out     (SIO_CH_A_CONTROL), A   ; Write into WR0: Select WR4
-        ld      A, $C4
-        out     (SIO_CH_A_CONTROL), A   ; Write into WR4: Select WR0X64 Clock Mode,
-                                        ;                 8-Bit SYNC Character,
-                                        ;                 1 Stop Bit/Character,
-                                        ;                 Parity Odd,
-                                        ;                 Parity Enable off
-        
-        ld      A, $01
-        out     (SIO_CH_A_CONTROL), A   ; Write into WR0: Select WR1
-        ld      A, $18
-        out     (SIO_CH_A_CONTROL), A   ; Write into WR1: INT on All Rx Characters
+        ld      A, SIO_WR0
+        out     (SIO_CH_A_CONTROL), A   ; Select WR0
+        ld      A, SIO_CH_RESET
+        out     (SIO_CH_A_CONTROL), A   ; Channel Reset
 
-        ld      A, $03
-        out     (SIO_CH_A_CONTROL), A   ; Write into WR0: Select WR3
-        ld      A, $E1
-        out     (SIO_CH_A_CONTROL), A   ; Write into WR3: Rx 8 Bits/Character,
-                                        ;                 Auto Enables,
-                                        ;                 Rx Enable
+        nop                             ; The manual says "After a Z80 SIO 
+                                        ; Channel Reset, add four system clock
+                                        ; cycles before additional commands or
+                                        ; controls write to that channel."
 
-        ld      A, $05
-        out     (SIO_CH_A_CONTROL), A   ; Write into WR0: Select WR5
-        ld      A, SIO_RTS_LOW
-        out     (SIO_CH_A_CONTROL), A   ; Write into WR5: DTR,
-                                        ;                 External SYNC Mode,
-                                        ;                 Tx Enable,
-                                        ;                 RTS
+        ld      A, SIO_WR4
+        out     (SIO_CH_A_CONTROL), A   ; Select WR4
+        ld      A, SIO_N81
+        out     (SIO_CH_A_CONTROL), A   ; 8 bits, no parity, 1 stop bit, 115,200 bps
+
+        ld      A, SIO_WR1
+        out     (SIO_CH_A_CONTROL), A   ; Select WR1
+        ld      A, SIO_INT_ALLRX
+        out     (SIO_CH_A_CONTROL), A   ; Interrupt on all Rx characters (parity irrelevant)
+
+        ld      A, SIO_WR3
+        out     (SIO_CH_A_CONTROL), A   ; Select WR3
+        ld      A, SIO_ENRX
+        out     (SIO_CH_A_CONTROL), A   ; 8 bits per Rx character, 
+                                        ; disable Auto Enables (RTS/CTS flow control),
+                                        ; enable RX
+
+        ld      A, SIO_WR5
+        out     (SIO_CH_A_CONTROL), A   ; Select WR5
+        ld      A, SIO_ENTX
+        out     (SIO_CH_A_CONTROL), A   ; 8 bits per Tx character, 
+                                        ; enable TX, disable DTR & RTS
+
         ; Initialise SIO/2 Channel B
-        ld      A, $00
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR0: Select WR0
-        ld      A, $18
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR0: Channel Reset
-        
-        ld      A, $04
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR0: Select WR4
-        ld      A, $C4
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR4: Select WR0X64 Clock Mode,
-                                        ;                 8-Bit SYNC Character,
-                                        ;                 1 Stop Bit/Character,
-                                        ;                 Parity Odd,
-                                        ;                 Parity Enable off
-        ld      A, $01
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR0: Select WR1
-        ld      A, $18
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR1: INT on All Rx Characters
-        ; ld        A, 00000100b
-        ; out     (SIO_CH_B_CONTROL), A   ; Write into WR1: no interrupt
+        ld      A, SIO_WR0
+        out     (SIO_CH_B_CONTROL), A   ; Select WR0
+        ld      A, SIO_CH_RESET
+        out     (SIO_CH_B_CONTROL), A   ; Channel Reset
 
-        ld      A, $02
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR0: Select WR2
-        ld      A, $60
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR2: Interrupt Vector Address = 60h
+        nop                             ; The manual says "After a Z80 SIO 
+                                        ; Channel Reset, add four system clock
+                                        ; cycles before additional commands or
+                                        ; controls write to that channel."
+        ld      A, SIO_WR4
+        out     (SIO_CH_B_CONTROL), A   ; Select WR4
+        ld      A, SIO_N81
+        out     (SIO_CH_B_CONTROL), A   ; 8 bits, no parity, 1 stop bit, 115,200 bps
 
-        ld      A, $03
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR0: Select WR3
-        ld      A, $E1
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR3: Rx 8 Bits/Character,
-                                        ;                 Auto Enables,
-                                        ;                 Rx Enable
-        ld      A, $05
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR0: Select WR5
-        ld      A, SIO_RTS_LOW
-        out     (SIO_CH_B_CONTROL), A   ; Write into WR5: DTR,
-                                        ;                 External SYNC Mode,
-                                        ;                 Tx Enable,
-                                        ;                 RTS
+        ld      A, SIO_WR1
+        out     (SIO_CH_B_CONTROL), A   ; Select WR1
+        ld      A, SIO_INT_ALLRX
+        out     (SIO_CH_B_CONTROL), A   ; INT on All Rx Characters
+
+        ld      A, SIO_WR2
+        out     (SIO_CH_B_CONTROL), A   ; Select WR2
+        ld      A, SIO_IVT
+        out     (SIO_CH_B_CONTROL), A   ; Interrupt Vector Table
+
+        ld      A, SIO_WR3
+        out     (SIO_CH_B_CONTROL), A   ; Select WR3
+        ld      A, SIO_ENRX
+        out     (SIO_CH_B_CONTROL), A   ; 8 bits per Rx character, 
+                                        ; disable Auto Enables (RTS/CTS flow control),
+                                        ; enable RX
+        ld      A, SIO_WR5
+        out     (SIO_CH_B_CONTROL), A   ; Select WR5
+        ld      A, SIO_ENTX
+        out     (SIO_CH_B_CONTROL), A   ; 8 bits per Tx character, 
+                                        ; enable TX, disable DTR & RTS
 
         ; Set CPU to Interrupt mode 2
         ld      A, $00

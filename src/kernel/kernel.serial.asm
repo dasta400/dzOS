@@ -107,7 +107,7 @@ KRN_SERIAL_WRSTR:
         ld      A, (HL)                 ; Get character of the string
         or      A                       ; is it 00h? (i.e. end of string)
         ret     z                       ; if yes, then return
-        rst     08h                     ; otherwise, print it
+        call    F_BIOS_SERIAL_CONOUT_A  ; otherwise, print it
         inc     HL                      ; pointer to next character of the string
         jr      KRN_SERIAL_WRSTR        ; repeat (until character = 00h)
         ret
@@ -140,10 +140,14 @@ KRN_SERIAL_RDCHARECHO:
 ; Read a character, with echo
 ; Read a character from Console and outputs to the Screen
 ; Read character is stored in register A
-        call    F_BIOS_SERIAL_CONIN_A
+        call    F_BIOS_SERIAL_CONIN_A   ; Read character
+        cp      CLS
+        jp      z, _clear_screen
+        call    F_BIOS_SERIAL_CONOUT_A  ; Echo it
+        ret
+_clear_screen:
+        ld      A, $0C                  ; Clear screen
         call    F_BIOS_SERIAL_CONOUT_A
-; ToDo - Check for special characters
-; ToDo - Allow backspace
         ret
 ;------------------------------------------------------------------------------
 KRN_SERIAL_EMPTYLINES:
@@ -222,26 +226,20 @@ KRN_SERIAL_PRN_WORD:
         call    F_KRN_SERIAL_PRN_BYTE
         ret
 ;------------------------------------------------------------------------------
-KRN_SERIAL_BACKSPACE:
-; Routine for when user presses BACKSPACE key
-        ld      DE, KRN_ANSI_BSPACE
-        ld      B, 3
-        ; jp      F_KRN_SERIAL_SEND_ANSI_CODE ; Uncomment if other code is added after
-                                            ; this subroutine, and before the next
-;------------------------------------------------------------------------------
 KRN_SERIAL_SEND_ANSI_CODE:
 ; Writes an ANSI code to the serial channel
 ; IN <= DE = first byte of ANSI escape code
 ;       B = number of bytes in the ANSI escape code
         ld      A, (DE)
-        rst     08h
+        call    F_BIOS_SERIAL_CONOUT_A
         inc     DE
         djnz    KRN_SERIAL_SEND_ANSI_CODE
         ret
 ;==============================================================================
 ; ANSI escape codes for Serial (https://en.wikipedia.org/wiki/ANSI_escape_code)
 ;==============================================================================
-KRN_ANSI_BSPACE                 .BYTE   $1B, "\b"      ; Move cursor left 1 column
+KRN_ANSI_BSPACE                 .BYTE   $1B, "\b"       ; Move cursor left 1 column
+KRN_ANSI_CLRSCR                 .BYTE   $1B, "[1J"      ; Clear entire screen
 
 KRN_ANSI_COLR_BLK               .BYTE   $1B, "[30m"     ; Colour 0
 KRN_ANSI_COLR_RED               .BYTE   $1B, "[31m"     ; Colour 1

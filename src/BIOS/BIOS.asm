@@ -56,9 +56,6 @@ BIOS_CBOOT:
 ;------------------------------------------------------------------------------
 ; Warm Boot
 BIOS_WBOOT:
-        ld      A, $00                  ; Set SIO/2 Channel A as the default
-        ld      (SIO_PRIMARY_IO), A     ; channel to be used (connected to Keyboard)
-
         jp      KRN_START               ; transfer control to Kernel
 
 ;------------------------------------------------------------------------------
@@ -77,8 +74,7 @@ msg_bios_version:               .EXPORT         msg_bios_version
 ;==============================================================================
 ; BIOS Modules
 ;==============================================================================
-#include "src/BIOS/BIOS.cf.asm"
-#include "src/BIOS/BIOS.rtc.asm"
+#include "src/BIOS/BIOS.ASMDC.asm"
 #include "src/BIOS/BIOS.serial.asm"     ; this include MUST be always the last
 
 ;==============================================================================

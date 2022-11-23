@@ -6,7 +6,6 @@ else
     ASM = ./TASM.EXE
 endif
 ASMFLAGS = -80 -b -a -f00		# For generating .bin files
-#ASMFLAGS = -80 -o10 -g0 -c -a -y	# For generating Intel HEX files
 TARGET = dzOS
 BINARIES = bin/BIOS.bin bin/kernel.bin bin/CLI.bin bin/BIOS.bootstrap.bin bin/romtrail.bin
 MERGE = bin/BIOS.bin bin/kernel.bin bin/CLI.bin bin/BIOS.bootstrap.bin bin/romtrail.bin
@@ -27,13 +26,8 @@ VERSION_ADDR = 9840     # $2670
 YEAR = $(shell date +"%Y")
 MONTH = $(shell date +"%m")
 DAY = $(shell date +"%d")
-BUILDDATE_PREV = $(shell cat builddate)
-BUILDDATE_NOW = $(YEAR)$(MONTH)$(DAY)
-BUILDNUM = $(shell cat buildnum)
-
-ifneq ($(BUILDDATE_NOW), $(BUILDDATE_PREV))
-	BUILDNUM := 1
-endif
+HOUR = $(shell date +"%H")
+MINS = $(shell date +"%M")
 
 .PHONY: directories 
 
@@ -47,14 +41,11 @@ all: clean $(TARGET)
 	@if [ $(cli_fs) -gt $(CLI_MAXSIZE) ]; then echo "$(RED)E R R O R$(MAGENTA): ---> CLI.bin is too big! <---$(WHITE)"; fi
 
 	@echo "$(YELLOW)#### Merging Binaries ####$(WHITE)"
-	@cat $(MERGE) > bin/dzOS.$(YEAR).$(MONTH).$(DAY).$(BUILDNUM).bin
+	@cat $(MERGE) > bin/dzOS.$(YEAR).$(MONTH).$(DAY).$(HOUR).$(MINS).bin
 # the value for seek MUST be the same as KRN_DZOS_VERSION + 1 in equates.inc, and converted into DEC
-	@printf '$(YEAR).$(MONTH).$(DAY).$(BUILDNUM)' | dd of=bin/dzOS.$(YEAR).$(MONTH).$(DAY).$(BUILDNUM).bin bs=1 seek=$(VERSION_ADDR) conv=notrunc status=none
-	@echo "$(MAGENTA)#### dzOS binary (version $(YEAR).$(MONTH).$(DAY).$(BUILDNUM)) succesfully created in bin/ ####$(WHITE)"
-	$(eval BUILDNUM = $(shell echo $$(($(BUILDNUM) + 1))))
-	@echo "$(BUILDNUM)" > buildnum
-	@echo "$(BUILDDATE_NOW)" > builddate;
-	@grep -nir ToDo src/ > ToDo.txt
+	@printf '$(YEAR).$(MONTH).$(DAY).$(HOUR).$(MINS)' | dd of=bin/dzOS.$(YEAR).$(MONTH).$(DAY).$(HOUR).$(MINS).bin bs=1 seek=$(VERSION_ADDR) conv=notrunc status=none
+	@echo "$(MAGENTA)#### dzOS binary (version $(YEAR).$(MONTH).$(DAY).$(HOUR).$(MINS)) succesfully created in bin/ ####$(WHITE)"
+	@grep -nir --exclude-dir=build ToDo src/ > ToDo.txt
 
 directories:
 	@$(MKDIR) bin

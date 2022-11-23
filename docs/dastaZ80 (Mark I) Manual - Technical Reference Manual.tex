@@ -119,7 +119,7 @@
         \end{tabular}
     \end{center}
 
-    The CompactFlash card is referred as \textbf{DISK}.
+    The SD card is referred as \textbf{DISK}.
 
     The 80 column VGA output is referred as \textbf{CONSOLE}.
     
@@ -242,8 +242,8 @@
     \texttt{0xC000}.
 
     The idea is to be able to use the computer with either dzOS or Digital 
-    Research, Inc. CP/M. Of course, the CompactFlash will need to be changed
-    for the specific operating system.
+    Research, Inc. CP/M. Of course, the SD will need to be changed for the
+    specific operating system.
 
     % ==========================================================================
     \subsubsection{RAM chip}
@@ -254,6 +254,98 @@
     As the Z80 can only address 65,536 bytes (64 KB), \textit{A16} on this chip
     is connected to \textit{Ground}, therefore it will always be low, and hence
     only 65,536 bytes (64 KB) are available.
+
+    % ==========================================================================
+    \subsection{ Arduino Serial Multi-Device Controller (ASMDC)}
+    % ==========================================================================
+
+    An Arduino board acting as a \textit{man-in-the-middle} to dastaZ80 to
+    communicate with different devices like Real-Time Clock, NVRAM, SD card,
+    Floppy Disc Drive, and more.
+
+    The dastaZ80's SIO/2 Channel B is connected to an Arduino Mega2560's serial
+    port. The dastaZ80 sends commands (identified by a unique single byte) to
+    the Arduino, which interprets the received command and communicates with the
+    corresponding attached device (e.g. get time from the RTC), and send
+    information back to the dastaZ80.
+
+    % ==========================================================================
+    \subsubsection{Real-Time Clock (RTC) Module}
+    % ==========================================================================
+
+    The RTC is a DS3231 module connected to the Arduino via I2C.
+
+    The available commands (cmd) are:
+
+    \begin{tabular}{| c | m{3.8cm} | m{3cm} | m{3.5cm} | }
+        \hline
+        \rowcolor{lightgray}
+        cmd & Description & (Size) Input & (Size) Output\\
+        \hline
+        C0 & Get RTC info & (0) & (1) (TBD)\\
+        \hline
+        C1 & Check Battery Health & (0) & (1) 0xA0=Healthy\\
+           &                      &     &     0x00=Dead\\
+        \hline
+        C2 & Get current Date (in Hexadecimal) & (0) & (9) CCYYMMDDW\\
+        \hline
+        C3 & Get current Time (in Hexadecimal) & (0) & (6) HHMMSS\\
+        \hline
+        C4 & Set Date & (6) YYMMDD & (0)\\
+        \hline
+        C4 & Set Time & (6) HHMMSS & (0)\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{Micro SD Card Module}
+    % ==========================================================================
+
+    This module is connected to the Arduino via SPI.
+
+    The available commands (cmd) are:
+
+    \begin{tabular}{| c | m{3.8cm} | m{3cm} | m{3.5cm} | }
+        \hline
+        \rowcolor{lightgray}
+        cmd & Description & (Size) Input & (Size) Output\\
+        \hline
+        B0 & SD Card status & (0) & (1) (see below)\\
+        \hline
+        B1 & SD Card Busy & (0) & (1) 0x00=Not Busy\\
+           &              &     &     0x01=Busy\\
+        \hline
+        B2 & Read sector from Image in SD Card & (2) sector\_num\_lsb sector\_num\_msb & (512) Sector contents\\
+        \hline
+        B3 & Write sector into Image in SD Card & (512) Sector contents & (0) \\
+        \hline
+        B4 & Close Image File & (0) & (0)\\
+        \hline
+        B5 & Open Image File & (0) & (0)\\
+        \hline
+    \end{tabular}
+
+     % ==========================================================================
+     \subsubsection{NVRAM}
+     % ==========================================================================
+ 
+     This module is part of the Real-Time Clock module.
+
+     This module is not currently used by dzOS.
+ 
+     The available commands (cmd) are:
+ 
+     \begin{tabular}{| c | m{3.8cm} | m{3cm} | m{3.5cm} | }
+         \hline
+         \rowcolor{lightgray}
+         cmd & Description & (Size) Input & (Size) Output\\
+         \hline
+         D0 & Test  NVRAM can be written & (0) & (1) NVRAM capacity (in bytes) or 0xFF if failure\\
+         \hline
+         D1 & Clear (Set all to zeros) NVRAM & (0) & (0) \\
+         \hline
+     \end{tabular}
+
 
     % ==========================================================================
     \subsection{Serial board}
@@ -279,27 +371,12 @@
     Both channels are initialised for: 115,200 bps, 8N1
 
     % ==========================================================================
-    \subsection{CompactFlash board}
-    % ==========================================================================
-
-    As I never soldered Surface Mount Device (SMD), for the CompactFlash board
-    I chose to use the RC2014 Compact Flash Module which comes already with the
-    CF card adaptor soldered.
-
-    Nevertheless this module is rather simple and does not contain any kind of
-    buffering, hence the module has to be connected very close to the CPU. For
-    dastaZ80 I want to be able to swap CF cards, and therefore I need the card
-    a bit far away from the Main Board. So I modified the RC2014 module to add
-    a 74HCT245 (Octal bus transceiver).
-
-    % ==========================================================================
     \subsection{Keyboard Interface}
     % ==========================================================================
 
-    The keyboard I am using is a Acorn Archimedes A3010. The keyboard matrix is
-    connected via its ribbon cable to a Teensy++ 2.0, which reads the status of
-    the keys and sends the keystrokes via the Teensy serial pin to the SIO/2
-    Channel A.
+    The keyboard is an Acorn Archimedes A3010. The keyboard matrix is connected
+    via its ribbon cable to a Teensy++ 2.0, which reads the status of the keys
+    and sends the keystrokes via the Teensy serial pin to the SIO/2 Channel A.
 
     A debouncing delay is applied to avoid the mechanical bouncing effect of
     keyboards, and keys are sent at a configurable (in the controller code)
@@ -307,12 +384,28 @@
 
     The interface sends ASCII values for all printable keys (i.e. alphabetical
     A to Z, numerical 0 to 9, and symbols lile !, @, \%, etc.). The rest of the
-    keys are interpreted as special keys and special codes between 0x01 to 0x31
-    are sent. With exception of the pound key, which sends the code 0x9C.
+    keys are interpreted as special keys and special codes are sent.
 
-    \begin{center}
-        \includegraphics[scale=0.3]{a3010_kbd_layout.png}
-    \end{center}
+    % ==========================================================================
+    \subsubsection{Special keys}
+    % ==========================================================================
+    
+    Two special keys have been implemented for dastaZ80:
+
+    \begin{itemize}
+        \item \textbf{Break/Pause}: At the press of this key, the screen is
+        cleared.
+        \item \textbf{ScrollLock}: It is possible to connect the Keyboard
+        Controller to a modern PC via USB cable, at the same time that is acting
+        as dastaZ80 keyboard. To avoid that characters are typed in both
+        computers at the same time, the ScrollLock key allows to swicth between
+        sending only to Serial (dastaZ80) or sending only to USB. When the key
+        LED is illuminated, USB is active.
+    \end{itemize}
+
+    % \begin{center}
+    %     \includegraphics[scale=0.3]{a3010_kbd_layout.png}
+    % \end{center}
 
     % ==========================================================================
     \subsection{VGA Interface}

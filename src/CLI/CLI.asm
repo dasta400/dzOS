@@ -63,11 +63,12 @@ cli_promptloop:         .EXPORT     cli_promptloop
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, ANSI_COLR_WHT        ; Set text colour
         call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
-        ; ld      HL, CLI_buffer_cmd      ; address where commands are buffered
-
-        ; ld      A, 0
-        ; ld      (CLI_buffer_cmd), A
         call    F_CLI_READCMD
+        ; If no command was entered (just ENTER pressed), go to cli_promptloop
+        ld      A, (CLI_buffer_cmd)
+        cp      0
+        jp      z, cli_promptloop
+        ; Otherwise, parse it and call corresponding subroutine
         call    F_CLI_PARSECMD
         jp      c, cli_command_unknown
         jp      cli_promptloop
@@ -98,17 +99,10 @@ readcmd_loop:
         ; Test for special keys
         cp      BSPACE                  ; Backspace?
         jp      z, was_backspace        ; yes, don't add to buffer
-;        cp        key_up                    ; up arrow?
-;        jp        z, no_buffer            ; yes, don't add to buffer
-;        cp        key_down                ; down arrow?
-;        jp        z, no_buffer            ; yes, don't add to buffer
-;        cp        key_left                ; left arrow?
-;        jp        z, no_buffer            ; yes, don't add to buffer
-;        cp        key_right                ; right arrow?
-;        jp        z, no_buffer            ; yes, don't add to buffer
-
         cp      CR                      ; ENTER?
         jp      z, end_get_cmd          ; yes, command was fully entered
+        cp      $0C                     ; Break key pressed (CLear Screen)?
+        jp      z, cli_promptloop
 
         ; Store character in buffer
         ld      (HL), A
@@ -117,11 +111,17 @@ no_buffer:
         jp      readcmd_loop            ; don't add last entered char to buffer
         ret
 was_backspace:
-        call    F_KRN_SERIAL_BACKSPACE
         dec     HL                      ; go back 1 unit on this buffer pointer
         ld      (HL), 0                 ; and clear whatever was there before
         dec     IX                      ; go back 2 units
-        dec     IX                      ;    on this buffer pointer
+        dec     IX                      ;    on full command buffer
+        ; Delete character on screen
+        ld      A, SPACE
+        call    F_BIOS_SERIAL_CONOUT_A
+        ; and go back 1 character on screen
+        ld      B, 4
+        ld      DE, ANSI_CURSOR_BACK
+        call    F_KRN_SERIAL_SEND_ANSI_CODE
         jp      readcmd_loop            ; read another character
 was_param:
         ld      A, (CLI_buffer_parm1_val)
@@ -288,10 +288,24 @@ F_CLI_CLRCLIBUFFS:
         ld      BC, 15
         ld      A, 0
         call    F_KRN_SETMEMRNG
+
+        ld      HL, CLI_buffer_pgm
+        ld      BC, 31
+        ld      A, 0
+        call    F_KRN_SETMEMRNG
+
+        ld      HL, CLI_buffer_full_cmd
+        ld      BC, 63
+        ld      A, 0
+        call    F_KRN_SETMEMRNG
+
         ret
 ;==============================================================================
 ; Messages
 ;==============================================================================
+ANSI_CURSOR_BACK:
+        .BYTE   $1B, "[1D"       ; Move cursor left 1 column
+
 msg_cli_version:
         .BYTE   CR, LF
         .BYTE   "CLI    v0.1.0", 0
@@ -312,36 +326,36 @@ msg_crc_ok:
 msg_exeloaded:
         .BYTE   CR, LF
         .BYTE   "Executable loaded at: 0x", 0
-msg_cf_cat_title:
+msg_disk_cat_title:
         .BYTE   CR, LF
         .BYTE   CR, LF
         .BYTE   "Disk Catalogue", CR, LF, 0
-msg_cf_cat_sep:
+msg_disk_cat_sep:
         .BYTE   "------------------------------------------------------------------------------------------", CR, LF, 0
-msg_cf_cat_detail:
+msg_disk_cat_detail:
         .BYTE   "File            Created               Modified              Size   Attributes Load Address", CR, LF, 0
-msg_cf_file_loaded:
+msg_disk_file_loaded:
         .BYTE   CR, LF
         .BYTE   "File loaded successfully at address: $", 0
-msg_cf_file_renamed:
+msg_disk_file_renamed:
         .BYTE   CR, LF
         .BYTE   "File renamed", 0
-msg_cf_file_deleted:
+msg_disk_file_deleted:
         .BYTE   CR, LF
         .BYTE   "File deleted", 0
-msg_cf_file_attr_chged:
+msg_disk_file_attr_chged:
         .BYTE   CR, LF
         .BYTE   "File Attributes changed", 0
-msg_cf_file_saved:
+msg_disk_file_saved:
         .BYTE   CR, LF
         .BYTE   "File saved", 0
-msg_cf_format_confirm:
+msg_disk_format_confirm:
         .BYTE   CR, LF
         .BYTE   "All data in the disk will be destroyed!", CR, LF
         .BYTE   "Do you want to continue? (yes/no) ", 0
-msg_cf_diskinfo_hdr:
+msg_disk_diskinfo_hdr:
         .BYTE   CR, LF
-        .BYTE   "CompactFlash Information", CR, LF, 0
+        .BYTE   "Disk Information", CR, LF, 0
 msg_memdump_hdr:
         .BYTE   CR, LF
         .BYTE   "      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F", CR, LF

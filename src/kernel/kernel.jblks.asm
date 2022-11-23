@@ -38,6 +38,9 @@
 
         .ORG    KRN_JBLK_START
 
+F_KRN_SYSHALT:                      .EXPORT         F_KRN_SYSHALT
+        jp      KRN_SYSHALT
+
         ; Serial subroutines
 F_KRN_SERIAL_SETFGCOLR:             .EXPORT         F_KRN_SERIAL_SETFGCOLR
         jp      KRN_SERIAL_SETFGCOLR
@@ -59,8 +62,6 @@ F_KRN_SERIAL_PRN_NIBBLE:            .EXPORT         F_KRN_SERIAL_PRN_NIBBLE
         jp      KRN_SERIAL_PRN_NIBBLE
 F_KRN_SERIAL_PRN_WORD:              .EXPORT         F_KRN_SERIAL_PRN_WORD
         jp      KRN_SERIAL_PRN_WORD
-F_KRN_SERIAL_BACKSPACE:             .EXPORT         F_KRN_SERIAL_BACKSPACE
-        jp      KRN_SERIAL_BACKSPACE
 F_KRN_SERIAL_SEND_ANSI_CODE:        .EXPORT         F_KRN_SERIAL_SEND_ANSI_CODE
         jp      KRN_SERIAL_SEND_ANSI_CODE
 
@@ -77,6 +78,8 @@ F_KRN_STRCPY:                       .EXPORT         F_KRN_STRCPY
         jp      KRN_STRCPY
 F_KRN_STRLEN:                       .EXPORT         F_KRN_STRLEN
         jp      KRN_STRLEN
+F_KRN_STRLENMAX:                    .EXPORT         F_KRN_STRLENMAX
+        jp      KRN_STRLENMAX
 
         ; Memory subroutines
 F_KRN_SETMEMRNG:                    .EXPORT         F_KRN_SETMEMRNG
@@ -87,8 +90,8 @@ F_KRN_SHIFT_BYTES_BY1:              .EXPORT         F_KRN_SHIFT_BYTES_BY1
         jp      KRN_SHIFT_BYTES_BY1
 F_KRN_CLEAR_MEMAREA:                .EXPORT         F_KRN_CLEAR_MEMAREA
         jp      KRN_CLEAR_MEMAREA
-F_KRN_CLEAR_CFBUFFER:               .EXPORT         F_KRN_CLEAR_CFBUFFER
-        jp      KRN_CLEAR_CFBUFFER
+F_KRN_CLEAR_DISKBUFFER:             .EXPORT         F_KRN_CLEAR_DISKBUFFER
+        jp      KRN_CLEAR_DISKBUFFER
 
         ; Conversion subroutines
 F_KRN_ASCIIADR_TO_HEX:              .EXPORT         F_KRN_ASCIIADR_TO_HEX
@@ -145,10 +148,10 @@ F_KRN_DZFS_CHGATTR_FILE:            .EXPORT         F_KRN_DZFS_CHGATTR_FILE
         jp      KRN_DZFS_CHGATTR_FILE
 F_KRN_DZFS_RENAME_FILE:             .EXPORT         F_KRN_DZFS_RENAME_FILE
         jp      KRN_DZFS_RENAME_FILE
-F_KRN_DZFS_FORMAT_CF:               .EXPORT         F_KRN_DZFS_FORMAT_CF
-        jp      KRN_DZFS_FORMAT_CF
-F_KRN_DZFS_SECTOR_TO_CF:            .EXPORT         F_KRN_DZFS_SECTOR_TO_CF
-        jp      KRN_DZFS_SECTOR_TO_CF
+F_KRN_DZFS_FORMAT_SD:               .EXPORT         F_KRN_DZFS_FORMAT_SD
+        jp      KRN_DZFS_FORMAT_SD
+F_KRN_DZFS_SECTOR_TO_SD:            .EXPORT         F_KRN_DZFS_SECTOR_TO_SD
+        jp      KRN_DZFS_SECTOR_TO_SD
 F_KRN_DZFS_GET_BAT_FREE_ENTRY:      .EXPORT         F_KRN_DZFS_GET_BAT_FREE_ENTRY
         jp      KRN_DZFS_GET_BAT_FREE_ENTRY
 F_KRN_DZFS_ADD_BAT_ENTRY:           .EXPORT         F_KRN_DZFS_ADD_BAT_ENTRY
@@ -163,6 +166,8 @@ F_KRN_DZFS_CHECK_FILE_EXISTS:       .EXPORT         F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      KRN_DZFS_CHECK_FILE_EXISTS
 
         ; RTC subroutines
+F_KRN_RTC_GET_DATE                  .EXPORT         F_KRN_RTC_GET_DATE
+        jp      KRN_RTC_GET_DATE
 F_KRN_RTC_SHOW_TIME                 .EXPORT         F_KRN_RTC_SHOW_TIME
         jp      KRN_RTC_SHOW_TIME
 F_KRN_RTC_SHOW_DATE                 .EXPORT         F_KRN_RTC_SHOW_DATE

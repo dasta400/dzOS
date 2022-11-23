@@ -16,18 +16,11 @@ The free RAM of dastaZ80 is about 55,952 bytes, therefore it makes no sense to h
 
 ## Disk anatomy
 
-A disk (128 MB CompactFlash in our case) is divided into areas:
+A disk is divided into areas:
 
 * **Superblock** = 512 bytes
-* **Partition 1**
-  * **Block Allocation Table (BAT)** = 1 Block
-  * **Data Area** = 1023 Blocks
-* **Partition 2**
-  * **Block Allocation Table (BAT)** = 1 Block
-  * **Data Area** = 1023 Blocks
-* **Partition 3**
-  * **Block Allocation Table (BAT)** = 1 Block
-  * **Data Area** = 1023 Blocks
+* **Block Allocation Table (BAT)** = 1 Block
+* **Data Area** = 1023 Blocks
   
 ## Superblock
 
@@ -45,7 +38,7 @@ The first 512 bytes on the disk contain fundamental information about the disk g
 | $28    | 6              | Volume Time creation. ASCII values (hhmmss).|142232|
 | $2E    | 2              | Bytes per Sector (in Hexadecimal little-endian)|00 02|
 | $30    | 1              | Sectors per Block (in Hexadecimal little-endian)|40|
-| $31    | 1              | Number of Partitions|03|
+| $31    | 1              | Not used.|00|
 | $32 - $64 | 51 | Copyright notice (ASCII value) | Copyright 2022  David Asta    The MIT License (MIT)|
 | $65-$1FF | 477          | Not used (filled with $00)|00 00 00 00 00 00 00 .........|
 
@@ -59,7 +52,7 @@ Offset  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F   0123456789ABCDEF
 0000    AB BA FF 44 5A 46 53 56 31 20 20 35 2A 15 F2 00   ½..DZFSV1  5*§≥
 0010    64 61 73 74 61 5A 38 30 20 4D 61 69 6E 20 20 20   dastaZ80 Main
 0020    32 30 30 36 32 30 32 32 32 30 35 39 33 32 00 02   20062022205932..
-0030    40 03 43 6F 70 79 72 69 67 68 74 20 32 30 32 32   @.Copyright 2022
+0030    40 00 43 6F 70 79 72 69 67 68 74 20 32 30 32 32   @.Copyright 2022
 0040    44 61 76 69 64 20 41 73 74 61 20 20 20 20 20 20   David Asta
 0050    54 68 65 20 4D 49 54 20 4C 69 63 65 6E 73 65 20   The MIT License
 0060    28 4D 49 54 29 00 00 00 00 00 00 00 00 00 00 00   (MIT)
@@ -69,7 +62,7 @@ Offset  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F   0123456789ABCDEF
 
 ## Block Allocation Table (BAT)
 
-The BAT is an area of 32 bytes on the disk used to store the details about the files saved in the Data Area, and is comprised of file descriptors called *entry*. Each entry holds information about a single file.
+The BAT is an area of 1 Block (64 Sectors, 32,7682) bytes) on the disk used to store the details about the files saved in the Data Area, and is comprised of file descriptors called *entry*. Each entry (32 bytes) holds information about a single file. The BAT can hold 1,024 entries (32,768 / 32).
 
 For simplicity, each entry works also as index. The first entry describes the first file on the disk, the second entry describes the second file, and so on.
 
@@ -85,16 +78,16 @@ For simplicity, each entry works also as index. The first entry describes the fi
 |        |     | Bit 2 = System |  |
 |        |     | Bit 3 = Executable |  |
 |        |     | Bit 4-7 = Not used|  |
-| $0F    | 2   | **Time created** | 9A F5 |
+| $0F    | 2   | **Time created** | F5 9A|
 |        |     | 5 bits for hour (binary number of hours 0-23)||
 |        |     | 6 bits for minutes (binary number of minutes 0-59)||
 |        |     | 5 bits for seconds (binary number of seconds / 2)||
-| $11    | 2   | **Date created** | 1B 69 |
+| $11    | 2   | **Date created** | 69 1B|
 |        |     | 7 bits for year since 2000 (max. is year 2127)||
 |        |     | 4 bits for month (binary number of month 0-12)||
 |        |     | 5 bits for day (binary number of day 0-31)||
-| $13    | 2   | **Time last modified** (same formula as Time created)|9A F5|
-| $15    | 2   | **Date last modified** (same formula as Date created)|1B 69|
+| $13    | 2   | **Time last modified** (same formula as Time created)|F5 9A|
+| $15    | 2   | **Date last modified** (same formula as Date created)|69 1B|
 | $17    | 2   | **File size in bytes** (little-endian)| 26 00|
 | $19    | 1   | **File size in sectors** (little-endian)| 01|
 | $1A    | 2   | **Entry number** (little-endian)| 00 00|

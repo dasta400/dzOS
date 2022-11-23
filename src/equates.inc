@@ -36,122 +36,156 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-#include "src/portmappings.inc"         ; port mappings for different hardware
+ROMRAM_PAGING               .EQU    $38
 
 ;==============================================================================
 ; ROM positions
 ;==============================================================================
-INITSIO2_END            .EQU    $01D9
+INITSIO2_END                .EQU    $01D9
 
-BIOS_END                .EQU    $133F
-BIOS_JBLK_START         .EQU    BIOS_END + 1
-BIOS_JBLK_END           .EQU    BIOS_JBLK_START + 127
+BIOS_END                    .EQU    $133F
+BIOS_JBLK_START             .EQU    BIOS_END + 1
+BIOS_JBLK_END               .EQU    BIOS_JBLK_START + 127
 
-KRN_START               .EQU    BIOS_JBLK_END + 1
-KRN_END                 .EQU    $267F
-KRN_DZOS_VERSION        .EQU    KRN_END - 15
+KRN_START                   .EQU    BIOS_JBLK_END + 1
+KRN_END                     .EQU    $267F
+KRN_DZOS_VERSION            .EQU    KRN_END - 15
 
-KRN_JBLK_START          .EQU    KRN_END + 1
-KRN_JBLK_END            .EQU    KRN_JBLK_START + 255
+KRN_JBLK_START              .EQU    KRN_END + 1
+KRN_JBLK_END                .EQU    KRN_JBLK_START + 255
 
-CLI_START               .EQU    KRN_JBLK_END + 1
-CLI_END                 .EQU    $3B3F
+CLI_START                   .EQU    KRN_JBLK_END + 1
+CLI_END                     .EQU    $3B3F
 
-BOOSTRAP_START          .EQU    CLI_END + 1
-BOOSTRAP_END            .EQU    BOOSTRAP_START + 255
+BOOSTRAP_START              .EQU    CLI_END + 1
+BOOSTRAP_END                .EQU    BOOSTRAP_START + 255
 
-FREEROM_START           .EQU    BOOSTRAP_END + 1
-FREEROM_END             .EQU    $3FFF
-FREEROM_SIZE            .EQU    FREEROM_END - FREEROM_START
+FREEROM_START               .EQU    BOOSTRAP_END + 1
+FREEROM_END                 .EQU    $3FFF
+FREEROM_SIZE                .EQU    FREEROM_END - FREEROM_START
 
 ;==============================================================================
 ; RAM positions
 ;==============================================================================
-STACK_START             .EQU    $4000               ; Top of the dastaZ80's Stack location
-STACK_END               .EQU    STACK_START + 31    ; Bottom of the dastaZ80's Stack location
+STACK_START                 .EQU    $4000               ; Top of the dastaZ80's Stack location
+STACK_END                   .EQU    STACK_START + 31    ; Bottom of the dastaZ80's Stack location
 
-SYSVARS_START           .EQU    STACK_END + 1
-SYSVARS_END             .EQU    SYSVARS_START + 348
+SYSVARS_START               .EQU    STACK_END + 1
+SYSVARS_END                 .EQU    SYSVARS_START + 348
 
-RESERVED_START          .EQU    SYSVARS_END + 1
-RESERVED_END            .EQU    RESERVED_START + (511 - 349)
+RESERVED_START              .EQU    SYSVARS_END + 1
+RESERVED_END                .EQU    RESERVED_START + (511 - 349)
 
-CF_BUFFER_START         .EQU    RESERVED_END + 1
-CF_BUFFER_END           .EQU    CF_BUFFER_START + 511
+DISK_BUFFER_START           .EQU    RESERVED_END + 1
+DISK_BUFFER_END             .EQU    DISK_BUFFER_START + 511
 
-FREERAM_START           .EQU    CF_BUFFER_END + 1
-FREERAM_END             .EQU    $FFFF
-FREERAM_TOTAL           .EQU    FREERAM_END - FREERAM_START + 1
+FREERAM_START               .EQU    DISK_BUFFER_END + 1
+FREERAM_END                 .EQU    $FFFF
+FREERAM_TOTAL               .EQU    FREERAM_END - FREERAM_START + 1
 
-START_HIGHRAM           .EQU    $8000
+START_HIGHRAM               .EQU    $8000
 
 ;==============================================================================
 ; Key codes over Serial
 ;==============================================================================
-CTRLC                   .EQU    $03     ; Ctrl + C
-LF                      .EQU    $0A     ; Line Feed
-CLS                     .EQU    $0C     ; CLear Screen
-CR                      .EQU    $0D     ; Carriage Return
-ESC                     .EQU    $1B     ; Escape
-SPACE                   .EQU    $20     ; Space
-BSPACE                  .EQU    $7F     ; Backspace
+; CTRLC                   .EQU    $03     ; Ctrl + C
+BSPACE                      .EQU    $08     ; Backspace
+TAB                         .EQU    $09
+LF                          .EQU    $0A     ; Line Feed
+CLS                         .EQU    $80     ; Clear Screen (Break/Pause key)
+CR                          .EQU    $0D     ; Carriage Return
+ESC                         .EQU    $1B     ; Escape
+SPACE                       .EQU    $20     ; Space
 
 ;==============================================================================
 ; SIO/2
 ;==============================================================================
-SIO_BUFFER_SIZE         .EQU    $40
-SIO_FULL_SIZE           .EQU    $30
-SIO_EMPTY_SIZE          .EQU    5
+; Port mapping
+SIO_CH_A_CONTROL            .EQU    $80
+SIO_CH_A_DATA               .EQU    $81
+SIO_CH_B_CONTROL            .EQU    $82
+SIO_CH_B_DATA               .EQU    $83
 
-SIO_RTS_HIGH            .EQU    $0E8
-SIO_RTS_LOW	            .EQU    $0EA
+SIO_BUFFER_SIZE             .EQU    $40
+SIO_FULL_SIZE               .EQU    $30
+SIO_EMPTY_SIZE              .EQU    5
+
+SIO_RTS_HIGH                .EQU    $0E8
+SIO_RTS_LOW	                .EQU    $0EA
+
+; Write Registers
+SIO_WR0                     .EQU    $00
+SIO_WR1                     .EQU    $01
+SIO_WR2                     .EQU    $02
+SIO_WR3                     .EQU    $03
+SIO_WR4                     .EQU    $04
+SIO_WR5                     .EQU    $05
+
+SIO_N81                     .EQU    $C4     ; 8 bits, no parity, 1 stop bit, 115,200 bps
+SIO_ENRX                    .EQU    $C1     ; 8 bits per Rx character, disable Auto Enables (RTS/CTS flow control), enable RX
+SIO_ENTX                    .EQU    $68     ; 8 bits per Tx character, enable TX, disable DTR & RTS
+SIO_INT_ALLRX               .EQU    $1C     ; Interrupt on all Rx characters (parity irrelevant), enable Status Affects Vector
+SIO_IVT                     .EQU    $60     ; Interrupt Vector Table Address
+SIO_CH_RESET                .EQU    $18     ; Channel Reset
 
 ;==============================================================================
 ; ANSI Terminal colours
 ;==============================================================================
-ANSI_COLR_BLK           .EQU    0
-ANSI_COLR_RED           .EQU    1
-ANSI_COLR_GRN           .EQU    2
-ANSI_COLR_YLW           .EQU    3
-ANSI_COLR_BLU           .EQU    4
-ANSI_COLR_MGT           .EQU    5
-ANSI_COLR_CYA           .EQU    6
-ANSI_COLR_WHT           .EQU    7
-ANSI_COLR_GRY           .EQU    8
+ANSI_COLR_BLK               .EQU    0
+ANSI_COLR_RED               .EQU    1
+ANSI_COLR_GRN               .EQU    2
+ANSI_COLR_YLW               .EQU    3
+ANSI_COLR_BLU               .EQU    4
+ANSI_COLR_MGT               .EQU    5
+ANSI_COLR_CYA               .EQU    6
+ANSI_COLR_WHT               .EQU    7
+ANSI_COLR_GRY               .EQU    8
 
 ;==============================================================================
-; CompactFlash
+; dastaZ80 File System (DZFS )
 ;==============================================================================
-; Command Block Registers (from ATA rev3.2 document)
-CF_DATA                 .EQU    CFLASH_PORT + $00   ; Data (Read/Write)
-CF_ERROR                .EQU    CFLASH_PORT + $01   ; Error register (Read)
-CF_FEATURES	            .EQU    CFLASH_PORT + $01   ; Features (Write)
-CF_SECTORCNT            .EQU    CFLASH_PORT + $02   ; Sector Count (Read/Write)
-CF_SECTORNUM            .EQU    CFLASH_PORT + $03   ; Sector Number (Read/Write)
-CF_CYL_LO               .EQU    CFLASH_PORT + $04   ; Cylinder Low (Read/Write)
-CF_CYL_HI               .EQU    CFLASH_PORT + $05   ; Cylinder High (Read/Write)
-CF_DRIVEHEAD            .EQU    CFLASH_PORT + $06   ; Drive/Head (Read/Write)
-CF_STATUS               .EQU    CFLASH_PORT + $07   ; Status (Read)
-CF_CMD                  .EQU    CFLASH_PORT + $07   ; Command (Write)
-CF_LBA0                 .EQU    CFLASH_PORT + $03   ; LBA Bits 0-7 (Read/Write)
-CF_LBA1                 .EQU    CFLASH_PORT + $04   ; LBA Bits 8-15 (Read/Write)
-CF_LBA2                 .EQU    CFLASH_PORT + $05   ; LBA Bits 16-23 (Read/Write)
-CF_LBA3                 .EQU    CFLASH_PORT + $06   ; LBA Bits 24-27 (Read/Write)
-; Commands
-CF_COMMAND_IDENT_DRIVE  .EQU    $EC                 ; Identify Drive
-CF_CMD_SET_FEATURE      .EQU    $EF                 ; Set Features
-CF_CMD_SET_FEAT_8BIT_ON .EQU    $01                 ; Enable 8-bit data transfers
-CF_CMD_READ_SECTOR      .EQU    $20                 ; Read Sector(s) (w/retry)
-CF_CMD_WRITE_SECTOR     .EQU    $30                 ; Write Sector(s) (w/retry)
-CF_CMD_NO_CACHE         .EQU    $82                 ; Disable Write Cache
+DZFS_SIGNATURE              .EQU    $BAAB   ; in little-endian will become ABBA ;-)
+DZFS_BYTES_PER_SECTOR       .EQU    $0200
+DZFS_SECTORS_PER_BLOCK      .EQU    $40
 ; Superblock offsets
-CF_SBLOCK_SIGNATURE     .EQU    CF_BUFFER_START
-CF_SBLOCK_DSKSTATE      .EQU    CF_BUFFER_START + $02
-CF_SBLOCK_FSID          .EQU    CF_BUFFER_START + $03
-CF_SBLOCK_SERNUM        .EQU    CF_BUFFER_START + $0B
-CF_SBLOCK_LABEL         .EQU    CF_BUFFER_START + $10
-CF_SBLOCK_DATECREA      .EQU    CF_BUFFER_START + $20
-CF_SBLOCK_TIMECREA      .EQU    CF_BUFFER_START + $28
-CF_SBLOCK_BYTESSEC      .EQU    CF_BUFFER_START + $2E
-CF_SBLOCK_SECBLOCK      .EQU    CF_BUFFER_START + $30
-CF_SBLOCK_NUMPARTITIONS .EQU    CF_BUFFER_START + $31
+DZFS_SBLOCK_SIGNATURE       .EQU    DISK_BUFFER_START
+DZFS_SBLOCK_NOTUSED         .EQU    DISK_BUFFER_START + $02
+DZFS_SBLOCK_FSID            .EQU    DISK_BUFFER_START + $03
+DZFS_SBLOCK_SERNUM          .EQU    DISK_BUFFER_START + $0B
+DZFS_SBLOCK_NOTUSED2        .EQU    DISK_BUFFER_START + $0F
+DZFS_SBLOCK_LABEL           .EQU    DISK_BUFFER_START + $10
+DZFS_SBLOCK_DATECREA        .EQU    DISK_BUFFER_START + $20
+DZFS_SBLOCK_DATECREA_DD     .EQU    DZFS_SBLOCK_DATECREA
+DZFS_SBLOCK_DATECREA_MM     .EQU    DZFS_SBLOCK_DATECREA + 2
+DZFS_SBLOCK_DATECREA_YYYY   .EQU    DZFS_SBLOCK_DATECREA + 4
+DZFS_SBLOCK_TIMECREA        .EQU    DISK_BUFFER_START + $28
+DZFS_SBLOCK_TIMECREA_HH     .EQU    DZFS_SBLOCK_TIMECREA
+DZFS_SBLOCK_TIMECREA_MM     .EQU    DZFS_SBLOCK_TIMECREA + 2
+DZFS_SBLOCK_TIMECREA_SS     .EQU    DZFS_SBLOCK_TIMECREA + 4
+DZFS_SBLOCK_BYTESSEC        .EQU    DISK_BUFFER_START + $2E
+DZFS_SBLOCK_SECBLOCK        .EQU    DISK_BUFFER_START + $30
+DZFS_SBLOCK_NOTUSED3        .EQU    DISK_BUFFER_START + $31
+DZFS_SBLOCK_COPYRIGHT       .EQU    DISK_BUFFER_START + $32
+DZFS_SBLOCK_FILLER          .EQU    DISK_BUFFER_START + $65
+
+;==============================================================================
+; Arduino Serial Multi-Device Controller (ASMDC)
+;==============================================================================
+ASMDC_ID                    .EQU    $A0
+
+SD_CMD_GET_STATUS           .EQU    $B0
+SD_CMD_GET_BUSY             .EQU    $B1
+SD_CMD_READ_SECTOR          .EQU    $B2
+SD_CMD_WRITE_SECTOR         .EQU    $B3
+SD_CMD_PARK_DISKS           .EQU    $B4
+SD_CMD_MOUNT_DISK           .EQU    $B5
+
+RTC_CMD_GET_INFO            .EQU    $C0
+RTC_CMD_GET_BATT            .EQU    $C1
+RTC_CMD_GET_DATE            .EQU    $C2
+RTC_CMD_GET_TIME            .EQU    $C3
+RTC_CMD_SET_DATE            .EQU    $C4
+RTC_CMD_SET_TIME            .EQU    $C5
+RTC_CMD_GET_TEMP            .EQU    $C6
+
+NVRAM_CMD_DETECT            .EQU    $D0

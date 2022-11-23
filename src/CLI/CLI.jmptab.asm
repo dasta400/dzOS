@@ -41,12 +41,10 @@
 ;==============================================================================
 msg_help:
         .BYTE   CR, LF
-        .BYTE   ANSI_COLR_YLW
-        .BYTE   " dzOS Help", CR, LF
+        .BYTE   " This are just some dzOS commands", CR, LF
         .BYTE   "|-------------|-----------------------------------|--------------------|", CR, LF
         .BYTE   "| Command     | Description                       | Usage              |", CR, LF
         .BYTE   "|-------------|-----------------------------------|--------------------|", CR, LF
-        .BYTE   "| clrram      | Fill the Free RAM with zeros      | freeram            |", CR, LF
         .BYTE   "| memdump     | Shows contents of memory          | memdump 2200,2300  |", CR, LF
         .BYTE   "| peek        | Show a Memory Address value       | peek 20cf          |", CR, LF
         .BYTE   "| poke        | Change a Memory Address value     | poke 20cf,ff       |", CR, LF
@@ -69,33 +67,33 @@ msg_help:
 ;==============================================================================
 ; AVAILABLE CLI COMMANDS
 ;==============================================================================
-_CMD_NOCMD          .BYTE   0
-_CMD_HELP           .BYTE   "help", 0
-_CMD_PEEK           .BYTE   "peek", 0
-_CMD_POKE           .BYTE   "poke", 0
-_CMD_AUTOPOKE       .BYTE   "autopoke", 0
-_CMD_RESET          .BYTE   "reset", 0
-_CMD_RUN            .BYTE   "run", 0
-_CMD_HALT           .BYTE   "halt", 0
-_CMD_MEMDUMP        .BYTE   "memdump", 0
-_CMD_CRC16BSC       .BYTE   "crc16", 0
-_CMD_CLRRAM         .BYTE   "clrram", 0
+_CMD_NOCMD              .BYTE   0
+_CMD_HELP               .BYTE   "help", 0
+_CMD_PEEK               .BYTE   "peek", 0
+_CMD_POKE               .BYTE   "poke", 0
+_CMD_AUTOPOKE           .BYTE   "autopoke", 0
+_CMD_RESET              .BYTE   "reset", 0
+_CMD_RUN                .BYTE   "run", 0
+_CMD_HALT               .BYTE   "halt", 0
+_CMD_MEMDUMP            .BYTE   "memdump", 0
+_CMD_CRC16BSC           .BYTE   "crc16", 0
+_CMD_CLRRAM             .BYTE   "clrram", 0
 
-; CompactFlash commands
-_CMD_CF_CAT         .BYTE   "cat", 0        ; show files catalogue
-_CMD_CF_LOAD        .BYTE   "load", 0       ; load filename from CF to RAM
-_CMD_CF_FORMATDSK   .BYTE   "formatdsk", 0  ; format CompactFlash
-_CMD_CF_DISKINFO    .BYTE   "diskinfo", 0   ; show CompactFlash information
-_CMD_CF_RENAME      .BYTE   "rename", 0     ; renames a file
-_CMD_CF_DELETE      .BYTE   "delete", 0     ; deletes a file
-_CMD_CF_CHGATTR     .BYTE   "chgattr", 0    ; changes attributes of a file
-_CMD_CF_SAVE        .BYTE   "save", 0       ; save n bytes to a file
+; Disk commands
+_CMD_DISK_CAT           .BYTE   "cat", 0        ; show files catalogue
+_CMD_DISK_LOAD          .BYTE   "load", 0       ; load filename from DISK to RAM
+_CMD_DISK_FORMATDSK     .BYTE   "formatdsk", 0  ; format disk
+_CMD_DISK_DISKINFO      .BYTE   "diskinfo", 0   ; show disk information
+_CMD_DISK_RENAME        .BYTE   "rename", 0     ; renames a file
+_CMD_DISK_DELETE        .BYTE   "delete", 0     ; deletes a file
+_CMD_DISK_CHGATTR       .BYTE   "chgattr", 0    ; changes attributes of a file
+_CMD_DISK_SAVE          .BYTE   "save", 0       ; save n bytes to a file
 
 ; RTC commands
-_CMD_RTC_DATE       .BYTE   "date", 0
-_CMD_RTC_TIME       .BYTE   "time", 0
-_CMD_RTC_SETDATE    .BYTE   "setdate", 0
-_CMD_RTC_SETTIME    .BYTE   "settime", 0
+_CMD_RTC_DATE           .BYTE   "date", 0
+_CMD_RTC_TIME           .BYTE   "time", 0
+_CMD_RTC_SETDATE        .BYTE   "setdate", 0
+_CMD_RTC_SETTIME        .BYTE   "settime", 0
 
 ;==============================================================================
 ; TABLES
@@ -112,14 +110,14 @@ cmd_list_table:
         .WORD       _CMD_RUN
         .WORD       _CMD_HALT
         .WORD       _CMD_MEMDUMP
-        .WORD       _CMD_CF_CAT
-        .WORD       _CMD_CF_LOAD
-        .WORD       _CMD_CF_FORMATDSK
-        .WORD       _CMD_CF_DISKINFO
-        .WORD       _CMD_CF_RENAME
-        .WORD       _CMD_CF_DELETE
-        .WORD       _CMD_CF_CHGATTR
-        .WORD       _CMD_CF_SAVE
+        .WORD       _CMD_DISK_CAT
+        .WORD       _CMD_DISK_LOAD
+        .WORD       _CMD_DISK_FORMATDSK
+        .WORD       _CMD_DISK_DISKINFO
+        .WORD       _CMD_DISK_RENAME
+        .WORD       _CMD_DISK_DELETE
+        .WORD       _CMD_DISK_CHGATTR
+        .WORD       _CMD_DISK_SAVE
         .WORD       _CMD_RTC_DATE
         .WORD       _CMD_RTC_TIME
         .WORD       _CMD_RTC_SETDATE
@@ -138,14 +136,14 @@ cmd_jmptable:
         .WORD       CLI_CMD_RUN
         .WORD       CLI_CMD_HALT
         .WORD       CLI_CMD_MEMDUMP
-        .WORD       CLI_CMD_CF_CAT
-        .WORD       CLI_CMD_CF_LOAD
-        .WORD       CLI_CMD_CF_FORMATDSK
-        .WORD       CLI_CMD_CF_DISKINFO
-        .WORD       CLI_CMD_CF_RENAME
-        .WORD       CLI_CMD_CF_DELETE
-        .WORD       CLI_CMD_CF_CHGATTR
-        .WORD       CLI_CMD_CF_SAVE
+        .WORD       CLI_CMD_DISK_CAT
+        .WORD       CLI_CMD_DISK_LOAD
+        .WORD       CLI_CMD_DISK_FORMATDSK
+        .WORD       CLI_CMD_DISK_DISKINFO
+        .WORD       CLI_CMD_DISK_RENAME
+        .WORD       CLI_CMD_DISK_DELETE
+        .WORD       CLI_CMD_DISK_CHGATTR
+        .WORD       CLI_CMD_DISK_SAVE
         .WORD       CLI_CMD_RTC_DATE
         .WORD       CLI_CMD_RTC_TIME
         .WORD       CLI_CMD_RTC_SETDATE

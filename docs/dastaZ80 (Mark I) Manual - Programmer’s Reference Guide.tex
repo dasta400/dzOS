@@ -132,7 +132,7 @@
         \end{tabular}
     \end{center}
 
-    The CompactFlash card is referred as \textbf{DISK}.
+    The SD card is referred as \textbf{DISK}.
 
     The 80 column VGA output is referred as \textbf{CONSOLE}.
     
@@ -238,48 +238,47 @@
         \multicolumn{2}{|c|}{} & \texttt{0x40A5} & SIO\_CH\_B\_IN\_PTR & 2\\
         \multicolumn{2}{|c|}{} & \texttt{0x40A7} & SIO\_CH\_B\_RD\_PTR & 2\\
         \multicolumn{2}{|c|}{} & \texttt{0x40A9} & SIO\_CH\_B\_BUFFER\_USED & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40AA} & SIO\_PRIMARY\_IO & 1\\
         \hline
-        \multicolumn{2}{|c|}{\multirow{2}{*}{\textbf{CF Superblock}}} & \texttt{0x40AB} & CF\_is\_formatted & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40AC} & CF\_cur\_partition & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40AD} & CF\_cur\_sector & 2\\
+        \multicolumn{2}{|c|}{\multirow{2}{*}{\textbf{DISK Superblock}}} & \texttt{0x40AA} & DISK\_is\_formatted & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40AB} & DISK\_show\_deleted & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40AC} & DISK\_cur\_sector & 2\\
         \hline
-        \multicolumn{2}{|c|}{\multirow{11}{*}{\textbf{CF BAT}}} & \texttt{0x40BD} & CF\_cur\_file\_attribs & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40BE} & CF\_cur\_file\_time\_created & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40C0} & CF\_cur\_file\_date\_created & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40C2} & CF\_cur\_file\_time\_modified & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40C4} & CF\_cur\_file\_date\_modified & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40C6} & CF\_cur\_file\_size\_bytes & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40C8} & CF\_cur\_file\_size\_sectors & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40C9} & CF\_cur\_file\_entry\_number & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40CB} & CF\_cur\_file\_1st\_sector & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40CD} & CF\_cur\_file\_load\_addr & 2\\
+        \multicolumn{2}{|c|}{\multirow{11}{*}{\textbf{DISK BAT}}} & \texttt{0x40BC} & DISK\_cur\_file\_attribs & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40BD} & DISK\_cur\_file\_time\_created & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40BF} & DISK\_cur\_file\_date\_created & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40C1} & DISK\_cur\_file\_time\_modified & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40C3} & DISK\_cur\_file\_date\_modified & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40C5} & DISK\_cur\_file\_size\_bytes & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40C7} & DISK\_cur\_file\_size\_sectors & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40C8} & DISK\_cur\_file\_entry\_number & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40CA} & DISK\_cur\_file\_1st\_sector & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40CC} & DISK\_cur\_file\_load\_addr & 2\\
         \hline
-        \multicolumn{2}{|c|}{\multirow{5}{*}{\textbf{CLI}}} & \texttt{0x40CF} & CLI\_buffer\_cmd & 16\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40DF} & CLI\_buffer\_parm1\_val & 16\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40EF} & CLI\_buffer\_parm2\_val & 16\\
-        \multicolumn{2}{|c|}{} & \texttt{0x40FF} & CLI\_buffer\_pgm & 32\\
-        \multicolumn{2}{|c|}{} & \texttt{0x411F} & CLI\_buffer\_full\_cmd & 64\\
+        \multicolumn{2}{|c|}{\multirow{5}{*}{\textbf{CLI}}} & \texttt{0x40CE} & CLI\_buffer\_cmd & 16\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40DE} & CLI\_buffer\_parm1\_val & 16\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40EE} & CLI\_buffer\_parm2\_val & 16\\
+        \multicolumn{2}{|c|}{} & \texttt{0x40FE} & CLI\_buffer\_pgm & 32\\
+        \multicolumn{2}{|c|}{} & \texttt{0x411E} & CLI\_buffer\_full\_cmd & 64\\
         \hline
-        \multicolumn{2}{|c|}{\multirow{4}{*}{\textbf{Generic}}} & \texttt{0x415F} & tmp\_addr1 & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x4161} & tmp\_addr2 & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x4163} & tmp\_addr3 & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x4165} & tmp\_byte & 1\\
+        \multicolumn{2}{|c|}{\multirow{9}{*}{\textbf{RTC}}} & \texttt{0x415E} & RTC\_hour & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x415F} & RTC\_minutes & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x4160} & RTC\_seconds & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x4161} & RTC\_century & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x4162} & RTC\_year & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x4163} & RTC\_year4 & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x4165} & RTC\_month & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x4166} & RTC\_day & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x4167} & RTC\_day\_of\_the\_week & 1\\
         \hline
-        \multicolumn{2}{|c|}{\multirow{9}{*}{\textbf{RTC}}} & \texttt{0x4166} & RTC\_hour & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x4167} & RTC\_minutes & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x4168} & RTC\_seconds & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x4169} & RTC\_century & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x416A} & RTC\_year & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x416B} & RTC\_year4 & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x416D} & RTC\_month & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x416E} & RTC\_day & 1\\
-        \multicolumn{2}{|c|}{} & \texttt{0x416F} & RTC\_day\_of\_the\_week & 1\\
+        \multicolumn{2}{|c|}{\multirow{2}{*}{\textbf{Math}}} & \texttt{0x4168} & MATH\_CRC & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x416A} & MATH\_polynomial & 2\\
         \hline
-        \multicolumn{2}{|c|}{\textbf{NVRAM (RTC)}} & \texttt{0x4170} & NVRAM\_battery\_status & 1\\
-        \hline
-        \multicolumn{2}{|c|}{\multirow{2}{*}{\textbf{Math}}} & \texttt{0x4171} & MATH\_CRC & 2\\
-        \multicolumn{2}{|c|}{} & \texttt{0x4173} & MATH\_polynomial & 2\\
+        \multicolumn{2}{|c|}{\multirow{4}{*}{\textbf{Generic}}} & \texttt{0x416C} & SD\_status & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x416D} & tmp\_addr1 & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x416F} & tmp\_addr2 & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x4171} & tmp\_addr3 & 2\\
+        \multicolumn{2}{|c|}{} & \texttt{0x4173} & tmp\_byte & 1\\
+        \multicolumn{2}{|c|}{} & \texttt{0x4174} & tmp\_byte2 & 1\\
         \hline
         \texttt{0x4175} & \texttt{0x421F} & \multicolumn{2}{|l|}{\textbf{Reserved for future use}} & 171\\
         \hline
@@ -296,14 +295,12 @@
 
     \begin{tabular}{l l l }
         \hline
-        \textbf{ROM Paging} & \texttt{0x38} & \\
+        \textbf{ROM / RAM} & \texttt{0x38} & ROM Paging\\
         \hline
         \multirow{4}{*}{\textbf{SIO}} & \texttt{0x80} & Channel A Control\\
         & \texttt{0x81} & Channel A Data\\
         & \texttt{0x82} & Channel B Control\\
         & \texttt{0x83} & Channel B Data\\
-        \hline
-        \textbf{CompactFlash Card} & \texttt{0x10} & \\
         \hline
     \end{tabular}
 
@@ -315,21 +312,6 @@
     % ==========================================================================
     \subsection{General Routines}
     % ==========================================================================
-    
-        % ==========================================================================
-        \subsubsection{F\_BIOS\_CBOOT}
-        \label{func:fbioscboot}
-        % ==========================================================================
-        \begin{tabular}{l p{9cm}}
-            \hline\textbf{Action}
-            & Cold Boot. Executed when the computer is powered on, or after a
-            reset by pressing the \textbf{RESET} push-button \\
-            \hline\textbf{Entry} & None \\
-            \hline\textbf{Exit} & None \\
-            \hline\textbf{Destroys} & None \\
-            \hline\textbf{Calls} & \textit{jp} F\_BOOSTRAP\_START \\
-            \hline
-        \end{tabular}
 
         % ==========================================================================
         \subsubsection{F\_BIOS\_WBOOT}
@@ -372,7 +354,7 @@
             \hline\multirow[t]{4}{4em}{\textbf{Action}}
             & Initialises \textbf{SIO/2}: sets Channels A and B as 115,000 bps, 
             8N1, Interrupt in all characters \\
-            & Configures the interrupt vector to 0x60 \\
+            & Configures the interrupt vector to \texttt{0x60} \\
             & Sets the CPU to Interrupt Mode 2 \\
             & Enables Interrupts \\
             \hline\textbf{Entry} & None \\
@@ -440,110 +422,233 @@
         \end{tabular}
 
     % ==========================================================================
-    \subsection{Compact-Flash (DISK) Routines}
+    \subsection{DISK Routines}
     % ==========================================================================
 
         % ==========================================================================
-        \subsubsection{F\_BIOS\_CF\_INIT}
-        \label{func:fbioscfinit}
+        \subsubsection{F\_BIOS\_SD\_BUSY\_WAIT}
+        \label{func:fbiossdbusywait}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
-            & Sets \textbf{DISK} to 8-bit data transfer mode \\
+            & Calls \textbf{ASMDC} to check if the \textbf{DISK} is busy, and
+            loops until it is not busy. \\
             \hline\textbf{Entry} & None \\
             \hline\textbf{Exit} & None \\
             \hline\textbf{Destroys} & \texttt{A} \\
-            \hline\textbf{Calls}
-            & \hyperref[func:fbioscfbusy]{F\_BIOS\_CF\_BUSY}\\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
             \hline
         \end{tabular}
 
-        % ==========================================================================
-        \subsubsection{F\_BIOS\_CF\_BUSY}
-        \label{func:fbioscfbusy}
-        % ==========================================================================
-        \begin{tabular}{l p{9cm}}
-            \hline\textbf{Action}
-            & Checks if the \textbf{DISK} busy bit (0=ready, 1=busy) and loops until it is not busy \\
-            \hline\textbf{Entry} & None \\
-            \hline\textbf{Exit} & None \\
-            \hline\textbf{Destroys} & \texttt{A} \\
-            \hline\textbf{Calls} & None \\
-            \hline
-        \end{tabular}
+         % ==========================================================================
+         \subsubsection{F\_BIOS\_SD\_GET\_STATUS}
+         \label{func:fbiossdgetstatus}
+         % ==========================================================================
+         \begin{tabular}{l p{9cm}}
+             \hline\textbf{Action}
+             & Calls \textbf{ASMDC} to check the status of the SD Card module.\\
+             \hline\textbf{Entry} & None \\
+             \hline\multirow[t]{4}{4em}{\textbf{Exit}}
+             & \textit{SD\_status} \\
+             & bit 0 = set if SD card was not found \\
+             & bit 1 = set if image file was not found \\
+             & bit 2 = set if last command resulted in error \\
+             \hline\textbf{Destroys} & \texttt{A} \\
+             \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+             & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+             & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+             & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+             \hline
+         \end{tabular}
 
         % ==========================================================================
-        \subsubsection{F\_BIOS\_CF\_DISKINFO}
-        \label{func:fbioscfdiskinfo}
-        % ==========================================================================
-        \begin{tabular}{l p{9cm}}
-            \hline\textbf{Action}
-            & Executes an \textit{Identify Drive} command \\
-            \hline\textbf{Entry} & None \\
-            \hline\textbf{Exit} & None \\
-            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL},
-            \texttt{CF\_BUFFER\_START} \\
-            \hline\textbf{Calls}
-            & \hyperref[func:fbioscfbusy]{F\_BIOS\_CF\_BUSY}\\
-            \hline
-        \end{tabular}
-
-        % ==========================================================================
-        \subsubsection{F\_BIOS\_CF\_SET\_LBA}
-        \label{func:fbioscfsetlba}
-        % ==========================================================================
-        \begin{tabular}{l p{9cm}}
-            \hline\textbf{Action}
-            & Sets Sector count and LBA address \\
-            \hline\multirow[t]{4}{4em}{\textbf{Entry}}
-            & \texttt{E} = sector address LBA 0 (bits 0-7) \\
-            & \texttt{D} = sector address LBA 1 (bits 8-15) \\
-            & \texttt{C} = sector address LBA 2 (bits 16-23) \\
-            & \texttt{B} = sector address LBA 3 (bits 24-27) \\
-            \hline\textbf{Exit} & None \\
-            \hline\textbf{Destroys} & \texttt{A} \\
-            \hline\textbf{Calls}
-            & \hyperref[func:fbioscfbusy]{F\_BIOS\_CF\_BUSY}\\
-            \hline
-        \end{tabular}
-
-        % ==========================================================================
-        \subsubsection{F\_BIOS\_CF\_READ\_SEC}
-        \label{func:fbioscfreadsec}
+        \subsubsection{F\_BIOS\_SD\_READ\_SEC}
+        \label{func:fbiossdreadsec}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Reads a Sector (512 bytes), from the \textbf{DISK} and places the bytes into the \texttt{CF\_BUFFER\_START} \\
-            \hline\multirow[t]{4}{4em}{\textbf{Entry}}
+            \hline\multirow[t]{5}{4em}{\textbf{Entry}}
             & \texttt{E} = sector address LBA 0 (bits 0-7) \\
             & \texttt{D} = sector address LBA 1 (bits 8-15) \\
             & \texttt{C} = sector address LBA 2 (bits 16-23) \\
             & \texttt{B} = sector address LBA 3 (bits 24-27) \\
+            & BC are not used (set to zero), because max sector is 65,535\\
             \hline\textbf{Exit} & \texttt{CF\_BUFFER\_START} contains the 512 bytes read \\
-            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL}, \texttt{CF\_BUFFER\_START} \\
-            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
-            & \hyperref[func:fbioscfsetlba]{F\_BIOS\_CF\_SET\_LBA}\\
-            & \hyperref[func:fbioscfbusy]{F\_BIOS\_CF\_BUSY}\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL}, \texttt{DISK\_BUFFER\_START} \\
+            \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
             \hline
         \end{tabular}
 
         % ==========================================================================
-        \subsubsection{F\_BIOS\_CF\_WRITE\_SEC}
-        \label{func:fbioscfwritesec}
+        \subsubsection{F\_BIOS\_SD\_WRITE\_SEC}
+        \label{func:fbiossdwritesec}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
-            & Writes a Sector (512 bytes), from the \texttt{CF\_BUFFER\_START} into the \textbf{DISK}\\
-            \hline\multirow[t]{4}{4em}{\textbf{Entry}} 
+            & Writes a Sector (512 bytes), from the \texttt{DISK\_BUFFER\_START}
+            into the \textbf{DISK}\\
+            \hline\multirow[t]{5}{4em}{\textbf{Entry}}
             & \texttt{E} = sector address LBA 0 (bits 0-7) \\
             & \texttt{D} = sector address LBA 1 (bits 8-15) \\
             & \texttt{C} = sector address LBA 2 (bits 16-23) \\
             & \texttt{B} = sector address LBA 3 (bits 24-27) \\
-            \hline\textbf{Exit} & \texttt{CF\_BUFFER\_START} contains the 512 bytes written \\
-            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL} \\
+            & BC are not used (set to zero), because max sector is 65,535\\
+            \hline\textbf{Exit} & \texttt{DISK\_BUFFER\_START} contains the 512 bytes written \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{HL}, \texttt{DISK\_BUFFER\_START} \\
+            \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SD\_PARK\_DISKS}
+        \label{func:fbiossdparkdisks}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells \textbf{ASMDC} to close the Image File\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A} \\
             \hline\multirow[t]{2}{4em}{\textbf{Calls}} 
-            & \hyperref[func:fbioscfsetlba]{F\_BIOS\_CF\_SET\_LBA}\\
-            & \hyperref[func:fbioscfbusy]{F\_BIOS\_CF\_BUSY}\\
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SD\_MOUNT\_DISKS}
+        \label{func:fbiossdmountdisks}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells \textbf{ASMDC} to open the Image File\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}} 
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            \hline
+        \end{tabular}
+
+    % ==========================================================================
+    \subsection{Real-Time Clock Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_RTC\_GET\_TIME}
+        \label{func:fbiosrtcgettime}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Gets the current time from the \textbf{ASMDC}, and stores hour,
+            minutes and seconds as hexadecimal values in SYSVARS. \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{RTC\_hour}, \texttt{RTC\_minutes},
+            \texttt{RTC\_seconds} \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_RTC\_GET\_DATE}
+        \label{func:fbiosrtcgetdate}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Gets the current date from the \textbf{ASMDC}, and stores day,
+            month, year and day of the week as hexadecimal values in SYSVARS. \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{RTC\_day}, \texttt{RTC\_month},
+            \texttt{RTC\_year}, \texttt{RTC\_day\_of\_the\_week} \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{HL} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+         % ==========================================================================
+         \subsubsection{F\_BIOS\_RTC\_SET\_TIME}
+         \label{func:fbiosrtcsettime}
+         % ==========================================================================
+         \begin{tabular}{l p{9cm}}
+             \hline\textbf{Action}
+             & Tells \textbf{ASMDC} to store a new hour, minutes and seconds. \\
+             \hline\textbf{Entry} & \texttt{RTC\_hour}, \texttt{RTC\_minutes},
+             \texttt{RTC\_seconds} \\
+             \hline\textbf{Exit} & None\\
+             \hline\textbf{Destroys} & \texttt{A} \\
+             \hline\textbf{Calls}
+             & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+             \hline
+         \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_RTC\_SET\_DATE}
+        \label{func:fbiosrtcsetdate}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells \textbf{ASMDC} to store a new day, month, year and day of
+            the week. \\
+            \hline\textbf{Entry} & \texttt{RTC\_day}, \texttt{RTC\_month},
+            \texttt{RTC\_year}, \texttt{RTC\_day\_of\_the\_week} \\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\textbf{Calls}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            \hline
+        \end{tabular}
+
+         % ==========================================================================
+         \subsubsection{F\_BIOS\_CHECK\_BATTERY}
+         \label{func:fbiosrtccheckbattery}
+         % ==========================================================================
+         \begin{tabular}{l p{9cm}}
+             \hline\textbf{Action}
+             & Asks the \textbf{ASMDC} if the battery is healthy or has to be
+             replaced. \\
+             \hline\textbf{Entry} & None\\
+             \hline\textbf{Exit} & A = \texttt{0x0A} (Healthy) / \texttt{0x00}
+             (Dead)\\
+             \hline\textbf{Destroys} & \texttt{A} \\
+             \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+             \hline
+         \end{tabular}
+
+    % ==========================================================================
+    \subsection{NVRAM Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_NVRAM\_DETECT}
+        \label{func:fbiosnvramdetect}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Asks the \textbf{ASMDC} if the NVRAM is present. \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & length (in bytes) of the NVRAM, or
+            \texttt{0xFF} if not detected.\\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
             \hline
         \end{tabular}
 
@@ -553,26 +658,28 @@
     % ==========================================================================
 
     % ==========================================================================
-    \subsection{Serial Routines}
+    \subsection{General Routines}
     % ==========================================================================
 
-        % ==========================================================================
-        \subsubsection{F\_KRN\_SERIAL\_WRSTR}
-        \label{func:fkrnserialwrstr}
-        % ==========================================================================
-        \begin{tabular}{l p{9cm}}
-            \hline\multirow[t]{4}{4em}{\textbf{Action}}
-            & Outputs a string, terminated with Carriage Return to the 
-            \textbf{CONSOLE}.\\
-            \hline\textbf{Entry} 
-            & \texttt{HL} = address in \textbf{MEMORY} where the first character
-            of the string to be output is.\\
-            \hline\textbf{Exit} & None \\
-            \hline\textbf{Destroys} & \texttt{A}, \texttt{HL} \\
-            \hline\textbf{Calls}
-            & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
-            \hline
-        \end{tabular}
+     % ==========================================================================
+     \subsubsection{F\_KRN\_SYSHALT}
+     \label{func:fkrnsyshalt}
+     % ==========================================================================
+     \begin{tabular}{l p{9cm}}
+         \hline\multirow[t]{4}{4em}{\textbf{Action}}
+         & Prepares the computer for a \textit{HALT}.\\
+         \hline\textbf{Entry} None.\\
+         \hline\textbf{Exit} & None \\
+         \hline\textbf{Destroys} & \texttt{A}, \texttt{HL} \\
+         \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+         & \hyperref[func:fbiossdparkdisks]{F\_BIOS\_SD\_PARK\_DISKS}\\
+         & \hyperref[func:fkrnserialwrstrclr]{F\_KRN\_SERIAL\_WRSTRCLR}\\
+         \hline
+     \end{tabular}
+
+    % ==========================================================================
+    \subsection{Serial Routines}
+    % ==========================================================================
 
         % ==========================================================================
         \subsubsection{F\_KRN\_SERIAL\_SETFGCOLR}
@@ -589,6 +696,24 @@
             \hline\multirow[t]{2}{4em}{\textbf{Calls}} 
             & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
             & \textit{jp} \hyperref[func:fkrnserialsendansicode]{F\_KRN\_SERIAL\_SEND\_ANSI\_CODE}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_SERIAL\_WRSTR}
+        \label{func:fkrnserialwrstr}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\multirow[t]{4}{4em}{\textbf{Action}}
+            & Outputs a string, terminated with Carriage Return to the 
+            \textbf{CONSOLE}.\\
+            \hline\textbf{Entry} 
+            & \texttt{HL} = address in \textbf{MEMORY} where the first character
+            of the string to be output is.\\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{HL} \\
+            \hline\textbf{Calls}
+            & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
             \hline
         \end{tabular}
 
@@ -733,22 +858,6 @@
         \end{tabular}
 
         % ==========================================================================
-        \subsubsection{F\_KRN\_SERIAL\_BACKSPACE}
-        \label{func:fkrnserialbackspace}
-        % ==========================================================================
-        \begin{tabular}{l p{9cm}}
-            \hline\textbf{Action}
-            & \\
-            \hline\textbf{Entry}
-            & \\
-            \hline\textbf{Exit} &  \\
-            \hline\textbf{Destroys} &  \\
-            \hline\textbf{Calls}
-            &  \\
-            \hline
-        \end{tabular}
-
-        % ==========================================================================
         \subsubsection{F\_KRN\_SERIAL\_SEND\_ANSI\_CODE}
         \label{func:fkrnserialsendansicode}
         % ==========================================================================
@@ -777,15 +886,16 @@
         \begin{tabular}{l p{9cm}}
             \hline\multirow[t]{2}{4em}{\textbf{Action}}
             & Reads 512 bytes from Sector 0 (corresponding to the DZFS 
-            \textit{Superblock}) into the CF buffer in \textbf{MEMORY}.\\
+            \textit{Superblock}) into the disk buffer in \textbf{MEMORY}.\\
             & If the \textit{Superblock} does not containe the correct DZFS
-            signature, \texttt{CF\_is\_formatted} is set to 0x00. Otherwise, is
-            set to 0x01.\\
+            signature, \texttt{DISK\_is\_formatted} is set to \texttt{0x00}. Otherwise, is
+            set to \texttt{0x01}.\\
             \hline\textbf{Entry} & None \\
             \hline\textbf{Exit} & None \\
-            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE} \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{DE},
+            \texttt{DISK\_is\_formatted} \\
             \hline\textbf{Calls}
-            & \hyperref[func:fbioscfreadsec]{F\_BIOS\_CF\_READ\_SEC}\\
+            & \hyperref[func:fbiossdreadsec]{F\_BIOS\_SD\_READ\_SEC}\\
             \hline
         \end{tabular}
 
@@ -795,14 +905,13 @@
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
-            & Reads a BAT Sector into \texttt{CF Card Buffer} in
-            \textbf{MEMORY}.\\
-            \hline\textbf{Entry} & \texttt{CF\_cur\_sector} holds the sector 
+            & Reads a BAT Sector from \textbf{DISK} into \textbf{MEMORY}.\\
+            \hline\textbf{Entry} & \texttt{DISK\_cur\_sector} holds the sector 
             number for the BAT.\\
-            \hline\textbf{Exit} & \texttt{CF\ Card\ Buffer} contains the BAT sector.\\
-            \hline\textbf{Destroys} & \texttt{BC}, \texttt{HL} \\
+            \hline\textbf{Exit} & \texttt{DISK Buffer} contains the BAT sector.\\
+            \hline\textbf{Destroys} & \texttt{HL} \\
             \hline\textbf{Calls}
-            & \hyperref[func:fbioscfreadsec]{F\_BIOS\_CF\_READ\_SEC}\\
+            & \hyperref[func:fkrndzfssectobuffer]{F\_KRN\_DZFS\_SEC\_TO\_BUFFER}\\
             \hline
         \end{tabular}
 
@@ -812,10 +921,11 @@
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
-            & Extracts the data of a BAT entry from the \texttt{CF Card Buffer}
+            & Extracts the data of a BAT entry from the \texttt{DISK Buffer}
             in \textbf{MEMORY} and populates the values into System variables.\\
-            \hline\textbf{Entry} & \texttt{A} = BAT entry to extract data from.\\
-            \hline\textbf{Exit} & CF BAT System Variables are populated. See
+            \hline\textbf{Entry} & \texttt{A} = BAT entry number to extract data
+            from.\\
+            \hline\textbf{Exit} & DISK BAT System Variables are populated. See
             \hyperref[sec:ram_memmap]{RAM Memory Map} for for details.\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
             \texttt{HL}, \texttt{IX}, \texttt{tmp\_addr1} \\
@@ -831,13 +941,13 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Loads a Sector (512 bytes) from the \textbf{DISK} and copies the
-            bytes into the \texttt{CF Card Buffer} in \textbf{MEMORY}.\\
+            bytes into the \texttt{DISK Buffer} in \textbf{MEMORY}.\\
             \hline\textbf{Entry} & \texttt{HL} = Sector number to load.\\
-            \hline\textbf{Exit} & \texttt{CF\ Card\ Buffer} contains the bytes 
+            \hline\textbf{Exit} & \texttt{DISK Buffer} contains the bytes 
             of Sector loaded.\\
             \hline\textbf{Destroys} & \texttt{DE}, \texttt{HL} \\
             \hline\textbf{Calls}
-            & \hyperref[func:fbioscfreadsec]{F\_BIOS\_CF\_READ\_SEC}\\
+            & \hyperref[func:fbiossdreadsec]{F\_BIOS\_SD\_READ\_SEC}\\
             \hline
         \end{tabular}
 
@@ -854,12 +964,12 @@
             & BAT Entry values are stored in the SYSVARS.\\
             & \texttt{DE} = \$0000 if filename found. Otherwise, whatever value
             had at start.\\
-            \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{HL},
-            \texttt{tmp\_addr2}, \texttt{tmp\_addr3} \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{DE}, \texttt{HL},
+            \texttt{tmp\_byte}, \texttt{tmp\_addr2}, \texttt{tmp\_addr3} \\
             \hline\multirow[t]{4}{4em}{\textbf{Calls}}
-            & \hyperref[func:fkrndzfsreadbatsector]{F\_KRN\_DZFS\_READ\_BAT\_SECTOR}\\
+            & \hyperref[func:fkrndzfssectobuffer]{F\_KRN\_DZFS\_SEC\_TO\_BUFFER}\\
             & \hyperref[func:fkrndzfsbatentrytobuffer]{F\_KRN\_DZFS\_BATENTRY\_TO\_BUFFER}\\
-            & \hyperref[func:fkrnstrlen]{F\_KRN\_STRLEN}\\
+            & \hyperref[func:fkrnstrlenmax]{F\_KRN\_STRLENMAX}\\
             & \hyperref[func:fkrnstrcmp]{F\_KRN\_STRCMP}\\
             \hline
         \end{tabular}
@@ -877,10 +987,10 @@
             & \texttt{DE} = 1st sector number in the \textbf{DISK}.\\
             & \texttt{IX} = file length in sectors.\\
             \hline\textbf{Exit} & None\\
-            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
-            \texttt{HL}, \texttt{IX}, \texttt{tmp\_addr1}\\
+            \hline\textbf{Destroys} & \texttt{BC}, \texttt{DE}, \texttt{HL},
+            \texttt{IX}, \texttt{tmp\_addr1}\\
             \hline\textbf{Calls}
-            & \hyperref[func:fbioscfreadsec]{F\_BIOS\_CF\_READ\_SEC}\\
+            & \hyperref[func:fbiossdreadsec]{F\_BIOS\_SD\_READ\_SEC}\\
             \hline
         \end{tabular}
 
@@ -891,14 +1001,14 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Marks a file as deleted. The mark is done by changing the first
-            character of the filename to 0x7E (~)\\
+            character of the filename to \texttt{0x7E} (\textasciitilde~)\\
             \hline\textbf{Entry}
             & \texttt{DE} = BAT Entry number.\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{HL},\\
             \hline\multirow[t]{2}{4em}{\textbf{Calls}}
             & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
-            & \hyperref[func:fkrndzfssectortocf]{F\_KRN\_DZFS\_SECTOR\_TO\_CF}\\
+            & \hyperref[func:fkrndzfssectortosd]{F\_KRN\_DZFS\_SECTOR\_TO\_SD}\\
             \hline
         \end{tabular}
 
@@ -916,7 +1026,7 @@
             \hline\textbf{Destroys} & \texttt{DE}, \texttt{HL},\\
             \hline\multirow[t]{2}{4em}{\textbf{Calls}}
             & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
-            & \hyperref[func:fkrndzfssectortocf]{F\_KRN\_DZFS\_SECTOR\_TO\_CF}\\
+            & \hyperref[func:fkrndzfssectortosd]{F\_KRN\_DZFS\_SECTOR\_TO\_SD}\\
             \hline
         \end{tabular}
 
@@ -936,36 +1046,37 @@
             \texttt{HL}, \texttt{IY}\\
             \hline\multirow[t]{2}{4em}{\textbf{Calls}}
             & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
-            & \hyperref[func:fkrndzfssectortocf]{F\_KRN\_DZFS\_SECTOR\_TO\_CF}\\
+            & \hyperref[func:fkrndzfssectortosd]{F\_KRN\_DZFS\_SECTOR\_TO\_SD}\\
             \hline
         \end{tabular}
 
         % ==========================================================================
-        \subsubsection{F\_KRN\_DZFS\_FORMAT\_CF}
-        \label{func:fkrndzfsformatcf}
+        \subsubsection{F\_KRN\_DZFS\_FORMAT\_SD}
+        \label{func:fkrndzfsformatsd}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Formats a \textbf{DISK} with DZFS.\\
-            \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+            \hline\textbf{Entry}
             & \texttt{HL} = \textbf{MEMORY} address where the disk label is
             stored.\\
-            & \texttt{DE} = \textbf{MEMORY} address where the number of 
-            partitions is stored.\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
-            \texttt{HL}, \texttt{IX}, \texttt{IY}, \texttt{tmp\_addr1}\\
-            \hline\multirow[t]{10}{4em}{\textbf{Calls}}
+            \texttt{HL}, \texttt{IX}, \texttt{IY}, \texttt{tmp\_addr1},
+            \texttt{tmp\_byte}\\
+            \hline\multirow[t]{12}{4em}{\textbf{Calls}}
             & \hyperref[func:fkrnserialwrstr]{F\_KRN\_SERIAL\_WRSTR}\\
             & \hyperref[func:fkrndzfscalcsn]{F\_KRN\_DZFS\_CALC\_SN}\\
-            & \hyperref[func:fbiosrtcgetdate]{F\_BIOS\_RTC\_GET\_DATE}\\
+            & \hyperref[func:fkrnrtcgetdate]{F\_KRN\_RTC\_GET\_DATE}\\
             & \hyperref[func:fbiosrtcgettime]{F\_BIOS\_RTC\_GET\_TIME}\\
             & \hyperref[func:fkrnbcdtoascii]{F\_KRN\_BCD\_TO\_ASCII}\\
             & \hyperref[func:fkrnbintobcd4]{F\_KRN\_BIN\_TO\_BCD4}\\
             & \hyperref[func:fkrnbintobcd6]{F\_KRN\_BIN\_TO\_BCD6}\\
-            & \hyperref[func:fkrndzfssectortocf]{F\_KRN\_DZFS\_SECTOR\_TO\_CF}\\
+            & \hyperref[func:fkrndzfssectortosd]{F\_KRN\_DZFS\_SECTOR\_TO\_SD}\\
             & \hyperref[func:fkrnsetmemrng]{F\_KRN\_SETMEMRNG}\\
             & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+            & \hyperref[func:fbiossdparkdisks]{F\_BIOS\_SD\_PARK\_DISKS}\\
+            & \hyperref[func:fbiossdmountdisks]{F\_BIOS\_SD\_MOUNT\_DISKS}\\
             \hline
         \end{tabular}
 
@@ -990,21 +1101,21 @@
         \end{tabular}
 
         % ==========================================================================
-        \subsubsection{F\_KRN\_DZFS\_SECTOR\_TO\_CF}
-        \label{func:fkrndzfssectortocf}
+        \subsubsection{F\_KRN\_DZFS\_SECTOR\_TO\_SD}
+        \label{func:fkrndzfssectortosd}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Calls the \textbf{BIOS} subroutine that will store the data 
-            (512 bytes) currently in CF Card Buffer in \textbf{MEMORY}, to the
-            \textbf{DISK}.\\
+            (512 bytes) currently in \texttt{DISK Buffer} in \textbf{MEMORY},
+            to the \textbf{DISK}.\\
             \hline\textbf{Entry}
-            & \texttt{CF\_cur\_sector} = the sector number in the \textbf{DISK}
+            & \texttt{DISK\_cur\_sector} = the sector number in the \textbf{DISK}
             that will be written.\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{BC}, \texttt{DE}\\
             \hline\textbf{Calls}
-            & \hyperref[func:fbioscfwritesec]{F\_BIOS\_CF\_WRITE\_SEC}\\
+            & \hyperref[func:fbiossdwritesec]{F\_BIOS\_SD\_WRITE\_SEC}\\
             \hline
         \end{tabular}
 
@@ -1016,8 +1127,8 @@
             \hline\textbf{Action}
             & Get number of available BAT entry.\\
             \hline\textbf{Entry} & None\\
-            \hline\textbf{Exit} & \texttt{CF\_cur\_file\_entry\_number} = entry 
-            number.\\
+            \hline\textbf{Exit} & \texttt{DISK\_cur\_file\_entry\_number} =
+            entry number.\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{IY},
             \texttt{CF\_cur\_sector}, \texttt{CF\_cur\_file\_entry\_number}\\
             \hline\multirow[t]{2}{4em}{\textbf{Calls}}
@@ -1035,11 +1146,11 @@
             & Adds a BAT entry into the \textbf{DISK}.\\
             \hline\multirow[t]{4}{4em}{\textbf{Entry}}
             & \texttt{DE} = BAT entry number.\\
-            & \texttt{CF\_cur\_sector} = Sector number where the BAT Entry is in
-            the \textbf{DISK}.\\
-            & \texttt{CF Buffer} = Sector (512 bytes) containing the BAT where
-            the entry is.\\
-            & \texttt{CF BAT} = BAT Entry data that will be saved to 
+            & \texttt{DISK\_cur\_sector} = Sector number where the BAT Entry is
+            in the \textbf{DISK}.\\
+            & \texttt{DISK\_BUFFER\_START} = Sector (512 bytes) containing the
+            BAT where the entry is.\\
+            & \texttt{DISK BAT} = BAT Entry data that will be saved to 
             \textbf{DISK}.\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
@@ -1067,18 +1178,20 @@
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
             \texttt{HL}, \texttt{IX}, \texttt{tmp\_addr1}, \texttt{tmp\_addr2},
             \texttt{tmp\_addr3}, \texttt{tmp\_byte}\\
-            \hline\multirow[t]{11}{4em}{\textbf{Calls}}
+            \hline\multirow[t]{13}{4em}{\textbf{Calls}}
             & \hyperref[func:fkrndzfsgetbatfreeentry]{F\_KRN\_DZFS\_GET\_BAT\_FREE\_ENTRY}\\
             & \hyperref[func:fkrndiv1616]{F\_KRN\_DIV1616}\\
             & \hyperref[func:fkrnmultiply1616]{F\_KRN\_MULTIPLY1616}\\
             & \hyperref[func:fkrncopymem512]{F\_KRN\_COPYMEM512}\\
-            & \hyperref[func:fkrnclearcfbuffer]{F\_KRN\_CLEAR\_CFBUFFER}\\
-            & \hyperref[func:fkrndzfssectortocf]{F\_KRN\_DZFS\_SECTOR\_TO\_CF}\\
+            & \hyperref[func:fkrnclearmemarea]{F\_KRN\_CLEAR\_MEMAREA}\\
+            & \hyperref[func:fkrncleardiskbuffer]{F\_KRN\_CLEAR\_DISKBUFFER}\\
+            & \hyperref[func:fkrndzfssectortosd]{F\_KRN\_DZFS\_SECTOR\_TO\_SD}\\
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY\_WAIT}\\
+            & \hyperref[func:fkrnserialwrstrclr]{F\_KRN\_SERIAL\_WRSTRCLR}\\
             & \hyperref[func:fkrndzfscalcfiletime]{F\_KRN\_DZFS\_CALC\_FILETIME}\\
             & \hyperref[func:fkrndzfscalcfiledate]{F\_KRN\_DZFS\_CALC\_FILEDATE}\\
             & \hyperref[func:fkrndzfssectobuffer]{F\_KRN\_DZFS\_SEC\_TO\_BUFFER}\\
             & \hyperref[func:fkrndzfssectobuffer]{F\_KRN\_DZFS\_ADD\_BAT\_ENTRY}\\
-            & \hyperref[func:fkrndzfssectortocf]{F\_KRN\_DZFS\_SECTOR\_TO\_CF}\\
             \hline
         \end{tabular}
 
@@ -1152,8 +1265,9 @@
             \hline\textbf{Entry} & None\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
-            \texttt{HL}\\
+            \texttt{HL}, \texttt{tmp\_addr1}\\
             \hline\multirow[t]{5}{4em}{\textbf{Calls}}
+            & \hyperref[func:fkrndzfsshowdiskinfoshort]{F\_KRN\_DZFS\_SHOW\_DISKINFO\_SHORT}\\
             & \hyperref[func:fkrnserialwrstrclr]{F\_KRN\_SERIAL\_WRSTRCLR}\\
             & \hyperref[func:fkrnserialprnbyte]{F\_KRN\_SERIAL\_PRN\_BYTE}\\
             & \hyperref[func:fkrnserialprnbytes]{F\_KRN\_SERIAL\_PRN\_BYTES}\\
@@ -1172,8 +1286,7 @@
             \hline\textbf{Entry} & \texttt{HL} = \textbf{MEMORY} address where
             the filename to check is stored.\\
             \hline\textbf{Exit} & \texttt{Z Flag} set if filename is not found.\\
-            \hline\textbf{Destroys} & \texttt{A}, \texttt{DE},
-            \texttt{tmp\_addr3}\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{tmp\_addr3}\\
             \hline\textbf{Calls}
             & \hyperref[func:fkrndzfsgetfilebatentry]{F\_KRN\_DZFS\_GET\_FILE\_BATENTRY}\\
             \hline
@@ -1386,6 +1499,25 @@
             \hline
         \end{tabular}
 
+        % ==========================================================================
+        \subsubsection{F\_KRN\_STRLENMAX}
+        \label{func:fkrnstrlenmax}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Gets the length of a string that is terminated with a specified
+            character, but only check up to a maximum of characters.\\
+            \hline\multirow[t]{3}{4em}{\textbf{Entry}}
+            & \texttt{HL} = \textbf{MEMORY} address where the first byte of the
+            string is located.\\
+            & \texttt{A} = terminating character.\\
+            & \texttt{B} = maximum length to be checked.\\
+            \hline\textbf{Exit} & \texttt{B} = lenght of the string.\\
+            \hline\textbf{Destroys} & \texttt{BC}, \texttt{DE}, \texttt{HL}\\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
     % ==========================================================================
     \subsection{Conversion Routines}
     % ==========================================================================
@@ -1409,13 +1541,13 @@
 
         % ==========================================================================
         \subsubsection{F\_KRN\_ASCII\_TO\_HEX}
-        \label{func:fkrnasciiadrtohex}
+        \label{func:fkrnasciitohex}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Converts two ASCII characters (representing two hexadecimal digits)
-            ; to one byte in hexadecimal (e.g. 0x33 and 0x45 are converted into
-            3E).\\
+            ; to one byte in hexadecimal (e.g. \texttt{0x33} and \texttt{0x45}
+            are converted into \texttt{3E}).\\
             \hline\multirow[t]{2}{4em}{\textbf{Entry}}
             & \texttt{H} = Most significant ASCII digit.\\
             & \texttt{L} = Less significant ASCII digit.\\
@@ -1432,8 +1564,8 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Converts one byte in hexadecimal to two ASCII printable characters
-            (e.g. 0x3E is converted into 33 and 45, which are the ASCII values
-            of 3 and E).\\
+            (e.g. \texttt{0x3E} is converted into 33 and 45, which are the ASCII
+            values of \texttt{3} and \texttt{E}).\\
             \hline\textbf{Entry} & \texttt{A} = Byte to convert.\\
             \hline\multirow[t]{2}{4em}{\textbf{Exit}}
             & \texttt{H} = Most significant ASCII digit.\\
@@ -1450,7 +1582,7 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Converts a byte of unsigned integer hexadecimal to 4-digit BCD
-            (e.g. 0x80 is converted into 0128).\\
+            (e.g. \texttt{0x80} is converted into 0128).\\
             \hline\textbf{Entry} & \texttt{A} = Unsigned integer to convert.\\
             \hline\multirow[t]{2}{4em}{\textbf{Exit}}
             & \texttt{H} = Hundreds digits.\\
@@ -1467,7 +1599,7 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Converts two bytes of unsigned integer hexadecimal to 6-digit BCD
-            (e.g. 0xFFFF is converted into 065535).\\
+            (e.g. \texttt{0xFFFF} is converted into 065535).\\
             \hline\textbf{Entry} & \texttt{HL} = Unsigned integer to convert.\\
             \hline\multirow[t]{3}{4em}{\textbf{Exit}}
             & \texttt{C} = Thousands digits.\\
@@ -1673,8 +1805,8 @@
         \end{tabular}
 
         % ==========================================================================
-        \subsubsection{F\_KRN\_CLEAR\_CFBUFFER}
-        \label{func:fkrnclearcfbuffer}
+        \subsubsection{F\_KRN\_CLEAR\_DISKBUFFER}
+        \label{func:fkrncleardiskbuffer}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
@@ -1684,6 +1816,66 @@
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{BC}, \texttt{IX}\\
             \hline\textbf{Calls} & \hyperref[func:fkrnclearmemarea]{F\_KRN\_CLEAR\_MEMAREA}\\
+            \hline
+        \end{tabular}
+
+    % ==========================================================================
+    \subsection{Real-Time Clock Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_RTC\_GET\_DATE}
+        \label{func:fkrnrtcgetdate}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Calls the BIOS function to get date from the RTC, and then
+            calculates the year in four digits. \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{RTC\_year4}\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{HL} \\
+            \hline\textbf{Calls} & None \\
+            & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_RTC\_SHOW\_TIME}
+        \label{func:fkrnrtcshowtime}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Sends to the \textbf{Serial Channel} A the values of hour, minutes
+            and seconds from SYSVARS, as hh:mm:ss\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
+            \texttt{tmp\_addr1}\\
+            \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+            & \hyperref[func:fkrnbintobcd4]{F\_KRN\_BIN\_TO\_BCD4}\\
+            & \hyperref[func:fkrnbcdtoascii]{F\_KRN\_BCD\_TO\_ASCII}\\
+            & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_RTC\_SHOW\_DATE}
+        \label{func:fkrnrtcshowdate}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Sends to the \textbf{Serial Channel A} the values of day, month,
+            year (4 digits) and day of the week (3 letters) from SYSVARS, as
+            dd/mm/yyyy www\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
+            \texttt{tmp\_addr1}\\
+            \hline\multirow[t]{4}{4em}{\textbf{Calls}}
+            & \hyperref[func:fkrnbintobcd4]{F\_KRN\_BIN\_TO\_BCD4}\\
+            & \hyperref[func:fkrnbintobcd6]{F\_KRN\_BIN\_TO\_BCD6}\\
+            & \hyperref[func:fkrnbcdtoascii]{F\_KRN\_BCD\_TO\_ASCII}\\
+            & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
             \hline
         \end{tabular}
 
@@ -1716,7 +1908,7 @@
         \hline
         LBA 3 & LBA 2 & LBA 1 & LBA 0\\
         \hline
-        0000 & 0000 00PP & BBBB BBBB & BBSS SSSS\\
+        XXXX & XXXX XXXX & BBBB BBBB & BBSS SSSS\\
         \hline
     \end{tabular}
 
@@ -1725,8 +1917,7 @@
     \begin{itemize}
         \item S is Sector (6 bits)
         \item B is Block (10 bits)
-        \item P is Partition (2 bits)
-        \item 0 not used (10 bits)
+        \item X not used (12 bits)
     \end{itemize}
 
     % ==========================================================================
@@ -1741,35 +1932,21 @@
         \item \textbf{Bytes per BAT entry}: 32
         \item \textbf{BAT entries}: 1024 (32,768 / 32). This also defines the 
         maximum number of files per Partition.
-        \item \textbf{Blocks per Partition}: 1,024 (1 reserved for BAT)
-        \item \textbf{Sectors per Partition}: 65,536 (1,024 * 64)
-        \item \textbf{Bytes per Partition}: 33,587,200 (1,024 * 32,768 + 1 BAT Block)
-        \item \textbf{Partitions per Disk}: 3 (125 MB1) / 33,587,200)
+        \item \textbf{Maximum bytes per File}: 1 Block (32,768 bytes)
+        \item \textbf{Maximum bytes per DISK}: 1024 Blocks (1 Block = 1 File)
+        * 32,768 bytes per Block = 33,3554,432 bytes (33 MB)
     \end{itemize}
 
     % ==========================================================================
     \subsection{DISK anatomy}
     % ==========================================================================
 
-    A disk (128 MB CompactFlash in our case) is divided into areas:
+    A \textbf{DISK} is divided into areas:
 
     \begin{itemize}
-        \item \textbf{Superblock} = 512 bytes
-        \item \textbf{Partition 1}
-        \begin{itemize}
-            \item \textbf{Block Allocation Table (BAT)} = 1 Block
-            \item \textbf{Data Area} = 1023 Blocks
-        \end{itemize}
-        \item \textbf{Partition 2}
-        \begin{itemize}
-            \item \textbf{Block Allocation Table (BAT)} = 1 Block
-            \item \textbf{Data Area} = 1023 Blocks
-        \end{itemize}
-        \item \textbf{Partition 3}
-        \begin{itemize}
-            \item \textbf{Block Allocation Table (BAT)} = 1 Block
-            \item \textbf{Data Area} = 1023 Blocks
-        \end{itemize}
+        \item \textbf{Superblock} = 512 bytes (1 Sector)
+        \item \textbf{Block Allocation Table (BAT)} = 1 Block (64 Sectors = 32,768 bytes)
+        \item \textbf{Data Area} = 1024 Blocks (65,536 Sectors = 33,3554,432 bytes)
     \end{itemize}
 
         % ==========================================================================
@@ -1795,38 +1972,38 @@
             \hline
             \endhead
 
-            0x00 & 2 & Signature. Used to check that this is a Superblock. Set
-            to 0xABBA & \texttt{AB BA}\\
+            \texttt{0x00} & 2 & Signature. Used to check that this is a
+            Superblock. Set to \texttt{0xABBA} & \texttt{AB BA}\\
             \hline
-            0x02 & 1 & Not used & \texttt{00}\\
+            \texttt{0x02} & 1 & Not used & \texttt{00}\\
             \hline
-            0x03 & 8 & File system identifier. ASCII values for human-readable.
-            Padded with spaces. & \texttt{DZFSV1}\\
+            \texttt{0x03} & 8 & File system identifier. ASCII values for
+            human-readable. Padded with spaces. & \texttt{DZFSV1}\\
             \hline
-            0x0B & 4 & Volume serial number & \texttt{35 2A 15 F2}\\
+            \texttt{0x0B} & 4 & Volume serial number & \texttt{35 2A 15 F2}\\
             \hline
-            0x0F & 1 & Not used. & \texttt{00}\\
+            \texttt{0x0F} & 1 & Not used. & \texttt{00}\\
             \hline
-            0x10 & 16 & Volume Label. ASCII values. Padded with spaces. 
+            \texttt{0x10} & 16 & Volume Label. ASCII values. Padded with spaces. 
             & \texttt{dastaZ80 Main}\\
             \hline
-            0x20 & 8 & Volume Date creation. ASCII values (ddmmyyyy).
+            \texttt{0x20} & 8 & Volume Date creation. ASCII values (ddmmyyyy).
             & \texttt{03102022}\\
             \hline
-            0x28 & 6 & Volume Time creation. ASCII values (hhmmss).
+            \texttt{0x28} & 6 & Volume Time creation. ASCII values (hhmmss).
             & \texttt{142232}\\
             \hline
-            0x2E & 2 & Bytes per Sector (in Hexadecimal little-endian)
+            \texttt{0x2E} & 2 & Bytes per Sector (in Hexadecimal little-endian)
             & \texttt{00 02}\\
             \hline
-            0x30 & 1 & Sectors per Block (in Hexadecimal) & \texttt{40}\\
+            \texttt{0x30} & 1 & Sectors per Block (in Hexadecimal) & \texttt{40}\\
             \hline
-            0x31 & 1 & Number of Partitions & \texttt{01}\\
+            \texttt{0x31} & 1 & Number of Partitions & \texttt{01}\\
             \hline
-            0x32 - 0x64 & 51 & Copyright notice (ASCII value)
+            \texttt{0x32} - \texttt{0x64} & 51 & Copyright notice (ASCII value)
             & \texttt{Copyright 2022David Asta The MIT License (MIT)}\\
             \hline
-            0x65 - 0x1FF & 411 & Not used (filled with 0x00)
+            \texttt{0x65} - 0x1FF & 411 & Not used (filled with \texttt{0x00})
             & \texttt{00 00 00 00 00 00 00 .........}\\
             \hline
         \end{longtable}
@@ -1863,7 +2040,7 @@
             & & (only allowed A to Z and 0 to 9. No spaces allowed. Cannot start
             with a number.) &\\
             & & First character also indicates 00=available, 7E=deleted (will
-            appear as ~) &\\
+            appear as \textasciitilde) &\\
             \hline
             \multirow{6}{4em}{0x0E} & \multirow{6}{4em}{14} & \textbf{Attributes} (0=Inactive / 1=Active) 
             & Read Only, System file, Executable = 1101 = \texttt{0D}\\
@@ -1885,25 +2062,25 @@
             & & 4 bits for month (binary number 0-12) &\\
             & & 5 bits for day (binary number 0-31) &\\
             \hline
-            0x13 & 2 & Time last modified (same formula as Time created) 
+            \texttt{0x13} & 2 & Time last modified (same formula as Time created) 
             & \texttt{F5 9A}\\
             \hline
-            0x15 & 2 & Date last modified (same formula as Date created)
+            \texttt{0x15} & 2 & Date last modified (same formula as Date created)
             & \texttt{69 1B}\\
             \hline
-            0x17 & 2 & File size in bytes (little-endian) & \texttt{26 00}\\
+            \texttt{0x17} & 2 & File size in bytes (little-endian) & \texttt{26 00}\\
             \hline
-            0x19 & 1 & File size in sectors (little-endian) & \texttt{01}\\
+            \texttt{0x19} & 1 & File size in sectors (little-endian) & \texttt{01}\\
             \hline
-            0x1A & 2 & Entry number (little-endian) & \texttt{00 00}\\
+            \texttt{0x1A} & 2 & Entry number (little-endian) & \texttt{00 00}\\
             \hline
-            \multirow{2}{4em}{0x1C} & \multirow{2}{4em}{2} & \textbf{1st Sector} (where the file data starts)
-            & \texttt{41 00}\\
+            \multirow{2}{4em}{0x1C} & \multirow{2}{4em}{2} & \textbf{1st Sector}
+            (where the file data starts) & \texttt{41 00}\\
             & & It is calculated when the file is created. The formula is: 65 + 
             64 * entry\_number &\\
             \hline
-            0x1E & 2 & Load address (The start address little-endian where it 
-            will be loaded in RAM) & \texttt{68 25}\\
+            \texttt{0x1E} & 2 & Load address (The start address little-endian
+            where it  will be loaded in RAM) & \texttt{68 25}\\
             \hline
         \end{longtable}
 
@@ -1923,29 +2100,30 @@
     % ==========================================================================
     \subsection{Read data from DISK}
     % ==========================================================================
-    Given \texttt{CF\_is\_formatted} is equal to 0xFF (i.e. \textbf{DISK} is 
-    formatted with DZFS file system), call \hyperref[func:fkrndzfsloadfiletoram]{F\_KRN\_DZFS\_LOAD\_FILE\_TO\_RAM}
+    Given \texttt{DISK\_is\_formatted} is equal to \texttt{0xFF} (i.e.
+    \textbf{DISK} is formatted with DZFS file system), call
+    \hyperref[func:fkrndzfsloadfiletoram]{F\_KRN\_DZFS\_LOAD\_FILE\_TO\_RAM}
     with \texttt{DE} equal to first sector (512 bytes) to read and \texttt{IX}
     equal to how many sectors to read.
 
     Read bytes will be copied into \textbf{MEMORY}, starting at the address 
-    equal to the address stored at \texttt{CF\_cur\_file\_load\_addr} which is
+    equal to the address stored at \texttt{DISK\_cur\_file\_load\_addr} which is
     stored in the Block Allocation Table (BAT) in \textbf{DISK}.
 
     % ==========================================================================
     \subsection{Write data to DISK}
     % ==========================================================================
-    Given \texttt{CF\_is\_formatted} is equal to 0xFF (i.e. \textbf{DISK} is
-    formatted with DZFS file system):
+    Given \texttt{DISK\_is\_formatted} is equal to \texttt{0xFF} (i.e.
+    \textbf{DISK} is formatted with DZFS file system):
 
     \begin{itemize}
-        \item Store the filename (in ASCII) somewhere in \texttt{MEMORY}.
+        \item Store the filename (in ASCII) somewhere in \textbf{MEMORY}.
         \item call \hyperref[func:fkrndzfsgetfilebatentry]{F\_KRN\_DZFS\_GET\_FILE\_BATENTRY},
             with \texttt{HL} equal to the \texttt{MEMORY} address where the
             filename is stored. If a file with the specified filename does not
-            exist, flag \texttt{z} will be set, therefore it is OK to save the
-            file.
-        \item call \hyperref[func:func:fkrndzfscreatenewfile]{F\_KRN\_DZFS\_CREATE\_NEW\_FILE},
+            exist, flag \texttt{z} will be set to indicate that it is OK to save
+            the file.
+        \item call \hyperref[func:fkrndzfscreatenewfile]{F\_KRN\_DZFS\_CREATE\_NEW\_FILE},
             with \texttt{HL} equal to the address in \textbf{MEMORY} of first
             byte to be stored, \texttt{BC} equal to the total number of bytes to
             be stored, and \texttt{IX} equal to the address in \textbf{MEMORY}
@@ -1992,8 +2170,10 @@
         \end{itemize}
         \item last two bytes are calculated as follows:
         \begin{itemize}
-            \item (hours [if pm + 12] * 256) + minutes + year (converted to hexadecimal)
-            \item e.g. (2 + 12 = 14 * 256 = 3584) + 22 + 2012 = 5618 (0x15 0xF2)
+            \item (hours [if pm + 12] * 256) + minutes + year (converted to
+            hexadecimal)
+            \item e.g. (2 + 12 = 14 * 256 = 3584) + 22 + 2012 = 5618
+            (\texttt{0x15} \texttt{0xF2})
         \end{itemize}
     \end{itemize}
 
@@ -2005,8 +2185,9 @@
     \begin{itemize}
         \item \textbf{Bootstrap}
         \begin{itemize}
-            \item Copy contents of the ROM into High RAM (0x8000 - 0xFFFF).
-            \item Disable ROM chip and enable Low RAM (0x0000 - 0x7FFF). Therefore, all \textbf{MEMORY} is RAM from now on.
+            \item Copy contents of the ROM into High RAM (\texttt{0x8000} - \texttt{0xFFFF}).
+            \item Disable ROM chip and enable Low RAM (\texttt{0x0000} - \texttt{0x7FFF}).
+            Therefore, all \textbf{MEMORY} is RAM from now on.
             \item Copy the copy of ROM inm High RAM to Low RAM. Bootstrap code is not copied.
             \item Transfer control to BIOS (\texttt{jp F\_BIOS\_SERIAL\_INIT})
         \end{itemize}
@@ -2018,7 +2199,7 @@
                 received characters.
                 \item Set Channel B as 115,000 bps, 8N1, Interrupt in all 
                 received characters.
-                \item Set Interrupt Vector to 0x60.
+                \item Set Interrupt Vector to \texttt{0x60}.
             \end{itemize}
             \item Set CPU to Interrupt Mode 2.
             \item \texttt{jp F\_BIOS\_WBOOT}
@@ -2034,20 +2215,24 @@
             \item Display dzOS release version.
             \item Display Kernel version.
             \item Display available RAM.
-            \item Initialise CompactFlash Card.
+            \item Initialise SD Card.
+            \item Set show deleted files with \textit{cat} command as OFF.
             \item Display volume ID, Serial Number and date/time of format.
             \item Detect Real-Time Clock (RTC).
+            \item Display current date and time.
             \item Display RTC's battery status.
+            \item Detect NVRAM.
+            \item Display NVRAM size in bytes.
             \item Transfer control to Command-line Interpreter (CLI) ()\texttt{jp F\_CLI\_START}).
         \end{itemize}
         \item \textbf{CLI}
         \begin{itemize}
             \item Display CLI version.
             \item Clear command buffers
-            \item Display prompt (>).
+            \item Display prompt ($>$).
             \item Read command entered by user.
             \item Parse command.
-            \item Execute command.
+            \item Execute corresponding subroutine.
             \item Loop back to Display prompt.
         \end{itemize}
     \end{itemize}

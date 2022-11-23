@@ -134,7 +134,7 @@
         \end{tabular}
     \end{center}
 
-    The CompactFlash card is referred as \textbf{DISK}.
+    The SD card is referred as \textbf{DISK}.
     
     The Operating System may be referred as DZOS, dzOS or simply OS.
 
@@ -198,16 +198,22 @@
         \begin{itemize}
             \item 16 KB reserved for DZOS
             \item 48 KB available for the user
+            \item 56 Bytes NVRAM
         \end{itemize}
         \item Storage device
         \begin{itemize}
-            \item CompactFlash Card, formatted with DZFS\footnote{DZFS (dastaZ80
-            File System) is a file system of my own design, for mass storage
-            devices, aimed at simplicity.}
+            \item Micro SD Card, formatted with FAT32 and containing image files
+            formatted with DZFS\footnote{DZFS (dastaZ80 File System) is a file
+            system of my own design, for mass storage devices, aimed at
+            simplicity.}
         \end{itemize}
         \item Video output
         \begin{itemize}
             \item VGA 80 column by 25 lines and 16 colours
+        \end{itemize}
+        \item Real-Time Clock
+        \begin{itemize}
+            \item DS3231 RTC, provides valid until the year 2100 leap year compensation. 
         \end{itemize}
         \item Keyboard
         \begin{itemize}
@@ -236,12 +242,19 @@
         \item the dastaZ80 computer.
         \item A 9 to 12 volts power supply with a female 2.1mm barrel-style DC
         connector (positive polarity).
-        \item A CompactFlash card.
+        \item A Micro SD card.
         \item A VGA monitor.
+        \item A LIR2032 Li-Ion Rechargeable 3.6V Battery Button Cell
     \end{itemize}
 
+    Steps:
+
     \begin{enumerate}
-        \item Introduce the CompactFlash card in the CF slot at the back of the
+        \item insert the battery LIR2032 in the battery holder. Positive goes up.
+        \item Format the SD card with FAT32 on a modern PC.
+        \item Create a file of 128 MB on the SD card. For example using Linux 
+        terminal:  \texttt{fallocate -l \$((128*1024*1024)) dastaZ80.img}
+        \item Introduce the SD card in the SD card slot at the back of the
         computer case. This procedure MUST be performed with the computer
         switched off, and SHOULD be performed with the computer unplugged.
         \item Connect the VGA cable from the monitor to the VGA connector at the
@@ -293,8 +306,8 @@
     \subsection{dastaZ80 File System (DZFS)}
     % ==========================================================================
     A file system manages access to the data stored in a storage medium, a
-    CompactFlash (CF) card in the case of dastaZ80, and allows the OS to load
-    and save data in the CF card. From now on, referred as \textbf{DISK}.
+    SD card in the case of dastaZ80, and allows the OS to load and save data in
+    the SD card. From now on, referred as \textbf{DISK}.
 
     DZFS is my first time designing a file system and for this reason I kept it
     very simple.
@@ -371,7 +384,7 @@
     \subsection{General Commands}\label{gencmds}
     % ==========================================================================
         % ======================================================================
-        \subsubsection{help}
+        \subsubsection{{\color{blue}help}}
         % ======================================================================
         Shows a list of the most important commands available for the user.
         For a complete list of commands, refer always to this manual.
@@ -381,7 +394,7 @@
         \textbf{Parameters}: None
 
         % ======================================================================
-        \subsubsection{peek}
+        \subsubsection{{\color{blue}peek}}
         % ======================================================================
         Prints the value of the byte stored at a specified \textbf{MEMORY}
         address.
@@ -398,7 +411,7 @@
         Will print (in hexadecimal) whatever byte is at location 0x41A0.
 
         % ======================================================================
-        \subsubsection{poke}
+        \subsubsection{{\color{blue}poke}}
         % ======================================================================
         Changes the value of the byte stored at a specified \textbf{MEMORY}
         address.
@@ -419,7 +432,7 @@
         0x2D.
 
         % ======================================================================
-        \subsubsection{autopoke}
+        \subsubsection{{\color{blue}autopoke}}
         % ======================================================================
         Allows the user to enter a series of values to be stored at the
         starting address and its consecutive addresses. Think of it like a
@@ -447,7 +460,7 @@
         until the end of the command.
 
         % ======================================================================
-        \subsubsection{memdump}
+        \subsubsection{{\color{blue}memdump}}
         % ======================================================================
         Shows the \textbf{MEMORY} contents (bytes) of a specified range of
         \textbf{MEMORY}.
@@ -496,7 +509,7 @@
         \hspace{1cm}\texttt{[SPACE] for more or another key to stop}
         
         % ======================================================================
-        \subsubsection{reset}
+        \subsubsection{{\color{blue}reset}}
         % ======================================================================
         Performs a reset. It has the same effect as pressing the
         \textbf{RESET} button at the side of the computer.
@@ -506,20 +519,28 @@
         \textbf{Parameters}: None
 
         % ======================================================================
-        \subsubsection{halt}
+        \subsubsection{{\color{blue}halt}}
         % ======================================================================
-        Disables interrupts and puts the CPU in halted state, effectively
-        making the computer unusable until next reboot. SHOULD be used
-        before switching the computer off, to ensure no changes are
-        happening. MUST not be used while the busy light of the DISK is
-        on.
+        Tells the \textbf{DISK} controller to close all files, disables
+        interrupts and puts the CPU in halted state, effectively making the
+        computer unusable until next power cycle (\textit{Have you tried turning
+        it off and on again?}).
+
+        SHOULD be used before switching the computer off, to ensure all
+        \textbf{DISK} data has been correctly saved. MUST not be used while the
+        busy light of the \textbf{DISK} is on.
+
+        IMPORTANT: \textbf{to use the computer again, you MUST turn it off and
+        on again. Do NOT just press the reset button}. Otherwise corruption of
+        data will occur, because the \textbf{DISK} controller is only reset at
+        power on, and not when the \textbf{RESET} button is pressed.
 
         \hspace{1.9cm}\textbf{$>$ halt}
 
         \textbf{Parameters}: None
 
         % ======================================================================
-        \subsubsection{run}
+        \subsubsection{{\color{blue}run}}
         % ======================================================================
         There are two formats of this command:
 
@@ -547,7 +568,7 @@
         cumbersome.
 
         % ======================================================================
-        \subsubsection{crc16}
+        \subsubsection{{\color{blue}crc16}}
         % ======================================================================
         Generates a CRC-16/BUYPASS1\footnote{A 16-bit cyclic redundancy
         check (CRC) based on the IBM Binary Synchronous Communications
@@ -581,7 +602,7 @@
         \hspace{1cm}\texttt{CRC16:\ 0x2F25}
 
         % ======================================================================
-        \subsubsection{clrram}
+        \subsubsection{{\color{blue}clrram}}
         % ======================================================================
         Fills with zeros the entire Free RAM area (i.e. from 0x4420 to
         0xFFFF).
@@ -590,40 +611,75 @@
 
         \textbf{Parameters}: None
 
-    % % ======================================================================
-    % \subsection{Real-Time Clock (RTC) Commands}
-    % % ======================================================================
-    %     % ======================================================================
-    %     \subsubsection{date}
-    %     % ======================================================================
-    %     Shows the current date from the Real-Time Clock (\textbf{RTC}).
+    % ======================================================================
+    \subsection{Real-Time Clock (RTC) Commands}
+    % ======================================================================
+        % ======================================================================
+        \subsubsection{{\color{blue}date}}
+        % ======================================================================
+        Shows the current date and day of the week from the Real-Time Clock
+        (\textbf{RTC}).
 
-    %     \hspace{1.9cm}\textbf{$>$ date}
+        \hspace{1.9cm}\textbf{$>$ date}
 
-    %     \textbf{Parameters}: None
+        \textbf{Parameters}: None
 
-    %     Will show (will differe depending on the date on the \textbf{RTC}):
+        Will show (will differe depending on the date on the \textbf{RTC}):
 
-    %     \hspace{1cm}\texttt{Today:\ 12/08/2022}
+        \hspace{1cm}\texttt{Today:\ 22/11/2022 Tue}
 
-    %     % ======================================================================
-    %     \subsubsection{time}
-    %     % ======================================================================
-    %     Shows the current time from the Real-Time Clock (\textbf{RTC}).
+        % ======================================================================
+        \subsubsection{{\color{blue}time}}
+        % ======================================================================
+        Shows the current time from the Real-Time Clock (\textbf{RTC}).
 
-    %     \hspace{1.9cm}\textbf{$>$ time}
+        \hspace{1.9cm}\textbf{$>$ time}
 
-    %     \textbf{Parameters}: None
+        \textbf{Parameters}: None
 
-    %     Will show (will differe depending on the time on the \textbf{RTC}):
+        Will show (will differe depending on the time on the \textbf{RTC}):
 
-    %     \hspace{1cm}\texttt{Now:\ 16:24:36}
+        \hspace{1cm}\texttt{Now:\ 16:24:36}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}setdate}}
+        % ======================================================================
+        Changes the current date stored in the Real-Time Clock (\textbf{RTC}).
+
+        \hspace{1.9cm}\textbf{$>$ setdate \textit{$<$dd$>$$<$mm$>$$<$yyyy$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{dd}}: day.
+
+        \hspace{1cm}\textbf{\textit{mm}}: month.
+
+        \hspace{1cm}\textbf{\textit{yyyy}}: year.
+
+        \textbf{Example}: \texttt{$>$ setdate 22112022}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}settime}}
+        % ======================================================================
+        Changes the current time stored in the Real-Time Clock (\textbf{RTC}).
+
+        \hspace{1.9cm}\textbf{$>$ settime \textit{$<$hh$>$$<$mm$>$$<$ss$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{hh}}: hour.
+
+        \hspace{1cm}\textbf{\textit{mm}}: minutes.
+
+        \hspace{1cm}\textbf{\textit{ss}}: seconds.
+
+        \textbf{Example}: \texttt{$>$ settime 185700}
 
     % ==========================================================================
     \subsection{Disk Commands}\label{dskcmds}
     % ==========================================================================
         % ======================================================================
-        \subsubsection{cat}
+        \subsubsection{{\color{blue}cat}}
         % ======================================================================
         Shows a catalogue of the files stored in the \textbf{DISK}.
 
@@ -637,26 +693,44 @@
 
         \texttt{
         \resizebox{12cm}{!}{
-            \begin{tabular}{l l l l l}
-                \multicolumn{5}{l}{Disk Catalogue}\\
-                \multicolumn{5}{l}{-------------------------------------------------------------------------------}\\
-                File & Created & Modified & Size & Attributes\\
-                \multicolumn{5}{l}{-------------------------------------------------------------------------------}\\
+            \begin{tabular}{l l l l l l}
+                \multicolumn{6}{l}{Disk Catalogue}\\
+                \multicolumn{6}{l}{-----------------------------------------------------------------------------------}\\
+                File & Created & Modified & Size & Attributes & Load Address\\
+                \multicolumn{6}{l}{-----------------------------------------------------------------------------------}\\
                 HelloWorld & 12-03-2022 13:21:44 & 12-03-2022 13:21:22 & 38 &
-                E\\
-                file2 & 11-05-2022 17:12:45 & 11-05-2022 18:21:32 & 512 & SE
+                E & 4420\\
+                file2 & 11-05-2022 17:12:45 & 11-05-2022 18:21:32 & 512 & SE & 4420
+            \end{tabular}
+        }}
+
+        By default, deleted files are not shown in the catalogue. To show also
+        deleted files do a \textit{poke 40ac, 01}. And a \textit{poke 40ac, 00}
+        to hide them again.
+
+        Deleted files are identified by a \textasciitilde symbol in the first
+        character of the filename.
+
+        \texttt{
+        \resizebox{12cm}{!}{
+            \begin{tabular}{l l l l l l}
+                \multicolumn{6}{l}{Disk Catalogue}\\
+                \multicolumn{6}{l}{-----------------------------------------------------------------------------------}\\
+                File & Created & Modified & Size & Attributes & Load Address\\
+                \multicolumn{6}{l}{-----------------------------------------------------------------------------------}\\
+                \textasciitilde elloWorld & 12-03-2022 13:21:44 & 12-03-2022 13:21:22 & 38 &
+                E & 4420\\
+                file2 & 11-05-2022 17:12:45 & 11-05-2022 18:21:32 & 512 & SE & 4420
             \end{tabular}
         }}
 
         % ======================================================================
-        \subsubsection{formatdsk}
+        \subsubsection{{\color{blue}formatdsk}}
         % ======================================================================
-        Formats a \textbf{DISK} with DZFS format. This is a destructive action
-        and all data in the \textbf{DISK} will be destroyed and make it
-        unreadable by other computers that do not support DZFS.
+        Formats a \textbf{DISK} with DZFS format. This is a destructive action.
+        It overwrites the DZFS \textit{Superblock} and \textit{BAT}.
 
-        \hspace{1.9cm}\textbf{$>$ formatdsk \textit{$<$label$>$,
-        $<$partitions$>$}}
+        \hspace{1.9cm}\textbf{$>$ formatdsk \textit{$<$label$>$}}
 
         \textbf{Parameters}:
 
@@ -664,17 +738,13 @@
         Useful for identifying different disks. It can contain any characters,
         with a maximum of 16.
 
-        \hspace{1cm}\textbf{\textit{partitions}}: currently DZFSV1 only supports
-        one partition, so this number MUST be a 1.
+        \textbf{Example}: \texttt{$>$ formatdsk mainDisk}
 
-        \textbf{Example}: \texttt{$>$ formatdsk mainDisk,1}
-
-        Will format the CompactFlash card inserted in the CF slot at the back of
-        the computer case with one partition, having \textit{mainDisk} as disk
-        label.
+        Will format the SD card inserted in the SD card slot at the back of the
+        computer case, having \textit{mainDisk} as disk label.
 
         % ======================================================================
-        \subsubsection{load}
+        \subsubsection{{\color{blue}load}}
         % ======================================================================
         Loads a file from \textbf{DISK} to \textbf{RAM}.
         
@@ -695,7 +765,7 @@
         them into the \textbf{RAM} address from which it was originally saved.
 
         % ======================================================================
-        \subsubsection{run}
+        \subsubsection{{\color{blue}run}}
         % ======================================================================
         There are two formats of this command:
 
@@ -723,7 +793,7 @@
         get back to CLI.
 
         % ======================================================================
-        \subsubsection{rename}
+        \subsubsection{{\color{blue}rename}}
         % ======================================================================
         Changes the name of a file.
 
@@ -743,18 +813,19 @@
         Will change the name of the file \textit{HelloWorld} to \textit{Hello}.
 
         % ======================================================================
-        \subsubsection{delete}
+        \subsubsection{{\color{blue}delete}}
         % ======================================================================
         Deletes a file from the \textbf{DISK}.
 
         Technically is not deleting anything but just changing the first
-        character of the filename to ~, which makes it to not show up with the
-        command \textit{cat}. Hence, it can be undeleted by simply renaming the
-        file. But be aware, when saving new files DZFS looks for a free space
-        \footnote{By free space on the \textbf{DISK} we understand a Block in
-        the DZFS BAT that was never used before by a file.} on the
-        \textbf{DISK}, but if it does not find any it starts re-using space from
-        files marked as deleted and hence overwriting data on the \textbf{DISK}.
+        character of the filename to a \textasciitilde symbol, which makes it to
+        not show up with the command \textit{cat}. Hence, it can be undeleted by
+        simply renaming the file. But be aware, when saving new files DZFS looks
+        for a free space \footnote{By free space on the \textbf{DISK} we
+        understand a Block in the DZFS BAT that was never used before by a
+        file.} on the \textbf{DISK}, but if it does not find any it starts
+        re-using space from files marked as deleted and hence overwriting data
+        on the \textbf{DISK}.
 
         \hspace{1.9cm}\textbf{$>$ delete \textit{$<$filename$>$}}
 
@@ -768,7 +839,7 @@
         Will delete the file \textit{HelloWorld}.
 
         % ======================================================================
-        \subsubsection{chgattr}
+        \subsubsection{{\color{blue}chgattr}}
         % ======================================================================
         Files in DZFS can have any of the following attributes:
         
@@ -803,7 +874,7 @@
         and Executable.
 
         % ======================================================================
-        \subsubsection{save}
+        \subsubsection{{\color{blue}save}}
         % ======================================================================
         Saves the bytes of specified \textbf{MEMORY} addresses to a new file in
         the \textbf{DISK}.
@@ -826,7 +897,7 @@
         with 512 bytes of the contents of \textbf{MEMORY} from 0x4420 to 0x461F.
 
         % ======================================================================
-        \subsubsection{diskinfo}
+        \subsubsection{{\color{blue}diskinfo}}
         % ======================================================================
         Shows some information about the \textbf{DISK}.
 
@@ -841,7 +912,7 @@
         \texttt{
         \resizebox{12cm}{!}{
             \begin{tabular}{l r l l}
-                \multicolumn{4}{l}{CompactFlash Information}\\
+                \multicolumn{4}{l}{Disk Information}\\
                 & Volume .\ .\ : & dastaZ80 Main & (S/N: 352A15F2)\\
                 & File System: & DZFSV1 &\\
                 & Created on : & 03/10/2022 14:22:32 &\\
@@ -851,33 +922,33 @@
             \end{tabular}
         }}
 
-        % ======================================================================
-        \subsubsection{crc16}
-        % ======================================================================
-        Generates a CRC-16/BUYPASS1\footnote{A 16-bit cyclic redundancy
-        check (CRC) based on the IBM Binary Synchronous Communications
-        protocol (BSC or Bisync). It uses the polynomial
-        $X^{16} + X^{15} +X^2 + 1$}
+        % % ======================================================================
+        % \subsubsection{{\color{blue}crc16}}
+        % % ======================================================================
+        % Generates a CRC-16/BUYPASS1\footnote{A 16-bit cyclic redundancy
+        % check (CRC) based on the IBM Binary Synchronous Communications
+        % protocol (BSC or Bisync). It uses the polynomial
+        % $X^{16} + X^{15} +X^2 + 1$}
 
-        There are two formats of this command: 
+        % There are two formats of this command: 
         
-        \textbf{crc16 \textit{$<$start\_address$>$ $<$end\_address$>$}}
-        and \textbf{crc16 \textit{$<$filename$>$}} 
+        % \textbf{crc16 \textit{$<$start\_address$>$ $<$end\_address$>$}}
+        % and \textbf{crc16 \textit{$<$filename$>$}} 
         
-        Here the latter is described. See the section \textit{\ref{gencmds} 
-        General Commands} on page \pageref{gencmds} for the other format.
+        % Here the latter is described. See the section \textit{\ref{gencmds} 
+        % General Commands} on page \pageref{gencmds} for the other format.
 
-        \hspace{1.9cm}\textbf{$>$ crc16 \textit{$<$filename$>$}}
+        % \hspace{1.9cm}\textbf{$>$ crc16 \textit{$<$filename$>$}}
         
-        \textbf{Parameters}:
+        % \textbf{Parameters}:
 
-        \hspace{1cm}\textbf{\textit{filename}}: the name of the file for which
-        the CRC will be calculated.
+        % \hspace{1cm}\textbf{\textit{filename}}: the name of the file for which
+        % the CRC will be calculated.
 
-        \textbf{Example}: \texttt{$>$ crc16 HelloWorld}
+        % \textbf{Example}: \texttt{$>$ crc16 HelloWorld}
 
-        Will calculate the CRC of all bytes on the file and show it on the
-        screen:
+        % Will calculate the CRC of all bytes on the file and show it on the
+        % screen:
         
-        \hspace{1cm}\texttt{CRC16:\ 0x3ABC}
+        % \hspace{1cm}\texttt{CRC16:\ 0x3ABC}
 \end{document}

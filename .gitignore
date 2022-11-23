@@ -13,9 +13,6 @@ docs/*.tex~
 docs/*.toc
 docs/*.xcf
 
-builddate
-buildnum
-
 ToDo.txt
 
 # The Telemark Assembler (TASM)

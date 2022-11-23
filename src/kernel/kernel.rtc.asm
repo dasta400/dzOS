@@ -37,8 +37,26 @@
 ; -----------------------------------------------------------------------------
 
 ;-----------------------------------------------------------------------------
+KRN_RTC_GET_DATE:
+; Call BIOS function to get date from the RTC, and then calculate
+; the year in four digits
+        call    F_BIOS_RTC_GET_DATE
+
+        ld      A, (RTC_century)
+        ld      DE, 100
+        call    F_KRN_MULTIPLY816_SLOW  ; century * 100
+        ld      A, (RTC_year)
+        ld      D, 0
+        ld      E, a
+        xor     A
+        adc     HL, DE                  ; add year to (century * 100)
+        ld      (RTC_year4), HL
+        ret
+
+;-----------------------------------------------------------------------------
 KRN_RTC_SHOW_TIME:
 ; Display on Serial Channel A the values of hour, minutes and seconds from SYSVARS
+; as hh:mm:ss
         ld      A, (RTC_hour)
         call    F_KRN_BIN_TO_BCD4
         ld      DE, tmp_addr1
@@ -76,8 +94,10 @@ KRN_RTC_SHOW_TIME:
 
 ;-----------------------------------------------------------------------------
 KRN_RTC_SHOW_DATE:
-; Display on Serial Channel A the values of day, month and year from SYSVARS
-        call    F_BIOS_RTC_GET_DATE     ; SYSVARS = day, month, year in hex
+; Display on Serial Channel A the values of day, month, year (4 digits) and 
+; day of the week (3 letters) from SYSVARS
+
+        ; Day
         ld      A, (RTC_day)
         call    F_KRN_BIN_TO_BCD4
         ld      DE, tmp_addr1
@@ -87,9 +107,10 @@ KRN_RTC_SHOW_DATE:
         call    F_BIOS_SERIAL_CONOUT_A
         ld      A, (tmp_addr1 + 5)
         call    F_BIOS_SERIAL_CONOUT_A
+        ; Separator
         ld      A, '/'
         call    F_BIOS_SERIAL_CONOUT_A
-        
+        ; Month
         ld      A, (RTC_month)
         call    F_KRN_BIN_TO_BCD4
         ld      DE, tmp_addr1
@@ -99,9 +120,10 @@ KRN_RTC_SHOW_DATE:
         call    F_BIOS_SERIAL_CONOUT_A
         ld      A, (tmp_addr1 + 5)
         call    F_BIOS_SERIAL_CONOUT_A
+        ; Separator
         ld      A, '/'
         call    F_BIOS_SERIAL_CONOUT_A
-
+        ; Year 4 digits
         ld      HL, (RTC_year4)
         call    F_KRN_BIN_TO_BCD6
         ld      C, 0
@@ -116,4 +138,54 @@ KRN_RTC_SHOW_DATE:
         call    F_BIOS_SERIAL_CONOUT_A
         ld      A, (tmp_addr1 + 5)
         call    F_BIOS_SERIAL_CONOUT_A
+        ; Separator
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
+        ; Day Of the Week
+        ld      A, (RTC_day_of_the_week)
+        cp      2
+        jp      z, is_monday
+        cp      3
+        jp      z, is_tuesday
+        cp      4
+        jp      z, is_wednesday
+        cp      5
+        jp      z, is_thursday
+        cp      6
+        jp      z, is_friday
+        cp      7
+        jp      z, is_saturday
+is_sunday:
+        ld      HL, weekdays
+        jp      output_dow
+is_monday:
+        ld      HL, weekdays + 4
+        jp      output_dow
+is_tuesday:
+        ld      HL, weekdays + 8
+        jp      output_dow
+is_wednesday:
+        ld      HL, weekdays + 12
+        jp      output_dow
+is_thursday:
+        ld      HL, weekdays + 16
+        jp      output_dow
+is_friday:
+        ld      HL, weekdays + 20
+        jp      output_dow
+is_saturday:
+        ld      HL, weekdays + 24
+
+output_dow:
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
         ret
+
+weekdays:
+        .BYTE "Sun", 0
+        .BYTE "Mon", 0
+        .BYTE "Tue", 0
+        .BYTE "Wed", 0
+        .BYTE "Thu", 0
+        .BYTE "Fri", 0
+        .BYTE "Sat", 0

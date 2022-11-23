@@ -55,17 +55,19 @@ F_BIOS_SERIAL_CONOUT_B:         .EXPORT         F_BIOS_SERIAL_CONOUT_B
 F_BIOS_SERIAL_INIT              .EXPORT         F_BIOS_SERIAL_INIT
         jp      BIOS_SERIAL_INIT
 
-        ; CompactFlash subroutines
-F_BIOS_CF_INIT:                 .EXPORT         F_BIOS_CF_INIT
-        jp      BIOS_CF_INIT
-F_BIOS_CF_BUSY:                 .EXPORT         F_BIOS_CF_BUSY
-        jp      BIOS_CF_BUSY
-F_BIOS_CF_READ_SEC:             .EXPORT         F_BIOS_CF_READ_SEC
-        jp      BIOS_CF_READ_SEC
-F_BIOS_CF_WRITE_SEC:            .EXPORT         F_BIOS_CF_WRITE_SEC
-        jp      BIOS_CF_WRITE_SEC
-F_BIOS_CF_DISKINFO:             .EXPORT         F_BIOS_CF_DISKINFO
-        jp      BIOS_CF_DISKINFO
+        ; SD Card subroutines
+F_BIOS_SD_GET_STATUS:           .EXPORT         F_BIOS_SD_GET_STATUS
+        jp      BIOS_SD_GET_STATUS
+F_BIOS_SD_BUSY_WAIT             .EXPORT         F_BIOS_SD_BUSY_WAIT
+        jp      BIOS_SD_BUSY_WAIT
+F_BIOS_SD_READ_SEC              .EXPORT         F_BIOS_SD_READ_SEC
+        jp      BIOS_SD_READ_SEC
+F_BIOS_SD_WRITE_SEC             .EXPORT         F_BIOS_SD_WRITE_SEC
+        jp      BIOS_SD_WRITE_SEC
+F_BIOS_SD_PARK_DISKS            .EXPORT         F_BIOS_SD_PARK_DISKS
+        jp      BIOS_SD_PARK_DISKS
+F_BIOS_SD_MOUNT_DISKS           .EXPORT         F_BIOS_SD_MOUNT_DISKS
+        jp      BIOS_SD_MOUNT_DISKS
 
         ; Real-Time Clock subroutines
 F_BIOS_RTC_GET_TIME:            .EXPORT         F_BIOS_RTC_GET_TIME
@@ -78,8 +80,8 @@ F_BIOS_RTC_SET_DATE:            .EXPORT         F_BIOS_RTC_SET_DATE
         jp      BIOS_RTC_SET_DATE
 F_BIOS_RTC_CHECK_BATTERY        .EXPORT         F_BIOS_RTC_CHECK_BATTERY
         jp      BIOS_RTC_CHECK_BATTERY
-F_BIOS_RTC_BATTERY_RPLCED       .EXPORT         F_BIOS_RTC_BATTERY_RPLCED
-        jp      BIOS_RTC_BATTERY_RPLCED
+F_BIOS_NVRAM_DETECT             .EXPORT         F_BIOS_NVRAM_DETECT
+        jp      BIOS_NVRAM_DETECT
 
         .ORG    BIOS_JBLK_END
         .BYTE   0

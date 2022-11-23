@@ -111,9 +111,9 @@ loop_clrmem:
         djnz    loop_clrmem
         ret
 ;------------------------------------------------------------------------------
-KRN_CLEAR_CFBUFFER:
-; Clears (with zeros) the CF Card Buffer
-        ld      IX, CF_BUFFER_START
+KRN_CLEAR_DISKBUFFER:
+; Clears (with zeros) the DISK Buffer
+        ld      IX, DISK_BUFFER_START
         ld      B, 255
         call    F_KRN_CLEAR_MEMAREA
         ld      B, 255

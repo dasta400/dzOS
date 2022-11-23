@@ -45,115 +45,111 @@
 ;==============================================================================
 ; SIO/2 buffers
 ;==============================================================================
-SIO_CH_A_BUFFER:            .EXPORT         SIO_CH_A_BUFFER
-            .FILL   SIO_BUFFER_SIZE, 0
-SIO_CH_A_IN_PTR:            .EXPORT         SIO_CH_A_IN_PTR
-            .BYTE   0, 0
-SIO_CH_A_RD_PTR:            .EXPORT         SIO_CH_A_RD_PTR
-            .BYTE   0, 0
-SIO_CH_A_BUFFER_USED:       .EXPORT         SIO_CH_A_BUFFER_USED
-            .BYTE   0
-SIO_CH_B_BUFFER:            .EXPORT         SIO_CH_B_BUFFER
-            .FILL   SIO_BUFFER_SIZE, 0
-SIO_CH_B_IN_PTR:            .EXPORT         SIO_CH_B_IN_PTR
-            .BYTE   0, 0
-SIO_CH_B_RD_PTR:            .EXPORT         SIO_CH_B_RD_PTR
-            .BYTE   0, 0
-SIO_CH_B_BUFFER_USED:       .EXPORT         SIO_CH_B_BUFFER_USED
-            .BYTE   0
-SIO_PRIMARY_IO:             .EXPORT         SIO_PRIMARY_IO
-            .BYTE   0
+SIO_CH_A_BUFFER:                .EXPORT         SIO_CH_A_BUFFER
+            .FILL       SIO_BUFFER_SIZE, 0
+SIO_CH_A_IN_PTR:                .EXPORT         SIO_CH_A_IN_PTR
+            .BYTE       0, 0
+SIO_CH_A_RD_PTR:                .EXPORT         SIO_CH_A_RD_PTR
+            .BYTE       0, 0
+SIO_CH_A_BUFFER_USED:           .EXPORT         SIO_CH_A_BUFFER_USED
+            .BYTE       0
+SIO_CH_B_BUFFER:                .EXPORT         SIO_CH_B_BUFFER
+            .FILL       SIO_BUFFER_SIZE, 0
+SIO_CH_B_IN_PTR:                .EXPORT         SIO_CH_B_IN_PTR
+            .BYTE       0, 0
+SIO_CH_B_RD_PTR:                .EXPORT         SIO_CH_B_RD_PTR
+            .BYTE       0, 0
+SIO_CH_B_BUFFER_USED:           .EXPORT         SIO_CH_B_BUFFER_USED
+            .BYTE       0
 ;==============================================================================
-; CompactFlash buffers
+; DISK buffers
 ;==============================================================================
-CF_is_formatted:            .EXPORT         CF_is_formatted
-                .BYTE    0                ; Indicates if the CompactFlash can be used.
-                                        ; FF if it’s DZFS format. 00 otherwise
-CF_cur_partition:           .EXPORT         CF_cur_partition
-                .BYTE    0                ; Current partition number. Used for LBA addressing.
-CF_cur_sector:              .EXPORT         CF_cur_sector
-                .BYTE    0, 0
+DISK_is_formatted:              .EXPORT         DISK_is_formatted
+                .BYTE   0                   ; Indicates if the DISK can be used.
+                                            ; FF if it’s DZFS format. 00 otherwise
+DISK_show_deleted:              .EXPORT         DISK_show_deleted
+                .BYTE   0
+DISK_cur_sector:                .EXPORT         DISK_cur_sector
+                .BYTE   0, 0
 ; Current file specifications
-CF_cur_file_name:           .EXPORT         CF_cur_file_name
-                .FILL    14, 0
-CF_cur_file_attribs:        .EXPORT         CF_cur_file_attribs
-                .BYTE    0
-CF_cur_file_time_created:   .EXPORT         CF_cur_file_time_created
-                .BYTE    0, 0
-CF_cur_file_date_created:   .EXPORT         CF_cur_file_date_created
-                .BYTE    0, 0
-CF_cur_file_time_modified:  .EXPORT         CF_cur_file_time_modified
-                .BYTE    0, 0
-CF_cur_file_date_modified:  .EXPORT         CF_cur_file_date_modified
-                .BYTE    0, 0
-CF_cur_file_size_bytes:     .EXPORT         CF_cur_file_size_bytes
-                .BYTE    0, 0
-CF_cur_file_size_sectors:   .EXPORT         CF_cur_file_size_sectors
-                .BYTE    0
-CF_cur_file_entry_number:   .EXPORT         CF_cur_file_entry_number
-                .BYTE    0, 0
-CF_cur_file_1st_sector:     .EXPORT         CF_cur_file_1st_sector
-                .BYTE    0, 0
-CF_cur_file_load_addr:      .EXPORT         CF_cur_file_load_addr
-                .BYTE    0, 0
+DISK_cur_file_name:             .EXPORT         DISK_cur_file_name
+                .FILL   14, 0
+DISK_cur_file_attribs:          .EXPORT         DISK_cur_file_attribs
+                .BYTE   0
+DISK_cur_file_time_created:     .EXPORT         DISK_cur_file_time_created
+                .BYTE   0, 0
+DISK_cur_file_date_created:     .EXPORT         DISK_cur_file_date_created
+                .BYTE   0, 0
+DISK_cur_file_time_modified:    .EXPORT         DISK_cur_file_time_modified
+                .BYTE   0, 0
+DISK_cur_file_date_modified:    .EXPORT         DISK_cur_file_date_modified
+                .BYTE   0, 0
+DISK_cur_file_size_bytes:       .EXPORT         DISK_cur_file_size_bytes
+                .BYTE   0, 0
+DISK_cur_file_size_sectors:     .EXPORT         DISK_cur_file_size_sectors
+                .BYTE   0
+DISK_cur_file_entry_number:     .EXPORT         DISK_cur_file_entry_number
+                .BYTE   0, 0
+DISK_cur_file_1st_sector:       .EXPORT         DISK_cur_file_1st_sector
+                .BYTE   0, 0
+DISK_cur_file_load_addr:        .EXPORT         DISK_cur_file_load_addr
+                .BYTE   0, 0
 ;==============================================================================
 ; CLI buffers
 ;==============================================================================
-CLI_buffer_cmd:             .EXPORT         CLI_buffer_cmd
-                .FILL    16, 0
-CLI_buffer_parm1_val:       .EXPORT         CLI_buffer_parm1_val
-                .FILL    16, 0
-CLI_buffer_parm2_val:       .EXPORT         CLI_buffer_parm2_val
-                .FILL    16, 0
-CLI_buffer_pgm:             .EXPORT         CLI_buffer_pgm
-                .FILL    32, 0            ; general buffer from programs
-CLI_buffer_full_cmd:        .EXPORT         CLI_buffer_full_cmd
-                .FILL    64, 0
-;==============================================================================
-; Temporary variables
-;==============================================================================
-tmp_addr1:                  .EXPORT         tmp_addr1
-                .BYTE    0, 0            ; Temporary storage for an address
-tmp_addr2:                  .EXPORT         tmp_addr2
-                .BYTE    0, 0            ; Temporary storage for an address
-tmp_addr3:                  .EXPORT         tmp_addr3
-                .BYTE    0, 0            ; Temporary storage for an address
-tmp_byte:                   .EXPORT         tmp_byte
-                .BYTE    0                ; Temporary storage for a Byte
+CLI_buffer_cmd:                 .EXPORT         CLI_buffer_cmd
+                .FILL   16, 0
+CLI_buffer_parm1_val:           .EXPORT         CLI_buffer_parm1_val
+                .FILL   16, 0
+CLI_buffer_parm2_val:           .EXPORT         CLI_buffer_parm2_val
+                .FILL   16, 0
+CLI_buffer_pgm:                 .EXPORT         CLI_buffer_pgm
+                .FILL   32, 0                   ; general buffer from programs
+CLI_buffer_full_cmd:            .EXPORT         CLI_buffer_full_cmd
+                .FILL   64, 0
 ;==============================================================================
 ; Real-Time Clock variables
 ;==============================================================================
-RTC_hour                    .EXPORT         RTC_hour
-                .BYTE    0
-RTC_minutes                 .EXPORT         RTC_minutes
-                .BYTE    0
-RTC_seconds                 .EXPORT         RTC_seconds
-                .BYTE    0
-RTC_century                 .EXPORT         RTC_century
-                .BYTE    0
-RTC_year                    .EXPORT         RTC_year
-                .BYTE    0
-RTC_year4                   .EXPORT         RTC_year4
-                .BYTE    0, 0
-RTC_month                   .EXPORT         RTC_month
-                .BYTE    0
-RTC_day                     .EXPORT         RTC_day
-                .BYTE    0
-RTC_day_of_the_week         .EXPORT         RTC_day_of_the_week
-                .BYTE    0
-;==============================================================================
-; Real-Time Clock NVRAM variables
-;==============================================================================
-NVRAM_battery_status        .EXPORT         NVRAM_battery_status
+RTC_hour                        .EXPORT         RTC_hour
+                .BYTE   0
+RTC_minutes                     .EXPORT         RTC_minutes
+                .BYTE   0
+RTC_seconds                     .EXPORT         RTC_seconds
+                .BYTE   0
+RTC_century                     .EXPORT         RTC_century
+                .BYTE   0
+RTC_year                        .EXPORT         RTC_year
+                .BYTE   0
+RTC_year4                       .EXPORT         RTC_year4
+                .BYTE   0, 0
+RTC_month                       .EXPORT         RTC_month
+                .BYTE   0
+RTC_day                         .EXPORT         RTC_day
+                .BYTE   0
+RTC_day_of_the_week             .EXPORT         RTC_day_of_the_week
                 .BYTE   0
 ;==============================================================================
 ; Math variables
 ;==============================================================================
-MATH_CRC                    .EXPORT         MATH_CRC
-                .BYTE    0, 0
-MATH_polynomial             .EXPORT         MATH_polynomial
-                .BYTE    0, 0
-
+MATH_CRC                        .EXPORT         MATH_CRC
+                .BYTE   0, 0
+MATH_polynomial                 .EXPORT         MATH_polynomial
+                .BYTE   0, 0
+;==============================================================================
+; Generic variables
+;==============================================================================
+SD_status                       .EXPORT         SD_status
+                .BYTE   0
+tmp_addr1:                      .EXPORT         tmp_addr1
+                .BYTE   0, 0                    ; Temporary storage for an address
+tmp_addr2:                      .EXPORT         tmp_addr2
+                .BYTE   0, 0                    ; Temporary storage for an address
+tmp_addr3:                      .EXPORT         tmp_addr3
+                .BYTE   0, 0                    ; Temporary storage for an address
+tmp_byte:                       .EXPORT         tmp_byte
+                .BYTE   0                       ; Temporary storage for a Byte
+tmp_byte2:                      .EXPORT         tmp_byte2
+                .BYTE   0                       ; Temporary storage for a Byte
 ;==============================================================================
 ; END of CODE
 ;==============================================================================

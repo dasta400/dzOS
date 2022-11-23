@@ -126,8 +126,26 @@ KRN_STRLEN:
 ; OUT => B length of string
         ld      B, 0                    ; reset length counter
 strlen:
-        cp      (HL)                    ; is the character the end of the string?
+        cp      (HL)                    ; is it the terminating character?
         ret     z                       ; Yes, return
         inc     HL                      ; No, point to next character in string
         inc     B                       ;     and increment counter
         jp      strlen                  ; continue loop
+;------------------------------------------------------------------------------
+KRN_STRLENMAX:
+; Returns the length of a string, terminated with a specified character
+; but only check up to a maximum of characters
+; IN <= HL pointer to start of string
+;       A terminating character
+;       B maximum length to be checked
+; OUT => B length of string
+        ld      E, 0                    ; reset temporary length counter
+lenmax:
+        cp      (HL)                    ; is it the terminating character?
+        jp      z, lenmax_end           ; yes, jump out of loop
+        inc     HL                      ; No, point to next character in string
+        inc     E                       ;     and increment counter
+        djnz    lenmax                  ; loop if we didn't yet check maximum length
+lenmax_end:
+        ld      B, E                    ; move temporary counter to output register
+        ret
