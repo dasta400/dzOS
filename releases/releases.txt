@@ -36,5 +36,9 @@ dzOS.2022.09.06.4.bin (old)
     Solved bug that made mmedump not print more addresses after pressing space
     Solved bug where Kernel was calling KRN_SERIAL_WR6DIG_NOLZEROS instead of the jumpblock version F_KRN_SERIAL_WR6DIG_NOLZEROS
 
-dzOS.2022.10.03.4.bin (current)
+dzOS.2022.10.03.4.bin (old)
     Solved bug in save command. Now it saves coprrectly files of any size. Before only saved files with size multiple of 512
+
+dzOS.2022.11.23.18.21.bin (current)
+    A3010KBD now works with all alphanumeric keys, plus CapsLock, ScrollLock, Enter, Space and Backspace
+    CF Card replaced by ASMDC which contains SD Card and RTC
