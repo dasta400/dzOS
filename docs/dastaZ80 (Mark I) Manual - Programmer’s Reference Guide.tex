@@ -1559,7 +1559,7 @@
 
         % ==========================================================================
         \subsubsection{F\_KRN\_HEX\_TO\_ASCII}
-        \label{func:fkrnhextoasciiadr}
+        \label{func:fkrnhextoascii}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
@@ -1931,10 +1931,10 @@
         maximum size of a file and the BAT maximum size.
         \item \textbf{Bytes per BAT entry}: 32
         \item \textbf{BAT entries}: 1024 (32,768 / 32). This also defines the 
-        maximum number of files per Partition.
+        maximum number of files per \textbf{DISK}.
         \item \textbf{Maximum bytes per File}: 1 Block (32,768 bytes)
         \item \textbf{Maximum bytes per DISK}: 1024 Blocks (1 Block = 1 File)
-        * 32,768 bytes per Block = 33,3554,432 bytes (33 MB)
+        * 32,768 bytes per Block = 33,554,432 bytes (33.5 MB)
     \end{itemize}
 
     % ==========================================================================
@@ -1946,7 +1946,7 @@
     \begin{itemize}
         \item \textbf{Superblock} = 512 bytes (1 Sector)
         \item \textbf{Block Allocation Table (BAT)} = 1 Block (64 Sectors = 32,768 bytes)
-        \item \textbf{Data Area} = 1024 Blocks (65,536 Sectors = 33,3554,432 bytes)
+        \item \textbf{Data Area} = 1023 Blocks (65,472 Sectors = 33,521,664 bytes)
     \end{itemize}
 
         % ==========================================================================
@@ -2128,6 +2128,54 @@
             byte to be stored, \texttt{BC} equal to the total number of bytes to
             be stored, and \texttt{IX} equal to the address in \textbf{MEMORY}
             where the filename is stored.
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Convert between HEX and DEC and ASCII}
+    % ==========================================================================
+    In many situations your programs will need to convert between different
+    number notations (hexadecimal, decimal, ASCII). For example, all characters
+    typed by the user are read by the function
+    \hyperref[func:fbiosserialconina]{F\_BIOS\_SERIAL\_CONIN\_A}, which stores
+    the ASCII value of the pressed key in the \texttt{A} register. In order to
+    do manipulations of data, our program will need to convert this ASCII data
+    into either hexadecimal or decimal notation.
+
+    Take as an example the CLI command for saving files to disk (\textit{save}).
+    As shown in the \textit{dastaZ80 User's Manual} section \textit{5.3 Disk
+    Commands}, this command takes two parameters: \textit{$<$start\_address$>$},
+    which is expressed in hexadecimal, and \textit{$<$number\_of\_bytes$>$}, which
+    is expressed in decimal. But in both cases,
+    \hyperref[func:fbiosserialconina]{F\_BIOS\_SERIAL\_CONIN\_A } will give
+    us (in the \texttt{A} register) the ASCII representation of the numbers typed
+    by the user.
+
+    Before we can set a pointer to the memory address specified by 
+    \textit{$<$start\_address$>$}, and set our counter to 
+    \textit{$<$number\_of\_bytes$>$}, we need to convert those ASCII numbers
+    into hexadecimal and decimal respectively.
+
+    The Kernel, offers a series of functions to help the programmer with the
+    conversions:
+
+    \begin{itemize}
+        \item \hyperref[func:fkrnasciiadrtohex]{F\_KRN\_ASCIIADR\_TO\_HEX}:
+        Converts ASCII 4 chars to HEX 2 bytes. (e.g. 32 35 37 30 to \texttt{0x2570})
+        \item \hyperref[func:fkrnasciitohex]{F\_KRN\_ASCII\_TO\_HEX}: Converts
+        ASCII 2 chars to HEX 1 byte. (e.g. 33 45 to \texttt{0x3E})
+        \item \hyperref[func:func:fkrnhextoascii]{KRN\_HEX\_TO\_ASCII}: Converts
+        HEX 1 byte to ASCII 2 chars. (e.g. \texttt{0x3E} to 33 45)
+        \item \hyperref[func:fkrnbintobcd4]{F\_KRN\_BIN\_TO\_BCD4}: Converts HEX
+        1 byte to DEC 4 digits. (e.g. \texttt{0x80} to 0128)
+        \item \hyperref[func:fkrnbintobcd6]{F\_KRN\_BIN\_TO\_BCD6}: Converts HEX
+        2 bytes to DEC 6 digits. (e.g. \texttt{0xFFF} to 065535)
+        \item \hyperref[func:fkrnbcdtoascii]{F\_KRN\_BCD\_TO\_ASCII}: Converts
+        DEC 6 digits to ASCII 6 chars. (e.g. 512 to 30 30 30 35 31 32)
+        \item \hyperref[func:fkrnbintoascii]{F\_KRN\_BIN\_TO\_ASCII}: Converts
+        HEX 2 bytes to ASCII string. (e.g. \texttt{0x7FFF} to 33 32 37 36 37)
+        \item \hyperref[func:fkrndectobin]{F\_KRN\_DEC\_TO\_BIN}:
+        Converts HEX 2 bytes to ASCII string. (e.g. 33 32 37 36 37 to
+        \texttt{0x7FFF})
     \end{itemize}
 
     \pagebreak
