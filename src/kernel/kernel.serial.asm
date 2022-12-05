@@ -61,8 +61,6 @@ KRN_SERIAL_SETFGCOLR:
         jp      z, colour_is_cyan
         cp      ANSI_COLR_WHT
         jp      z, colour_is_white
-        cp      ANSI_COLR_GRY
-        jp      z, colour_is_grey
         jp      colour_is_other         ; White will be sent
 
 colour_is_black:
@@ -90,12 +88,9 @@ colour_is_white:
 colour_is_other:
         ld      DE, KRN_ANSI_COLR_WHT
         jp      F_KRN_SERIAL_SEND_ANSI_CODE
-colour_is_grey:
-        ld      DE, KRN_ANSI_COLR_GRY
-        jp      F_KRN_SERIAL_SEND_ANSI_CODE
 ;------------------------------------------------------------------------------
 KRN_SERIAL_WRSTRCLR:
-; Output a string to the Console, with a specific foreground colour
+; Output a CR terminated string to the Console, with a specific foreground colour
 ; IN <= A = Colour number (as listed in equates.inc)
 ;       HL = pointer to first character of the string
         call    F_KRN_SERIAL_SETFGCOLR  ; Set the foreground colour
@@ -110,7 +105,7 @@ KRN_SERIAL_WRSTR:
         call    F_BIOS_SERIAL_CONOUT_A  ; otherwise, print it
         inc     HL                      ; pointer to next character of the string
         jr      KRN_SERIAL_WRSTR        ; repeat (until character = 00h)
-        ret
+        ; ret
 ;------------------------------------------------------------------------------
 KRN_SERIAL_WR6DIG_NOLZEROS:
 ; Output to the Console a string of ASCII characters representing number
@@ -249,7 +244,6 @@ KRN_ANSI_COLR_BLU               .BYTE   $1B, "[34m"     ; Colour 4
 KRN_ANSI_COLR_MGT               .BYTE   $1B, "[35m"     ; Colour 5
 KRN_ANSI_COLR_CYA               .BYTE   $1B, "[36m"     ; Colour 6
 KRN_ANSI_COLR_WHT               .BYTE   $1B, "[37m"     ; Colour 7
-KRN_ANSI_COLR_GRY               .BYTE   $1B, "[90m"     ; Colour 8
 ;KRN_ANSI_COLR_RED_BR            .BYTE   $1B, "[91m"
 ;KRN_ANSI_COLR_GRN_BR            .BYTE   $1B, "[92m"
 ;KRN_ANSI_COLR_YLW_BR            .BYTE   $1B, "[93m"

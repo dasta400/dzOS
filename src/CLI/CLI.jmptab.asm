@@ -49,15 +49,14 @@ msg_help:
         .BYTE   "| peek        | Show a Memory Address value       | peek 20cf          |", CR, LF
         .BYTE   "| poke        | Change a Memory Address value     | poke 20cf,ff       |", CR, LF
         .BYTE   "| autopoke    | Like poke, but autoincrement addr.| autopoke 2570      |", CR, LF
-        .BYTE   "| run         | Run from Memory Address           | run 2570           |", CR, LF
         .BYTE   "| halt        | Halt the system                   | halt               |", CR, LF
         .BYTE   "|             |                                   |                    |", CR, LF
+        .BYTE   "| dsk         | Change current DSK                | dsk 1              |", CR, LF
         .BYTE   "| cat         | Show Disk Catalogue               | cat                |", CR, LF
         .BYTE   "| run         | Run a file on disk                | run diskinfo       |", CR, LF
         .BYTE   "| load        | Load filename from disk to RAM    | load file1         |", CR, LF
         .BYTE   "| rename      | Rename a file                     | rename old,new     |", CR, LF
         .BYTE   "| delete      | Deletes a file                    | delete myfile      |", CR, LF
-        .BYTE   "| chgattr     | Assigns new Attributes to a file  | chgattr myfile,RSE |", CR, LF
         .BYTE   "| save        | Save from addr. n bytes to a file | save 4570,64       |", CR, LF
         .BYTE   "|             |                                   |                    |", CR, LF
         .BYTE   "| date        | Show current date                 | date               |", CR, LF
@@ -88,6 +87,9 @@ _CMD_DISK_RENAME        .BYTE   "rename", 0     ; renames a file
 _CMD_DISK_DELETE        .BYTE   "delete", 0     ; deletes a file
 _CMD_DISK_CHGATTR       .BYTE   "chgattr", 0    ; changes attributes of a file
 _CMD_DISK_SAVE          .BYTE   "save", 0       ; save n bytes to a file
+_CMD_DISK_CHANGE        .BYTE   "dsk", 0        ; changes current DISK
+_CMD_DISK_LIST          .BYTE   "disklist", 0   ; show the list of available DISKs
+_CMD_DISK_LOWLVLFORMAT  .BYTE   "erasedisk", 0  ; low-level format (only FDD)
 
 ; RTC commands
 _CMD_RTC_DATE           .BYTE   "date", 0
@@ -99,7 +101,7 @@ _CMD_RTC_SETTIME        .BYTE   "settime", 0
 ; TABLES
 ;==============================================================================
 
-; List of available CLI commands
+; List of available CLI commands (add below too)
 cmd_list_table:
         .WORD       _CMD_NOCMD
         .WORD       _CMD_HELP
@@ -118,6 +120,9 @@ cmd_list_table:
         .WORD       _CMD_DISK_DELETE
         .WORD       _CMD_DISK_CHGATTR
         .WORD       _CMD_DISK_SAVE
+        .WORD       _CMD_DISK_CHANGE
+        .WORD       _CMD_DISK_LIST
+        .WORD       _CMD_DISK_LOWLVLFORMAT
         .WORD       _CMD_RTC_DATE
         .WORD       _CMD_RTC_TIME
         .WORD       _CMD_RTC_SETDATE
@@ -125,7 +130,7 @@ cmd_list_table:
         .WORD       _CMD_CRC16BSC
         .WORD       _CMD_CLRRAM
 
-; Jump table for available CLI commands
+; Jump table for available CLI commands (add above too)
 cmd_jmptable:
         .WORD       CLI_NOCMD
         .WORD       CLI_CMD_HELP
@@ -144,6 +149,9 @@ cmd_jmptable:
         .WORD       CLI_CMD_DISK_DELETE
         .WORD       CLI_CMD_DISK_CHGATTR
         .WORD       CLI_CMD_DISK_SAVE
+        .WORD       CLI_CMD_DISK_CHANGE
+        .WORD       CLI_CMD_DISK_LIST
+        .WORD       CLI_CMD_DISK_LOWLVLFORMAT
         .WORD       CLI_CMD_RTC_DATE
         .WORD       CLI_CMD_RTC_TIME
         .WORD       CLI_CMD_RTC_SETDATE
@@ -154,7 +162,7 @@ cmd_jmptable:
 ;==============================================================================
 ; Local Equates
 ;==============================================================================
-JMPTABLE_LENGTH     .EQU        23      ; total number of available commands
+JMPTABLE_LENGTH     .EQU        26      ; total number of available commands
                                         ; in jump table above
 
 CLI_NOCMD:

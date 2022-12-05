@@ -40,6 +40,10 @@
 
 F_KRN_SYSHALT:                      .EXPORT         F_KRN_SYSHALT
         jp      KRN_SYSHALT
+F_KRN_DISK_CHANGE                   .EXPORT         F_KRN_DISK_CHANGE
+        jp      KRN_DISK_CHANGE
+F_KRN_DISK_LIST                     .EXPORT         F_KRN_DISK_LIST
+        jp      KRN_DISK_LIST
 
         ; Serial subroutines
 F_KRN_SERIAL_SETFGCOLR:             .EXPORT         F_KRN_SERIAL_SETFGCOLR
@@ -100,6 +104,8 @@ F_KRN_ASCII_TO_HEX:                 .EXPORT         F_KRN_ASCII_TO_HEX
         jp      KRN_ASCII_TO_HEX
 F_KRN_HEX_TO_ASCII:                 .EXPORT         F_KRN_HEX_TO_ASCII
         jp      KRN_HEX_TO_ASCII
+F_KRN_BCD_TO_BIN                    .EXPORT         F_KRN_BCD_TO_BIN
+        jp      KRN_BCD_TO_BIN
 F_KRN_BIN_TO_BCD4:                  .EXPORT         F_KRN_BIN_TO_BCD4
         jp      KRN_BIN_TO_BCD4
 F_KRN_BIN_TO_BCD6:                  .EXPORT         F_KRN_BIN_TO_BCD6
@@ -148,10 +154,10 @@ F_KRN_DZFS_CHGATTR_FILE:            .EXPORT         F_KRN_DZFS_CHGATTR_FILE
         jp      KRN_DZFS_CHGATTR_FILE
 F_KRN_DZFS_RENAME_FILE:             .EXPORT         F_KRN_DZFS_RENAME_FILE
         jp      KRN_DZFS_RENAME_FILE
-F_KRN_DZFS_FORMAT_SD:               .EXPORT         F_KRN_DZFS_FORMAT_SD
-        jp      KRN_DZFS_FORMAT_SD
-F_KRN_DZFS_SECTOR_TO_SD:            .EXPORT         F_KRN_DZFS_SECTOR_TO_SD
-        jp      KRN_DZFS_SECTOR_TO_SD
+F_KRN_DZFS_FORMAT_DISK:             .EXPORT         F_KRN_DZFS_FORMAT_DISK
+        jp      KRN_DZFS_FORMAT_DISK
+F_KRN_DZFS_SECTOR_TO_DISK:          .EXPORT         F_KRN_DZFS_SECTOR_TO_DISK
+        jp      KRN_DZFS_SECTOR_TO_DISK
 F_KRN_DZFS_GET_BAT_FREE_ENTRY:      .EXPORT         F_KRN_DZFS_GET_BAT_FREE_ENTRY
         jp      KRN_DZFS_GET_BAT_FREE_ENTRY
 F_KRN_DZFS_ADD_BAT_ENTRY:           .EXPORT         F_KRN_DZFS_ADD_BAT_ENTRY
@@ -172,6 +178,10 @@ F_KRN_RTC_SHOW_TIME                 .EXPORT         F_KRN_RTC_SHOW_TIME
         jp      KRN_RTC_SHOW_TIME
 F_KRN_RTC_SHOW_DATE                 .EXPORT         F_KRN_RTC_SHOW_DATE
         jp      KRN_RTC_SHOW_DATE
+F_KRN_RTC_SET_TIME                  .EXPORT         F_KRN_RTC_SET_TIME
+        jp      KRN_RTC_SET_TIME
+F_KRN_RTC_SET_DATE                  .EXPORT         F_KRN_RTC_SET_DATE
+        jp      KRN_RTC_SET_DATE
 
         .ORG	KRN_JBLK_END
         .BYTE	0

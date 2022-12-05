@@ -246,6 +246,14 @@ CLI_CMD_RUN:
         call    F_KRN_IS_NUMERIC        ;   is a number
         jr      c, runner_addr          ; is number? Yes, run from memory address
 runner_filename:                        ; No, load and run file
+        ; If FDD, then check that disk is in the drive and not protected
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _runner
+        call    _CLI_CHECK_DISK_IN_DRIVE
+        cp      0
+        jp      nz, cli_promptloop      ; error, don't format and go back to CLI
+_runner:
         ; filename is the first parameter, so can call load command directly
         ld      A, $AB                  ; This is a flag to tell CLI_CMD_DISK_LOAD that the call
         ld      (tmp_byte2), A          ;   didn't come from the jumptable, so that it can return here
@@ -270,6 +278,14 @@ runner_addr:
 ;     cat - Shows disk catalogue
 ;------------------------------------------------------------------------------
 CLI_CMD_DISK_CAT:
+        ; If FDD, then check that disk is in the drive and not protected
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _catdisk
+        call    _CLI_CHECK_DISK_IN_DRIVE
+        cp      0
+        jp      nz, cli_promptloop      ; error, don't format and go back to CLI
+_catdisk:
         ; Only allow disk commands if the disk is formatted
         ld      A, (DISK_is_formatted)
         cp      $FF
@@ -288,7 +304,7 @@ CLI_CMD_DISK_CAT:
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
         ; print catalogue
-        call    F_CLI_DISK_PRINT_DISKCAT
+        call    _CLI_DISK_PRINT_DISKCAT
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;     load - Load filename from disk to RAM
@@ -296,14 +312,24 @@ CLI_CMD_DISK_CAT:
 CLI_CMD_DISK_LOAD:
 ; IN <= CLI_buffer_parm1_val = Filename
 ; OUT => OK message on default output (e.g. screen, I/O) if file found
+
+        ; If FDD, then check that disk is in the drive and not protected
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _loader
+        call    _CLI_CHECK_DISK_IN_DRIVE
+        cp      0
+        jp      nz, cli_promptloop      ; error, don't format and go back to CLI
+_loader:
         ; Only allow disk commands if the disk is formatted
         ld      A, (DISK_is_formatted)
         cp      $FF
         jp      nz, _error_diskunformatted
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
-        ld      A, $00                  ; This is a flag to tell CLI_CMD_DISK_LOAD that the call
-        ld      (tmp_byte2), A          ;   came from the jumptable
-CLI_CMD_DISK_LOAD_NOCHECK:              ; When called from CLI_CMD_RUN, the parameter was already checked
+        ld      A, $00                  ; This is a flag to tell CLI_CMD_DISK_LOAD
+        ld      (tmp_byte2), A          ;   that the call came from the jumptable
+CLI_CMD_DISK_LOAD_NOCHECK:              ; When called from CLI_CMD_RUN, the
+                                        ;   parameter was already checked
         ; Search filename in BAT
         ; Check that filename exists
         ld      HL, CLI_buffer_parm1_val
@@ -334,44 +360,80 @@ CLI_CMD_DISK_FORMATDSK:
 ; IN <= CLI_buffer_parm1_val = disk label
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
         ; Ask for confirmation before formatting
-        ; User MUST reply with the word 'yes' to proceed.
-        ; Any other word/character will cancel the formatting
-        ld      HL, msg_disk_format_confirm
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      IX, CLI_buffer_pgm      ; answer will be stored in CLI_buffer_pgm
-format_answer_loop:
-        call    F_KRN_SERIAL_RDCHARECHO ; read a character, with echo
-        cp      CR                      ; ENTER?
-        jp      z, format_answer_end    ; yes, command was fully entered
-        ld      (IX), A                 ; store character
-        inc     IX                      ;   in buffer
-        jp      format_answer_loop      ; no, read more characters
-format_answer_end:
-        ; Check that the answer is yes
-        ld      IX, CLI_buffer_pgm
-        ld      A, (IX)
-        cp      'y'
-        jp      nz, cli_promptloop
-        ld      A, (IX + 1)
-        cp      'e'
-        jp      nz, cli_promptloop
-        ld      A, (IX + 2)
-        cp      's'
+        call    _CLI_ASK_CONFIRM_FORMAT
+        cp      0
         jp      nz, cli_promptloop
         ; Answer was yes, then proceed to format the disk
         ld      HL, CLI_buffer_parm1_val
         ld      DE, CLI_buffer_parm2_val
-        call    F_KRN_DZFS_FORMAT_SD    ; Format the disk
-        
+
+        ; If FDD, then check that disk is in the drive and not write protected
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _formatdisk
+        call    _CLI_CHECK_FDD_WR_READY
+        cp      0
+        jp      nz, cli_promptloop      ; error, don't format and go back to CLI
+_formatdisk:                            ; no FDD or no errors, format the disk
+        call    F_KRN_DZFS_FORMAT_DISK
+
         ld      HL, msg_format_end
         ld      A, ANSI_COLR_YLW
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
+;     erase - Low-Level Format disk (only FDD)
+;------------------------------------------------------------------------------
+CLI_CMD_DISK_LOWLVLFORMAT:
+        ; Only allow this command for FDD
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _nofdd
+        ; Ask for confirmation before formatting
+        call    _CLI_ASK_CONFIRM_FORMAT
+        cp      0
+        jp      nz, cli_promptloop
+        ; Answer was yes, then then check that disk is in the drive and not protected
+        call    _CLI_CHECK_FDD_WR_READY
+        cp      0
+        jp      nz, cli_promptloop          ; error, don't format and go back to CLI
+        ld      HL, msg_sd_erase_start
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+
+        call    F_BIOS_FDD_LOWLVL_FORMAT
+        ; Was the format successful?
+        bit     2, A
+        jp      nz, _lowlvlerror
+        ld      HL, msg_lowlvlformat_end    ; no error
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ; set DISK_is_formatted to 0x00 to indicate unformatted
+        ld      A, 0
+        ld      (DISK_is_formatted), A
+        jp      cli_promptloop
+_lowlvlerror:
+        ld      HL, error_2011              ; error
+        jp      _errmsg
+_nofdd:
+        ld      HL, error_2010
+_errmsg:
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      cli_promptloop
+
+;------------------------------------------------------------------------------
 ;     diskinfo - Show disk information
 ;------------------------------------------------------------------------------
 CLI_CMD_DISK_DISKINFO:
+        ; If FDD, then check that disk is in the drive
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _diskinfo
+        call    _CLI_CHECK_DISK_IN_DRIVE
+        cp      0
+        jp      nz, cli_promptloop      ; error, don't format and go back to CLI
+_diskinfo:
         ; Only allow disk commands if the disk is formatted
         ld      A, (DISK_is_formatted)
         cp      $FF
@@ -389,6 +451,14 @@ CLI_CMD_DISK_RENAME:
 ; IN <= CLI_buffer_parm1_val = old filename
 ;       CLI_buffer_parm2_val = new filename
 ;
+        ; If FDD, then check that disk is in the drive and not protected
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _rename
+        call    _CLI_CHECK_FDD_WR_READY
+        cp      0
+        jp      nz, cli_promptloop      ; error, don't format and go back to CLI
+_rename:
         ; Only allow disk commands if the disk is formatted
         ld      A, (DISK_is_formatted)
         cp      $FF
@@ -439,7 +509,15 @@ action_notallowed:
 ;------------------------------------------------------------------------------
 CLI_CMD_DISK_DELETE:
 ; IN <= CLI_buffer_parm1_val = filename
-;
+
+        ; If FDD, then check that disk is in the drive and not protected
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _delete
+        call    _CLI_CHECK_FDD_WR_READY
+        cp      0
+        jp      nz, cli_promptloop      ; error, don't format and go back to CLI
+_delete:
         ; Only allow disk commands if the disk is formatted
         ld      A, (DISK_is_formatted)
         cp      $FF
@@ -467,7 +545,15 @@ CLI_CMD_DISK_DELETE:
 CLI_CMD_DISK_CHGATTR:
 ; IN <= CLI_buffer_parm1_val = filename
 ;       CLI_buffer_parm2_val = new attributes
-;
+
+        ; If FDD, then check that disk is in the drive and not protected
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _chgattr
+        call    _CLI_CHECK_FDD_WR_READY
+        cp      0
+        jp      nz, cli_promptloop      ; error, don't format and go back to CLI
+_chgattr:
         ; Only allow disk commands if the disk is formatted
         ld      A, (DISK_is_formatted)
         cp      $FF
@@ -477,7 +563,6 @@ CLI_CMD_DISK_CHGATTR:
         ld      HL, CLI_buffer_parm1_val
         call    F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      z, filename_notfound    ; filename not found, error and exit
-chgattr:
         ; Do not allow change attributes on System files
         ld      A, (DISK_cur_file_attribs)
         bit     2, A                    ; is it System?
@@ -582,7 +667,15 @@ is_rosys:
 CLI_CMD_DISK_SAVE:
 ; IN <= CLI_buffer_parm1_val = start address in memory
 ;       CLI_buffer_parm2_val = number of bytes to save
-;
+
+        ; If FDD, then check that disk is in the drive and not protected
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _save
+        call    _CLI_CHECK_FDD_WR_READY
+        cp      0
+        jp      nz, cli_promptloop      ; error, don't format and go back to CLI
+_save:
         ; Only allow disk commands if the disk is formatted
         ld      A, (DISK_is_formatted)
         cp      $FF
@@ -646,6 +739,73 @@ save_filename:
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
+;   diskchange - Changes the current DISK
+;------------------------------------------------------------------------------
+CLI_CMD_DISK_CHANGE:
+; IN <= CLI_buffer_parm1_val = disk number
+        call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
+        ; param 1 is decimal ASCII (e.g. 2 = 0x32)
+        ; Convert param1 to binary
+        ;   Get the length of param1 and store it in B
+        ld      HL, CLI_buffer_parm1_val
+        ld      A, $00                  ; param1 is terminated with $00
+        call    F_KRN_STRLEN
+        ;   Shift bytes by one to the right
+        ;      and put the length in first byte
+        dec     HL                      ; pointer to last byte to shift
+        call    F_KRN_SHIFT_BYTES_BY1
+        ;   Convert it to binary
+        ld      HL, CLI_buffer_parm1_val
+        call    F_KRN_DEC_TO_BIN
+        ld      A, L                    ; as the number is between 0x00 and 0x0F
+                                        ;   we're only interested in the lower byte
+        ; Check that the number is not bigger than SD_images_num
+        ld      HL, SD_images_num
+        cp      (HL)
+        jp      z, _is_equal            ; was equal
+        jp      p, _is_bigger           ; was bigger
+        ; was less or equal. Do the change
+_is_equal:
+        call    F_KRN_DISK_CHANGE       ; A = error code (0=OK)
+        ; Check for errors
+        cp      $FF
+        jp      z, _chgdsk_error
+        jp      cli_promptloop
+_is_bigger:
+        ld      HL, error_2002
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      cli_promptloop
+_chgdsk_error:
+        push    AF                      ; backup error code
+        ld      HL, error_2008
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      cli_promptloop
+
+;------------------------------------------------------------------------------
+;   disklist - Show the list of available DISKs
+;------------------------------------------------------------------------------
+CLI_CMD_DISK_LIST:
+        ; Add FDD info
+        ld      HL, msg_disk0
+        ld      A, ANSI_COLR_MGT
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_fdd
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+        ; Get SD info
+        ld      A, (DISK_current)
+        push    AF                      ; backup current DISK
+        ld      IX, FREERAM_END - 210   ; where to store the image files info
+                                        ; for a max. of 15 disks and 14 bytes
+                                        ; needed for each, we need a total max.
+                                        ; of 210 bytes
+        call    F_KRN_DISK_LIST
+        pop     AF
+        ld      (DISK_current), A       ; restore current DISK
+        jp      cli_promptloop
+;------------------------------------------------------------------------------
 ;   date - Show current date
 ;------------------------------------------------------------------------------
 CLI_CMD_RTC_DATE:
@@ -669,13 +829,15 @@ CLI_CMD_RTC_TIME:
 ;   setdate - Change current date (ddmmyyyy)
 ;------------------------------------------------------------------------------
 CLI_CMD_RTC_SETDATE:
-        call    F_BIOS_RTC_SET_DATE
+        ld      IX, CLI_buffer_parm1_val
+        call    F_KRN_RTC_SET_DATE
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;   settime - Change current time (hhmmss)
 ;------------------------------------------------------------------------------
 CLI_CMD_RTC_SETTIME:
-        call    F_BIOS_RTC_SET_TIME
+        ld      IX, CLI_buffer_parm1_val
+        call    F_KRN_RTC_SET_TIME
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;   crc - Calculates the CRC-16 BSC for a number of bytes
@@ -787,11 +949,47 @@ _CLI_HEX2BIN_PARAM2:
         call    F_KRN_ASCII_TO_HEX
         ld      E, A
         ret
+;------------------------------------------------------------------------------
+_CLI_ASK_CONFIRM_FORMAT:
+; Ask for confirmation before formatting
+; OUT => A = 0 (yes) / 1 (no)
+        ; User MUST reply with the word 'yes' to proceed.
+        ; Any other word/character will cancel the formatting
+        ld      HL, msg_disk_format_confirm
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      IX, CLI_buffer_pgm      ; answer will be stored in CLI_buffer_pgm
+_format_answer_loop:
+        call    F_KRN_SERIAL_RDCHARECHO ; read a character, with echo
+        cp      CR                      ; ENTER?
+        jp      z, _format_answer_end    ; yes, command was fully entered
+        ld      (IX), A                 ; store character
+        inc     IX                      ;   in buffer
+        jp      _format_answer_loop     ; no, read more characters
+_format_answer_end:
+        ; Check that the answer is yes
+        ld      IX, CLI_buffer_pgm
+        ld      A, (IX)
+        cp      'y'
+        jp      nz, _format_answer_no
+        ld      A, (IX + 1)
+        cp      'e'
+        jp      nz, _format_answer_no
+        ld      A, (IX + 2)
+        cp      's'
+        jp      nz, _format_answer_no
+_format_answer_yes:
+        ld      A, 0
+        ret
+_format_answer_no:
+        ld      A, 1
+        ret
+
 ;==============================================================================
 ; Disk subroutines
 ;==============================================================================
 ;------------------------------------------------------------------------------
-F_CLI_DISK_PRINT_DISKCAT:
+_CLI_DISK_PRINT_DISKCAT:
 ; Prints the contents (catalogue) of the Disk
 ; All entries in the BAT are consecutive. When a new file is stored, it will be 
 ; stored in the next available (first character = $00=available, or $FF=deleted).
@@ -880,7 +1078,7 @@ show_deleted:
         call    print_n_spaces
         ;   Attributes (RHSE, R=Read Only, H=Hidden, S=System, E=Executable)
 ; ToDo - make it print always in the same column
-        call    F_CLI_DISK_PRINT_ATTRBS
+        call    _CLI_DISK_PRINT_ATTRBS
         ld      B, 8                    ; print 8 spaces
         call    print_n_spaces
         ; Load Address
@@ -909,7 +1107,7 @@ diskcat_end:
 diskcat_end_nopop:
         jp      cli_promptloop          ; Yes, then nothing else to do
 ;------------------------------------------------------------------------------
-F_CLI_DISK_PRINT_ATTRBS:
+_CLI_DISK_PRINT_ATTRBS:
 ; Prints a string with letters (R=Read Only, H=Hidden, S=System, E=Executable)
 ; if file attribute is ON, or space if it's OFF
         ld      A, (DISK_cur_file_attribs)
@@ -1050,3 +1248,35 @@ _error_diskunformatted:
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
+;------------------------------------------------------------------------------
+_CLI_CHECK_DISK_IN_DRIVE:
+; Check that a disk is in the drive
+; OUT => A = 0x00 disk is in / 0xFF no disk
+        call    F_BIOS_FDD_CHECK_DISKIN
+        cp      0
+        ret     z                       ; no error, return
+
+        ld      HL, error_2008
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      A, $FF                  ; Indicate error to calling subroutine
+        ret
+;------------------------------------------------------------------------------
+_CLI_CHECK_FDD_WR_READY: ; ToDo
+; Checks that a disk is in the drive and not write protected
+; OUT => A = 0x00 All OK / 0xFF no disk or write protected
+;         call    _CLI_CHECK_DISK_IN_DRIVE
+;         cp      0
+;         ret     nz                      ; no disk in drive, return
+
+;         call    F_BIOS_FDD_CHECK_WPROTECT
+;         cp      0
+;         jp      z, _writeprotected
+        ld      A, 0                    ; Indicate no error to calling subroutine
+        ret
+; _writeprotected:
+;         ld      HL, error_2009
+;         ld      A, ANSI_COLR_RED
+;         call    F_KRN_SERIAL_WRSTRCLR
+;         ld      A, $FF                  ; Indicate error to calling subroutine
+        ret

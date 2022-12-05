@@ -181,6 +181,79 @@ output_dow:
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
+;-----------------------------------------------------------------------------
+KRN_RTC_SET_TIME:
+; Converts ASCII values to Hexadecimal, moves it into SYSVARS RTC_hour,
+; RTC_minutes, RTC_seconds, and calls BIOS function to change time via ASMDC
+; IN <= IX = address where the new time is stored in ASCII format
+        ld      A, (IX)
+        ld      H, A
+        ld      A, (IX + 1)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX
+        call    F_KRN_BCD_TO_BIN
+        ld      (RTC_hour), A
+
+        ld      A, (IX + 2)
+        ld      H, A
+        ld      A, (IX + 3)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX
+        call    F_KRN_BCD_TO_BIN
+        ld      (RTC_minutes), A
+
+        ld      A, (IX + 4)
+        ld      H, A
+        ld      A, (IX + 5)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX
+        call    F_KRN_BCD_TO_BIN
+        ld      (RTC_seconds), A
+
+        call    F_BIOS_RTC_SET_TIME
+        ret
+
+;-----------------------------------------------------------------------------
+KRN_RTC_SET_DATE:
+; Converts ASCII values to Hexadecimal, moves it into SYSVARS RTC_year, 
+; RTC_month, RTC_day, RTC_day_of_the_week, and calls BIOS function to change
+; date via ASMDC
+; IN <= IX = address where the new date is stored in ASCII format
+        ld      A, (IX)
+        ld      H, A
+        ld      A, (IX + 1)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX
+        call    F_KRN_BCD_TO_BIN
+        ld      (RTC_year), A
+
+        ld      A, (IX + 2)
+        ld      H, A
+        ld      A, (IX + 3)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX
+        call    F_KRN_BCD_TO_BIN
+        ld      (RTC_month), A
+
+        ld      A, (IX + 4)
+        ld      H, A
+        ld      A, (IX + 5)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX
+        call    F_KRN_BCD_TO_BIN
+        ld      (RTC_day), A
+
+        ld      A, (IX + 6)
+        sub     $30                     ; convert from ASCII to hex by just
+                                        ; subtracting $30, as the possible values
+                                        ; are from $30 to $36
+        ld      (RTC_day_of_the_week), A
+
+        call    F_BIOS_RTC_SET_DATE
+        ret
+
+;-----------------------------------------------------------------------------
+;-----------------------------------------------------------------------------
 weekdays:
         .BYTE "Sun", 0
         .BYTE "Mon", 0

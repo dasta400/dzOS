@@ -69,16 +69,16 @@ KRN_ASCII_TO_HEX:
 ;    IN <= H = Most significant ASCII digit
 ;          L = Less significant ASCII digit
 ;    OUT => A = Converted binary data
-        ld      a, l                    ; get low character
+        ld      A, L                    ; get low character
         call    a2hex                   ; convert it to hexadecimal
-        ld      b, a                    ; save hex value in b
-        ld      a, h                    ; get high character
+        ld      B, A                    ; save hex value in b
+        ld      A, H                    ; get high character
         call    a2hex                   ; convert it to hexadecimal
         rrca                            ; shift hex value to upper 4 bits
         rrca
         rrca
         rrca
-        or      b                       ; or in low hex value
+        or      B                       ; or in low hex value
         ret
 a2hex: ; convert ascii digit to a hex digit
         sub     '0'                     ; subtract ascii offset
@@ -95,28 +95,54 @@ KRN_HEX_TO_ASCII:
 ;    OUT => H = Most significant ASCII digit
 ;            L = Less significant ASCII digit
         ; Convert High Nibble
-        ld      b, a                    ; save original binary value
+        ld      B, A                    ; save original binary value
         and     0F0h                    ; get high nibble
         rrca                            ; move high nibble to low nibble
         rrca
         rrca
         rrca
         call    nascii                  ; convert high nibble to ASCII
-        ld      h, a                    ; return high nibble in H
+        ld      H, A                    ; return high nibble in H
         ; Convert Low Nibble
-        ld      a, b
+        ld      A, B
         and     0Fh                     ; get low nibble
         call    nascii                  ; convert low nibble to ASCII
-        ld      l, a                    ; return low nibble in H
+        ld      L, A                    ; return low nibble in H
         ret
 nascii:
         cp      10
         jr      c, nas1                 ; jump if high nibble < 10
-        add     a, 7                    ; else add 7 so after adding '0' the
+        add     A, 7                    ; else add 7 so after adding '0' the
                                         ; character will be in 'A'..'F'
 nas1:
-        add     a, '0'                  ; add ASCII 0 to make a character
+        add     A, '0'                  ; add ASCII 0 to make a character
         ret
+;------------------------------------------------------------------------------
+KRN_BCD_TO_BIN:
+; Converts 1 byte of BCD to 1 byte of hexadecimal
+; (e.g. 12 is converted into 0x0C)
+; (c) 1993 by McGraw-Hill, Inc. (Z80 Assembly Language Subroutines)
+; IN <= A = BCD
+; OUT => H = Hexadecimal
+
+        ; MULTIPLY UPPER NIBBLE BY 10 AND SAVE IT
+        ;  UPPER NIBBLE * 10 = UPPER NIBBLE * (8 + 2)
+        ld      B, A                    ; SAVE ORIGINAL BCD VALUE IN B
+        and     $0F0                    ; MASK OFF UPPER NIBBLE
+        rrca                            ; SHIFT RIGHT 1 BIT
+        ld      C, A                    ; C = UPPER NIBBLE * 8
+        rrca                            ; SHIFT RIGHT 2 MORE TIMES
+        rrca                            ; A = UPPER NIBBLE * 2
+        add     A, C
+        ld      C, A                    ; C = UPPER NIBBLE * (8+2)
+
+        ; GET LOWER NIBBLE AND ADD IT TO THE
+        ;  BINARY EQUIVALENT OF THE UPPER NIBBLE
+        ld      A, B                    ; GET ORIGINAL VALUE BACK
+        and     $0F                     ; MASK OFF UPPER NIBBLE
+        add     A, C                    ; ADD TO BINARY UPPER NIBBLE
+        ret
+
 ;------------------------------------------------------------------------------
 KRN_BIN_TO_BCD4:
 ; Converts 1 byte of unsigned integer hexadecimal to 4-digit BCD
@@ -124,29 +150,29 @@ KRN_BIN_TO_BCD4:
 ; IN <= A = unsigned integer
 ; OUT => H = hundreds digit
 ;        L = tens digit
-        ld      h, 255                  ; counter. Start at -1
+        ld      H, 255                  ; counter. Start at -1
 hundreds:
-        inc     h                       ; add 1 to quotient
+        inc     H                       ; add 1 to quotient
         sub     100                     ; subtract 100
         jr      nc, hundreds            ; still positive? Yes, loop again
-        add     a, 100                  ; no, add the last 100 back
+        add     A, 100                  ; no, add the last 100 back
 
-        ld      l, 255                  ; counter. Start at -1
+        ld      L, 255                  ; counter. Start at -1
 tens:
-        inc     l                       ; add 1 to quotient
+        inc     L                       ; add 1 to quotient
         sub     10                      ; subtratc 10
         jr      nc, tens                ; still positive? Yes, loop again
-        add     a, 10                   ; no, add the last 10 back
+        add     A, 10                   ; no, add the last 10 back
 
-        ld      c, a                    ; save units digit in C
-        ld      a, l
+        ld      C, A                    ; save units digit in C
+        ld      A, L
         rlca                            ; move the tens to high nibble of A
         rlca
         rlca
         rlca
-        or      c                       ; or the units digit
+        or      C                       ; or the units digit
 
-        ld      l, a
+        ld      L, A
         ret
 ;------------------------------------------------------------------------------
 KRN_BIN_TO_BCD6:
@@ -155,22 +181,22 @@ KRN_BIN_TO_BCD6:
 ; https://de.comp.lang.assembler.x86.narkive.com/EjY9sEbE/z80-binary-to-ascii
 ;    IN <= HL = unsigned integer
 ;    OUT => CDE = 6-digit BCD
-        ld      bc, 4096                ; counter
-        ld      de, 0
+        ld      BC, 4096                ; counter
+        ld      DE, 0
 bin2bcdloop:
-        add     hl, hl
-        ld      a, e
-        adc     a, a
+        add     HL, HL
+        ld      A, E
+        adc     A, A
         daa
-        ld      e, a
-        ld      a, d
-        adc     a, a
+        ld      E, A
+        ld      A, D
+        adc     A, A
         daa
-        ld      d, a
-        ld      a, c
-        adc     a, a
+        ld      D, A
+        ld      A, C
+        adc     A, A
         daa
-        ld      c, a
+        ld      C, A
         djnz    bin2bcdloop             ; all bits done? No, continue with more bits
         ret                             ; yes, exit routine
 ;------------------------------------------------------------------------------
@@ -183,17 +209,17 @@ KRN_BCD_TO_ASCII:
 ;       H = next two digits of 6-digit BCD to convert
 ;       L = last 2 digits of 6-digit BCD to convert
 ; OUT => DE = pointer past end of ASCII string
-        ld      a, c
+        ld      A, C
         call    uppernibble
-        ld      a, c
+        ld      A, C
         call    lowernibble
-        ld      a, h
+        ld      A, H
         call    uppernibble
-        ld      a, h
+        ld      A, H
         call    lowernibble
-        ld      a, l
+        ld      A, L
         call    uppernibble
-        ld      a, l
+        ld      A, L
         jr      lowernibble
 uppernibble:
         rra                             ; move high nibble to low nibble
@@ -202,12 +228,12 @@ uppernibble:
         rra
 lowernibble:
         and     0Fh                     ; get low nibble
-        add     a, 90h
+        add     A, 90h
         daa
-        adc     a, 40h
+        adc     A, 40h
         daa
-        ld      (de), a
-        inc     de
+        ld      (DE), A
+        inc     DE
         ret
 ;------------------------------------------------------------------------------
 KRN_BITEXTRACT:
@@ -549,7 +575,6 @@ KRN_PKEDTIME_TO_HMS:
         pop     HL                      ; restore hour
         ld      A, L                    ; A = hour
         ret
-;------------------------------------------------------------------------------
 _shift_left_11:
 ; Shift HL left 11 places
         ld      A, L
@@ -559,7 +584,6 @@ _shift_left_11:
         ld      H, A
         ld      L, 0
         ret
-;------------------------------------------------------------------------------
 _shift_right_10:
 ; Shift HL right 10 places
         srl     H
@@ -567,7 +591,6 @@ _shift_right_10:
         ld      L, H
         ld      H, 0
         ret
-;------------------------------------------------------------------------------
 _shift_right_11:
 ; Shift HL right 11 places
         ld      A, H

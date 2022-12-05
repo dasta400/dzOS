@@ -10,3 +10,5 @@
   * ✔ If found entry with $00 as first byte, return this entry's number
   * Else, return entry's number of the entry with $7E as first byte
   * If no $00 nor $7E, return $FFFF as entry number to indicate error
+* Message "....Detecting RTC  [ RTC Battery needs replacement ] ....Detecting NVRAM  [ 56 Bytes ]" lacks CarriageReturn
+* ~~clrram~~ hangs the computer

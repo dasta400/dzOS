@@ -97,6 +97,8 @@ DISK_cur_file_load_addr:        .EXPORT         DISK_cur_file_load_addr
 ;==============================================================================
 ; CLI buffers
 ;==============================================================================
+CLI_buffer:                     .EXPORT         CLI_buffer
+                .FILL   6, 0
 CLI_buffer_cmd:                 .EXPORT         CLI_buffer_cmd
                 .FILL   16, 0
 CLI_buffer_parm1_val:           .EXPORT         CLI_buffer_parm1_val
@@ -138,7 +140,12 @@ MATH_polynomial                 .EXPORT         MATH_polynomial
 ;==============================================================================
 ; Generic variables
 ;==============================================================================
-SD_status                       .EXPORT         SD_status
+SD_images_num                   .EXPORT         SD_images_num
+                .BYTE   0                       ; Number of Image Files found by ASMDC
+DISK_current                    .EXPORT         DISK_current
+                .BYTE   0                       ; Current DISK active.
+                                                ; All disk operations will be on this DISK
+DISK_status                     .EXPORT         DISK_status
                 .BYTE   0
 tmp_addr1:                      .EXPORT         tmp_addr1
                 .BYTE   0, 0                    ; Temporary storage for an address

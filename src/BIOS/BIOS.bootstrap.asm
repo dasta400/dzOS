@@ -56,7 +56,7 @@
 
 _disable_ROM:   ; Disable ROM and enable Low RAM
         ld      A, $01
-        out     ($38), A
+        out     (ROMRAM_PAGING), A
 
         ; Copy the copy of ROM in High RAM to Low RAM
         ; Don't need this boostrap anymore, so we only copy from

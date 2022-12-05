@@ -66,6 +66,8 @@ The BAT is an area of 1 Block (64 Sectors, 32,7682) bytes) on the disk used to s
 
 For simplicity, each entry works also as index. The first entry describes the first file on the disk, the second entry describes the second file, and so on.
 
+Initially I thought about each entry on this table to be describing the relation between a file and the block number where it's located. Hence the name Block Allocation Table. But then I realised that the OS will have to calculate the sector number each time. Though it's a simple formula (65 + 64 * block_number), it will require extra calculations that could be avoid if the sector is already pre-calculated (at the time when the file is created).
+
 | Offset | Length (bytes) | Description | Example |
 | ------ | -------------- | ----------- | ------- |
 | $00    | 14  | **Filename** | 46 49 4C 45 30 30 30 30 31 20 20 20 20 20 |

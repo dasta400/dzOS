@@ -200,12 +200,13 @@
             \item 48 KB available for the user
             \item 56 Bytes NVRAM
         \end{itemize}
-        \item Storage device
+        \item Storage devices
         \begin{itemize}
-            \item Micro SD Card, formatted with FAT32 and containing image files
-            formatted with DZFS\footnote{DZFS (dastaZ80 File System) is a file
-            system of my own design, for mass storage devices, aimed at
+            \item Micro SD Card, formatted with FAT32 and containing Disk Image
+            Files formatted with DZFS\footnote{DZFS (dastaZ80 File System) is a
+            file system of my own design, for mass storage devices, aimed at
             simplicity.}
+            \item 3.5" DD/HD Floppy Disk Drive
         \end{itemize}
         \item Video output
         \begin{itemize}
@@ -356,14 +357,21 @@
     \includegraphics[scale=0.7]{dzOS.png}
 
     This information tells you about the release version of DZOS (2022.07.19.13
-    in the screenshot). The BIOS, Kernel and CLI versions and some processes
-    like detecting \textbf{RAM} and initialising the \textbf{DISK}.
+    in the screenshot). The BIOS, Kernel and CLI versions, and the detection of
+    the different devices used by the computer. It also tells about whichs 
+    \textbf{DISK}s are available.
 
-    After that information, you’ll see the symbol $>$
+    After that information,you will see the \textit{command prompt}. It starts
+    with the letters \textit{DSK} (short for DISK) and a number, followed by the
+    symbol $>$
 
-    This symbol is called the \textit{command prompt}. To the right of the
-    command prompt you will see a flashing underscore. This is called the
-    \textit{cursor}. The cursor shows where the command you type will appear.
+    The number indicates which \textbf{DISK} is currently used for \textbf{DISK}
+    operations.
+
+    In other words, if you see \textit{DSK0}, it means that the Floppy Disk Drive
+    (\textbf{FDD}) is selected. Entering commands like \textit{cat},
+    \textit{diskinfo}, \textit{load}, etc., will instruct the computer to do it
+    on the \textbf{FDD}.
 
     \pagebreak
     % ==========================================================================
@@ -646,17 +654,19 @@
         % ======================================================================
         Changes the current date stored in the Real-Time Clock (\textbf{RTC}).
 
-        \hspace{1.9cm}\textbf{$>$ setdate \textit{$<$dd$>$$<$mm$>$$<$yyyy$>$}}
+        \hspace{1.9cm}\textbf{$>$ setdate \textit{$<$yyyy$>$$<$mm$>$$<$dd$>$$<$dow$>$}}
 
         \textbf{Parameters}:
 
-        \hspace{1cm}\textbf{\textit{dd}}: day.
+        \hspace{1cm}\textbf{\textit{yyyy}}: year (2 digits).
 
         \hspace{1cm}\textbf{\textit{mm}}: month.
 
-        \hspace{1cm}\textbf{\textit{yyyy}}: year.
+        \hspace{1cm}\textbf{\textit{dd}}: day.
 
-        \textbf{Example}: \texttt{$>$ setdate 22112022}
+        \hspace{1cm}\textbf{\textit{yyyy}}: dow (Day of the Week. 1=Sunday).
+
+        \textbf{Example}: \texttt{$>$ setdate 2211032}
 
         % ======================================================================
         \subsubsection{{\color{blue}settime}}
@@ -725,10 +735,37 @@
         }}
 
         % ======================================================================
+        \subsubsection{{\color{blue}erasedsk}}
+        % ======================================================================
+        Overwrittes all bytes of all sectors in a \textbf{DISK} in the
+        \textbf{FDD}, with \texttt{0xF6} \\
+
+        \underline{This is a destructive action} and it makes the \textbf{DISK}
+        unusable to any (included dzOS) computer, as there is no file system in
+        the disk after the command is completed.
+        
+        Before it can be used by dzOS, the command \textit{formatdsk} MUST be
+        executed.
+
+        It is recommended to only use this command in the case of wanting to
+        destroy all data in a \textbf{DISK}, because \textit{formatdsk} doesn't
+        actually delete any data, or to check if a Floppy Disk is faulty.
+        Otherwise, the command \textit{formatdsk} SHOULD be the right command
+        for normal usage of the computer.
+
+        \hspace{1.9cm}\textbf{$>$ erasedsk}
+
+        \textbf{Parameters}: None
+
+        \textbf{Example}: \texttt{$>$ erasedsk}
+
+        % ======================================================================
         \subsubsection{{\color{blue}formatdsk}}
         % ======================================================================
-        Formats a \textbf{DISK} with DZFS format. This is a destructive action.
-        It overwrites the DZFS \textit{Superblock} and \textit{BAT}.
+        Formats a \textbf{DISK} with DZFS format. \underline{This is a
+        destructive action} and makes the \textbf{DISK} unsuable by any
+        computers not using DZFS as their file system. It overwrites the DZFS
+        \textit{Superblock} and \textit{BAT}.
 
         \hspace{1.9cm}\textbf{$>$ formatdsk \textit{$<$label$>$}}
 
@@ -897,6 +934,25 @@
         with 512 bytes of the contents of \textbf{MEMORY} from 0x4420 to 0x461F.
 
         % ======================================================================
+        \subsubsection{{\color{blue}dsk}}
+        % ======================================================================
+        Changes current disk for all \textbf{DISK} operations.
+
+        \hspace{1.9cm}\textbf{$>$ dsk \textit{$<$n$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$n$>$}}: \textbf{DISK} number.
+
+        \textbf{Example}: \texttt{$>$ dsk 0}
+
+        Will change to \textbf{FDD}, and all the \textbf{DISK} operations will
+        be performed in the \textbf{FDD} until the next boot or a new \textit{dsk}
+        command.
+
+        The CLI prompt changes to indicate which disk is in use.
+
+        % ======================================================================
         \subsubsection{{\color{blue}diskinfo}}
         % ======================================================================
         Shows some information about the \textbf{DISK}.
@@ -921,6 +977,37 @@
                 & Sectors per Block: & 64 &
             \end{tabular}
         }}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}disklist}}
+        % ======================================================================
+        Shows a list of all available \textbf{DISK} (\textbf{FDD} and Disk Image
+        Files on the \textbf{SD}).
+
+        \hspace{1.9cm}\textbf{$>$ disklist}
+
+        \textbf{Parameters}: None
+
+        \textbf{Example}: \texttt{$>$ disklist}
+
+        Will show (will differ depending on the Disk Image Files on your
+        \textbf{DISK}):
+
+        \texttt{
+        \resizebox{6cm}{!}{
+            \begin{tabular}{l l l r}\\
+                & DISK0 & FDD & \\
+                & DISK1 & dastaZ80.img & 128 MB \\
+                & DISK2 & msbasic.img   & 32 MB \\
+                & DISK3 & empty.img     & 16 MB
+            \end{tabular}
+        }}
+
+        \textbf{IMPORTANT}: When the list (210 bytes in total, for a maximum of
+        15 Disk Image Files) is retrieved from the \textbf{ASMDC}, dzOS stores
+        it at the very bottom of the RAM (\texttt{0xFF2D}). In the unlikely case
+        that you may have a program loaded that uses those low bytes, after
+        executing the \textit{disklist} command the program will be corrupted.
 
         % % ======================================================================
         % \subsubsection{{\color{blue}crc16}}
@@ -951,4 +1038,30 @@
         % screen:
         
         % \hspace{1cm}\texttt{CRC16:\ 0x3ABC}
+
+    \pagebreak
+    % ==========================================================================
+    \section{Appendixes}
+    % ==========================================================================
+    \label{sec:appendixes}
+
+    % ==========================================================================
+    \subsection{Floppy Disk Drive Error Codes}
+    % ==========================================================================
+
+    Extracted from: \url{https://github.com/dhansel/ArduinoFDC#troubleshooting}
+
+    \begin{itemize}
+        \item \textbf{0}: No error, the operation succeeded.
+        \item \textbf{1}: Internal \textbf{ASMDC} error.
+        \item \textbf{2}: No disk in drive or drive does not have power.
+        \item \textbf{3}: Disk not formatted or not formatted for the correct
+        density.
+        \item \textbf{4}: Bad disk or unknown format or misaligned disk drive.
+        \item \textbf{5}: Bad disk or unknown format.
+        \item \textbf{6}: Bad disk or unknown format.
+        \item \textbf{7}: Drive does not have power.
+        \item \textbf{8}: Disk is write protected or bad disk.
+        \item \textbf{9}: Disk is write protected.
+    \end{itemize}
 \end{document}

@@ -57,10 +57,36 @@ cli_welcome:
         call    F_KRN_SERIAL_EMPTYLINES
 
 cli_promptloop:         .EXPORT     cli_promptloop
+; Prompt is "DSK" + DISK_current + "> "
         call    F_CLI_CLRCLIBUFFS       ; Clear buffers
         ld      HL, msg_prompt          ; Prompt
         ld      A, ANSI_COLR_BLU
         call    F_KRN_SERIAL_WRSTRCLR
+
+        ; print disk number (DISK_current)
+        ld      A, ANSI_COLR_CYA
+        call    F_KRN_SERIAL_SETFGCOLR
+        ld      A, (DISK_current)
+        call    F_KRN_BIN_TO_BCD4       ; HL = disk number in decimal
+        ld      DE, CLI_buffer
+        ld      C, 0
+        call    F_KRN_BCD_TO_ASCII      ; DE = capacity in ASCII string
+        ; skip leading zeros
+        ld      A, (CLI_buffer + 4)
+        cp      $30
+        jp      z, prompt_skip_lead_zero
+        call    F_BIOS_SERIAL_CONOUT_A  ; print first digit (if not a zero)
+prompt_skip_lead_zero:
+        ld      A, (CLI_buffer + 5)
+        call    F_BIOS_SERIAL_CONOUT_A  ; print second digit
+        ; print "> "
+        ld      A, ANSI_COLR_BLU
+        call    F_KRN_SERIAL_SETFGCOLR
+        ld      A, '>'
+        call    F_BIOS_SERIAL_CONOUT_A  ; print separator
+        ld      A, SPACE
+        call    F_BIOS_SERIAL_CONOUT_A  ; print separator
+
         ld      A, ANSI_COLR_WHT        ; Set text colour
         call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
         call    F_CLI_READCMD
@@ -308,11 +334,10 @@ ANSI_CURSOR_BACK:
 
 msg_cli_version:
         .BYTE   CR, LF
-        .BYTE   "CLI    v0.1.0", 0
+        .BYTE   "CLI v0.1.0", 0
 msg_prompt:
         .BYTE   CR, LF
-        .BYTE   "> "
-        .BYTE   0
+        .BYTE   "DSK", 0
 msg_prompt_hex:
         .BYTE   CR, LF
         .BYTE   "$ ", 0
@@ -349,13 +374,16 @@ msg_disk_file_attr_chged:
 msg_disk_file_saved:
         .BYTE   CR, LF
         .BYTE   "File saved", 0
+msg_sd_erase_start:
+        .BYTE   CR, LF
+        .BYTE   "Erasing disk", 0
 msg_disk_format_confirm:
         .BYTE   CR, LF
         .BYTE   "All data in the disk will be destroyed!", CR, LF
         .BYTE   "Do you want to continue? (yes/no) ", 0
 msg_disk_diskinfo_hdr:
         .BYTE   CR, LF
-        .BYTE   "Disk Information", CR, LF, 0
+        .BYTE   "Disk Information", 0
 msg_memdump_hdr:
         .BYTE   CR, LF
         .BYTE   "      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F", CR, LF
@@ -366,6 +394,10 @@ msg_moreorquit:
 msg_format_end:
         .BYTE   CR, LF
         .BYTE   "Disk was successfully formatted", CR, LF, 0
+msg_lowlvlformat_end:
+        .BYTE   CR, LF
+        .BYTE   "Disk was successfully low-level formatted", CR, LF
+        .BYTE   "But still needs formatdsk to be used", CR, LF, 0
 msg_prompt_fname:
         .BYTE   CR, LF
         .BYTE   "filename? ", 0
@@ -378,6 +410,10 @@ msg_nowis:
 msg_crcis:
         .BYTE   CR, LF
         .BYTE   "CRC16: 0x", 0
+msg_disk0:
+        .BYTE   "                      DISK0 ", 0
+msg_fdd:
+        .BYTE   "FDD", 0
 ;------------------------------------------------------------------------------
 ;             ERROR MESSAGES
 ;------------------------------------------------------------------------------
@@ -402,6 +438,18 @@ error_2006:
 error_2007:
         .BYTE   CR, LF
         .BYTE   "File is protected", CR, LF, 0
+error_2008:
+        .BYTE   CR, LF
+        .BYTE   "No disk in FDD drive", CR, LF, 0
+error_2009:
+        .BYTE   CR, LF
+        .BYTE   "Disk is write protected", CR, LF, 0
+error_2010:
+        .BYTE   CR, LF
+        .BYTE   "Command is only allowed for Floppy Disks", CR, LF, 0
+error_2011:
+        .BYTE   CR, LF
+        .BYTE   "Error", CR, LF, 0
 ;==============================================================================
 ; CLI Modules
 ;==============================================================================

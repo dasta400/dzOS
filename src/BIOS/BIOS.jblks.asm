@@ -60,14 +60,34 @@ F_BIOS_SD_GET_STATUS:           .EXPORT         F_BIOS_SD_GET_STATUS
         jp      BIOS_SD_GET_STATUS
 F_BIOS_SD_BUSY_WAIT             .EXPORT         F_BIOS_SD_BUSY_WAIT
         jp      BIOS_SD_BUSY_WAIT
-F_BIOS_SD_READ_SEC              .EXPORT         F_BIOS_SD_READ_SEC
-        jp      BIOS_SD_READ_SEC
-F_BIOS_SD_WRITE_SEC             .EXPORT         F_BIOS_SD_WRITE_SEC
-        jp      BIOS_SD_WRITE_SEC
 F_BIOS_SD_PARK_DISKS            .EXPORT         F_BIOS_SD_PARK_DISKS
         jp      BIOS_SD_PARK_DISKS
 F_BIOS_SD_MOUNT_DISKS           .EXPORT         F_BIOS_SD_MOUNT_DISKS
         jp      BIOS_SD_MOUNT_DISKS
+F_BIOS_SD_GET_IMG_INFO          .EXPORT         F_BIOS_SD_GET_IMG_INFO
+        jp      BIOS_SD_GET_IMG_INFO
+
+        ; FDD subroutines
+F_BIOS_FDD_BUSY_WAIT            .EXPORT         F_BIOS_FDD_BUSY_WAIT
+        jp      BIOS_FDD_BUSY_WAIT
+F_BIOS_FDD_CHANGE               .EXPORT         F_BIOS_FDD_CHANGE
+        jp      BIOS_FDD_CHANGE
+F_BIOS_FDD_LOWLVL_FORMAT        .EXPORT         F_BIOS_FDD_LOWLVL_FORMAT
+        jp      BIOS_FDD_LOWLVL_FORMAT
+F_BIOS_FDD_MOTOR_ON             .EXPORT         F_BIOS_FDD_MOTOR_ON
+        jp      BIOS_FDD_MOTOR_ON
+F_BIOS_FDD_MOTOR_OFF            .EXPORT         F_BIOS_FDD_MOTOR_OFF
+        jp      BIOS_FDD_MOTOR_OFF
+F_BIOS_FDD_CHECK_DISKIN         .EXPORT         F_BIOS_FDD_CHECK_DISKIN
+        jp      BIOS_FDD_CHECK_DISKIN
+F_BIOS_FDD_CHECK_WPROTECT       .EXPORT         F_BIOS_FDD_CHECK_WPROTECT
+        jp      BIOS_FDD_CHECK_WPROTECT
+
+        ; Disk (FDD & SD Card) subroutines
+F_BIOS_DISK_READ_SEC            .EXPORT         F_BIOS_DISK_READ_SEC
+        jp      BIOS_DISK_READ_SEC
+F_BIOS_DISK_WRITE_SEC           .EXPORT         F_BIOS_DISK_WRITE_SEC
+        jp      BIOS_DISK_WRITE_SEC
 
         ; Real-Time Clock subroutines
 F_BIOS_RTC_GET_TIME:            .EXPORT         F_BIOS_RTC_GET_TIME

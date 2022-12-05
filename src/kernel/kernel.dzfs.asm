@@ -41,7 +41,7 @@ KRN_DZFS_READ_SUPERBLOCK:
 ; reads the Superblock (512 bytes) at Sector 0
         ; read 512 bytes from Sector 0 into DISK buffer in RAM
         ld      DE, 0
-        call    F_BIOS_SD_READ_SEC
+        call    F_BIOS_DISK_READ_SEC
 
         ; Check that the sector is a Superblock
         ; $20-$21 must be AB BA
@@ -146,7 +146,7 @@ KRN_DZFS_SEC_TO_BUFFER:
 ; OUT => DISK_BUFFER_START is filled with the read 512 bytes
         ex    DE, HL                    ; D sector address LBA 1 (bits 8-15)
                                         ; E sector address LBA 0 (bits 0-7)
-        call    F_BIOS_SD_READ_SEC      ; read 1 sector (512 bytes)
+        call    F_BIOS_DISK_READ_SEC    ; read 1 sector (512 bytes)
         ret
 ;------------------------------------------------------------------------------
 KRN_DZFS_GET_FILE_BATENTRY:
@@ -231,7 +231,7 @@ KRN_DZFS_LOAD_FILE_TO_RAM:
 loadfile:
         ; set up LBA addressing
         push    DE                      ; backup sector to load
-        call    F_BIOS_SD_READ_SEC      ; read 1 sector (512 bytes)
+        call    F_BIOS_DISK_READ_SEC    ; read 1 sector (512 bytes)
         ; Copy file data
         ld      BC, 512                 ; Copy 512 bytes
         ld      HL, DISK_BUFFER_START   ;   from the DISK buffer
@@ -261,7 +261,7 @@ KRN_DZFS_DELETE_FILE:
         add     HL, DE                  ; HL points to 1st character in DISK buffer
         ld      (HL), $7E               ; Change the 1st character in the buffer
         ; save data to disk
-        call    F_KRN_DZFS_SECTOR_TO_SD
+        call    F_KRN_DZFS_SECTOR_TO_DISK
         ret
 ;------------------------------------------------------------------------------
 KRN_DZFS_CHGATTR_FILE:
@@ -278,7 +278,7 @@ KRN_DZFS_CHGATTR_FILE:
         pop     AF                      ; restore mask byte
         ld      (HL), A                 ; change file attributes
         ; save data to disk
-        call    F_KRN_DZFS_SECTOR_TO_SD
+        call    F_KRN_DZFS_SECTOR_TO_DISK
         ret
 ;------------------------------------------------------------------------------
 KRN_DZFS_RENAME_FILE:
@@ -314,12 +314,12 @@ rename_save:
         ld      A, $20                  ; one last space
         ld      (HL), A                 ;   needed on the padding
         ; save data to DISK
-        call    F_KRN_DZFS_SECTOR_TO_SD
+        call    F_KRN_DZFS_SECTOR_TO_DISK
         ret
 
 ;------------------------------------------------------------------------------
-KRN_DZFS_FORMAT_SD:
-; Formats a SD card
+KRN_DZFS_FORMAT_DISK:
+; Formats a DISK
 ; IN <= HL = Address where the disk label is stored
         ld      HL, msg_sd_format_start
         call    F_KRN_SERIAL_WRSTR
@@ -483,10 +483,16 @@ _volname_finish:
         ld      A, $00
         call    F_KRN_SETMEMRNG
 
+    ; If it's a FDD, turn the motor on
+        ld      A, (DISK_current)
+        cp      0
+        jp      nz, _noFDD
+        call    F_BIOS_FDD_MOTOR_ON
+_noFDD:
     ; Superblock - Step 2: store bytes from DISK_BUFFER_START into the disk
         ld      DE, $0000               ; Superblock is located
         ld      (DISK_cur_sector), DE
-        call    F_KRN_DZFS_SECTOR_TO_SD
+        call    F_KRN_DZFS_SECTOR_TO_DISK
 
     ; BAT
         ; After format, the BAT should be empty (all zeros) 
@@ -502,24 +508,27 @@ _volname_finish:
         ld      IX, tmp_byte            ; Pointer to sector counter (64 times)
         ld      IY, DISK_cur_sector     ; Pointer to sector number
 write_bat:
-        call    F_KRN_DZFS_SECTOR_TO_SD
+        call    F_KRN_DZFS_SECTOR_TO_DISK
         inc     (IY)                    ; Increment sector number
         dec     (IX)                    ; Decrement sector counter
         call    format_progress
         ld      A, (IX)
-        cp      0
-        jp      nz, write_bat
+        cp      0                       ; Did write the 64 sectors?
+        jp      nz, write_bat           ; No, then continue with more
         ; Change SYSVARS.DISK_is_formatted to $FF
         ld      A, $FF
         ld      (DISK_is_formatted), A
-        ; After formatting, ASMDC needs to close and re-open the image file
+        call    F_BIOS_FDD_MOTOR_OFF
+        ; If it was an SD Disk Image File, after formatting, ASMDC needs to
+        ; close and re-open the image file
+        ld      A, (DISK_current)
+        cp      0
+        ret     nz                      ; nothing to do with FDD
         call    F_BIOS_SD_PARK_DISKS    ; close
         call    F_BIOS_SD_MOUNT_DISKS   ; re-open
+        call    F_BIOS_SD_GET_STATUS    ; any errors?
         ret
 
-; ------------------------------------
-; Subroutines for F_KRN_DZFS_FORMAT_SD
-; ------------------------------------
 format_progress:
         ld      A, '.'
         call    F_BIOS_SERIAL_CONOUT_A
@@ -560,13 +569,13 @@ KRN_DZFS_CALC_SN:
         ld      (IX + 1), L
         ret
 ;------------------------------------------------------------------------------
-KRN_DZFS_SECTOR_TO_SD:
+KRN_DZFS_SECTOR_TO_DISK:
 ; Calls the BIOS subroutine that will store the data (512 bytes) currently in
-; Disk Buffer to the SD card
-; IN <= SYSVARS.DISK_cur_sector = the sector in the SD card that will be written
+; Disk Buffer to the selected (DISK_current) disk
+; IN <= SYSVARS.DISK_cur_sector = the sector in the disk that will be written
         ld      DE, (DISK_cur_sector)
         ld      BC, $0000
-        call    F_BIOS_SD_WRITE_SEC
+        call    F_BIOS_DISK_WRITE_SEC
         ret
 ;------------------------------------------------------------------------------
 KRN_DZFS_GET_BAT_FREE_ENTRY:
@@ -693,7 +702,7 @@ savef_one_sector:
         ld      BC, 512
         call    F_KRN_COPYMEM512
         ; Save DISK buffer to disk at SYSVARS.DISK_cur_sector
-        call    F_KRN_DZFS_SECTOR_TO_SD
+        call    F_KRN_DZFS_SECTOR_TO_DISK
         ; Add 512 to the address, so that next time we copy the next bytes
         ld      HL, (tmp_addr3)                 ; HL = start address of bytes to save
         ld      DE, 512
@@ -731,7 +740,7 @@ savef_savelastbytes:                        ; no, save last bytes
         ld      BC, (tmp_addr2)
         call    F_KRN_COPYMEM512
         ; Save disk buffer to disk at SYSVARS.DISK_cur_sector
-        call    F_KRN_DZFS_SECTOR_TO_SD
+        call    F_KRN_DZFS_SECTOR_TO_DISK
         call    F_BIOS_SD_BUSY_WAIT
 
         ld      HL, msg_sd_data_saved
@@ -779,7 +788,7 @@ loop_copy_fname_padded:
 
         pop     DE                              ; restore BAT entry number
         call    F_KRN_DZFS_ADD_BAT_ENTRY        ; Update BAT and copy it to DISK Card Buffer
-        call    F_KRN_DZFS_SECTOR_TO_SD         ; Save buffer to disc
+        call    F_KRN_DZFS_SECTOR_TO_DISK         ; Save buffer to disc
 
         ld      HL, msg_sd_bat_saved
         ld      A, ANSI_COLR_YLW

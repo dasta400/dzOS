@@ -55,7 +55,7 @@ KRN_JBLK_START              .EQU    KRN_END + 1
 KRN_JBLK_END                .EQU    KRN_JBLK_START + 255
 
 CLI_START                   .EQU    KRN_JBLK_END + 1
-CLI_END                     .EQU    $3B3F
+CLI_END                     .EQU    $3D5F
 
 BOOSTRAP_START              .EQU    CLI_END + 1
 BOOSTRAP_END                .EQU    BOOSTRAP_START + 255
@@ -171,7 +171,17 @@ DZFS_SBLOCK_FILLER          .EQU    DISK_BUFFER_START + $65
 ;==============================================================================
 ; Arduino Serial Multi-Device Controller (ASMDC)
 ;==============================================================================
-ASMDC_ID                    .EQU    $A0
+FDD_CMD_GET_STATUS          .EQU    $A0
+FDD_CMD_GET_BUSY            .EQU    $A1
+FDD_CMD_READ_SECTOR         .EQU    $A2
+FDD_CMD_WRITE_SECTOR        .EQU    $A3
+FDD_CMD_CHKDISKIN           .EQU    $A4     ; Checks if a disk is in th drive
+FDD_CMD_CHKWPROTECT         .EQU    $A5     ; Checks if disk is Write Protected
+FDD_CMD_SETYPE_DD           .EQU    $A6     ; Set drive as Double-density           ToDo
+FDD_CMD_SETYPE_HD           .EQU    $A7     ; Set drive as High-density (default)   ToDo
+FDD_CMD_FORMAT              .EQU    $A8     ; Low-level format (no file system)
+FDD_CMD_MOTOR_ON            .EQU    $AA     ; Turns the FDD motor ON
+FDD_CMD_MOTOR_OFF           .EQU    $AB     ; Turns the FDD motor OFF
 
 SD_CMD_GET_STATUS           .EQU    $B0
 SD_CMD_GET_BUSY             .EQU    $B1
@@ -179,6 +189,7 @@ SD_CMD_READ_SECTOR          .EQU    $B2
 SD_CMD_WRITE_SECTOR         .EQU    $B3
 SD_CMD_PARK_DISKS           .EQU    $B4
 SD_CMD_MOUNT_DISK           .EQU    $B5
+SD_CMD_GET_IMG_INFO         .EQU    $B6
 
 RTC_CMD_GET_INFO            .EQU    $C0
 RTC_CMD_GET_BATT            .EQU    $C1
