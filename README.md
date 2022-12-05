@@ -27,7 +27,7 @@ The OS consists of three parts:
 
 The Kernel and the CLI are hardware independent and will work on any Z80 based computer. Therefore, by adapting the BIOS code, **dzOS can easily be ported to other Z80 systems**.
 
-![dzOS v2022.11.22.18.19](https://github.com/dasta400/dzOS/blob/master/docs/dzOSv2022.11.22.18.19.png "dzOS v2022.11.22.18.19")
+![dzOS v2022.12.05.18.44](https://github.com/dasta400/dzOS/blob/master/docs/dzOSv2022.12.05.18.44.png "dzOS v2022.12.05.18.44")
 
 ---
 
@@ -63,13 +63,15 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
     * Multiple modifier keys (e.g. Ctrl + Shift + key, Alt + Shift + key)
 * **Power Supply**: 12V External Power Supply with 5V/3A Regulator
 * **Arduino Serial Multi-Device Controller ([ASMDC](https://github.com/dasta400/ASMDC))**: An Arduino board acting as a _man-in-the-middle_ to allow dastaZ80 to communicate with different devices:
-  * **Micro SD Card**: FAT32 formatted, with disk image files that dastaZ80 can use.
-  * **Real-Time Clock (RTC)**: Battery (CR2032) backed.
+  * **Micro SD Card**: FAT32 formatted, with disk image files that dastaZ80 can use. Allows multiple disk image files to be used, by configuring them in a file called __disks.cfg_ that MUST be on the SD card too.
+  * **Real-Time Clock (RTC)**: Rechargeable battery (LIR2032) backed.
   * **NVRAM**: 56 bytes.
+  * **FDD**: Support for 3.5" High Density disks.
 * **Case**: Acorn Archimedes A3010 all-in-one computer case
   * Connectors:
   * DE-15 female connecto (VGA)
   * Micro SD Card slot
+  * 3.5" Floppy Disk Drive (Samsung SFD-321B/E)
   * 2.1mm Barrel Power Jack (Power Supply)
   * Others:
     * Switch ON/OF (Power)
@@ -99,12 +101,14 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
 * ✔ ~~Disable disk commands if at boot the CF card was detected as not formatted.~~
 * Make "_Attributes_" and "_Load Address_", of command _cat_, to print in the same column.
 * When _load_ or _run_, if the file has the attribute _E_, ignore the load address stored in BAT and instead load at the address specified in the binary.
+* Add support for 3.5" Double Density disks.
 
 ### Known BUGS
 
 * ✔ ~~_run_, _rename_, _delete_ and _chgaatr_, are not taking in consideration the full filename (e.g. _disk_ is acting on file _diskinfo_)~~
 * ✔ ~~Keyboard controller is sending character for each press of special keys (e.g. Shift)~~
 * F_KRN_DZFS_GET_BAT_FREE_ENTRY not finished (doesn't check of deleted files if no available entries found).
+* Message "_....Detecting RTC  [ RTC Battery needs replacement ] ....Detecting NVRAM  [ 56 Bytes ]_" lacks CarriageReturn
 
 ---
 
@@ -151,15 +155,18 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 
 ### Disk commands
 
-* **cat**: shows disk (SD Card) catalogue.
+* **cat**: shows disk (Floppy or SD Card) catalogue.
 * **load _[filename]_**: loads specified filename from disk to RAM.
 
 * **run _[filename]_,_[parameters]_**: executes a load _[filename]_ and run _[address]_.
-* **formatdsk _[label]_,_[num_partitions]_**: formats an Image File in the SD Card with DZFS.
+* **formatdsk _[label]_,_[num_partitions]_**: formats a Floppy Disk or an Image File in the SD Card with DZFS.
 * **rename _[old_filename]_,_[new_filename]_**: changes the name of file old_filename to new_filename.
 * **delete _[filename]_**: deletes filename. Data isn't deleted, just the first character of the filename in the BAT is set to 7E (~), so it can be undeleted. Be aware, that the save command will always search for an empty entry in the BAT, but if it finds none, then it will re-use the first entry of a deleted file. Therefore, undelete of a file is only guaranteed if no file was created since the delete command was issued.
 * **chgattr _[filename]_,_[new_attributes(RHSE)]_**: changes the attributes of filename to the new specified attributes.
-* **save _[address_start]_,_[number_bytes]_**: creates a new file on the CF card, that will contain _n_ number of bytes, starting at the specified address. After entering the command, the user will be prompted to type the filename.
+* **save _[address_start]_,_[number_bytes]_**: creates a new file on the disk (Floppy or SD Card), that will contain _n_ number of bytes, starting at the specified address. After entering the command, the user will be prompted to type the filename.
+* **dsk _[disk unit]_**: changes the current disk to the number specified. 0 is always the FDD and then 1 to 14 are the Disk Image Files on the SD Card.
+* **diskinfo**: shows label, serial number, date and time of formatting of current disk.
+* **disklist**: shows a list of all Disk Image Files and their disk unit number.
 
 ### Memmory commands
 
@@ -189,10 +196,13 @@ We will need:
 Follow the steps:
 
 1. Open a Linux Terminal
-1. Create a 128 MB file: _fallocate -l $((128 * 1024 * 1024)) myimage.img_
-1. Copy _myimage.img_ into the Micro SD Card
+1. Create a 33 MB file: _fallocate -l $((33 * 1024 * 1024)) myimage.img_
+1. Create a second 33 MB file: _fallocate -l $((33 * 1024 * 1024)) myimage2.img_
+1. Create more files if you want/need. Filenames MUST be [8.3 filename](https://en.wikipedia.org/wiki/8.3_filename) format.
+1. Copy the _.img_ files into the Micro SD Card
+1. Create a text ASCII file called __disks.cfg_ and add one line for each _.img_ file, with its name in the line. Be sure to leave an extra line at the end of the file. _#_ can be used to write comments.
 1. Insert the Micro SD Card in the MicroSD Card Adapter
-1. Turn dastaZ80 on, and format the disk: _formatdsk mydisk_
+1. Turn dastaZ80 on, and format the disk with commmand _formatdsk_
 
 Alternatively, the image file can be formatted with _imgmngr_ (tool provided with [ASMDC](https://github.com/dasta400/ASMDC)): _imgmngr -new myimage.img mydisk_
 
