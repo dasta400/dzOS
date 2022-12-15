@@ -7,7 +7,7 @@
 ;
 ; Version 1.0.0
 ; Created on 03 Jan 2018
-; Last Modification 21 Jun 2022
+; Last Modification 13 Dec 2022
 ;******************************************************************************
 ; CHANGELOG
 ;     -
@@ -35,7 +35,7 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
-
+.NOLIST
 ;==============================================================================
 ; Includes
 ;==============================================================================
@@ -44,6 +44,7 @@
 #include "exp/sysvars.exp"
 #include "src/kernel/kernel.jblks.asm"
 
+.LIST
         .ORG    KRN_START
 
         ; Kernel start up messages
@@ -71,9 +72,8 @@
         call    KRN_INIT_RTC
         call    KRN_INIT_NVRAM
 
-        ; Set show deleted files with 'cat' as OFF
-        ld      A, 0
-        ld      (DISK_show_deleted), A
+        ; SYSVARS initialisation
+        call    KRN_INIT_SYSVARS
 
         ; Set default DISK as 1 (1st image file disk on SD)
         ld      A, 1
@@ -384,6 +384,18 @@ KRN_INIT_NVRAM:
         ld      HL, msg_right_brkt
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
+        ret
+
+;------------------------------------------------------------------------------
+KRN_INIT_SYSVARS:
+        ; Set show deleted files with 'cat' as OFF
+        ld      A, 0
+        ld      (DISK_show_deleted), A
+
+        ; Set default File Type as 0=USR (User defined)
+        ; Set loadsave address to default ($0000)
+        call    F_KRN_DZFS_SET_FILE_DEFAULTS
+
         ret
 
 ;------------------------------------------------------------------------------

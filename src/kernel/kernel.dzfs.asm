@@ -150,7 +150,7 @@ KRN_DZFS_SEC_TO_BUFFER:
         ret
 ;------------------------------------------------------------------------------
 KRN_DZFS_GET_FILE_BATENTRY:
-; Gets the BAT's entry number of a specified filename
+; Gets the BAT's entry number of a specified filename (terminated with zero)
 ; IN <= HL = Address where the filename to check is stored
 ; OUT => BAT Entry values are stored in the SYSVARS
 ;        DE = $0000 if filename found. Otherwise, whatever value had at start
@@ -220,12 +220,34 @@ bat_nextentry:
 ;------------------------------------------------------------------------------
 KRN_DZFS_LOAD_FILE_TO_RAM:
 ; Load a file from DISK into RAM, at the specified address
-; IN <= DE 1st sector
-;       IX length in sectors
-;
+; IN <= DE = 1st sector
+;       IX = length in sectors
+;       DISK_loadsave_addr = address where the file will be stored in memory
+;                            if zero, will use DISK_cur_file_load_addr
+;                            if DISK_cur_file_load_addr is zero too, use start of Free RAM
         ld      (DISK_cur_sector), IX           ; sector counter
         ld      IX, DISK_cur_sector             ; pointer to sector counter
-        ld      HL, (DISK_cur_file_load_addr)   ; By loading groups of 512 bytes
+        ; Set load address based in rules:
+        ;   if DISK_loadsave_addr <> 0, load bytes to this as load address
+        ;   if DISK_loadsave_addr = 0,
+        ;       if DISK_cur_file_load_addr <> 0, load bytes to this as load address
+        ;       if DISK cur file load addr = 0, load bytes to start of Free RAM
+        ; DISK_loadsave_addr = 0 ?
+        ld      HL, (DISK_loadsave_addr)
+        ld      A, H
+        add     A, L
+        cp      0
+        jp      nz, _loadsave_nozero            ; if no zero, use this address
+        ; DISK_cur_file_load_addr <> 0 ?
+        ld      HL, (DISK_cur_file_load_addr)
+        ld      A, H
+        add     A, L
+        cp      0
+        jp      nz, _loadaddr_nozero            ; if no zero, use this address
+        ld      HL, FREERAM_START               ; if zero, use start of Free RAM
+_loadsave_nozero:
+_loadaddr_nozero:
+        ld      (DISK_cur_file_load_addr), HL   ; By loading groups of 512 bytes
         ld      (tmp_addr1), HL                 ; the address will be modified
                                                 ; so I use a temporary variable to store it
 loadfile:
@@ -246,6 +268,7 @@ loadfile:
         jp    loadfile                  ;        and read more sectors
 loadfile_end:                           ; yes, finish
         pop     DE                      ; restore to avoid crash
+        call    F_KRN_DZFS_SET_FILE_DEFAULTS
         ret                             ; and exit routine
 ;------------------------------------------------------------------------------
 KRN_DZFS_DELETE_FILE:
@@ -670,7 +693,18 @@ KRN_DZFS_CREATE_NEW_FILE:
         call    F_KRN_CLEAR_MEMAREA
 
         ld      (DISK_cur_file_entry_number), HL    ; restore BAT entry number
+
+        ; Set load address based in rules:
+        ;   if DISK_loadsave_addr = 0, use the address in HL
+        ;   if DISK_loadsave_addr <> 0, use the address in DISK_loadsave_addr
         pop     HL                                  ; restore address first byte to be stored
+        ld      DE, (DISK_loadsave_addr)
+        ld      A, D
+        add     A, E
+        cp      0
+        jp      z, _loadsave_zero                   ; is DISK_loadsave_addr zero?
+        ex      DE, HL                              ; no, HL = DISK_loadsave_addr
+_loadsave_zero:                                     ; yes, use HL from previous POP
         ld      (DISK_cur_file_load_addr), HL       ; and store it in SYSVARS
         ld      (tmp_addr3), HL                     ; use tmp_addr for adding to original address
         pop     BC                                  ; restore number of bytes
@@ -765,8 +799,15 @@ loop_copy_fname_padded:
         ld      (HL), A                         ;   copy to SYSVARS
         inc     HL
         djnz    loop_copy_fname                 ; copy until 14 characters done
-        ;   Attributes ($08 = executable)
-        ld      A, $08
+        ;   Attributes High Nibble (File Type) = SYSVARS.DISK_file_type
+        ld      A, (DISK_file_type)
+        sla     A                               ; Move
+        sla     A                               ;   it
+        sla     A                               ;   to the
+        sla     A                               ;   High Nibble
+        ;   Attributes Low Nibble (Attributes) = SYSVARS.DISK_cur_file_attribs
+        ld      HL, DISK_cur_file_attribs
+        add     A, (HL)
         ld      (DISK_cur_file_attribs), A
         ;   Time created (and set Modified as the same)
         call    F_KRN_DZFS_CALC_FILETIME
@@ -789,6 +830,8 @@ loop_copy_fname_padded:
         pop     DE                              ; restore BAT entry number
         call    F_KRN_DZFS_ADD_BAT_ENTRY        ; Update BAT and copy it to DISK Card Buffer
         call    F_KRN_DZFS_SECTOR_TO_DISK         ; Save buffer to disc
+
+        call    F_KRN_DZFS_SET_FILE_DEFAULTS
 
         ld      HL, msg_sd_bat_saved
         ld      A, ANSI_COLR_YLW
@@ -1000,3 +1043,12 @@ KRN_DZFS_CHECK_FILE_EXISTS:
         ld      A, (tmp_addr3 + 1)
         cp      $BA
         ret                                     ; Zero Flag set if default value not replaced
+;------------------------------------------------------------------------------
+KRN_DZFS_SET_FILE_DEFAULTS:
+        ; Set File Type back to default (0=USR)
+        ld      A, 0
+        ld      (DISK_file_type), A
+        ; Set loadsave address back to default ($0000)
+        ld      HL, $0000
+        ld      (DISK_loadsave_addr), HL
+        ret

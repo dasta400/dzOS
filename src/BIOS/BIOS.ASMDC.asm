@@ -197,33 +197,31 @@ _rcv_name_loop:
         ret
 ;------------------------------------------------------------------------------
 BIOS_SD_PARK_DISKS:
-; Tells the ASMDC to close the Image file(s)
-
-        ; If DISK_current is 0, ignore this command
-        ld      A, (DISK_current)
-        cp      0
-        jp      z, _nopark
-        ; Send command to ASMDC
+; Tells the ASMDC to close the all Image file(s)
+        ld      A, (SD_images_num)          ; How many images are open?
+        ld      B, A                        ; B = image counter
+_parkimage:
+        ; Send command to ASMDC to close each image
         call    F_BIOS_SD_BUSY_WAIT
         ld      A, SD_CMD_PARK_DISKS
         call    F_BIOS_SERIAL_CONOUT_B
-        ld      A, (DISK_current)           ; Send current DISK
+        ld      A, B                        ; image number to close
         call    F_BIOS_SERIAL_CONOUT_B
-_nopark
+        djnz    _parkimage                  ; continue if not done with all images
         ret
 ;------------------------------------------------------------------------------
 BIOS_SD_MOUNT_DISKS:
-        ; If DISK_current is 0, ignore this command
-        ld      A, (DISK_current)
-        cp      0
-        jp      z, _nomount
-        ; Send command to ASMDC
+; Tells the ASMDC to open the all Image file(s)
+        ld      A, (SD_images_num)          ; How many images were open?
+        ld      B, A                        ; B = image counter
+_mountimage:
+        ; Send command to ASMDC to open each image
         call    F_BIOS_SD_BUSY_WAIT
         ld      A, SD_CMD_MOUNT_DISK
         call    F_BIOS_SERIAL_CONOUT_B
-        ld      A, (DISK_current)           ; Send current DISK
+        ld      A, B                        ; image number to open
         call    F_BIOS_SERIAL_CONOUT_B
-_nomount
+        djnz    _mountimage
         ret
 ;------------------------------------------------------------------------------
 BIOS_SD_BUSY_WAIT:

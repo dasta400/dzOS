@@ -270,32 +270,63 @@
     information back to the dastaZ80.
 
     % ==========================================================================
-    \subsubsection{Real-Time Clock (RTC) Module}
+    \subsubsection{Floppy Disk Drive (FDD)}
     % ==========================================================================
 
-    The RTC is a DS3231 module connected to the Arduino via I2C.
+    This module is connected to original Acorn A3010 FDD (Citizen OSDA-20C).
 
     The available commands (cmd) are:
+ 
+     \begin{tabular}{| c | m{3.8cm} | m{3cm} | m{3.5cm} | }
+         \hline
+         \rowcolor{lightgray}
+         cmd & Description & (Size) Input & (Size) Output\\
+         \hline
+         A0 & FDD Status & (0) & (1) see below\\
+         \hline
+         A1 & FDD Busy & (0) & (1) 0x00=Not Busy\\
+            &          &     &     0x01=Busy\\
+         \hline
+         A2 & Read sector from Floppy Disk & (2) sector\_num\_lsb sector\_num\_msb & (512) Sector contents\\
+         \hline
+         A3 & Write sector into Floppy Disk & (512) Sector contents & (0) \\
+         \hline
+         A4 & Checks if a disk is in the drive & (0) & (1) 0x00=Disk is in\\
+            &                                  &     &     0xFF=No disk\\
+         \hline
+         A5 & Checks if a disk is Write Protected & (0) & (1) 0x00=Protected\\
+            &                                     &     &     0xFF=Unprotected\\
+         \hline
+         A6 & Set drive as Double-density & (0) & (0)\\
+         \hline
+         A7 & Set drive as High-density & (0) & (0)\\
+         \hline
+         A8 & Low-level format (nop file sustem) & (0) & (1) Return code (0=success)\\
+         \hline
+         AA & Turn FDD motor ON & (0) & (0)\\
+         \hline
+         AB & Turn FDD motor OFF & (0) & (0)\\
+         \hline
+     \end{tabular}
 
-    \begin{tabular}{| c | m{3.8cm} | m{3cm} | m{3.5cm} | }
-        \hline
-        \rowcolor{lightgray}
-        cmd & Description & (Size) Input & (Size) Output\\
-        \hline
-        C0 & Get RTC info & (0) & (1) (TBD)\\
-        \hline
-        C1 & Check Battery Health & (0) & (1) 0xA0=Healthy\\
-           &                      &     &     0x00=Dead\\
-        \hline
-        C2 & Get current Date (in Hexadecimal) & (0) & (9) CCYYMMDDW\\
-        \hline
-        C3 & Get current Time (in Hexadecimal) & (0) & (6) HHMMSS\\
-        \hline
-        C4 & Set Date & (6) YYMMDD & (0)\\
-        \hline
-        C4 & Set Time & (6) HHMMSS & (0)\\
-        \hline
-    \end{tabular}
+     \textbf{A0 (FDD Status)}
+
+     Tells the status of the FDD.\\
+
+     This command should be called after each command on the \textbf{FDD} to
+     check if the command was successful or not. Any value other than
+     \texttt{0x00} indicates and error.
+
+     \begin{itemize}
+        \item \textbf{Lower Nibble} (\texttt{0x00} if all OK)
+        \begin{itemize}
+            \item \textbf{bit 0} = not used
+            \item \textbf{bit 1} = not used
+            \item \textbf{bit 2} = set if last command resulted in error
+            \item \textbf{bit 3} = not used
+        \end{itemize}
+        \item \textbf{Upper Nibble} (error code)
+    \end{itemize}
 
     % ==========================================================================
     \subsubsection{Micro SD Card Module}
@@ -310,7 +341,7 @@
         \rowcolor{lightgray}
         cmd & Description & (Size) Input & (Size) Output\\
         \hline
-        B0 & SD Card status & (0) & (1) (see below)\\
+        B0 & SD Card status & (0) & (1) see below\\
         \hline
         B1 & SD Card Busy & (0) & (1) 0x00=Not Busy\\
            &              &     &     0x01=Busy\\
@@ -324,6 +355,71 @@
         B5 & Open Image File & (0) & (0)\\
         \hline
     \end{tabular}
+
+    \textbf{B0 (SD Card Status)}
+
+    Tells the status of the SD Card reader.\\
+
+    This command should be called after each command on the \textbf{SD card} to
+    check if the command was successful or not. Any value other than
+    \texttt{0x00} indicates and error.
+
+     \begin{itemize}
+        \item \textbf{Lower Nibble} (\texttt{0x00} if all OK)
+        \begin{itemize}
+            \item \textbf{bit 0} = set if \textbf{SD card} was not found
+            \item \textbf{bit 1} = set if image file was not found
+            \item \textbf{bit 2} = set if last command resulted in error
+            \item \textbf{bit 3} = not used
+        \end{itemize}
+        \item \textbf{Upper Nibble} (number of disk image files found)
+    \end{itemize}
+
+    % ==========================================================================
+    \subsubsection{Real-Time Clock (RTC) Module}
+    % ==========================================================================
+
+    The RTC is a DS3231 module connected to the Arduino via I2C.
+
+    The available commands (cmd) are:
+
+    \begin{tabular}{| c | m{3.8cm} | m{3cm} | m{3.5cm} | }
+        \hline
+        \rowcolor{lightgray}
+        cmd & Description & (Size) Input & (Size) Output\\
+        \hline
+        C0 & Get RTC info & (0) & (1) see below\\
+        \hline
+        C1 & Check Battery Health & (0) & (1) 0xA0=Healthy\\
+           &                      &     &     0x00=Dead\\
+        \hline
+        C2 & Get current Date (in Hexadecimal) & (0) & (9) CCYYMMDDW\\
+        \hline
+        C3 & Get current Time (in Hexadecimal) & (0) & (6) HHMMSS\\
+        \hline
+        C4 & Set Date & (7) YYMMDDW & (0)\\
+        \hline
+        C5 & Set Time & (6) HHMMSS & (0)\\
+        \hline
+    \end{tabular}
+
+    \textbf{C0 (Get RTC info)}
+
+    Tells information of the configuration of the \textbf{RTC} module.\\
+
+    Useful, for example if the time is not kept accurately, to check if the
+    clock is running or not.
+
+     \begin{itemize}
+        \item \textbf{Byte 1}
+        \begin{itemize}
+            \item \textbf{bit 0} = set if clock is running
+            \item \textbf{bit 1} = set if clock is in 24 hours mode. Otherwise,
+            clock is in 12 hours mode
+            \item \textbf{bit 2} = set if alarm 1 is ON
+            \item \textbf{bit 3} = set if alarm 2 is ON
+        \end{itemize}
+    \end{itemize}
 
      % ==========================================================================
      \subsubsection{NVRAM}
@@ -345,7 +441,6 @@
          D1 & Clear (Set all to zeros) NVRAM & (0) & (0) \\
          \hline
      \end{tabular}
-
 
     % ==========================================================================
     \subsection{Serial board}
@@ -413,7 +508,7 @@
 
     The VGA output is achieved in a rather simple manner; the SIO/2 Channel A
     sends its output to a LILYGO TTGO VGA32 V1.4, which runs a very simple ANSI
-    terminal emulator using the FabGL library.
+    16 colours terminal emulator using the FabGL library.
 
 
     % ==========================================================================
@@ -431,10 +526,11 @@
     % ==========================================================================
 
     The whole computer is powered via an external 12V/4A AC adaptor, which is 
-    connected to an internal PSU5a (5V 3A Regulator in TO-220 form factor).
+    connected to five LM25961 DC-DC Step Down Buck Converter with an output of
+    5V 2.5A.
 
-    The PSU5a output (5V) is connected diurectly to the backplane to supply 5V
-    for all the boards, and also to an USB cable that powers the VGA32 board.
+    Each LM25961 supplies independent voltage to: the backplane, the VGA32, the
+    Teensy++ 2.0 (Keyboard controller), the Arduino Mega2560 (ASMDC) and the FDD.
 
     % ==========================================================================
     \subsection{Computer Case}
@@ -488,8 +584,7 @@
         \hline
         0 & 0 & 0 & /Y0 & \texttt{0x00} - \texttt{0x0F} & For future use\\
         \hline
-        0 & 0 & 1 & /Y1 & \texttt{0x10} - \texttt{0x1F} & \textbf{DISK}
-        (\texttt{0x10})\\
+        0 & 0 & 1 & /Y1 & \texttt{0x10} - \texttt{0x1F} & For future use\\
         \hline
         0 & 1 & 0 & /Y2 & \texttt{0x20} - \texttt{0x2F} & For future use\\
         \hline
@@ -577,7 +672,7 @@
     \section{Future Improvements}
     % ==========================================================================
 
-    This are some ideas I have for improvements:
+    These are some ideas I have for improvements:
 
     \begin{itemize}
         \item \textbf{Dual video output}: the idea is to have the current VGA
@@ -585,7 +680,6 @@
                 80 column usage, and then add a TMS9918A VDP for 
                 \textit{Low Resolution} 40 column graphics (e.g. games).
         \item \textbf{Sound Interface}: stereo sound output with an AY-3-8912.
-        \item \textbf{Parallel Interface}: mainly for printer connection.
         \item \textbf{Dual Digital Joystick Port}: Allowing connection of two
                 Commodore 64 compatible joysticks.
         \item \textbf{Cartridge Port}: allowing almost instantaneously load and

@@ -136,13 +136,16 @@ KRN_SERIAL_RDCHARECHO:
 ; Read a character from Console and outputs to the Screen
 ; Read character is stored in register A
         call    F_BIOS_SERIAL_CONIN_A   ; Read character
-        cp      CLS
-        jp      z, _clear_screen
+        cp      $80                     ; Break/Pause key (Clear Screen)
+        jp      z, KRN_SERIAL_CLRSCR
         call    F_BIOS_SERIAL_CONOUT_A  ; Echo it
         ret
-_clear_screen:
-        ld      A, $0C                  ; Clear screen
-        call    F_BIOS_SERIAL_CONOUT_A
+;------------------------------------------------------------------------------
+KRN_SERIAL_CLRSCR:
+        ld      DE, KRN_ANSI_CLRSCR
+        ld      B, 7
+        call    F_KRN_SERIAL_SEND_ANSI_CODE
+        ld      A, 0                    ; set to no character
         ret
 ;------------------------------------------------------------------------------
 KRN_SERIAL_EMPTYLINES:
@@ -234,7 +237,9 @@ KRN_SERIAL_SEND_ANSI_CODE:
 ; ANSI escape codes for Serial (https://en.wikipedia.org/wiki/ANSI_escape_code)
 ;==============================================================================
 KRN_ANSI_BSPACE                 .BYTE   $1B, "\b"       ; Move cursor left 1 column
-KRN_ANSI_CLRSCR                 .BYTE   $1B, "[1J"      ; Clear entire screen
+; KRN_ANSI_CLRSCR                 .BYTE   $1B, "[1J"      ; Clear entire screen
+KRN_ANSI_CLRSCR                 .BYTE   $1B, "[H"       ; Move cursor to 0,0
+                                .BYTE   $1B, "[0J"      ; Erase from cursor until end of screen
 
 KRN_ANSI_COLR_BLK               .BYTE   $1B, "[30m"     ; Colour 0
 KRN_ANSI_COLR_RED               .BYTE   $1B, "[31m"     ; Colour 1

@@ -1038,18 +1038,11 @@ show_deleted:
         call    F_KRN_SERIAL_PRN_BYTES
         call    print_a_space
         call    print_a_space
-        ;   Date created
-        ld      HL, (DISK_cur_file_date_created)
-        call    F_KRN_PKEDDATE_TO_DMY   ; A = day, B = month, C = year
-        call    _print_DDMMYYYY
-        call    print_a_space
-        call    print_a_space
-        ;   Time created
-        ld      HL, (DISK_cur_file_time_created)
-        call    F_KRN_PKEDTIME_TO_HMS   ; A = hour, B = minutes, C = seconds
-        call    _print_HMS
-        call    print_a_space
-        call    print_a_space
+        ; File type
+        call    _CLI_DISK_PRINT_FTYPE
+
+        ld      B, 4                    ; print 4 spaces
+        call    print_n_spaces
         ;   Date last modif.
         ld      HL, (DISK_cur_file_date_modified)
         call    F_KRN_PKEDDATE_TO_DMY   ; A = day, B = month, C = year
@@ -1060,8 +1053,17 @@ show_deleted:
         ld      HL, (DISK_cur_file_time_modified)
         call    F_KRN_PKEDTIME_TO_HMS   ; A = hour, B = minutes, C = seconds
         call    _print_HMS
-        call    print_a_space
-        call    print_a_space
+        ld      B, 3                    ; print 3 spaces
+        call    print_n_spaces
+        ;   Load Address
+        ld      HL, (DISK_cur_file_load_addr)
+        call    F_KRN_SERIAL_PRN_WORD
+        ld      B, 11                    ; print 11 spaces
+        call    print_n_spaces
+        ;   Attributes (RHSE, R=Read Only, H=Hidden, S=System, E=Executable)
+        call    _CLI_DISK_PRINT_ATTRBS
+        ld      B, 8                    ; print 8 spaces
+        call    print_n_spaces
         ;   Size
         ld      IY, DISK_cur_file_size_bytes
         ld      E, (IY)                 ; E = MSB
@@ -1074,18 +1076,6 @@ show_deleted:
         ;   Print each of the 6 digits (without leading zeros)
         ld      IX, CLI_buffer_pgm
         call    F_KRN_SERIAL_WR6DIG_NOLZEROS
-        ld      B, 3                    ; print 3 spaces
-        call    print_n_spaces
-        ;   Attributes (RHSE, R=Read Only, H=Hidden, S=System, E=Executable)
-; ToDo - make it print always in the same column
-        call    _CLI_DISK_PRINT_ATTRBS
-        ld      B, 8                    ; print 8 spaces
-        call    print_n_spaces
-        ; Load Address
-; ToDo - make it print always in the same column
-        ld      HL, (DISK_cur_file_load_addr)
-        call    F_KRN_SERIAL_PRN_WORD
-        
         ; Add CR + LF
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
@@ -1107,10 +1097,41 @@ diskcat_end:
 diskcat_end_nopop:
         jp      cli_promptloop          ; Yes, then nothing else to do
 ;------------------------------------------------------------------------------
+_CLI_DISK_PRINT_FTYPE:
+; Prints 3 letters that are the File Type identifier
+; File Type is stored in bits 4-7 (High Nibble) of File Attributes
+        ld      IX, tab_file_types          ; IX = pointer to file types table
+        ld      A, (DISK_cur_file_attribs)
+        ; Discard Low Nibble and get pointer to file type in table
+        srl     A
+        srl     A
+        srl     A
+        srl     A
+        cp      0
+        jp      z, _ftype_print
+        ; Get file type id
+        ld      DE, 3                       ; each file type is 3 characters
+        call    F_KRN_MULTIPLY816_SLOW      ; HL = 3 * A (file type stored in attributes)
+        ex      DE, HL
+        add     IX, DE                      ; move pointer to first char of file type
+_ftype_print:
+        ; Print 3 characters from table
+        ld      A, (IX)
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      A, (IX + 1)
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      A, (IX + 2)
+        call    F_BIOS_SERIAL_CONOUT_A
+        ret
+;------------------------------------------------------------------------------
 _CLI_DISK_PRINT_ATTRBS:
 ; Prints a string with letters (R=Read Only, H=Hidden, S=System, E=Executable)
 ; if file attribute is ON, or space if it's OFF
+; Attributes are stored in bits 0-3 (Low Nibble) of File Attributes
         ld      A, (DISK_cur_file_attribs)
+        ; Discard High Nibble
+        and     $0F
+
         push    AF
         and     1                           ; Read Only?
         jp      nz, disk_attrib_is_ro       ; No, print a space

@@ -41,7 +41,7 @@ ROMRAM_PAGING               .EQU    $38
 ;==============================================================================
 ; ROM positions
 ;==============================================================================
-INITSIO2_END                .EQU    $01D9
+INITSIO2_END                .EQU    $01E7
 
 BIOS_END                    .EQU    $133F
 BIOS_JBLK_START             .EQU    BIOS_END + 1
@@ -88,11 +88,9 @@ START_HIGHRAM               .EQU    $8000
 ;==============================================================================
 ; Key codes over Serial
 ;==============================================================================
-; CTRLC                   .EQU    $03     ; Ctrl + C
 BSPACE                      .EQU    $08     ; Backspace
 TAB                         .EQU    $09
 LF                          .EQU    $0A     ; Line Feed
-CLS                         .EQU    $80     ; Clear Screen (Break/Pause key)
 CR                          .EQU    $0D     ; Carriage Return
 ESC                         .EQU    $1B     ; Escape
 SPACE                       .EQU    $20     ; Space

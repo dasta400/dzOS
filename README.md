@@ -22,7 +22,7 @@ dzOS is a single-user single-task ROM-based operating system (OS) for the 8-bit 
 The OS consists of three parts:
 
 * The **BIOS**, that provides functions for controlling the hardware.
-* The **Kernel**, which provides general functions for everything that is not hardware dependent.
+* The **Kernel**, that provides general functions for everything that is not hardware dependent.
 * The **Command-Line Interface (CLI)**, that provides commands for the user to talk to the Kernel and BIOS.
 
 The Kernel and the CLI are hardware independent and will work on any Z80 based computer. Therefore, by adapting the BIOS code, **dzOS can easily be ported to other Z80 systems**.
@@ -61,21 +61,21 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
     * Control keys: Esc, Tab, Ctrl, Alt, Backspace
     * Special keys: Print, Insert, Home, Delete, etc.
     * Multiple modifier keys (e.g. Ctrl + Shift + key, Alt + Shift + key)
-* **Power Supply**: 12V External Power Supply with 5V/3A Regulator
+* **Power Supply**: 12V External Power Supply with 5V/2.5A Regulator
 * **Arduino Serial Multi-Device Controller ([ASMDC](https://github.com/dasta400/ASMDC))**: An Arduino board acting as a _man-in-the-middle_ to allow dastaZ80 to communicate with different devices:
-  * **Micro SD Card**: FAT32 formatted, with disk image files that dastaZ80 can use. Allows multiple disk image files to be used, by configuring them in a file called __disks.cfg_ that MUST be on the SD card too.
-  * **Real-Time Clock (RTC)**: Rechargeable battery (LIR2032) backed.
+  * **Micro SD Card**: FAT32 formatted, with disk image files formatted with my own design file system (DZFS). Multiple disk image files can be configured in a file called __disks.cfg_ that MUST be on the SD card too.
+  * **Real-Time Clock (RTC)**: Keeps date and time. Power is maintained via a rechargeable battery LIR2032.
   * **NVRAM**: 56 bytes.
   * **FDD**: Support for 3.5" High Density disks.
 * **Case**: Acorn Archimedes A3010 all-in-one computer case
   * Connectors:
-  * DE-15 female connecto (VGA)
-  * Micro SD Card slot
-  * 3.5" Floppy Disk Drive (Samsung SFD-321B/E)
-  * 2.1mm Barrel Power Jack (Power Supply)
+    * VGA (DE-15 female)
+    * Power Supply (2.1mm Barrel Power Jack)
   * Others:
-    * Switch ON/OF (Power)
-    * Tactile switch (reset)
+    * Micro SD Card slot
+    * 3.5" Floppy Disk Drive (original Acorn A3010 FDD)
+    * Power Switch ON/OFF
+    * Reset button (tactile switch)
 
 ![dzOS v2022.07.19.13](https://github.com/dasta400/dzOS/blob/master/docs/dastaZ80BlockDiagram.png "dastaZ80 Block Diagram")
 
@@ -85,14 +85,14 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
 * [FabGL Library](http://www.fabglib.org/) Arduino code for VGA32 ([folder src/VGA32](https://github.com/dasta400/dzOS/tree/master/src/VGA32))
 * **OS**:
   * **BIOS** & **Kernel**:
-    * Communicates with the Keyboard Controller to communicate with the Keyboard.
+    * Communicates with the Keyboard Controller to read the Keyboard.
     * Communicates with the Video Interface to generate VGA output.
-    * Communicates with [ASMDC](https://github.com/dasta400/ASMDC) to control RTC, NVRAM and Micro SD card.
-    * **DZFS** (dastaZ80 File System) **This file system is still in experimental phase. Lost of data may occur due to unknown bugs or changes in specifications.**
+    * Communicates with [ASMDC](https://github.com/dasta400/ASMDC) to control RTC, NVRAM, Micro SD card and FDD.
   * **Command Line Interface (CLI)**:
     * Shows prompt
     * Reads input from keyboard and calls subroutines to the corresponding commands entered by the user.
-    * Displays inforamtion back to the user.
+    * Displays information back to the user.
+  * **DZFS** (dastaZ80 File System) **This file system is still in experimental phase. Lost of data may occur due to unknown bugs or changes in specifications.**
 
 ### TODOs
 
@@ -109,6 +109,7 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
 * ✔ ~~Keyboard controller is sending character for each press of special keys (e.g. Shift)~~
 * F_KRN_DZFS_GET_BAT_FREE_ENTRY not finished (doesn't check of deleted files if no available entries found).
 * Message "_....Detecting RTC  [ RTC Battery needs replacement ] ....Detecting NVRAM  [ 56 Bytes ]_" lacks CarriageReturn
+* Results of _cat_ command are longer than 80 columns.
 
 ---
 
@@ -123,19 +124,19 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
 
 ## User Modifiable Operating System (Paged ROM and Jumpblocks)
 
-At boot, the contents of the ROM (containing DZOS) are copied to High RAM (starting at $8000), then the ROM chip is disabled and the contents of DZOS (now at $8000) are copied to Low RAM (starting at $0000). Then DZOS is started, running only from RAM. Thus, the entire operating system can be modified by the user.
+At boot, the contents of the ROM (containing DZOS) are copied to High RAM (starting at address $8000), then the ROM chip is disabled (paged out) and the contents of DZOS (now at $8000) are copied to Low RAM (starting at $0000). Then DZOS is started, running only from RAM.
 
-But changing subroutines that fit exactly in the same number of bytes, so that others are not overwritten, would be very difficult. And that's where _Jumpblocks_ come in handy.
+As the OS is running entirely from RAM, it can be modified by the user. But changing subroutines that fit exactly in the same number of bytes, so that others are not overwritten, would be very difficult. And that's where _Jumpblocks_ come in handy.
 
 All DZOS subroutines are called via _Jumpblocks_. These jumpblocks are simple _JP_ (jump) instructions to where the subroutine code is located in memory. By changing the two bytes (address) of a jump instruction, a subroutine can be redirected to a different one.
 
 All jumpblock addresses can be found in the _.exp_ files in the _exp_ folder. Or in the documentation.
 
-For example, imagine we're testing a new (hopefully better) subroutine for division of two 16-bit numbers. Looking at the file _kernel.exp_, we find that _F_KRN_DIV1616_ is located at $26DD. If we look at the contents of the three bytes starting at that address (e.g. with command _peek_), we will find _C3 60 17_. This means that whenever a program calls _F_KRN_DIV1616_, it does a jump (opcode C3) to address $1760 (stored as little-endian), which is where the subroutine code starts. But what we want is to jump to our code instead.
+For example, imagine we're testing a new (hopefully better) subroutine for division of two 16-bit numbers. Looking at the file _kernel.exp_, we find that _F_KRN_DIV1616_ is located at $26F8. If we look at the contents of the three bytes starting at that address (e.g. with command _peek_), we will find _C3 60 17_. This means that whenever a program calls _F_KRN_DIV1616_, it does a jump (opcode C3) to address $1760 (stored as little-endian), which is where the subroutine code starts.
 
-First we put the assembled code of our new subroutine somewhere in RAM (e.g. $5000). Next we change the jump by changing the address bytes with _poke 26de,00_ and _poke 26df,50_. The opcode _C3_ (jump) MUST not be changed.
+Now we want that the jump is done to our new code instead. First we put the assembled code of our new subroutine somewhere in RAM (e.g. $5000). Next we change the jump by changing the address bytes with _poke 26de,00_ and _poke 26df,50_. The opcode _C3_ (jump) MUST not be changed.
 
-Now, whenever a program, and even DZOS, calls _F_KRN_DIV1616_, will be jumping to our new subroutine at $5000
+From now on and until next reboot, whenever a program (and even DZOS itself), calls _F_KRN_DIV1616_, it will be jumping to our new subroutine at $5000
 
 Jumpblocks also allow me to change the subroutines in DZOS without altering the address that is seen by the calling subroutines, thus keeping retrocompatibility with previous versions of the operating system.
 
@@ -148,32 +149,31 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 ### General commands
 
 * **help**: shows a list of some commands, with a short description and usage example.
-* **run _[address]_**: moves the Program Counter (PC) to the specified RAM address, so that start execution.
+* **run _[address]_**: moves the CPU Program Counter (PC) to the specified RAM address, so that the CPU starts executing whatever code finds in there.
 * **crc16 _[address_start]_,_[address_end]_**: Generates and prints a 16-bit cyclic redundancy check (CRC) based on the IBM Binary Synchronous Communications protocol (BSC or Bisync), for the bytes between start and end address.
-* **reset**: clears RAM (sets all to $00) and resets the system.
-* **halt**: halts the system.
+* **reset**: resets the system. It's effectively the same as pressing the reset button on the side of the computer. The contents of RAM are notr cleared. So it some cases it's safe to reset the computer and continue work when it was left.
+* **halt**: halts the system. Tells [ASMDC](https://github.com/dasta400/ASMDC) to close the image files, and puts the computer in the state of HALT.
 
 ### Disk commands
 
-* **cat**: shows disk (Floppy or SD Card) catalogue.
+* **cat**: shows disk (Floppy or SD Card Disk Image File) catalogue (i.e. the contents of the disk).
 * **load _[filename]_**: loads specified filename from disk to RAM.
-
-* **run _[filename]_,_[parameters]_**: executes a load _[filename]_ and run _[address]_.
-* **formatdsk _[label]_,_[num_partitions]_**: formats a Floppy Disk or an Image File in the SD Card with DZFS.
+* **run _[filename]_**: loads specified filename from disk to RAM and starts running it.
+* **formatdsk _[label]_**: formats a Floppy Disk or a Disk Image File with DZFS.
 * **rename _[old_filename]_,_[new_filename]_**: changes the name of file old_filename to new_filename.
-* **delete _[filename]_**: deletes filename. Data isn't deleted, just the first character of the filename in the BAT is set to 7E (~), so it can be undeleted. Be aware, that the save command will always search for an empty entry in the BAT, but if it finds none, then it will re-use the first entry of a deleted file. Therefore, undelete of a file is only guaranteed if no file was created since the delete command was issued.
+* **delete _[filename]_**: deletes filename. Data isn't deleted, just the first character of the filename in the BAT is set to 7E (~), so it can be undeleted. Be aware, that it's planned that in future versions the _save_ command will search for an empty entry in the BAT, but if it finds none, then it will re-use the first entry of a deleted file. Therefore, undelete of a file will only be guaranteed if no file was created since the delete command was issued.
 * **chgattr _[filename]_,_[new_attributes(RHSE)]_**: changes the attributes of filename to the new specified attributes.
-* **save _[address_start]_,_[number_bytes]_**: creates a new file on the disk (Floppy or SD Card), that will contain _n_ number of bytes, starting at the specified address. After entering the command, the user will be prompted to type the filename.
-* **dsk _[disk unit]_**: changes the current disk to the number specified. 0 is always the FDD and then 1 to 14 are the Disk Image Files on the SD Card.
+* **save _[address_start]_,_[number_bytes]_**: creates a new file on the disk, that will contain _n_ number of bytes, starting at the specified address. After entering the command, the user will be prompted to type the filename.
+* **dsk _[disk unit]_**: changes the current disk to the number specified. 0 is always the FDD and then 1 to 15 are the Disk Image Files on the SD Card.
 * **diskinfo**: shows label, serial number, date and time of formatting of current disk.
 * **disklist**: shows a list of all Disk Image Files and their disk unit number.
 
 ### Memmory commands
 
 * **memdump _[address_start]_,_[address_end]_**: shows all the contents of memory (ROM/RAM) from address_start to address_end.
-* **peek _[address]_**: shows the value stored at address.
-* **poke _[address]_,_[value]_**: stores value at the specified address.
-* **autopoke _[start_address]_**: allows to enter hexadecimal values that will be stored at the start_address and consecutive positions. The address is incremented automatically after each hexadecimal value + press of ENTER key. Entering no value (i.e. just press ENTER) will stop the process. I made this so that I can enter assembled programs, as Mark I doesn't have any means of loading programs.
+* **peek _[address]_**: shows the byte stored at _address_.
+* **poke _[address]_,_[value]_**: overwrittes the byte stored at _address_, with _value_.
+* **autopoke _[start_address]_**: allows to enter hexadecimal values that will be stored at the _start_address_ and consecutive positions. The address is incremented automatically after each hexadecimal value is entered (2 digits). Entering no value (i.e. just press ENTER) will stop the process.
 * **clrram**: fills with zeros the entire Free RAM area (i.e. from 0x4420 to 0xFFFF).
 
 ### Real-Time Clock (RTC) commands
@@ -202,7 +202,7 @@ Follow the steps:
 1. Copy the _.img_ files into the Micro SD Card
 1. Create a text ASCII file called __disks.cfg_ and add one line for each _.img_ file, with its name in the line. Be sure to leave an extra line at the end of the file. _#_ can be used to write comments.
 1. Insert the Micro SD Card in the MicroSD Card Adapter
-1. Turn dastaZ80 on, and format the disk with commmand _formatdsk_
+1. Turn dastaZ80 on, and format each disk with the commmand _formatdsk_
 
 Alternatively, the image file can be formatted with _imgmngr_ (tool provided with [ASMDC](https://github.com/dasta400/ASMDC)): _imgmngr -new myimage.img mydisk_
 

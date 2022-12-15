@@ -40,9 +40,9 @@
 
 F_KRN_SYSHALT:                      .EXPORT         F_KRN_SYSHALT
         jp      KRN_SYSHALT
-F_KRN_DISK_CHANGE                   .EXPORT         F_KRN_DISK_CHANGE
+F_KRN_DISK_CHANGE:                  .EXPORT         F_KRN_DISK_CHANGE
         jp      KRN_DISK_CHANGE
-F_KRN_DISK_LIST                     .EXPORT         F_KRN_DISK_LIST
+F_KRN_DISK_LIST:                    .EXPORT         F_KRN_DISK_LIST
         jp      KRN_DISK_LIST
 
         ; Serial subroutines
@@ -52,7 +52,7 @@ F_KRN_SERIAL_WRSTRCLR:              .EXPORT         F_KRN_SERIAL_WRSTRCLR
         jp      KRN_SERIAL_WRSTRCLR
 F_KRN_SERIAL_WRSTR:                 .EXPORT         F_KRN_SERIAL_WRSTR
         jp      KRN_SERIAL_WRSTR
-F_KRN_SERIAL_WR6DIG_NOLZEROS        .EXPORT         F_KRN_SERIAL_WR6DIG_NOLZEROS
+F_KRN_SERIAL_WR6DIG_NOLZEROS:       .EXPORT         F_KRN_SERIAL_WR6DIG_NOLZEROS
         jp      KRN_SERIAL_WR6DIG_NOLZEROS
 F_KRN_SERIAL_RDCHARECHO:            .EXPORT         F_KRN_SERIAL_RDCHARECHO
         jp      KRN_SERIAL_RDCHARECHO
@@ -68,6 +68,8 @@ F_KRN_SERIAL_PRN_WORD:              .EXPORT         F_KRN_SERIAL_PRN_WORD
         jp      KRN_SERIAL_PRN_WORD
 F_KRN_SERIAL_SEND_ANSI_CODE:        .EXPORT         F_KRN_SERIAL_SEND_ANSI_CODE
         jp      KRN_SERIAL_SEND_ANSI_CODE
+F_KRN_SERIAL_CLRSCR:                .EXPORT         F_KRN_SERIAL_CLRSCR
+        jp      KRN_SERIAL_CLRSCR
 
         ; String subroutines
 F_KRN_TOUPPER:                      .EXPORT         F_KRN_TOUPPER
@@ -104,7 +106,7 @@ F_KRN_ASCII_TO_HEX:                 .EXPORT         F_KRN_ASCII_TO_HEX
         jp      KRN_ASCII_TO_HEX
 F_KRN_HEX_TO_ASCII:                 .EXPORT         F_KRN_HEX_TO_ASCII
         jp      KRN_HEX_TO_ASCII
-F_KRN_BCD_TO_BIN                    .EXPORT         F_KRN_BCD_TO_BIN
+F_KRN_BCD_TO_BIN:                   .EXPORT         F_KRN_BCD_TO_BIN
         jp      KRN_BCD_TO_BIN
 F_KRN_BIN_TO_BCD4:                  .EXPORT         F_KRN_BIN_TO_BCD4
         jp      KRN_BIN_TO_BCD4
@@ -164,23 +166,25 @@ F_KRN_DZFS_ADD_BAT_ENTRY:           .EXPORT         F_KRN_DZFS_ADD_BAT_ENTRY
         jp      KRN_DZFS_ADD_BAT_ENTRY
 F_KRN_DZFS_CREATE_NEW_FILE:         .EXPORT         F_KRN_DZFS_CREATE_NEW_FILE
         jp      KRN_DZFS_CREATE_NEW_FILE
-F_KRN_DZFS_SHOW_DISKINFO_SHORT      .EXPORT         F_KRN_DZFS_SHOW_DISKINFO_SHORT
+F_KRN_DZFS_SHOW_DISKINFO_SHORT:     .EXPORT         F_KRN_DZFS_SHOW_DISKINFO_SHORT
         jp      KRN_DZFS_SHOW_DISKINFO_SHORT
 F_KRN_DZFS_SHOW_DISKINFO:           .EXPORT         F_KRN_DZFS_SHOW_DISKINFO
         jp      KRN_DZFS_SHOW_DISKINFO
 F_KRN_DZFS_CHECK_FILE_EXISTS:       .EXPORT         F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      KRN_DZFS_CHECK_FILE_EXISTS
+F_KRN_DZFS_SET_FILE_DEFAULTS        .EXPORT         F_KRN_DZFS_SET_FILE_DEFAULTS
+        jp      KRN_DZFS_SET_FILE_DEFAULTS
 
         ; RTC subroutines
-F_KRN_RTC_GET_DATE                  .EXPORT         F_KRN_RTC_GET_DATE
+F_KRN_RTC_GET_DATE:                 .EXPORT         F_KRN_RTC_GET_DATE
         jp      KRN_RTC_GET_DATE
-F_KRN_RTC_SHOW_TIME                 .EXPORT         F_KRN_RTC_SHOW_TIME
+F_KRN_RTC_SHOW_TIME:                .EXPORT         F_KRN_RTC_SHOW_TIME
         jp      KRN_RTC_SHOW_TIME
-F_KRN_RTC_SHOW_DATE                 .EXPORT         F_KRN_RTC_SHOW_DATE
+F_KRN_RTC_SHOW_DATE:                .EXPORT         F_KRN_RTC_SHOW_DATE
         jp      KRN_RTC_SHOW_DATE
-F_KRN_RTC_SET_TIME                  .EXPORT         F_KRN_RTC_SET_TIME
+F_KRN_RTC_SET_TIME:                 .EXPORT         F_KRN_RTC_SET_TIME
         jp      KRN_RTC_SET_TIME
-F_KRN_RTC_SET_DATE                  .EXPORT         F_KRN_RTC_SET_DATE
+F_KRN_RTC_SET_DATE:                 .EXPORT         F_KRN_RTC_SET_DATE
         jp      KRN_RTC_SET_DATE
 
         .ORG	KRN_JBLK_END

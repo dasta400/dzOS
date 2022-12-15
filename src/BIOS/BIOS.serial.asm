@@ -9,6 +9,8 @@
 ; No need for SIO_PRIMARY_IO anymore, as it jumps to the corresponding subroutine
 ;   based on the Status Affects Vector (D2). 
 ;
+; IMPORTANT: Adding code to this file requires changing INITSIO2_END in equates.inc
+;
 ; Version 1.0.0
 ; Created on 04 Jun 2022
 ; Last Modification 04 Jun 2022
@@ -53,11 +55,11 @@
 ;------------------------------------------------------------------------------
 ; Transmit a character over Channel B
         .ORG    $0018
-        jp      F_BIOS_SERIAL_CONOUT_B
+        jp      F_BIOS_SERIAL_CKINCHAR_A
 ;------------------------------------------------------------------------------
 ; Receive a character over Channel B
         .ORG    $0020
-        jp      F_BIOS_SERIAL_CONIN_B
+;        jp      F_BIOS_SERIAL_CONIN_B
 
 ;------------------------------------------------------------------------------
 ; SIO INTerrupt Vector
@@ -360,6 +362,20 @@ BIOS_SERIAL_INIT:
         ; And enable interrupts
         ei
         jp      F_BIOS_WBOOT
+
+;------------------------------------------------------------------------------
+BIOS_SERIAL_CKINCHAR_A:
+        ld      A, (SIO_CH_A_BUFFER_USED)
+        cp      $0
+        ret
+_ckinchara_print:
+        ld      A, (HL)                 ; Get character
+        or      A                       ; Is it $00?
+        ret     z                       ; Then RETurn on terminator
+        rst     08h                     ; Print it
+        inc     HL                      ; Next character
+        jr      _ckinchara_print        ; COntinue until $00
+        ret
 
 ;==============================================================================
 ; END of CODE

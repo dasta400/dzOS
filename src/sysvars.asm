@@ -36,11 +36,13 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
+.NOLIST
 ;==============================================================================
 ; Includes
 ;==============================================================================
 #include "src/equates.inc"
 
+.LIST
         .ORG    SYSVARS_START
 ;==============================================================================
 ; SIO/2 buffers
@@ -145,6 +147,10 @@ SD_images_num                   .EXPORT         SD_images_num
 DISK_current                    .EXPORT         DISK_current
                 .BYTE   0                       ; Current DISK active.
                                                 ; All disk operations will be on this DISK
+DISK_file_type                  .EXPORT         DISK_file_type
+                .BYTE   0                       ; File Type when creating (save) next file
+DISK_loadsave_addr              .EXPORT         DISK_loadsave_addr
+                .BYTE   0, 0
 DISK_status                     .EXPORT         DISK_status
                 .BYTE   0
 tmp_addr1:                      .EXPORT         tmp_addr1

@@ -35,9 +35,9 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
-
+.NOLIST
 #include "src/equates.inc"
-
+.LIST
 	.ORG	FREEROM_START
 				.FILL	FREEROM_SIZE, 0
 

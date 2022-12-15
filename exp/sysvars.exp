@@ -19,7 +19,9 @@ DISK_cur_file_entry_number .EQU  $40c8
 DISK_cur_file_1st_sector .EQU  $40ca
 DISK_cur_file_load_addr .EQU  $40cc
 DISK_current     .EQU  $4173
-DISK_status      .EQU  $4174
+DISK_file_type   .EQU  $4174
+DISK_loadsave_addr .EQU  $4175
+DISK_status      .EQU  $4177
 MATH_CRC         .EQU  $416e
 MATH_polynomial  .EQU  $4170
 RTC_hour         .EQU  $4164
@@ -40,8 +42,8 @@ SIO_CH_B_IN_PTR  .EQU  $40a5
 SIO_CH_B_RD_PTR  .EQU  $40a7
 SIO_CH_B_BUFFER_USED .EQU  $40a9
 SD_images_num    .EQU  $4172
-tmp_addr1        .EQU  $4175
-tmp_addr2        .EQU  $4177
-tmp_addr3        .EQU  $4179
-tmp_byte         .EQU  $417b
-tmp_byte2        .EQU  $417c
+tmp_addr1        .EQU  $4178
+tmp_addr2        .EQU  $417a
+tmp_addr3        .EQU  $417c
+tmp_byte         .EQU  $417e
+tmp_byte2        .EQU  $417f

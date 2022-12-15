@@ -35,7 +35,7 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
-
+.NOLIST
 ;==============================================================================
 ; Includes
 ;==============================================================================
@@ -44,6 +44,7 @@
 #include "exp/kernel.exp"
 #include "exp/sysvars.exp"
 
+.LIST
 ;==============================================================================
 ; General Routines
 ;==============================================================================
@@ -113,6 +114,8 @@ F_CLI_READCMD:
         ld      IX, CLI_buffer_full_cmd ; address where commands + params is stored
 readcmd_loop:
         call    F_KRN_SERIAL_RDCHARECHO ; A = character read from serial (keyboard)
+        cp      0                       ; if no character (e.g. CLRSCR)
+        jp      z, readcmd_loop         ;   read another
         ld      (IX), A                 ; store character
         inc     IX                      ;   in full command buffer
 
@@ -356,9 +359,9 @@ msg_disk_cat_title:
         .BYTE   CR, LF
         .BYTE   "Disk Catalogue", CR, LF, 0
 msg_disk_cat_sep:
-        .BYTE   "------------------------------------------------------------------------------------------", CR, LF, 0
+        .BYTE   "--------------------------------------------------------------------------------", CR, LF, 0
 msg_disk_cat_detail:
-        .BYTE   "File            Created               Modified              Size   Attributes Load Address", CR, LF, 0
+        .BYTE   "File            Type   Last Modified          Load Address   Attributes   Size", CR, LF, 0
 msg_disk_file_loaded:
         .BYTE   CR, LF
         .BYTE   "File loaded successfully at address: $", 0
@@ -450,6 +453,28 @@ error_2010:
 error_2011:
         .BYTE   CR, LF
         .BYTE   "Error", CR, LF, 0
+;==============================================================================
+; Tables
+;==============================================================================
+; File Types
+tab_file_types:
+        .BYTE   "USR"                   ; $0 = User defined
+        .BYTE   "EXE"                   ; $1 = Executable binary
+        .BYTE   "BIN"                   ; $2 = Binary (non-executable) data
+        .BYTE   "BAS"                   ; $3 = BASIC code
+        .BYTE   "TXT"                   ; $4 = Plain ASCII text file
+        .BYTE   "---"                   ; $5 = Unused
+        .BYTE   "---"                   ; $6 = Unused
+        .BYTE   "---"                   ; $7 = Unused
+        .BYTE   "---"                   ; $8 = Unused
+        .BYTE   "---"                   ; $9 = Unused
+        .BYTE   "---"                   ; $A = Unused
+        .BYTE   "---"                   ; $B = Unused
+        .BYTE   "---"                   ; $C = Unused
+        .BYTE   "---"                   ; $D = Unused
+        .BYTE   "---"                   ; $E = Unused
+        .BYTE   "---"                   ; $F = Unused
+
 ;==============================================================================
 ; CLI Modules
 ;==============================================================================

@@ -210,24 +210,25 @@
         \end{itemize}
         \item Video output
         \begin{itemize}
-            \item VGA 80 column by 25 lines and 16 colours
+            \item VGA 80 columns by 25 lines and 16 colours
         \end{itemize}
         \item Real-Time Clock
         \begin{itemize}
-            \item DS3231 RTC, provides valid until the year 2100 leap year compensation. 
+            \item DS3231 RTC, provides valid until the year 2100 leap year
+            compensation
         \end{itemize}
         \item Keyboard
         \begin{itemize}
             \item Acorn Archimedes A3010 keyboard. 102 keys with 12 function
-            keys, cursor keys and keypad
+            keys, cursor keys and numeric pad
         \end{itemize}
         \item Case
         \begin{itemize}
-            \item Repurposed Acorn Archimedes A3010 case with keyboard.
+            \item Repurposed Acorn Archimedes A3010 case with keyboard
         \end{itemize}
         \item Expansion ports
         \begin{itemize}
-            \item 2x20 pin male header. Exposes all CPU signals.
+            \item 2x20 pin male header. Exposes all CPU signals
         \end{itemize}
     \end{itemize}
 
@@ -253,8 +254,14 @@
     \begin{enumerate}
         \item insert the battery LIR2032 in the battery holder. Positive goes up.
         \item Format the SD card with FAT32 on a modern PC.
-        \item Create a file of 128 MB on the SD card. For example using Linux 
-        terminal:  \texttt{fallocate -l \$((128*1024*1024)) dastaZ80.img}
+        \item Create a file of 33 MB on the SD card. For example using Linux 
+        terminal:  \texttt{fallocate -l \$((33*1024*1024)) dastaZ80.img}
+        \item Create a file named \textit{\_disks.cfg} in the root of the SD card,
+        and add two lines to it:
+        \begin{itemize}
+            \item dastaZ80.img
+            \item \#
+        \end{itemize}
         \item Introduce the SD card in the SD card slot at the back of the
         computer case. This procedure MUST be performed with the computer
         switched off, and SHOULD be performed with the computer unplugged.
@@ -342,7 +349,8 @@
             \item Can only contain alphabetical (A to Z) and numerical (0 to 9)
             letters.
             \item Cannot start with a number.
-            \item No support for extensions.
+            \item No support for extensions. But there is a separate field for
+            File Type.
         \end{itemize}
         \item Maximum size for a file is 32,768 bytes.
     \end{itemize}
@@ -705,12 +713,11 @@
         \resizebox{12cm}{!}{
             \begin{tabular}{l l l l l l}
                 \multicolumn{6}{l}{Disk Catalogue}\\
-                \multicolumn{6}{l}{-----------------------------------------------------------------------------------}\\
-                File & Created & Modified & Size & Attributes & Load Address\\
-                \multicolumn{6}{l}{-----------------------------------------------------------------------------------}\\
-                HelloWorld & 12-03-2022 13:21:44 & 12-03-2022 13:21:22 & 38 &
-                E & 4420\\
-                file2 & 11-05-2022 17:12:45 & 11-05-2022 18:21:32 & 512 & SE & 4420
+                \multicolumn{6}{l}{----------------------------------------------------------------------}\\
+                File & Type & Last Modified & Load Address & Attributes & Size\\
+                \multicolumn{6}{l}{----------------------------------------------------------------------}\\
+                HelloWorld & EXE & 12-03-2022 13:21:44 & 4420 & R SE & 38\\
+                file2 & TXT & 11-05-2022 17:12:45 & 0000 & SE & 241
             \end{tabular}
         }}
 
@@ -725,12 +732,11 @@
         \resizebox{12cm}{!}{
             \begin{tabular}{l l l l l l}
                 \multicolumn{6}{l}{Disk Catalogue}\\
-                \multicolumn{6}{l}{-----------------------------------------------------------------------------------}\\
-                File & Created & Modified & Size & Attributes & Load Address\\
-                \multicolumn{6}{l}{-----------------------------------------------------------------------------------}\\
-                \textasciitilde elloWorld & 12-03-2022 13:21:44 & 12-03-2022 13:21:22 & 38 &
-                E & 4420\\
-                file2 & 11-05-2022 17:12:45 & 11-05-2022 18:21:32 & 512 & SE & 4420
+                \multicolumn{6}{l}{----------------------------------------------------------------------}\\
+                File & Type & Last Modified & Load Address & Attributes & Size\\
+                \multicolumn{6}{l}{----------------------------------------------------------------------}\\
+                \textasciitilde elloWorld & EXE & 12-03-2022 13:21:44 & 4420 & R SE & 38\\
+                file2 & TXT & 11-05-2022 17:12:45 & 0000 & SE & 241
             \end{tabular}
         }}
 
@@ -1038,6 +1044,79 @@
         % screen:
         
         % \hspace{1cm}\texttt{CRC16:\ 0x3ABC}
+
+    \pagebreak
+    % ==========================================================================
+    \section{Other Software}
+    % ==========================================================================
+
+    % ==========================================================================
+    \subsection{MS BASIC 4.7b}
+    % ==========================================================================
+    
+    The Nascom 2 computer came with MS BASIC 7.4 installed in ROM, and the
+    disassembled code was published in the \textit{80-BUS NEWS} magazine.
+
+    Grant Searle used it and published a modification in his Grant's
+    \href{http://searle.x10host.com/z80/SimpleZ80.html}{7-chip Z80 computer}
+    webpage.
+
+    Grant's version was then modified to run on dastaZ80 under dzOS, and adding
+    commands like \textit{LOAD} and \textit{SAVE}.
+
+    % ==========================================================================
+    \subsubsection{MS BASIC characteristics}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item Variables
+        \begin{itemize}
+            \item The first character of a variable name MUST be a letter.
+            \item No reserved words may appear as as variable names.
+            \item Can be of any length,, but any alphanumeric characters after
+            the first two are ignored. Therefore \textit{COURSE},
+            \textit{COLOUR} and\textit{COMIC} are the same variable.
+            \item Integer numbers are signed (i.e. from -32,768 to +32,767). To
+            refer to a location \textit{n} above 32,767, you must provide the
+            2's complement number (i.e \textit{n}-65536)
+            \item Flotaing point is in the range 1.70141E38 to 2.9387E-38
+        \end{itemize}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Commands for MS BASIC dastaZ80 version}
+    % ==========================================================================
+
+    In addition to adapt Grant Searle's version to dastaZ80, some commands have
+    been added.
+
+    % ======================================================================
+    \subsubsection{{\color{blue}load}}
+    % ======================================================================
+    Loads a BASIC program from \textbf{DISK} into \textbf{MEMORY}.
+
+    \hspace{1.9cm}\textbf{load "\textit{$<$filename$>$}"}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{$<$filename$>$}}: the name of the file to be
+    loaded.
+
+    \textbf{Example}: \texttt{load "mandelbrot"}
+
+    % ======================================================================
+    \subsubsection{{\color{blue}save}}
+    % ======================================================================
+    Saves current BASIC program from \textbf{MEMORY} into \textbf{DISK}.
+
+    \hspace{1.9cm}\textbf{save "\textit{$<$filename$>$}"}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{$<$filename$>$}}: the name of the file to be
+    saved.
+
+    \textbf{Example}: \texttt{save "mandelbrot"}
 
     \pagebreak
     % ==========================================================================
