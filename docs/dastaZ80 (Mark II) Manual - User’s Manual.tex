@@ -35,7 +35,7 @@
         \rput[b](3.5,8){
             \parbox{5in}{
                 \begin{flushright}
-                    \Huge\bfseries\sffamily dastaZ80 Mark I\\ User's Manual
+                    \Huge\bfseries\sffamily dastaZ80 Mark II\\ User's Manual
                 \end{flushright}
             }
         }
@@ -51,7 +51,7 @@
     % ==========================================================================
     \pagestyle{fancy}
     \fancyhf{}
-    \fancyhead[R]{dastaZ80 Mark I User's Manual}
+    \fancyhead[R]{dastaZ80 Mark II User's Manual}
     % ==========================================================================
     \section*{Disclaimer}
     % ==========================================================================
@@ -135,20 +135,32 @@
     \end{center}
 
     The SD card is referred as \textbf{DISK}.
+
+    The Floppy Disk Drive is referred as \textbf{DISK} or as \textbf{FDD}.
+
+    The 80 column text VGA output is referred as \textbf{CONSOLE} or as
+    \textbf{High Resolution Display}.
+
+    The 40 column graphics Composite Video output is referred as \textbf{Low
+    Resolution Display}.
     
     The Operating System may be referred as DZOS, dzOS or simply OS.
 
     \textbf{MEMORY} refers to both \textbf{ROM} and \textbf{RAM}.
+
+    Memory used by the \textbf{Low Resolution Display} is referred as
+    \textbf{VRAM} (Video RAM).
     
     \pagebreak
     % ==========================================================================
     \section*{Related Documentation}
     % ==========================================================================
-    \hspace{1cm}{\LARGE dastaZ80 Programmer's Reference Guide}
-
-    \hspace{1cm}{\LARGE dastaZ80 Technical Reference Manual}
-
-    \hspace{1cm}{\LARGE https://github.com/dasta400/dzOS}
+    \begin{itemize}
+        \item dastaZ80 User's Manual\cite{dastaz80userman}
+        \item dastaZ80 Technical Reference Manual\cite{dastaz80techman}
+        \item dzOS Github Repository\cite{dastaZ80github}
+        \item Software for dzOS Github Repository\cite{dastaZ80githubsoft}
+    \end{itemize}
 
     \pagebreak
     % ==========================================================================
@@ -161,7 +173,7 @@
     % ==========================================================================
     \pagestyle{fancy}
     \fancyhf{}
-    \fancyhead[R]{dastaZ80 Mark I User's Manual}
+    \fancyhead[R]{dastaZ80 Mark II User's Manual}
     \fancyfoot[R]{\thepage}
     \setcounter{page}{1}
     % ==========================================================================
@@ -208,9 +220,10 @@
             simplicity.}
             \item 3.5" DD/HD Floppy Disk Drive
         \end{itemize}
-        \item Video output
+        \item Dual Video output
         \begin{itemize}
             \item VGA 80 columns by 25 lines and 16 colours
+            \item Composite NTSC 15 colours
         \end{itemize}
         \item Real-Time Clock
         \begin{itemize}
@@ -236,24 +249,25 @@
     % ==========================================================================
     \section{Setting up the system}
     % ==========================================================================
-    Setting up the dastaZ80 is very easy.
-    
     You will only need:
 
     \begin{itemize}
         \item the dastaZ80 computer.
-        \item A 9 to 12 volts power supply with a female 2.1mm barrel-style DC
+        \item A 5 Volts (4 Amp) power supply with a female 2.1mm barrel-style DC
         connector (positive polarity).
         \item A Micro SD card.
-        \item A VGA monitor.
+        \item A monitor with VGA input.
+        \item A monitor with NTSC Composite input.
+        \item A 3.5mm jack to 3 RCA Audio/Video cable\footnote{This is the same
+        cable used on the Raspberry Pi for Composite output}.
         \item A LIR2032 Li-Ion Rechargeable 3.6V Battery Button Cell
     \end{itemize}
 
     Steps:
 
     \begin{enumerate}
-        \item insert the battery LIR2032 in the battery holder. Positive goes up.
-        \item Format the SD card with FAT32 on a modern PC.
+        \item Insert the battery LIR2032 in the battery holder. Positive goes up.
+        \item On a modern PC, format the SD card with FAT32.
         \item Create a file of 33 MB on the SD card. For example using Linux 
         terminal:  \texttt{fallocate -l \$((33*1024*1024)) dastaZ80.img}
         \item Create a file named \textit{\_disks.cfg} in the root of the SD card,
@@ -264,16 +278,36 @@
         \end{itemize}
         \item Introduce the SD card in the SD card slot at the back of the
         computer case. This procedure MUST be performed with the computer
-        switched off, and SHOULD be performed with the computer unplugged.
+        switched off.
         \item Connect the VGA cable from the monitor to the VGA connector at the
         back of the computer case. This procedure SHOULD be performed with the
         computer unplugged.
+        \item Connect the jack of the Audio/Video cable to the A/V connector at
+        the back of the computer case. This procedure SHOULD be performed with
+        the computer unplugged.
         \item Connect the female power supply connector to the male connector at
         the back of the case.
     \end{enumerate}
 
     That’s really it. Switch the computer on, with the power switch, and you
     should see text on your monitor. DZOS is ready to use.
+
+    % ==========================================================================
+    \subsection{Dual Video Output}
+    % ==========================================================================
+
+    The dastaZ80 has two simultaneous video outputs: VGA and Composite.
+
+    The VGA output, called \textit{High Resolution}, is the default output for
+    the Operating System. As it provides 80 columns, it is ideal for
+    applications.
+
+    The Composite output, called \textit{Low Resolution}, can only provide 40
+    columns in Text Mode and 32 in Graphics Modes\footnote{This is a limitation
+    imposed by the Video Display Controller used, a Texas Instruments TMS9918A.},
+    making it less ideal for applications. But in contrast to the VGA output, it
+    offers graphics and hardware sprites, so it makes it more suitable for video
+    games and graphics output from applications.
 
     \pagebreak
     % ==========================================================================
@@ -476,55 +510,6 @@
         until the end of the command.
 
         % ======================================================================
-        \subsubsection{{\color{blue}memdump}}
-        % ======================================================================
-        Shows the \textbf{MEMORY} contents (bytes) of a specified range of
-        \textbf{MEMORY}.
-
-        The contents are printed as hexadecimal bytes, in groups of 16 per
-        each line and with the printable ASCII value (if printable) or just
-        a dot (if not printable).
-            
-        \hspace{1.9cm}\textbf{$>$ memdump \textit{$<$start\_address$>$
-        $<$end\_address$>$}}
-
-        \textbf{Parameters}:
-
-        \hspace{1cm}\textbf{\textit{start\_address}}: first address where
-        the user wants to get values from.
-
-        \hspace{1cm}\textbf{\textit{end\_address}}: last address where the
-        user wants to get values from.
-
-        \textbf{Example}: \texttt{$>$ memdump 0B40,0BEF}
-
-        Will show:
-
-        \texttt{
-        \resizebox{12cm}{!}{
-            \begin{tabular}{l l l l l l l l l l l l l l l l l l}
-                        & 00 & 01 & 02 & 03 & 04 & 05 & 06 & 07 & 08 & 09 & 0A & 0B & 0C & 0D & 0E & 0F   & \\
-                \cline{2-17}
-                0B40: & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & 00   & ................\\
-                0B50: & 21 & 3A & 0F & CD & BE & 03 & 06 & 01 & CD & 20 & 04 & CD & 4D & 0C & 21 & 56   & !:.......\ ..M.!V\\
-                0B60: & 0F & CD & BE & 03 & 21 & C4 & 22 & 3E & 00 & 32 & C4 & 22 & CD & 75 & 0B & CD   & ....!.">.2.".u..\\
-                0B70: & B1 & 0B & C3 & 5B & 0B & CD & C8 & 03 & FE & 20 & CA & 91 & 0B & FE & 2C & CA   & ...$[$.....\ ....,.\\
-                0B80: & 91 & 0B & FE & 0D & CA & B0 & 0B & 77 & 23 & C3 & 75 & 0B & C9 & 2B & C3 & 75   & .......w\#.u..+.u\\
-                0B90: & 0B & 3A & E4 & 22 & FE & 00 & CA & A4 & 0B & 3A & 04 & 23 & FE & 00 & CA & AA   & .:.".....:.\#....\\
-                0BA0: & 0B & C3 & 75 & 0B & 21 & E4 & 22 & C3 & 75 & 0B & 21 & 04 & 23 & C3 & 75 & 0B   & ..u.!.".u.!.\#.u.\\
-                0BB0: & C9 & 21 & C4 & 22 & 7E & FE & 00 & CA & 5B & 0B & 11 & 29 & 14 & CD & 02 & 0C   & .!."~...$[$..$)$....\\
-                0BC0: & CA & 89 & 0E & 11 & 10 & 14 & CD & 02 & 0C & CA & 93 & 0E & 11 & 2C & 14 & CD   & .............,..\\
-                0BD0: & 02 & 0C & CA & 55 & 0E & 11 & 25 & 14 & CD & 02 & 0C & CA & 15 & 0F & 11 & 15   & ...U..\%.........\\
-                0BE0: & 14 & CD & 02 & 0C & CA & 9A & 0E & 11 & 1A & 14 & CD & 02 & 0C & CA & C7 & 0E   & ................
-            \end{tabular}
-        }}
-
-        If the information reaches the bottom of the screen, a message will
-        be shown to let the user decide what to do next:
-        
-        \hspace{1cm}\texttt{[SPACE] for more or another key to stop}
-        
-        % ======================================================================
         \subsubsection{{\color{blue}reset}}
         % ======================================================================
         Performs a reset. It has the same effect as pressing the
@@ -579,16 +564,16 @@
         0x4420. Therefore, the CPU will start running whatever instructions
         finds from 0x4420 and onwards. Programs run this way MUST end with a
         jump instruction (JP) to CLI prompt address, as described in the
-        \textit{dastaZ80 Programmer’s Reference Guide}. Otherwise the user
-        will have to reset the computer to get back to CLI. Not harmful but
-        cumbersome.
+        \textit{dastaZ80 Programmer’s Reference Guide}\cite{dastaz80progref}.
+        Otherwise the user will have to reset the computer to get back to CLI.
+        Not harmful but cumbersome.
 
         % ======================================================================
         \subsubsection{{\color{blue}crc16}}
         % ======================================================================
         Generates a CRC-16/BUYPASS1\footnote{A 16-bit cyclic redundancy
         check (CRC) based on the IBM Binary Synchronous Communications
-        protocol (BSC or Bisync). It uses the polynomial
+        protocol\cite{ibmbsc} (BSC or Bisync). It uses the polynomial
         $X^{16} + X^{15} +X^2 + 1$}
 
         There are two formats of this command: 
@@ -832,8 +817,8 @@
         running whatever instructions finds from the address and onwards.
         Programs run this way MUST end with a jump instruction (JP) to CLI
         prompt address, as described in the \textit{dastaZ80 Programmer’s
-        Reference Guide}. Otherwise the user will have to reset the computer to
-        get back to CLI.
+        Reference Guide}\cite{dastaz80progref}. Otherwise the user will have to
+        reset the computer to get back to CLI.
 
         % ======================================================================
         \subsubsection{{\color{blue}rename}}
@@ -1050,16 +1035,99 @@
     \section{Other Software}
     % ==========================================================================
 
+    % ======================================================================
+    \subsubsection{Memory Dump (memdump)}
+    % ======================================================================
+    This program shows the contents (bytes) of a specified range of
+    \textbf{MEMORY}.
+
+    The contents are printed as hexadecimal bytes, in groups of 16 per each line
+    and with the printable ASCII value (if printable) or just a dot (if not
+    printable).
+
+    At the start of the program, the user will be asked to enter the
+    \textit{Start Address} and the \textit{End Address}. In the case of leaving
+    blank (i.e. just press the \textit{Return} key without entering any value),
+    the program will terminate.
+
+    Example for \textit{Start Address} = 0B40 and \textit{End Address} = 0BEF:
+
+    \texttt{
+    \resizebox{12cm}{!}{
+        \begin{tabular}{l l l l l l l l l l l l l l l l l l}
+                    & 00 & 01 & 02 & 03 & 04 & 05 & 06 & 07 & 08 & 09 & 0A & 0B & 0C & 0D & 0E & 0F   & \\
+            \cline{2-17}
+            0B40: & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & 00   & ................\\
+            0B50: & 21 & 3A & 0F & CD & BE & 03 & 06 & 01 & CD & 20 & 04 & CD & 4D & 0C & 21 & 56   & !:.......\ ..M.!V\\
+            0B60: & 0F & CD & BE & 03 & 21 & C4 & 22 & 3E & 00 & 32 & C4 & 22 & CD & 75 & 0B & CD   & ....!.">.2.".u..\\
+            0B70: & B1 & 0B & C3 & 5B & 0B & CD & C8 & 03 & FE & 20 & CA & 91 & 0B & FE & 2C & CA   & ...$[$.....\ ....,.\\
+            0B80: & 91 & 0B & FE & 0D & CA & B0 & 0B & 77 & 23 & C3 & 75 & 0B & C9 & 2B & C3 & 75   & .......w\#.u..+.u\\
+            0B90: & 0B & 3A & E4 & 22 & FE & 00 & CA & A4 & 0B & 3A & 04 & 23 & FE & 00 & CA & AA   & .:.".....:.\#....\\
+            0BA0: & 0B & C3 & 75 & 0B & 21 & E4 & 22 & C3 & 75 & 0B & 21 & 04 & 23 & C3 & 75 & 0B   & ..u.!.".u.!.\#.u.\\
+            0BB0: & C9 & 21 & C4 & 22 & 7E & FE & 00 & CA & 5B & 0B & 11 & 29 & 14 & CD & 02 & 0C   & .!."~...$[$..$)$....\\
+            0BC0: & CA & 89 & 0E & 11 & 10 & 14 & CD & 02 & 0C & CA & 93 & 0E & 11 & 2C & 14 & CD   & .............,..\\
+            0BD0: & 02 & 0C & CA & 55 & 0E & 11 & 25 & 14 & CD & 02 & 0C & CA & 15 & 0F & 11 & 15   & ...U..\%.........\\
+            0BE0: & 14 & CD & 02 & 0C & CA & 9A & 0E & 11 & 1A & 14 & CD & 02 & 0C & CA & C7 & 0E   & ................
+        \end{tabular}
+    }}
+
+    If the information reaches the bottom of the screen, a message will be shown
+    to let the user decide what to do next:
+
+    \hspace{1cm}\texttt{[SPACE] for more or another key to stop}
+
+    % ======================================================================
+    \subsubsection{Video Memory Dump (vramdump)}
+    % ======================================================================
+    This program shows the contents (bytes) of a specified range
+    of \textbf{VRAM}.
+
+    The contents are printed as hexadecimal bytes, in groups of 16 per each
+    line.
+
+    At the start of the program, the user will be asked to enter the
+    \textit{Start Address} and the \textit{End Address}. In the case of leaving
+    blank (i.e. just press the \textit{Return} key without entering any value),
+    the program will terminate.
+
+    Example for \textit{Start Address} = 0000 and \textit{End Address} = 00AF:
+
+    \texttt{
+    \resizebox{12cm}{!}{
+        \begin{tabular}{l l l l l l l l l l l l l l l l l l}
+                    & 00 & 01 & 02 & 03 & 04 & 05 & 06 & 07 & 08 & 09 & 0A & 0B & 0C & 0D & 0E & 0F   & \\
+            \cline{2-17}
+            0000: & 00 & 00 & 00 & 00 & 00 & 00 & 00 & 00 & FF & FF & FF & FF & FF & FF & FF & FF\\
+            0010: & 00 & 00 & 00 & 00 & 00 & 01 & 03 & 07 & 00 & 00 & 00 & 00 & 00 & 80 & C0 & E0\\
+            0020: & 07 & 03 & 01 & 00 & 00 & 00 & 00 & 00 & E0 & C0 & 80 & 00 & 00 & 00 & 00 & 00\\
+            0030: & F0 & F0 & F0 & F0 & 00 & 00 & 00 & 00 & F0 & F8 & FC & FE & FF & FF & FF & FF\\
+            0040: & 0F & 1F & 3F & 7F & FF & FF & FF & FF & FF & FF & FF & FF & FE & FC & F8 & F0\\
+            0050: & FF & FF & FF & FF & 7F & 3F & 1F & 0F & 00 & 00 & 00 & 00 & 00 & 00 & 00 & 00\\
+            0060: & 0B & C3 & 75 & 0B & 21 & E4 & 22 & C3 & 75 & 0B & 21 & 04 & 23 & C3 & 75 & 0B\\
+            0070: & C9 & 21 & C4 & 22 & 7E & FE & 00 & CA & 5B & 0B & 11 & 29 & 14 & CD & 02 & 0C\\
+            0080: & CA & 89 & 0E & 11 & 10 & 14 & CD & 02 & 0C & CA & 93 & 0E & 11 & 2C & 14 & CD\\
+            0090: & 02 & 0C & CA & 55 & 0E & 11 & 25 & 14 & CD & 02 & 0C & CA & 15 & 0F & 11 & 15\\
+            00A0: & 14 & CD & 02 & 0C & CA & 9A & 0E & 11 & 1A & 14 & CD & 02 & 0C & CA & C7 & 0E
+        \end{tabular}
+    }}
+
+    If the information reaches the bottom of the screen, a message will be shown
+    to let the user decide what to do next:
+
+    \hspace{1cm}\texttt{[SPACE] for more or another key to stop}
+
     % ==========================================================================
     \subsection{MS BASIC 4.7b}
     % ==========================================================================
     
     The Nascom 2 computer came with MS BASIC 7.4 installed in ROM, and the
-    disassembled code was published in the \textit{80-BUS NEWS} magazine.
+    disassembled code was published in the \textit{80-BUS NEWS} magazine
+    \cite{80busnews23}, \cite{80busnews24}, \cite{80busnews25},
+    \cite{80busnews26}, \cite{80busnews31}, \cite{80busnews32},
+    \cite{80busnews33}.
 
-    Grant Searle used it and published a modification in his Grant's
-    \href{http://searle.x10host.com/z80/SimpleZ80.html}{7-chip Z80 computer}
-    webpage.
+    Grant Searle published a modification in his Grant's \textit{7-chip Z80
+    computer} webpage\cite{searle2}.
 
     Grant's version was then modified to run on dastaZ80 under dzOS, and adding
     commands like \textit{LOAD} and \textit{SAVE}.
@@ -1143,4 +1211,11 @@
         \item \textbf{8}: Disk is write protected or bad disk.
         \item \textbf{9}: Disk is write protected.
     \end{itemize}
+
+    % ==========================================================================
+    % Bibliography
+    % ==========================================================================
+    \pagebreak
+    \bibliographystyle{unsrt}
+    \bibliography{dastaZ80}
 \end{document}

@@ -15,9 +15,9 @@
 ## CLI
 
 * ✔ ~~Results of _cat_ command are longer than 80 columns.~~
-* _halt_ makes the computer to reset.
+* ✔ ~~_halt_ makes the computer to reset.~~
 * _clrram_ executed after loading MS BASIC, hangs the computer
 
-## Keyboard Controller
+## VDP
 
-* _Break/Pause_ doesn't clear the screen anymore
+* There are some artifacts on the Composite Video screen, due to some bad data in the VDP's Colour Table.

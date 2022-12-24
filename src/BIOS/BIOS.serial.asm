@@ -63,21 +63,21 @@
 
 ;------------------------------------------------------------------------------
 ; SIO INTerrupt Vector
-        .ORG    $0060
+        .ORG    SIO_INT_VECT
         .WORD   int_chB_60              ; Ch B Transmit Buffer Empty
-        .ORG    $0062
+        .ORG    SIO_INT_VECT + $2
         .WORD   int_chB_62              ; Ch B External/Status Change
-        .ORG    $0064
+        .ORG    SIO_INT_VECT + $4
         .WORD   int_chB_64              ; Ch B Receive Character Available
-        .ORG    $0066
+        .ORG    SIO_INT_VECT + $6
         .WORD   int_chB_66              ; Ch B Special Receive Condition
-        .ORG    $0068
+        .ORG    SIO_INT_VECT + $8
         .WORD   int_chA_68              ; Ch A Transmit Buffer Empty
-        .ORG    $006A
+        .ORG    SIO_INT_VECT + $A
         .WORD   int_chA_6A              ; Ch A External/Status Change
-        .ORG    $006C
+        .ORG    SIO_INT_VECT + $C
         .WORD   int_chA_6C              ; Ch A Receive Character Available
-        .ORG    $006E
+        .ORG    SIO_INT_VECT + $E
         .WORD   int_chA_6E              ; Ch A Special Receive Condition
 
 ;------------------------------------------------------------------------------
@@ -340,7 +340,7 @@ BIOS_SERIAL_INIT:
 
         ld      A, SIO_WR2
         out     (SIO_CH_B_CONTROL), A   ; Select WR2
-        ld      A, SIO_IVT
+        ld      A, SIO_INT_VECT
         out     (SIO_CH_B_CONTROL), A   ; Interrupt Vector Table
 
         ld      A, SIO_WR3

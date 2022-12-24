@@ -42,6 +42,8 @@ F_BIOS_WBOOT:                   .EXPORT         F_BIOS_WBOOT
         jp      BIOS_WBOOT
 F_BIOS_SYSHALT:                 .EXPORT         F_BIOS_SYSHALT
         jp      BIOS_SYSHALT
+F_BIOS_NMI_END:                 .EXPORT         F_BIOS_NMI_END
+        jp      BIOS_NMI_END
 
         ; Serial subroutines
 F_BIOS_SERIAL_CONIN_A:          .EXPORT         F_BIOS_SERIAL_CONIN_A
@@ -105,5 +107,21 @@ F_BIOS_RTC_CHECK_BATTERY:       .EXPORT         F_BIOS_RTC_CHECK_BATTERY
 F_BIOS_NVRAM_DETECT:            .EXPORT         F_BIOS_NVRAM_DETECT
         jp      BIOS_NVRAM_DETECT
 
+        ; TMS9918A VDP
+F_BIOS_VDP_SET_ADDR_WR:         .EXPORT         F_BIOS_VDP_SET_ADDR_WR
+        jp      BIOS_VDP_SET_ADDR_WR
+F_BIOS_VDP_SET_ADDR_RD:         .EXPORT         F_BIOS_VDP_SET_ADDR_RD
+        jp      BIOS_VDP_SET_ADDR_RD
+F_BIOS_VDP_SET_REGISTER:        .EXPORT         F_BIOS_VDP_SET_REGISTER
+        jp      BIOS_VDP_SET_REGISTER
+F_BIOS_VDP_VRAM_CLEAR:          .EXPORT         F_BIOS_VDP_VRAM_CLEAR
+        jp      BIOS_VDP_VRAM_CLEAR
+F_BIOS_VDP_VRAM_TEST:           .EXPORT         F_BIOS_VDP_VRAM_TEST
+        jp      BIOS_VDP_VRAM_TEST
+F_BIOS_VDP_SET_MODE_G2:         .EXPORT         F_BIOS_VDP_SET_MODE_G2
+        jp      BIOS_VDP_SET_MODE_G2
+F_BIOS_VDP_SHOW_DZ_LOGO         .EXPORT         F_BIOS_VDP_SHOW_DZ_LOGO
+        jp      BIOS_VDP_SHOW_DZ_LOGO
+
         .ORG    BIOS_JBLK_END
-        .BYTE   0
+        ; .BYTE   0

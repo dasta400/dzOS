@@ -35,19 +35,9 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
-.NOLIST
-;==============================================================================
-; Includes
-;==============================================================================
-#include "src/equates.inc"
-#include "exp/BIOS.exp"
-#include "exp/kernel.exp"
-#include "exp/sysvars.exp"
 
-.LIST
-;==============================================================================
-; General Routines
-;==============================================================================
+#include "src/equates.inc"
+
         .ORG    CLI_START
 cli_welcome:
         ld      HL, msg_cli_version     ; CLI start up message
@@ -56,6 +46,11 @@ cli_welcome:
 
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
+
+        ld      HL, cli_promptloop
+        ld      IX, CLI_prompt_addr
+        ld      (IX + 0), L
+        ld      (IX + 1), H
 
 cli_promptloop:         .EXPORT     cli_promptloop
 ; Prompt is "DSK" + DISK_current + "> "
@@ -100,7 +95,7 @@ prompt_skip_lead_zero:
         jp      c, cli_command_unknown
         jp      cli_promptloop
 cli_command_unknown:
-        ld      HL, error_2001
+        ld      HL, error_9001
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -248,7 +243,7 @@ check_param:
         jp      z, bad_params               ; no, show error and exit subroutine
         ret
 bad_params:
-        ld      HL, error_2002
+        ld      HL, error_9002
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         ret
@@ -387,13 +382,6 @@ msg_disk_format_confirm:
 msg_disk_diskinfo_hdr:
         .BYTE   CR, LF
         .BYTE   "Disk Information", 0
-msg_memdump_hdr:
-        .BYTE   CR, LF
-        .BYTE   "      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F", CR, LF
-        .BYTE   "      .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ..", 0
-msg_moreorquit:
-        .BYTE   CR, LF
-        .BYTE   "[SPACE] for more or another key to stop", 0
 msg_format_end:
         .BYTE   CR, LF
         .BYTE   "Disk was successfully formatted", CR, LF, 0
@@ -420,37 +408,37 @@ msg_fdd:
 ;------------------------------------------------------------------------------
 ;             ERROR MESSAGES
 ;------------------------------------------------------------------------------
-error_2001:
+error_9001:
         .BYTE   CR, LF
         .BYTE   "Command unknown", CR, LF, 0
-error_2002:
+error_9002:
         .BYTE   CR, LF
         .BYTE   "Bad parameter(s)", CR, LF, 0
-error_2003:
+error_9003:
         .BYTE   CR, LF
         .BYTE   "File not found", CR, LF, 0
-error_2004:
+error_9004:
         .BYTE   CR, LF
         .BYTE   "New filename already exists", CR, LF, 0
-error_2005:
+error_9005:
         .BYTE   CR, LF
         .BYTE   "Unknown attribute letter was specified", CR, LF, 0
-error_2006:
+error_9006:
         .BYTE   CR, LF
         .BYTE   "Disk appears to be unformatted", CR, LF, 0
-error_2007:
+error_9007:
         .BYTE   CR, LF
         .BYTE   "File is protected", CR, LF, 0
-error_2008:
+error_9008:
         .BYTE   CR, LF
         .BYTE   "No disk in FDD drive", CR, LF, 0
-error_2009:
+error_9009:
         .BYTE   CR, LF
         .BYTE   "Disk is write protected", CR, LF, 0
-error_2010:
+error_9010:
         .BYTE   CR, LF
         .BYTE   "Command is only allowed for Floppy Disks", CR, LF, 0
-error_2011:
+error_9011:
         .BYTE   CR, LF
         .BYTE   "Error", CR, LF, 0
 ;==============================================================================
@@ -480,10 +468,3 @@ tab_file_types:
 ;==============================================================================
 #include "src/CLI/CLI.jmptab.asm"
 #include "src/CLI/CLI.cmds.asm"
-
-;==============================================================================
-; END of CODE
-;==============================================================================
-        .ORG    CLI_END
-        .BYTE   0
-        .END

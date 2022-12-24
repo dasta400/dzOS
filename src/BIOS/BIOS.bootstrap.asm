@@ -8,7 +8,7 @@
 ;
 ; Version 1.0.0
 ; Created on 08 Aug 2022
-; Last Modification 08 Aug 2022
+; Last Modification 24 Dec 2022
 ;******************************************************************************
 ; CHANGELOG
 ; 	-
@@ -36,20 +36,13 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
-.NOLIST
-;==============================================================================
-; Includes
-;==============================================================================
+
 #include "src/equates.inc"
-#include "exp/BIOS.exp"
 
-.LIST
-
-;------------------------------------------------------------------------------
-        .ORG    BOOSTRAP_START
+        .ORG    BOOTSTRAP_START
 
         ; Copy the contents of the ROM to High RAM ($8000)
-        ld      BC, BOOSTRAP_END        ; set byte counter
+        ld      BC, $3FFF               ; set byte counter
         ld      HL, $0000               ; copy bytes from $0000
         ld      DE, START_HIGHRAM       ; to High RAM
         ldir
@@ -61,9 +54,7 @@ _disable_ROM:   ; Disable ROM and enable Low RAM
         out     (ROMRAM_PAGING), A
 
         ; Copy the copy of ROM in High RAM to Low RAM
-        ; Don't need this boostrap anymore, so we only copy from
-        ;   start of the ROM ($8000) until CLI_END
-        ld      BC, CLI_END             ; set byte counter to copy until CLI_END
+        ld      BC, $3FFF               ; copy entire ROM
         ld      HL, START_HIGHRAM       ; copy from $8000
         ld      DE, $0000               ; to start of Low RAM
         ldir
@@ -71,10 +62,3 @@ _disable_ROM:   ; Disable ROM and enable Low RAM
         ; Continue with BIOS initialisation
         ld      SP, STACK_END           ; Set Stack address in RAM
         jp      F_BIOS_SERIAL_INIT      ; Initialise SIO/2
-
-;==============================================================================
-; END of CODE
-;==============================================================================
-        .ORG    BOOSTRAP_END
-        .BYTE    0
-        .END

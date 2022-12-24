@@ -49,11 +49,11 @@ CLI_CMD_HALT:
 ;------------------------------------------------------------------------------
 ;    help - Show list of available commands
 ;------------------------------------------------------------------------------
-CLI_CMD_HELP:
-        ld      HL, msg_help
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        jp      cli_promptloop
+; CLI_CMD_HELP:
+;         ld      HL, msg_help
+;         ld      A, ANSI_COLR_YLW
+;         call    F_KRN_SERIAL_WRSTRCLR
+;         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;    peek - Prints the value of a single memory address
 ;------------------------------------------------------------------------------
@@ -147,94 +147,6 @@ autopoke_loop:
         jp      autopoke_loop
 end_autopoke:
         jp      cli_promptloop
-;------------------------------------------------------------------------------
-;    memdump - Shows memory contents of an specified section of memory
-;------------------------------------------------------------------------------
-CLI_CMD_MEMDUMP:
-; IN <= CLI_buffer_parm1_val = Start address
-;       CLI_buffer_parm2_val = End address
-; OUT => default output (e.g. screen, I/O)
-        call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
-        ; print header
-        ld      HL, msg_memdump_hdr
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        ; CLI_buffer_parm2_val has the value in hexadecimal
-        ; we need to convert it to binary
-        call    _CLI_HEX2BIN_PARAM2     ; DE contains the binary value for param2
-        push    DE                      ; store in the stack
-        ; CLI_buffer_parm1_val has the value in hexadecimal
-        ; we need to convert it to binary
-        call    _CLI_HEX2BIN_PARAM1     ; DE contains the binary value for param1
-        ex      DE, HL                  ; move from DE to HL (HL=param1)
-        pop     DE                      ; restore from stack (DE=param2)
-start_dump_line:
-        ld      c, 20                    ; we will print 23 lines per page
-dump_line:
-        push    HL
-        ld      A, CR
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, LF
-        call    F_BIOS_SERIAL_CONOUT_A
-        call    F_KRN_SERIAL_PRN_WORD
-        ld      A, ':'                  ; semicolon separates mem address from data
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      A, ' '                  ; and an extra space to separate
-        call    F_BIOS_SERIAL_CONOUT_A
-        ld      B, $10                  ; we will output 16 bytes in each line
-dump_loop:
-        ld      A, (HL)
-        call    F_KRN_SERIAL_PRN_BYTE
-        ld      A, ' '
-        call    F_BIOS_SERIAL_CONOUT_A
-        inc     HL
-        djnz    dump_loop
-        ; dump ASCII characters
-        pop     HL
-        ld      B, $10                  ; we will output 16 bytes in each line
-        ld      A, ' '
-        call    F_BIOS_SERIAL_CONOUT_A
-        call    F_BIOS_SERIAL_CONOUT_A
-ascii_loop:
-        ld      A, (HL)
-        call    F_KRN_IS_PRINTABLE      ; is it an ASCII printable character?
-        jr      c, printable
-        ld      A, '.'                  ; if is not, print a dot
-printable:
-        call    F_BIOS_SERIAL_CONOUT_A
-        inc     HL
-        djnz    ascii_loop
-
-        push    HL                      ; backup HL before doing sbc instruction
-        and     A                       ; clear carry flag
-        sbc     HL, DE                  ; have we reached the end address?
-        pop     HL                      ; restore HL
-        jr      c, dump_next            ; end address not reached. Dump next line
-        jp      cli_promptloop
-dump_next:
-        dec     c                       ; 1 line was printed
-        jp      z, askmoreorquit        ; we have printed 23 lines. More?
-        jp      dump_line               ; print another line
-askmoreorquit:
-        push    DE                      ; backup DE
-        push    HL                      ; backup HL
-        ld      HL, msg_moreorquit
-        ld      A, ANSI_COLR_CYA
-        call    F_KRN_SERIAL_WRSTRCLR
-        call    F_BIOS_SERIAL_CONIN_A   ; read key
-        cp      SPACE                   ; was the SPACE key?
-        jp      z, wantsmore            ; user wants more
-        pop     HL                      ; yes, user wants more. Restore HL
-        pop     DE                      ; restore DE
-        jp      cli_promptloop          ; no, user wants to quit
-wantsmore:
-        ; print header
-        ld      HL, msg_memdump_hdr
-        ld      A, ANSI_COLR_YLW
-        call    F_KRN_SERIAL_WRSTRCLR
-        pop     HL                      ; restore HL
-        pop     DE                      ; restore DE
-        jp      start_dump_line         ; return to start, so we print 23 more lines
 ;------------------------------------------------------------------------------
 ;    run - Starts running instructions from a specific memory address
 ;------------------------------------------------------------------------------
@@ -413,10 +325,10 @@ CLI_CMD_DISK_LOWLVLFORMAT:
         ld      (DISK_is_formatted), A
         jp      cli_promptloop
 _lowlvlerror:
-        ld      HL, error_2011              ; error
+        ld      HL, error_9011              ; error
         jp      _errmsg
 _nofdd:
-        ld      HL, error_2010
+        ld      HL, error_9010
 _errmsg:
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
@@ -469,7 +381,7 @@ _rename:
         call    F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      z, check_old_filename   ; File not found, check that old filename exists
         ; New filename already exists, show error an exit
-        ld      HL, error_2004
+        ld      HL, error_9004
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -492,13 +404,13 @@ check_old_filename:
         jp      cli_promptloop
 filename_notfound:
         ; File not found, show error an exit
-        ld      HL, error_2003
+        ld      HL, error_9003
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 action_notallowed:
         ; File is Read Only and/or System, show error and exit
-        ld      HL, error_2007
+        ld      HL, error_9007
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -620,7 +532,7 @@ make_done:
         ld      (HL), A                 ; change mask byte
         jp      next_attr
 wrong_attr:
-        ld      HL, error_2005
+        ld      HL, error_9005
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -705,7 +617,7 @@ end_get_fname:
         cp      0
         jp      nz, save_filename       ; doesn't exist, do the saving
         ; exists, error and exit
-        ld      HL, error_2004
+        ld      HL, error_9004
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -772,13 +684,13 @@ _is_equal:
         jp      z, _chgdsk_error
         jp      cli_promptloop
 _is_bigger:
-        ld      HL, error_2002
+        ld      HL, error_9002
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 _chgdsk_error:
         push    AF                      ; backup error code
-        ld      HL, error_2008
+        ld      HL, error_9008
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -1265,7 +1177,7 @@ _print_HMS:
         ret
 ;------------------------------------------------------------------------------
 _error_diskunformatted:
-        ld      HL, error_2006
+        ld      HL, error_9006
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -1277,7 +1189,7 @@ _CLI_CHECK_DISK_IN_DRIVE:
         cp      0
         ret     z                       ; no error, return
 
-        ld      HL, error_2008
+        ld      HL, error_9008
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, $FF                  ; Indicate error to calling subroutine
@@ -1296,7 +1208,7 @@ _CLI_CHECK_FDD_WR_READY: ; ToDo
         ld      A, 0                    ; Indicate no error to calling subroutine
         ret
 ; _writeprotected:
-;         ld      HL, error_2009
+;         ld      HL, error_9009
 ;         ld      A, ANSI_COLR_RED
 ;         call    F_KRN_SERIAL_WRSTRCLR
 ;         ld      A, $FF                  ; Indicate error to calling subroutine

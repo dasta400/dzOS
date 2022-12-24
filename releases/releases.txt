@@ -12,9 +12,9 @@ dzOS.2019.05.27.7.bin (old)
 	ld shows file size in decimal notation
 
 dzOS.2022.07.19.16.bin (old)
-    BIOS & Kernel talk to Serial Interface to communicate with the Keyboard
-    BIOS & Kernel talk with the Video Interface to generate VGA output
-    Dropped FAT16 and implemented my own file system (DZFS). For now read only with 1 partition
+    BIOS & Kernel talk to Serial Interface to communicate with the Keyboard.
+    BIOS & Kernel talk with the Video Interface to generate VGA output.
+    Dropped FAT16 and implemented my own file system (DZFS). For now read only with 1 partition.
     Added commands: cat, run, autopoke, formatdsk, rename, delete, chgattrt
     Removed FAT16 commands: ld, sf, lf
     Removed commands: loadihex
@@ -27,18 +27,29 @@ dzOS.2022.08.09.59.bin (old)
 
 dzOS.2022.08.26.8.bin (old)
     Added commands: save, crc16
-    Solved bug that allowed file commands to work with partial filenames
-    Added partial support for backspace (works well at the end of the line, but not so well in the middle)
+    Solved bug that allowed file commands to work with partial filenames.
+    Added partial support for backspace (works well at the end of the line, but not so well in the middle).
     BIOS, Kernel and CLI are now set as v0.1.0 until I decide are stable enough to move to v1.0.0
 
 dzOS.2022.09.06.4.bin (old)
     Added command: clrram
-    Solved bug that made mmedump not print more addresses after pressing space
-    Solved bug where Kernel was calling KRN_SERIAL_WR6DIG_NOLZEROS instead of the jumpblock version F_KRN_SERIAL_WR6DIG_NOLZEROS
+    Solved bug that made mmedump not print more addresses after pressing space.
+    Solved bug where Kernel was calling KRN_SERIAL_WR6DIG_NOLZEROS instead of the jumpblock version F_KRN_SERIAL_WR6DIG_NOLZEROS.
 
 dzOS.2022.10.03.4.bin (old)
-    Solved bug in save command. Now it saves coprrectly files of any size. Before only saved files with size multiple of 512
+    Solved bug in save command. Now it saves coprrectly files of any size. Before only saved files with size multiple of 512.
 
-dzOS.2022.11.23.18.21.bin (current)
-    A3010KBD now works with all alphanumeric keys, plus CapsLock, ScrollLock, Enter, Space and Backspace
-    CF Card replaced by ASMDC which contains SD Card and RTC
+dzOS.2022.11.23.18.21.bin (old)
+    A3010KBD now works with all alphanumeric keys, plus CapsLock, ScrollLock, Enter, Space and Backspace.
+    CF Card replaced by ASMDC which contains SD Card and RTC.
+
+dzOS.2022.12.24.18.54.bin (current)
+    First release of Mark II, which mainly adds support for TMS9918A VDP.
+    Show a logo via the Composite Video Output (VDP).
+    Moved Jumpblocks to the end of the ROM address, so that it doesn't get modified everytime I change code on the BIOS and/or Kernel.
+    Bootstrap now copies the entire ROM to Low RAM, because jumpblocks are at the end.
+    'memdump' is now a stand-alone program supplied as part of the 'dzSoftware' repo.
+    Added a main .asm program with all includes. As a result:
+        Simplified Makefile
+        Instead of multiple .exp files, now there is only sysvars.exp and dzOs.exp
+

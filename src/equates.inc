@@ -7,7 +7,7 @@
 ;
 ; Version 1.0.0
 ; Created on 03 Jan 2018
-; Last Modification 21 Jun 2022
+; Last Modification 24 Dec 2022
 ;******************************************************************************
 ; CHANGELOG
 ;   -
@@ -36,33 +36,38 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-ROMRAM_PAGING               .EQU    $38
+.NOLIST
+
+#IFNDEF _equates_
+#DEFINE _equates_
+
+;==============================================================================
+; Port mapping
+;==============================================================================
+VDP_VRAM                    .EQU    $10 ; TMS9918A VDP => A0 = 0 (Mode VRAM)
+VDP_REG                     .EQU    $11 ; ^            => A0 = 1 (Mode Register)
+ROMRAM_PAGING               .EQU    $38 ; ROM/RAM paging
+SIO_CH_A_CONTROL            .EQU    $80 ; Zilog SIO/2
+SIO_CH_A_DATA               .EQU    $81 ; ^
+SIO_CH_B_CONTROL            .EQU    $82 ; ^
+SIO_CH_B_DATA               .EQU    $83 ; ^
 
 ;==============================================================================
 ; ROM positions
 ;==============================================================================
-INITSIO2_END                .EQU    $01E7
-
-BIOS_END                    .EQU    $133F
-BIOS_JBLK_START             .EQU    BIOS_END + 1
-BIOS_JBLK_END               .EQU    BIOS_JBLK_START + 127
-
-KRN_START                   .EQU    BIOS_JBLK_END + 1
-KRN_END                     .EQU    $267F
-KRN_DZOS_VERSION            .EQU    KRN_END - 15
-
-KRN_JBLK_START              .EQU    KRN_END + 1
-KRN_JBLK_END                .EQU    KRN_JBLK_START + 255
-
-CLI_START                   .EQU    KRN_JBLK_END + 1
-CLI_END                     .EQU    $3D5F
-
-BOOSTRAP_START              .EQU    CLI_END + 1
-BOOSTRAP_END                .EQU    BOOSTRAP_START + 255
-
-FREEROM_START               .EQU    BOOSTRAP_END + 1
-FREEROM_END                 .EQU    $3FFF
-FREEROM_SIZE                .EQU    FREEROM_END - FREEROM_START
+INITSIO2_END                .EQU    $0216
+KRN_START                   .EQU    $1340
+KRN_DZOS_VERSION            .EQU    $2653
+CLI_START                   .EQU    $2664
+BOOTSTRAP_START             .EQU    $3A25
+VDP_LOGO_NAME_START         .EQU    $3A53
+VDP_LOGO_PATT_START         .EQU    $3DAA
+BIOS_JBLK_START             .EQU    $3E7A
+BIOS_JBLK_END               .EQU    $3EFD
+KRN_JBLK_START              .EQU    $3EFE
+KRN_JBLK_END                .EQU    $3FFF
+JBLKS_START_HRAM            .EQU    BIOS_JBLK_START + $8000
+JBLKS_SIZE_HRAM             .EQU    KRN_JBLK_END - BIOS_JBLK_START
 
 ;==============================================================================
 ; RAM positions
@@ -74,7 +79,7 @@ SYSVARS_START               .EQU    STACK_END + 1
 SYSVARS_END                 .EQU    SYSVARS_START + 348
 
 RESERVED_START              .EQU    SYSVARS_END + 1
-RESERVED_END                .EQU    RESERVED_START + (511 - 349)
+RESERVED_END                .EQU    RESERVED_START + 157
 
 DISK_BUFFER_START           .EQU    RESERVED_END + 1
 DISK_BUFFER_END             .EQU    DISK_BUFFER_START + 511
@@ -98,12 +103,6 @@ SPACE                       .EQU    $20     ; Space
 ;==============================================================================
 ; SIO/2
 ;==============================================================================
-; Port mapping
-SIO_CH_A_CONTROL            .EQU    $80
-SIO_CH_A_DATA               .EQU    $81
-SIO_CH_B_CONTROL            .EQU    $82
-SIO_CH_B_DATA               .EQU    $83
-
 SIO_BUFFER_SIZE             .EQU    $40
 SIO_FULL_SIZE               .EQU    $30
 SIO_EMPTY_SIZE              .EQU    5
@@ -123,7 +122,11 @@ SIO_N81                     .EQU    $C4     ; 8 bits, no parity, 1 stop bit, 115
 SIO_ENRX                    .EQU    $C1     ; 8 bits per Rx character, disable Auto Enables (RTS/CTS flow control), enable RX
 SIO_ENTX                    .EQU    $68     ; 8 bits per Tx character, enable TX, disable DTR & RTS
 SIO_INT_ALLRX               .EQU    $1C     ; Interrupt on all Rx characters (parity irrelevant), enable Status Affects Vector
-SIO_IVT                     .EQU    $60     ; Interrupt Vector Table Address
+SIO_INT_VECT                .EQU    $90     ; SIO INTerrupt Vector
+                                            ; The interrupt table is 16-bit,
+                                            ;   therefore the start of the vector
+                                            ;   table MUST be in a 16-bit boundary
+                                            ;   (e.g. $20, $30, $40, $50, $60, $70, $80, $90, ...)
 SIO_CH_RESET                .EQU    $18     ; Channel Reset
 
 ;==============================================================================
@@ -198,3 +201,41 @@ RTC_CMD_SET_TIME            .EQU    $C5
 RTC_CMD_GET_TEMP            .EQU    $C6
 
 NVRAM_CMD_DETECT            .EQU    $D0
+
+;==============================================================================
+; TMS9918A VDP
+;==============================================================================
+VDP_G2_REG_0                .EQU    $02     ; Graphics II Mode, No External Video
+VDP_G2_REG_1                .EQU    $C0     ; 16K, Enable Disp., Disable Int., 8x8 Sprites, Mag. Off
+VDP_G2_REG_2                .EQU    $0E     ; Name Table = $3800
+VDP_G2_REG_3                .EQU    $FF     ; Colour Table = $2000
+VDP_G2_REG_4                .EQU    $03     ; Pattern Table = $0000
+VDP_G2_REG_5                .EQU    $76     ; Sprite Attribute Table = $3B00
+VDP_G2_REG_6                .EQU    $03     ; Sprite Pattern Table = $1800
+
+VDP_G2_PATT_TAB             .EQU    $0000   ; Pattern Table
+VFP_G2_SPRP_TAB             .EQU    $1800   ; Sprite Pattern Table
+VDP_G2_COLR_TAB             .EQU    $2000   ; Colour Table
+VDP_G2_NAME_TAB             .EQU    $3800   ; Name Table
+VDP_G2_SPRA_TAB             .EQU    $3B00   ; Sprite Attribute Table
+
+VDP_COLR_TRNSP              .EQU    $0      ; Transparent
+VDP_COLR_BLACK              .EQU    $1      ; Black
+VDP_COLR_M_GRN              .EQU    $2      ; Medium Green
+VDP_COLR_L_GRN              .EQU    $3      ; Light Green
+VDP_COLR_D_BLU              .EQU    $4      ; Dark Blue
+VDP_COLR_L_BLU              .EQU    $5      ; Light Blue
+VDP_COLR_D_RED              .EQU    $6      ; Dark Red
+VDP_COLR_CYAN               .EQU    $7      ; Cyan
+VDP_COLR_M_RED              .EQU    $8      ; Medium Red
+VDP_COLR_L_RED              .EQU    $9      ; Light Red
+VDP_COLR_D_YLW              .EQU    $A      ; Dark Yellow
+VDP_COLR_L_YLW              .EQU    $B      ; Light Yellow
+VDP_COLR_D_GRN              .EQU    $C      ; Dark Green
+VDP_COLR_MGNTA              .EQU    $D      ; Magenta
+VDP_COLR_GREY               .EQU    $E      ; Grey
+VDP_COLR_WHITE              .EQU    $F      ; White
+
+#ENDIF
+
+.LIST

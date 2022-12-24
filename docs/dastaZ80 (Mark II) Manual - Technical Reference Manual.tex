@@ -38,7 +38,7 @@
         \rput[b](3.5,8){
             \parbox{7in}{
                 \begin{flushright}
-                    \Huge\bfseries\sffamily dastaZ80 Mark I\\ Technical Reference Manual
+                    \Huge\bfseries\sffamily dastaZ80 Mark II\\ Technical Reference Manual
                 \end{flushright}
             }
         }
@@ -54,7 +54,7 @@
     % ==========================================================================
     \pagestyle{fancy}
     \fancyhf{}
-    \fancyhead[R]{dastaZ80 Mark I Technical Reference Manual}
+    \fancyhead[R]{dastaZ80 Mark II Technical Reference Manual}
     % ==========================================================================
     \section*{Disclaimer}
     % ==========================================================================
@@ -121,21 +121,30 @@
 
     The SD card is referred as \textbf{DISK}.
 
-    The 80 column VGA output is referred as \textbf{CONSOLE}.
-    
+    The Floppy Disk Drive is referred as \textbf{DISK} or as \textbf{FDD}.
+
+    The 80 column text VGA output is referred as \textbf{CONSOLE} or as
+    \textbf{High Resolution Display}.
+
+    The 40 column graphics Composite Video output is referred as \textbf{Low
+    Resolution Display}.
+
     The Operating System may be referred as DZOS, dzOS or simply OS.
 
     \textbf{MEMORY} refers to both \textbf{ROM} and \textbf{RAM}.
+
+    Memory used by the \textbf{Low Resolution Display} is referred as
+    \textbf{VRAM} (Video RAM).
 
     \pagebreak
     % ==========================================================================
     \section*{Related Documentation}
     % ==========================================================================
-    \hspace{1cm}{\LARGE dastaZ80 User's Manual}
-    
-    \hspace{1cm}{\LARGE dastaZ80 Programmer's Reference Guide}
-
-    \hspace{1cm}{\LARGE https://github.com/dasta400/dzOS}
+    \begin{itemize}
+        \item dastaZ80 User's Manual\cite{dastaz80userman}
+        \item dastaZ80 Programmer's Reference Guide\cite{dastaz80progref}
+        \item dzOS Github Repository\cite{dastaZ80github}
+    \end{itemize}
 
     \pagebreak
     % ==========================================================================
@@ -148,7 +157,7 @@
     % ==========================================================================
     \pagestyle{fancy}
     \fancyhf{}
-    \fancyhead[R]{dastaZ80 Mark I Technical Reference Manual}
+    \fancyhead[R]{dastaZ80 Mark II Technical Reference Manual}
     \fancyfoot[R]{\thepage}
     \setcounter{page}{1}
 
@@ -498,18 +507,50 @@
         LED is illuminated, USB is active.
     \end{itemize}
 
-    % \begin{center}
-    %     \includegraphics[scale=0.3]{a3010_kbd_layout.png}
-    % \end{center}
+    % ==========================================================================
+    \subsection{Dual Video Output}
+    % ==========================================================================
 
     % ==========================================================================
-    \subsection{VGA Interface}
+    \subsubsection{VGA Output}
     % ==========================================================================
 
     The VGA output is achieved in a rather simple manner; the SIO/2 Channel A
     sends its output to a LILYGO TTGO VGA32 V1.4, which runs a very simple ANSI
     16 colours terminal emulator using the FabGL library.
 
+    This output is referred in the dastaZ80 manuals as \textit{High Resolution}
+    and it is meant to be used as a display for applications.
+
+    % ==========================================================================
+    \subsubsection{Composite Output}
+    % ==========================================================================
+
+    The Composite output is achieved with a Texas Instruments TMS9918A\footnote
+    {The TMS9918 and its variants were used in the ColecoVision,
+    CreatiVision, Memotech MTX, MSX, SG-1000/SC-3000, Spectravideo, Sord M5,
+    Tatung Einstein, Texas Instruments TI-99/4, Casio PV-2000, and Tomy Tutor.},
+    which provides an NTSC\footnote{National Television System Committee (NTSC)
+    is the standard for analog television used mainly in USA, Japan and some
+    parts of South America} signal.
+
+    This output is referred in the dastaZ80 manuals as \textit{Low Resolution}
+    and it is meant to be used as a display for applications' graphics and video
+    games.
+
+    Therefore, as the focus for this output should be graphics rather than text,
+    the Operating System does not contain fonts (Patterns) for text. Also,
+    because the OS only uses this output in \textit{Graphics II Bit-mapped Mode},
+    this is the only mode that can be initialised via a BIOS function call. It
+    is up for each application to initialise the video controller to the desired
+    Mode\footnote{The TMS9918A has four documented modes: Mode 0 (Text), Mode 1
+    (Graphics I), Mode 2 (Graphics 2) and Mode 3 (Multicolour)} and to copy the
+    Patterns and Sprites to the TMS9918A's \textbf{VRAM}.
+
+    For technical information on the TMS9918A, refer to the Texas Instruments'
+    \textit{Video Display Processors Programmer's Guide}\cite{ti1}, or to the article
+    \textit{High-Resolution Sprite-Oriented Color Graphics}\cite{ciarcia2}
+    published on BYTE magazine.
 
     % ==========================================================================
     \subsection{Backplane}
@@ -525,12 +566,21 @@
     \subsection{Power Supply}
     % ==========================================================================
 
-    The whole computer is powered via an external 12V/4A AC adaptor, which is 
-    connected to five LM25961 DC-DC Step Down Buck Converter with an output of
-    5V 2.5A.
+    The whole computer is powered via an external 5V/4A AC adaptor, which
+    supplies voltage to the different internal parts of the computer.
 
-    Each LM25961 supplies independent voltage to: the backplane, the VGA32, the
-    Teensy++ 2.0 (Keyboard controller), the Arduino Mega2560 (ASMDC) and the FDD.
+    The different current consumptions are:
+
+    \begin{itemize}
+        \item dastaZ80 boards: 133mA (nominal)
+        \item TMS9918A (Composite video output): 200mA (nominal)
+        \item LILYGO TTGO VGA32 V1.4 (VGA video output): 30mA (nominal)
+        \item Arduino Mega2560 (ASMDC): 800mA (nominal)
+        \item Teensy++ 2.0 (Keyboard Controller): 35.5mA (nominal)
+        \item Floppy Disk Drive: 2A (max.)
+    \end{itemize}
+
+    This totals for 3.2A
 
     % ==========================================================================
     \subsection{Computer Case}
@@ -553,8 +603,8 @@
     Also there is a hole in the left side for a reset button, and a disk drive
     bay at the right side.
 
-    At the moment, only the ON/OFF switch, VGA connector and reset button are
-    used.
+    At the moment, only the ON/OFF switch, VGA connector, Composite video RCA
+    output, and reset button are used.
 
     \pagebreak
     % ==========================================================================
@@ -584,7 +634,7 @@
         \hline
         0 & 0 & 0 & /Y0 & \texttt{0x00} - \texttt{0x0F} & For future use\\
         \hline
-        0 & 0 & 1 & /Y1 & \texttt{0x10} - \texttt{0x1F} & For future use\\
+        0 & 0 & 1 & /Y1 & \texttt{0x10} - \texttt{0x1F} & TMS9918A (VDP)\\
         \hline
         0 & 1 & 0 & /Y2 & \texttt{0x20} - \texttt{0x2F} & For future use\\
         \hline
@@ -669,20 +719,217 @@
 
     \pagebreak
     % ==========================================================================
-    \section{Future Improvements}
+    \section{Appendixes}
+    % ==========================================================================
+    \label{sec:appendixes}
+
+    % ==========================================================================
+    \subsection{History (Timeline) of dastaZ80}
+    % ==========================================================================
+
+    These are the experiences of a guy that had very basic knowledge about
+    electronics\footnote{When I started this project, my only knowledge about
+    electronics was; Ohm's and Kirchhoff's laws, and some basic understanding
+    on how capacitors, diodes and resistors work.} but decided to build his own
+    computer from scratch and make an operating system and some software for it.
+
+    \begin{itemize}
+        \item \textbf{May 2012}
+        \begin{itemize}
+            \item I decided to go ahead with my idea of programming an operating
+            system, and decided to do it for a computer that I'll build and call
+            \textit{DastaZ80}.
+            \item I start first designs (in paper) on how to connect CPU to ROM
+            and RAM.
+        \end{itemize}
+        \item \textbf{June 2012}
+        \begin{itemize}
+            \item First test with a Z80 on a breadboard.
+        \end{itemize}
+        \item \textbf{July 2012}
+        \begin{itemize}
+            \item I've put together a breadboard with CPU, ROM, Clock, SIO/0 and
+            MAX232, and connected it to a PC through the serial port. Nothing
+            appears on the terminal emulator on the PC. It could be a dozen of
+            things :-(
+        \end{itemize}
+        \item \textbf{August-December 2012}
+        \begin{itemize}
+            \item Frustrating period trying to make the computer work with the
+            serial port and not having any luck.
+        \end{itemize}
+        \item \textbf{January 2013}
+        \begin{itemize}
+            \item I've built different test circuits. None worked.
+        \end{itemize}
+        \item \textbf{February 2013}
+        \begin{itemize}
+            \item I've built a debug board (consisting just of six 7-segment LED
+            displays) and connected it to simple circuit (consisting of CPU and
+            ROM). I've programmed the ROM with a simple counter program
+            (counting from 0 to 15 and then from 15 to 0). The result is quite
+            disappointing; it seems the Z80 just reads all instructions, but it
+            doesn't execute them, because I've noticed that it doesn't do the
+            loops but just reads from 0000h to 00012h (i.e. from start to
+            \textit{HALT}). I've tested the CPU on my Amstrad CPC 6128 and it
+            works, so I discard the possibility that the CPU doesn't work. No
+            idea what's happening, and even worse, no idea what to do. 
+            \item After some more tests, I discovered something; I obtain
+            different results when I touch/reseat the cables on the breadboard!
+            It seems either the cables or the breadboard itself are making false
+            connections. This could be the root of the problems I had up until
+            now. I have sockets for the Z80 and AT28C64B. I'm going to start
+            soldering a basic circuit and test again.
+        \end{itemize}
+        \item \textbf{September 2014}
+        \begin{itemize}
+            \item Relocated to another country. Project is halted.
+        \end{itemize}
+        \item \textbf{May 2019}
+        \begin{itemize}
+            \item I re-start the project, using an software emulator I made as a
+            starting point, so that I can focus on developing the OS.
+            \item The Serial Interface with an MC6850B ACIA is now working and I
+            can connect to the dastaZ80. The OS is working.
+        \end{itemize}
+        \item \textbf{July 2020}
+        \begin{itemize}
+            \item DZOS booting and CLI accepting first commands.
+            \item The implementation of the FAT file system has taken most of my
+            time, and still I don't have it fully working. It was not fun. I'll
+            take a break.
+        \end{itemize}
+        \item \textbf{May 2022}
+        \begin{itemize}
+            \item I re-start the project (again). Decided to implement a simpler
+            file system that I call dastaZ80 File System (DZFS).
+        \end{itemize}
+        \item \textbf{June 2022}
+        \begin{itemize}
+            \item DZFS is working. I can format and catalogue the disk, load
+            files into memory and run them.
+        \end{itemize}
+        \item \textbf{July 2022}
+        \begin{itemize}
+            \item Thanks to the VGA32 I have VGA output, and thanks to a
+            modified version of my Teensy++ 2.0 based keyboard controller for
+            Acorn Archimedes A3010 keyboard I have a keyboard working.
+            \item I've also designed a backplane to fit temporarily my boards
+            inside the A3010 computer case until I make a single board. I
+            designed the backplane with EasyEDA and ordered the PCBs at JLCPCB.
+            I'm waiting for the PCBs to arrive.
+        \end{itemize}
+        \item \textbf{August 2022}
+        \begin{itemize}
+            \item \textit{ROM Paging} implemented. DZOS gets copied to RAM and
+            then ROM is disabled.
+            \item Backplane boards arrived and works perfectly. Only to take in
+            consideration that the CompactFlash board needs to be very close to
+            the CPU to work properly. I'll research about buffering bus lines to
+            see if it works while putting the CF card a bit far away. I need
+            this, because I want to have the CF card accessible at the back of
+            the case, so that CF cards can be exchanged.
+        \end{itemize}
+        \item \textbf{September 2022}
+        \begin{itemize}
+            \item Mark I fully assembled and working.
+            \item I've made a design with EasyEDA for a PCB that contains CPU,
+            RAM, ROM, Clock and Reset. It's called the \textit{Main Board}. The
+            idea is to free two slots of the Mark I backplane, so that I can fit
+            more boards in the future, like for example RTC, VDP. Ordered it at
+            JLCPCB. I'm waiting for the PCBs to arrive.
+        \end{itemize}
+        \item \textbf{October 2022}
+        \begin{itemize}
+            \item Soldered the components of the Main Board. Some issues on the
+            design found, but I managed to make it work with some workarounds.
+        \end{itemize}
+        \item \textbf{November 2022}
+        \begin{itemize}
+            \item I've decided to go away from building more (for now) boards.
+            Prices of components plus PCBs are too expensive for my taste. I've
+            build an Arduino controller (I've called it \textit{Arduino Serial
+            Multi-Device Controller (ASMDC)}) that controls the RTC and the SD
+            Card (no more CF Card). It communicates with the CPU via serial on
+            the SIO/2.
+        \end{itemize}
+        \item \textbf{December 2022}
+        \begin{itemize}
+            \item I've added the original Acorn A3010 FDD to ASMDC. It works.
+            \item Starting the Mark II by adding a Texas Instruments TMS9918A
+            (VDP) for graphics video output.
+            \item I designed a board for the TMS9918A that can be tested first
+            with Arduino and then easily, just two jumpers, modified to work
+            with dastaZ80.
+            \item Testing the VDP board with Arduino was successful: 
+            \begin{itemize}
+                \item At first I was getting good results in text mode, but in
+                graphics mode I had no sprites and text lines were duplicated in
+                pairs every odd line. For several hours I checked and
+                double-checked and triple-checked my circuit and Arduino code.
+                I couldn't find the problem. Finally, reading the VDP manual I
+                noticed that the nominal current need of the VDP is about 200mA,
+                which I'm not sure the Arduino Uno can deliver. I plugged the
+                board to a DC-DC converter 5V/2A and all was working. Sprites
+                and correct text lines. But a huge rippled image on the screen.
+                \item Testing with another power supply brought crispy image.
+                It seems those DC-DC step down converters I bought have a big
+                voltage ripple on the output.
+                \item Also, image on CRT was B/N, due to signal being NTSC. But
+                with the addition of a  NTSC-to-PAL converter all looks fine.
+            \end{itemize}
+            \item Testing the VDP board with the dastaz80 was successful, though
+            there are some artifacts on the screen. Looking at the contents of
+            the \textbf{VRAM} with the \textit{vramdump} program, I can see that
+            in the Colour Table some bytes have the value \textit{0xF1}, which
+            is the value I initialised the Colour Table with. So it seems some
+            skipping is happening. I added \textit{NOP} instructions, but no
+            change so far. And why only happens with the Colour Table?
+        \end{itemize}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Acknowledgements and Thanks}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{Albert P. Malvino}, for his books \textit{Electronic
+        Principles}\cite{malvino1} and \textit{Digital Computer Electronics}
+        \cite{malvino2}.
+        \item \textbf{M. Morris Mano}, for his great book \textit{Computer
+        System Architecture}\cite{morrismano1}.
+        \item \textbf{Steve Ciarcia}, for his awesome and inspirational book
+        \textit{Build your own Z80 computer}\cite{ciarcia1}, which inspired me
+        into starting this project.
+        \item \textbf{Grant Searle}, for his great \textit{My simple Z80 design}
+        \cite{searle1}, which also inspired me to do this project. For his work
+        on the NASCOM MS BASIC. And for having the patience to answer all my
+        questions.
+        \item \textbf{Zilog, Inc.}, for creating the Z80 microprocessor.
+        \item \textbf{Gary A. Kildall}, for his CP/M, which inspired my own
+        operating system DZOS.
+        \item \textbf{My father}, for buying my first computer, an Amstrad CPC
+        464, and for teaching me the basics of Z80 assembly language.
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Future Improvements}
     % ==========================================================================
 
     These are some ideas I have for improvements:
 
     \begin{itemize}
-        \item \textbf{Dual video output}: the idea is to have the current VGA
-                output as \textit{High Resolution} output, for high quality 
-                80 column usage, and then add a TMS9918A VDP for 
-                \textit{Low Resolution} 40 column graphics (e.g. games).
         \item \textbf{Sound Interface}: stereo sound output with an AY-3-8912.
         \item \textbf{Dual Digital Joystick Port}: Allowing connection of two
-                Commodore 64 compatible joysticks.
+        Commodore 64 compatible (because I have a few of them) joysticks.
         \item \textbf{Cartridge Port}: allowing almost instantaneously load and
         access to programs stored in EEPROMs.
     \end{itemize}
+
+    % ==========================================================================
+    % Bibliography
+    % ==========================================================================
+    \pagebreak
+    \bibliographystyle{unsrt}
+    \bibliography{dastaZ80}
 \end{document}

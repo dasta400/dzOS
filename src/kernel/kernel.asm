@@ -35,16 +35,9 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
-.NOLIST
-;==============================================================================
-; Includes
-;==============================================================================
-#include "src/equates.inc"
-#include "exp/BIOS.exp"
-#include "exp/sysvars.exp"
-#include "src/kernel/kernel.jblks.asm"
 
-.LIST
+#include "src/equates.inc"
+
         .ORG    KRN_START
 
         ; Kernel start up messages
@@ -67,6 +60,7 @@
 
         ; Devices initialisations
         call    KRN_INIT_RAM
+        call    KRN_INIT_VDP
         call    KRN_INIT_FDD
         call    KRN_INIT_SD
         call    KRN_INIT_RTC
@@ -108,6 +102,41 @@ KRN_INIT_RAM:
         ld      IX, tmp_addr1
         call    F_KRN_SERIAL_WR6DIG_NOLZEROS
         ld      HL, msg_ram_trail
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+        ret
+;------------------------------------------------------------------------------
+KRN_INIT_VDP:
+; Detect VDP
+        ld      HL, msg_vdp_detect
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        call    F_BIOS_VDP_VRAM_TEST    ; Carry Flag set if an error ocurred
+        jp      c, _vdp_error
+        ld      HL, msg_left_brkt
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_OK
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_right_brkt
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+
+        ; VDP VRAM test passed OK. Lets clear VRAM and show something on the screen
+        call    F_BIOS_VDP_VRAM_CLEAR
+        call    F_BIOS_VDP_SET_MODE_G2
+        call    F_BIOS_VDP_SHOW_DZ_LOGO
+
+        ret
+_vdp_error:
+        ld      HL, msg_left_brkt
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, error_3001
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_right_brkt
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
         ret
@@ -501,6 +530,9 @@ msg_nvram_detect:
         .BYTE   "....Detecting NVRAM", 0
 msg_nvram_bytes:
         .BYTE   " Bytes", 0
+msg_vdp_detect:
+        .BYTE    CR, LF
+        .BYTE   "....Detecting VDP  ", 0
 msg_left_brkt:
         .BYTE   " [ ", 0
 msg_right_brkt:
@@ -525,6 +557,8 @@ error_2001:
         .BYTE   "RTC Battery needs replacement", 0
 error_2101:
         .BYTE   "NVRAM not responding", 0
+error_3001:
+        .BYTE   "VDP not detected", 0
 
 ;==============================================================================
 ; DZOS Version
@@ -536,6 +570,6 @@ dzos_version:            .EXPORT        dzos_version
 ;==============================================================================
 ; END of CODE
 ;==============================================================================
-        .ORG    KRN_END
-        .BYTE    0
-        .END
+        ; .ORG    KRN_END
+        ; .BYTE    0
+        ; .END

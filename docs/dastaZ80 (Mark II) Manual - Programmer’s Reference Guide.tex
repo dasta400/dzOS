@@ -11,6 +11,7 @@
 \usepackage{fancyhdr}
 \usepackage{multirow}
 \usepackage{longtable}
+\usepackage{listings}
 % the hyperref package must always be the last package to be included
 \usepackage[pdftex,
             pdfusetitle,
@@ -38,7 +39,7 @@
         \rput[b](3.5,8){
             \parbox{7in}{
                 \begin{flushright}
-                    \Huge\bfseries\sffamily dastaZ80 Mark I\\ Programmer's Reference Guide
+                    \Huge\bfseries\sffamily dastaZ80 Mark II\\ Programmer's Reference Guide
                 \end{flushright}
             }
         }
@@ -54,7 +55,7 @@
     % ==========================================================================
     \pagestyle{fancy}
     \fancyhf{}
-    \fancyhead[R]{dastaZ80 Mark I Programmer's Reference Guide}
+    \fancyhead[R]{dastaZ80 Mark II Programmer's Reference Guide}
     % ==========================================================================
     \section*{Disclaimer}
     % ==========================================================================
@@ -136,11 +137,18 @@
     
     The Floppy Disk Drive is referred as \textbf{DISK} or as \textbf{FDD}.
 
-    The 80 column VGA output is referred as \textbf{CONSOLE}.
-    
+    The 80 column text VGA output is referred as \textbf{CONSOLE} or as
+    \textbf{High Resolution Display}.
+
+    The 40 column graphics Composite Video output is referred as \textbf{Low
+    Resolution Display}.
+
     The Operating System may be referred as DZOS, dzOS or simply OS.
 
     \textbf{MEMORY} refers to both \textbf{ROM} and \textbf{RAM}.
+
+    Memory used by the \textbf{Low Resolution Display} is referred as
+    \textbf{VRAM} (Video RAM).
 
     In the list of routines, the \textbf{Destroys} lists the \textbf{CPU}
     registers and \textbf{MEMORY} System Variables that are destroyed by the
@@ -153,11 +161,11 @@
     % ==========================================================================
     \section*{Related Documentation}
     % ==========================================================================
-    \hspace{1cm}{\LARGE dastaZ80 User's Manual}
-    
-    \hspace{1cm}{\LARGE dastaZ80 Technical Reference Manual}
-
-    \hspace{1cm}{\LARGE https://github.com/dasta400/dzOS}
+    \begin{itemize}
+        \item dastaZ80 User's Manual\cite{dastaz80userman}
+        \item dastaZ80 Technical Reference Manual\cite{dastaz80techman}
+        \item dzOS Github Repository\cite{dastaZ80github}
+    \end{itemize}
 
     \pagebreak
     % ==========================================================================
@@ -170,7 +178,7 @@
     % ==========================================================================
     \pagestyle{fancy}
     \fancyhf{}
-    \fancyhead[R]{dastaZ80 Mark I Programmer's Reference Guide}
+    \fancyhead[R]{dastaZ80 Mark II Programmer's Reference Guide}
     \fancyfoot[R]{\thepage}
     \setcounter{page}{1}
     % ==========================================================================
@@ -191,19 +199,21 @@
         Size (bytes) \\
         \hline
         \hline
-        \texttt{0x0008} & \texttt{0x01E7} & init SIO/2 & \textbf{\multirow{3}{4em}{BIOS}} & 480 \\
-        \texttt{0x01E8} & \texttt{0x133F} & BIOS code & & 4,448 \\
-        \texttt{0x1340} & \texttt{0x13BF} & BIOS Jumpblock & & 128 \\
+        \texttt{0x0000} & \texttt{0x0007} & Cold Boot & \textbf{\multirow{3}{4em}{BIOS}} & 8 \\
+        \texttt{0x0008} & \texttt{0x0216} & init SIO/2 & & 527 \\
+        \texttt{0x0217} & \texttt{0x133F} & BIOS code & & 4,393 \\
         \hline
-        \texttt{0x13C0} & \texttt{0x267F} & Kernel code & \textbf{\multirow{3}{4em}{Kernel}} & 4,800 \\
-        \texttt{0x2670} & \texttt{0x267F} & dzOS version build & & 16 \\
-        \texttt{0x2680} & \texttt{0x277F} & Kernel Jumpblock & & 256 \\
+        \texttt{0x1340} & \texttt{0x2663} & Kernel code & \textbf{\multirow{2}{4em}{Kernel}} & 4,900 \\
+        \texttt{0x2653} & \texttt{0x2663} & dzOS version build & & 17 \\
         \hline
-        \texttt{0x2780} & \texttt{0x3D5F} & CLI code & \textbf{CLI} & 5,600 \\
+        \texttt{0x2664} & \texttt{0x3A24} & CLI code & \textbf{CLI} & 5,057 \\
         \hline
-        \texttt{0x3B60} & \texttt{0x3E5F} & Bootstrap & \textbf{BOOTSTRAP} & 256 \\
+        \texttt{0x3A25} & \texttt{0x3A52} & Bootstrap & \textbf{BOOTSTRAP} & 46 \\
         \hline
-        \texttt{0x3E60} & \texttt{0x3FFF} & Free & & 416 \\
+        \texttt{0x3A53} & \texttt{0x3DAA} & VDP dastaZ80 Logo & & 856 \\
+        \hline
+        \texttt{0x3E7A} & \texttt{0x3EFD} & BIOS Jumpblock & \textbf{\multirow{2}{4em}{Jumpblocks}} & 132 \\
+        \texttt{0x3EFE} & \texttt{0x3FFF} & Kernel Jumpblock & & 258 \\
         \hline
     \end{tabular}
 
@@ -236,10 +246,10 @@
         & \multicolumn{2}{|l|}{\textbf{Stack}} & 32\\
         \hline
         \texttt{0x4020} & \texttt{0x4174} 
-        & \multicolumn{2}{|l|}{\textbf{System Variables}} & 341\\
+        & \multicolumn{2}{|l|}{\textbf{System Variables}} & 356\\
         \hline
-        \texttt{0x4180} & \texttt{0x421F} 
-        & \multicolumn{2}{|l|}{\textbf{Reserved for future use}} & 160\\
+        \texttt{0x4184} & \texttt{0x421F} 
+        & \multicolumn{2}{|l|}{\textbf{Reserved for future use}} & 156\\
         \hline
         \texttt{0x4220} & \texttt{0x441F} 
         & \multicolumn{2}{|l|}{\textbf{DISK Buffer}} & 512\\
@@ -348,63 +358,66 @@
         \end{itemize}
         \item \textbf{CLI}: buffers used by CLI to store temporary data.
         \begin{itemize}
-            \item \texttt{0x40CE} - \textbf{CLI\_buffer} (6 bytes): generic
+            \item \texttt{0x40CE} - \textbf{CLI\_prompt\_addr} (2 bytes): The
+            address of the CLI Prompt subroutine. Programs that need to return
+            control to CLI on exit, MUST jump to the address stored here.
+            \item \texttt{0x40D0} - \textbf{CLI\_buffer} (6 bytes): generic
             buffer.
-            \item \texttt{0x40D4} - \textbf{CLI\_buffer\_cmd} (16 bytes): when a
+            \item \texttt{0x40D6} - \textbf{CLI\_buffer\_cmd} (16 bytes): when a
             user enters a command and its parameters, the command alone is
             stored here.
-            \item \texttt{0x40E4} - \textbf{CLI\_buffer\_parm1\_val} (16 bytes):
+            \item \texttt{0x40E6} - \textbf{CLI\_buffer\_parm1\_val} (16 bytes):
             when a user enters a command and its parameters, the first parameter
             is stored here.
-            \item \texttt{0x40F4} - \textbf{CLI\_buffer\_parm2\_val} (16 bytes):
+            \item \texttt{0x40F6} - \textbf{CLI\_buffer\_parm2\_val} (16 bytes):
             when a user enters a command and its parameters, the second parameter
             is stored here.
-            \item \texttt{0x40F4} - \textbf{CLI\_buffer\_pgm} (32 bytes): generic
+            \item \texttt{0x4106} - \textbf{CLI\_buffer\_pgm} (32 bytes): generic
             buffer.
-            \item \texttt{0x40F4} - \textbf{CLI\_buffer\_full\_cmd} (64 bytes):
+            \item \texttt{0x4126} - \textbf{CLI\_buffer\_full\_cmd} (64 bytes):
             when a user enters a command and its parameters, the entire line
             entered by the user is stored here. This is useful for passing
             parameters to programs called with \textit{run} command.
         \end{itemize}
         \item \textbf{RTC}
         \begin{itemize}
-            \item \texttt{0x4164} - \textbf{RTC\_hour} (1 byte): 24h format,
+            \item \texttt{0x4166} - \textbf{RTC\_hour} (1 byte): 24h format,
             in hexadecimal (\texttt{0x00}-\texttt{0x17}).
-            \item \texttt{0x4165} - \textbf{RTC\_minutes} (1 byte): in
+            \item \texttt{0x4167} - \textbf{RTC\_minutes} (1 byte): in
             hexadecimal (\texttt{0x00}-\texttt{0x3B}).
-            \item \texttt{0x4166} - \textbf{RTC\_seconds} (1 byte): in
+            \item \texttt{0x4168} - \textbf{RTC\_seconds} (1 byte): in
             hexadecimal (\texttt{0x00}-\texttt{0x3B}).
-            \item \texttt{0x4167} - \textbf{RTC\_century} (1 byte): 20 part of
+            \item \texttt{0x4169} - \textbf{RTC\_century} (1 byte): 20 part of
             year 20xx, in hexadecimal (\texttt{0x14} = 20).
-            \item \texttt{0x4168} - \textbf{RTC\_year} (1 byte): xx part of
+            \item \texttt{0x416A} - \textbf{RTC\_year} (1 byte): xx part of
             year 20xx, in hexadecimal (e.g. \texttt{0x16} = 22). The \textbf{RTC}
             supports until 2079, therefore maximum value is \texttt{0x4F}.
-            \item \texttt{0x4169} - \textbf{RTC\_year4} (2 bytes): four digit
+            \item \texttt{0x416B} - \textbf{RTC\_year4} (2 bytes): four digit
             year, in hexadecimal (e.g. \texttt{0x07E6} = 2022). The \textbf{RTC}
             supports until 2079, therefore maximum value is \texttt{0x081F}.
-            \item \texttt{0x416B} - \textbf{RTC\_month} (1 byte): in
+            \item \texttt{0x416D} - \textbf{RTC\_month} (1 byte): in
             hexadecimal (\texttt{0x00}-\texttt{0x0C}).
-            \item \texttt{0x416C} - \textbf{RTC\_day} (1 byte): in hexadecimal
+            \item \texttt{0x416E} - \textbf{RTC\_day} (1 byte): in hexadecimal
             (\texttt{0x00}-\texttt{0x1F}).
-            \item \texttt{0x416D} - \textbf{RTC\_day\_of\_the\_week} (1 byte):
+            \item \texttt{0x416F} - \textbf{RTC\_day\_of\_the\_week} (1 byte):
             \texttt{0x00}=Sunday, \texttt{0x01}=Monday, \texttt{0x02}=Tuesday,
             \texttt{0x03}=Wednesday, \texttt{0x04}=Thursday, \texttt{0x05}=
             Friday, \texttt{0x06}=Saturday
         \end{itemize}
         \item \textbf{Math}
         \begin{itemize}
-            \item \texttt{0x416E} - \texttt{MATH\_CRC} (2 bytes): CRC-16 CRC.
-            \item \texttt{0x4170} - \texttt{MATH\_polynomial} (2 bytes): CRC-16
+            \item \texttt{0x4170} - \texttt{MATH\_CRC} (2 bytes): CRC-16 CRC.
+            \item \texttt{0x4172} - \texttt{MATH\_polynomial} (2 bytes): CRC-16
             Polynomial.
         \end{itemize}
         \item \textbf{Generic}
         \begin{itemize}
-            \item \texttt{0x4172} - \textbf{SD\_images\_num} (1 byte): number
+            \item \texttt{0x4174} - \textbf{SD\_images\_num} (1 byte): number
             of Disk Image Files found by \textbf{ASMDC}.
-            \item \texttt{0x4173} - \textbf{DISK\_current} (1 byte): current 
+            \item \texttt{0x4175} - \textbf{DISK\_current} (1 byte): current 
             \textbf{DISK} unit active. All disk operations will be on this
             \textbf{DISK}.
-            \item \texttt{0x4174} - \textbf{DISK\_status} (1 byte): status of
+            \item \texttt{0x4176} - \textbf{DISK\_status} (1 byte): status of
             the \textbf{FDD}.
             \begin{itemize}
                 \item Low Nibble (\texttt{0x00} if all OK)
@@ -416,7 +429,7 @@
                 \end{itemize}
                 \item High Nibble: error code of last operation.
             \end{itemize}
-            \item \texttt{0x4174} - \textbf{DISK\_status} (1 byte): status of
+            \item \texttt{0x4176} - \textbf{DISK\_status} (1 byte): status of
             the \textbf{SD card}.
             \begin{itemize}
                 \item Low Nibble (\texttt{0x00} if all OK)
@@ -428,21 +441,28 @@
                 \end{itemize}
                 \item High Nibble: number of Disk Image Files found.
             \end{itemize}
-            \item \texttt{0x4175} - \textbf{DISK\_file\_type} (1 byte): File
+            \item \texttt{0x4177} - \textbf{DISK\_file\_type} (1 byte): File
             Type when creating (\textit{save}) next file.
-            \item \texttt{0x4176} - \textbf{DISK\_loadsave\_addr} (2 bytes): see
+            \item \texttt{0x4178} - \textbf{DISK\_loadsave\_addr} (2 bytes): see
             \hyperref[sec:howto_readdata]{Read data from DISK} and 
             \hyperref[sec:howto_writedata]{Write data to DISK}.
-            \item \texttt{0x4178} - \textbf{tmp\_addr1} (2 bytes): temporary
+            \item \texttt{0x417A} - \textbf{tmp\_addr1} (2 bytes): temporary
             storage for an address.
-            \item \texttt{0x417A} - \textbf{tmp\_addr2} (2 bytes): temporary
+            \item \texttt{0x417C} - \textbf{tmp\_addr2} (2 bytes): temporary
             storage for an address.
-            \item \texttt{0x417C} - \textbf{tmp\_addr3} (2 bytes): temporary
+            \item \texttt{0x417E} - \textbf{tmp\_addr3} (2 bytes): temporary
             storage for an address.
-            \item \texttt{0x417E} - \textbf{tmp\_byte} (1 byte):  temporary
+            \item \texttt{0x4180} - \textbf{tmp\_byte} (1 byte):  temporary
             storage for a byte.
-            \item \texttt{0x417F} - \textbf{tmp\_byte2} (1 byte):  temporary
+            \item \texttt{0x4181} - \textbf{tmp\_byte2} (1 byte):  temporary
             storage for a byte.
+        \end{itemize}
+        \item \textbf{VDP}
+        \begin{itemize}
+            \item \texttt{0x4182} - \textbf{VDP\_cursor\_x} (1 byte):  Current
+            horizontal position of the cursor on the VDP screen.
+            \item \texttt{0x4183} - \textbf{VDP\_cursor\_y} (1 byte):  Current
+            vertical position of the cursor on the VDP screen.
         \end{itemize}
     \end{itemize}
 
@@ -475,6 +495,9 @@
 
     \begin{tabular}{l l l }
         \hline
+        \multirow{2}{*}{\textbf{VDP}} & \texttt{0x10} & Mode 0 (VRAM)\\
+        & \texttt{0x11} & Mode 1 (Register)\\
+        \hline
         \textbf{ROM / RAM} & \texttt{0x38} & ROM Paging\\
         \hline
         \multirow{4}{*}{\textbf{SIO}} & \texttt{0x80} & Channel A Control\\
@@ -488,6 +511,107 @@
     % ==========================================================================
     \section{BIOS Jumpblocks}
     % ==========================================================================
+
+    % ==========================================================================
+    \subsection{Non-Maskable Interrupt (NMI)}
+    % ==========================================================================
+
+    The chip used for the generation of the Composite Video (the Texas
+    Instruments TMS9918A) generates an interrupt at the end of each
+    active-display scan (also known as \textit{raster interrupt}), which is
+    about every 1/60th second, by setting the \textit{/INT} active low pin.
+
+    But this chip doesn't have the \textit{priority daisy-chain} feature of, for
+    example the SIO/2 and other Zilog chips, and when raising an interrupt to
+    the \textbf{CPU} pin \textit{/INT} could create bus contention\footnote{Bus
+    contention occurs when all devices communicate directly with each other
+    through a single shared channel (Address and Data buses), and more than one
+    device attempts to place values on the channel at the same time.}. Therefore,
+    the interrupt pin \textit{/INT} of the TMS9918A is connected to the
+    \textit{/NMI} pin of the \textbf{CPU}.
+
+    This means that every 1/60th second the \textbf{CPU} will receive a
+    Non-Maskable Interrupt and therefore, store the current Program Counter (PC)
+    in the stack and jump to the location \texttt{0x0066}.
+
+    At that address, dzOS contains a small piece of code that allows programs to
+    enable and disable a jump to their own subroutine. For example, a video game
+    playing a tune will need to update the \textbf{PSG} in an interrupt basis.
+
+    The code works as follows:
+
+    \begin{itemize}
+        \item First, all \textbf{CPU} registers are saved (with \textit{PUSH}).
+        \item Next, the subroutine checks the byte stored at
+        \textit{BIOS\_NMI\_FLAG}. This byte emulates the Enable Interrupt
+        (\textit{EI}) and Disable Interrupt (\textit{DI}) that the \textbf{CPU}
+        has for Maskable Interrupts.
+        \begin{itemize}
+            \item If the byte is equal to zero (i.e. disabled), it will restore
+            all previously saved \textbf{CPU} registers, and finish the
+            subroutine with a Return from non maskable interrupt (\textit{RETN}).
+            \item If the byte is equal to one (i.e. enabled), it will jump to
+            whatever address is stored in the bytes 2 and 3 of
+            \textit{BIOS\_NMI\_JP}
+        \end{itemize}
+    \end{itemize}
+
+    In summary, if you want your program to perform any actions each time the
+    \textbf{VDP} raises an interrupt (i.e. each 1/60th second), do the following:
+
+    \begin{itemize}
+        \item The end of your subroutine MUST be a \textit{jp F\_BIOS\_NMI\_END}
+        This is the part that restores the previously saved \textbf{CPU}
+        registers and ends the subrutine with \textit{RETN}.
+        \item Store the address of your subroutine, in little-endian, in the
+        bytes \textit{BIOS\_NMI\_JP} + 2 and \textit{BIOS\_NMI\_JP} + 3.
+        \item Enable the calling to your subroutine, by storing a 1 in the byte
+        \textit{BIOS\_NMI\_FLAG}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsubsection{F\_BIOS\_NMI\_END}
+    \label{func:fbiosnmiend}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Performs \textit{POP} instructions for all \textbf{CPU} registers and
+        performs a Return from non maskable interrupt (\textit{RETN})\\
+        \hline\textbf{Entry} & None\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & Restores \textbf{CPU} registers \texttt{AF},
+        \texttt{BC},\texttt{DE}, \texttt{HL}, \texttt{IX} and \texttt{IY} to the
+        values they had before the NMI was triggered.\\
+        \hline\textbf{Calls} & Programmable \textit{jp}, by changing the address
+        of the \textit{BIOS\_NMI\_JP} and enabling the jump by setting 
+        \textit{BIOS\_NMI\_FLAG} to 1.\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{BIOS\_NMI\_JP}
+    \label{func:fbiosnmijp}
+    % ==========================================================================
+
+    This is the start address of three bytes corresponding to the instruction
+    \textit{jp BIOS\_NMI\_END}. The first byte (\textit{C3}) MUST not be changed.
+    The next two bytes are the ones a program can change to make the interrupt
+    jump to a desired subroutine.
+
+    % ==========================================================================
+    \subsubsection{BIOS\_NMI\_FLAG}
+    \label{func:fbiosnmiflag}
+    % ==========================================================================
+
+    This is the address of a single byte that emulates the Enable Interrupt
+    (\textit{EI}) and Disable Interrupt (\textit{DI}) that the \textbf{CPU}
+    has for Maskable Interrupts.
+
+    By setting this byte to 1, the NMI subroutine will execute the jump at
+    \hyperref[func:fbiosnmijp]{BIOS\_NMI\_JP}.
+
+    By setting this byte to 0, the NMI subroutine will execute the
+    \hyperref[func:fbiosnmiend]{F\_BIOS\_NMI\_END}.
 
     % ==========================================================================
     \subsection{General Routines}
@@ -516,7 +640,7 @@
             \hline\textbf{Action}
             & Halts the computer. Executed after a \textit{halt} command \\
             \hline\textbf{Entry} & None \\
-            \hline\textbf{Exit} & Disables Interrupts (di) \\
+            \hline\textbf{Exit} & Disables Interrupts (DI) \\
             \hline\textbf{Destroys} & None \\
             \hline\textbf{Calls} & None \\
             \hline
@@ -951,6 +1075,121 @@
             \hline\multirow[t]{2}{4em}{\textbf{Calls}}
             & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
             & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+    % ==========================================================================
+    \subsection{VDP Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_SET\_ADDR\_WR}
+        \label{func:fbiosvdpsetaddrwr}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set a \textbf{VRAM} address for writting. \\
+            \hline\textbf{Entry} & \texttt{HL} = address to be set\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{C}, \texttt{H} \\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_SET\_ADDR\_RD}
+        \label{func:fbiosvdpsetaddrrd}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set a \textbf{VRAM} address for reading. \\
+            \hline\textbf{Entry} & \texttt{HL} = address to be read\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{C} \\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_SET\_REGISTER}
+        \label{func:fbiosvdpsetregister}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set a value to a \textbf{VDP} register. \\
+            \hline\textbf{Entry} & \texttt{A} = register number, \texttt{B} =
+            value to set\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{C} \\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_VRAM\_CLEAR}
+        \label{func:fbiosvdpvramclear}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set all cells of the \textbf{VRAM} (\texttt{0x0000}-
+            \texttt{0x3FFF}) to zero. \\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
+            \texttt{HL} \\
+            \hline\textbf{Calls} & \hyperref[func:fbiosvdpsetaddrwr]
+            {F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_VRAM\_TEST}
+        \label{func:fbiosvdpvramtest}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set a value to each \textbf{VRAM} cell and then reads it back. If
+            the value is not the same, something went wrong. \\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & \texttt{C Flag} set if an error ocurred.\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
+            \texttt{HL} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
+            & \hyperref[func:fbiosvdpsetaddrrd]{F\_BIOS\_VDP\_SET\_ADDR\_RD}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_G2}
+        \label{func:fbiosvdpsetmodeg2}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set \textbf{VDP} to \textit{Graphics II Bit-mapped Mode} display.\\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
+            \texttt{HL} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
+            & \hyperref[func:fbiosvdpsetregister]{F\_BIOS\_VDP\_SET\_REGISTER}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_SHOW\_DZ\_LOGO}
+        \label{func:fbiosvdpshowdzlogo}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Show dastaZ80 logo on the \textbf{Low Resolution Display}.\\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
+            \texttt{HL}, \texttt{IX} \\
+            \hline\textbf{Calls} & \hyperref[func:fbiosvdpsetaddrwr]
+            {F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
             \hline
         \end{tabular}
 
@@ -2598,6 +2837,152 @@
         \texttt{0x7FFF})
     \end{itemize}
 
+    % ==========================================================================
+    \subsection{Develop software for dzOS}
+    % ==========================================================================
+
+    % ==========================================================================
+    \subsubsection{Available RAM}
+    % ==========================================================================
+    Programs can be loaded from disk to any area of \textbf{RAM}. Nevertheless,
+    addresses below \texttt{0x4420} SHOULD not be used, at these contain the
+    Operating System's variables. Modifying these without the proper care will
+    result in undesired behaviour, system crash or even lost of data on the disk.
+    Therefore, taking in consideration that the free RAM area starts at
+    \texttt{0x4420} and ends at \texttt{0xFFFF}, the programmer can load
+    programs of maximum 48,095 bytes (48 KB).
+
+    % ==========================================================================
+    \subsubsection{Storing your variables}
+    % ==========================================================================
+    Variables for programs can be store anywhere in the free \textbf{RAM} space.
+    
+    The OS is having its own internal variables that can be accessed by the user.
+    Also, some variables are used only by CLI and therefore could be re-used
+    during the execution of a program.\\
+
+    Refer to the section \hyperref[sec:ram_memmap]{System Variables (SYSVARS)}
+    on this guide to know the exact locations.
+
+    \begin{itemize}
+        \item The \textbf{DISK Superblock} and \textbf{DISK BAT} areas can be
+        re-used if you are not using \textbf{DISK} routines.
+        \item The \textbf{CLI} area can safely be re-used in your program, as
+        the CLI is not running meanwhile your program is.
+        \item The \textbf{RTC} area can be re-used if you are not calling any
+        \textbf{RTC} routines.
+        \item The \textbf{Math} area can be re-used if you are not calling any
+        \textbf{Math} routines.
+        \item The \textbf{SIO}, \textbf{Generic} and \textbf{VDP} areas MUST not
+        be touched.
+    \end{itemize}
+
+    All in all, you may end up having some extra 700 bytes here.
+
+    % ==========================================================================
+    \subsubsection{Receiving parameters from CLI}
+    % ==========================================================================
+    When a user types a command in CLI, the entered command is stored in an area
+    of 64 bytes in the \hyperref[sec:ram_memmap]{System Variables (SYSVARS)} 
+    called \textit{CLI\_buffer\_full\_cmd}. From there, you can read the full
+    command, which will be the name of your binary program, and the parameter or
+    parameters.
+
+    % ==========================================================================
+    \subsubsection{Returning to CLI}
+    % ==========================================================================
+
+    If your program allows the user to return to CLI, it must then jump to the
+    loop subroutine known as \textit(CLI Prompt). The address of this subroutine
+    is stored in the \hyperref[sec:ram_memmap]{System Variables (SYSVARS)}'
+    \textit{CLI\_prompt\_addr}.
+
+    Simply make your program to load the value stored at that location and jump
+    (\textit{jp}) to it.
+
+    % ==========================================================================
+    \subsubsection{Developing with Z80 Assembler}
+    % ==========================================================================
+    In order for dzOS to know where to load the program in \textbf{RAM}, the
+    executable code must provide the load address. For compatibility with SDCC
+    \footnote{Small Device C Compiler (SDCC) is a retargettable, optimizing
+    Standard C (ANSI C89, ISO C99, ISO C11) compiler suite that targets (amongst
+    others) the Zilog Z80 based MCUs. (http://sdcc.sourceforge.net/)}, we will
+    store it in the bytes 3 and 4 of the executable.
+
+    For programs developed in Z80 Assembler, add the following at the top of the
+    source code:
+
+    % \lstset{language={[z80]Assembler}}
+    \begin{lstlisting}
+    .ORG    $4420                   ; start of code at
+                                    ;   start of free RAM
+    jp      $4425                   ; first instruction
+                                    ;   must jump to the
+                                    ;   executable code
+    .BYTE   $20, $44                ; load address
+                                    ;   (values must be
+                                    ;   same as .org above)
+
+    .ORG    $4425                   ; start of program
+                                    ;   (must be same as jp above)
+    ; your program here
+    ; your program here
+    ; your program here
+    \end{lstlisting}
+
+    The first .ORG (\textit{.ORG \$4420}) indicates the start address used for
+    creating the binary file after compilation.
+
+    \texttt{0x4420} is where the Free \textbf{RAM} starts, giving you 48 KB for
+    your program. Programs SHOULD not be loaded at a lower address, for the 
+    reason explained before.
+
+    The first instruction MUST be a jump (\textit{jp}) instruction to the actual
+    executable code (i.e. your program code) The \textit{.BYTE} instruction just
+    inserts the two bytes after the jump instruction. The values MUST be in
+    hexadecimal little-endian format.
+
+    Because the jp instruction in Z80 is translated as \textit{C3 nn nn} (where
+    \textit{nn} are the bytes where to jump), this will use the first three
+    bytes (\texttt{0x00}, \texttt{0x01}, \texttt{0x02}) in the binary, therefore
+    we store the load address at bytes 3 and 4 and your program can start just
+    after, at byte \texttt{0x05}.
+
+    Once assembled, the binary will be loaded by dzOS at the load address, and
+    when executed, the first thing that will happen is a \textit{jp} instruction
+    and then the execution will continue from the executable code of your
+    program.
+
+    If your program allows the user to return to CLI, add the following on your
+    source code:
+
+    % \lstset{language={[z80]Assembler}}
+    \begin{lstlisting}
+    ld      HL, (CLI_prompt_addr)   ; return control
+    jp      (HL)                    ;   to CLI
+    \end{lstlisting}
+
+    For convenience, two files are provided in the Github repository
+    \footnote{https://github.com/dasta400/dzSoftware}:
+    \textit{\_header.inc} and \textit{\_template.asm}
+
+    % ==========================================================================
+    \subsubsection{Developing with SDCC}
+    % ==========================================================================
+
+    In the Github repository, there is a file (\textit{crt0.s} that sets:
+    \begin{itemize}
+        \item the start address for the binary at \texttt{0x4420}
+        \item the values \texttt{0x20} and \texttt{0x44} in the binary at bytes
+        5 and 6.
+        \item first instruction of your program to be started located at
+        \texttt{0x4425}
+    \end{itemize}
+
+    Therefore, by using this file all programs will be loaded at the correct
+    address.
+
     \pagebreak
     % ==========================================================================
     \section{Appendixes}
@@ -2610,14 +2995,40 @@
 
     \begin{itemize}
         \item ANSI\_COLR\_BLK - Black
-        \item ANSI\_COLR\_RED - {\color{red}Red}
-        \item ANSI\_COLR\_GRN - {\color{green}Green}
-        \item ANSI\_COLR\_YLW - {\color{yellow}Yellow}
-        \item ANSI\_COLR\_BLU - {\color{blue}Blue}
-        \item ANSI\_COLR\_MGT - {\color{magenta}Magenta}
-        \item ANSI\_COLR\_CYA - {\color{cyan}Cyan}
-        \item ANSI\_COLR\_WHT -
+        \item ANSI\_COLR\_RED - Red
+        \item ANSI\_COLR\_GRN - Green
+        \item ANSI\_COLR\_YLW - Yellow
+        \item ANSI\_COLR\_BLU - Blue
+        \item ANSI\_COLR\_MGT - Magenta
+        \item ANSI\_COLR\_CYA - Cyan
+        \item ANSI\_COLR\_WHT - White
     \end{itemize}
+
+    % ==========================================================================
+    \subsection{VDP Composite colours}
+    % ==========================================================================
+    
+    \includegraphics[scale=0.7]{TMS9918Apalette.png}
+
+    \begin{itemize}
+        \item VDP\_COLR\_TRNSP  - Transparent
+        \item VDP\_COLR\_BLACK  - Black
+        \item VDP\_COLR\_M\_GRN - Medium Green
+        \item VDP\_COLR\_L\_GRN - Light Green
+        \item VDP\_COLR\_D\_BLU - Dark Blue
+        \item VDP\_COLR\_L\_BLU - Light Blue
+        \item VDP\_COLR\_D\_RED - Dark Red
+        \item VDP\_COLR\_CYAN   - Cyan
+        \item VDP\_COLR\_M\_RED - Medium Red
+        \item VDP\_COLR\_L\_RED - Light Red
+        \item VDP\_COLR\_D\_YLW - Dark Yellow
+        \item VDP\_COLR\_L\_YLW - Light Yellow
+        \item VDP\_COLR\_D\_GRN - Dark Green
+        \item VDP\_COLR\_MGNTA  - Magenta
+        \item VDP\_COLR\_GREY   - Grey
+        \item VDP\_COLR\_WHITE  - White
+    \end{itemize}
+
 
     % ==========================================================================
     \subsection{How DZFS Volume Serial Number is calculated}
@@ -2682,6 +3093,13 @@
             \item Display dzOS release version.
             \item Display Kernel version.
             \item Display available \textbf{RAM}.
+            \item Initialise \textbf{VDP}.
+            \begin{itemize}
+                \item Test write/read \textbf{VRAM}.
+                \item Set \textbf{Low Resolution Display} as \textit{Graphics II
+                Bit-mapped Mode}.
+                \item Show dastaZ80 Logo in the \textbf{Low Resolution Display}.
+            \end{itemize}
             \item Initialise \textbf{FDD}.
             \item Initialise \textbf{SD Card}.
             \begin{itemize}
@@ -2754,4 +3172,10 @@
         \end{itemize}
     \end{itemize}
 
+    % ==========================================================================
+    % Bibliography
+    % ==========================================================================
+    \pagebreak
+    \bibliographystyle{unsrt}
+    \bibliography{dastaZ80}
 \end{document}

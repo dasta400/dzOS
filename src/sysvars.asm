@@ -99,6 +99,12 @@ DISK_cur_file_load_addr:        .EXPORT         DISK_cur_file_load_addr
 ;==============================================================================
 ; CLI buffers
 ;==============================================================================
+CLI_prompt_addr:                .EXPORT         CLI_prompt_addr
+                .BYTE   0, 0                    ; The address of the CLI Prompt
+                                                ;   subroutine. Programs that
+                                                ;   need to return control to CLI
+                                                ;   on exit, MUST jump to the
+                                                ;   address stored here.
 CLI_buffer:                     .EXPORT         CLI_buffer
                 .FILL   6, 0
 CLI_buffer_cmd:                 .EXPORT         CLI_buffer_cmd
@@ -163,6 +169,14 @@ tmp_byte:                       .EXPORT         tmp_byte
                 .BYTE   0                       ; Temporary storage for a Byte
 tmp_byte2:                      .EXPORT         tmp_byte2
                 .BYTE   0                       ; Temporary storage for a Byte
+;==============================================================================
+; VDP
+;==============================================================================
+VDP_cursor_x:                   .EXPORT         VDP_cursor_x
+                .BYTE   0
+VDP_cursor_y:                   .EXPORT         VDP_cursor_y
+                .BYTE   0
+
 ;==============================================================================
 ; END of CODE
 ;==============================================================================

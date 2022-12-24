@@ -3,11 +3,15 @@ lst/*
 
 # LateX
 docs/*.aux
+docs/*.bbl
+docs/*.bcf
+docs/*.blg
 docs/*.fdb_latexmk
 docs/*.fls
 docs/*.lof
 docs/*.log
 docs/*.out
+docs/*.run.xml
 docs/*.synctex.gz
 docs/*.tex~
 docs/*.toc
@@ -18,3 +22,4 @@ ToDo.txt
 # The Telemark Assembler (TASM)
 TASM.EXE
 TASM80.TAB
+*.synctex(busy)
