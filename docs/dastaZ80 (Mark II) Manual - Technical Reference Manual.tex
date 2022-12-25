@@ -11,6 +11,7 @@
 \usepackage{fancyhdr}
 \usepackage{multirow}
 \usepackage{longtable}
+\usepackage{siunitx}
 % the hyperref package must always be the last package to be included
 \usepackage[pdftex,
             pdfusetitle,
@@ -885,6 +886,11 @@
             is the value I initialised the Colour Table with. So it seems some
             skipping is happening. I added \textit{NOP} instructions, but no
             change so far. And why only happens with the Colour Table?
+            \item Found that the VDP needs 2 \si{\micro\second} to read or write
+            a byte to its RAM. A \textit{NOP} instruction at 7.3728 Mhz only
+            takes 0.54 \si{\micro\second}, so I need at least four \textit{NOP}s.
+            Instead I went for creating a subroutine, that with its instructions
+            plus the \textit{call} takes 6.24 \si{\micro\second}
         \end{itemize}
     \end{itemize}
 
@@ -896,8 +902,8 @@
         \item \textbf{Albert P. Malvino}, for his books \textit{Electronic
         Principles}\cite{malvino1} and \textit{Digital Computer Electronics}
         \cite{malvino2}.
-        \item \textbf{M. Morris Mano}, for his great book \textit{Computer
-        System Architecture}\cite{morrismano1}.
+        \item \textbf{M. Morris Mano}, for his book \textit{Computer System
+        Architecture}\cite{morrismano1}.
         \item \textbf{Steve Ciarcia}, for his awesome and inspirational book
         \textit{Build your own Z80 computer}\cite{ciarcia1}, which inspired me
         into starting this project.
@@ -905,6 +911,11 @@
         \cite{searle1}, which also inspired me to do this project. For his work
         on the NASCOM MS BASIC. And for having the patience to answer all my
         questions.
+        \item \textbf{Doctor Volt}, for his \textit{TMS9918 Arduino Library}
+        \cite{drvolt}, which allowed me to test my board and finally
+        understand how programming the VDP works.
+        \item \textbf{David Hansel}, for his \textit{ArduinoFDC Library}
+        \cite{dhansel}, which allowed me to add Floppy Disk Drive support.
         \item \textbf{Zilog, Inc.}, for creating the Z80 microprocessor.
         \item \textbf{Gary A. Kildall}, for his CP/M, which inspired my own
         operating system DZOS.

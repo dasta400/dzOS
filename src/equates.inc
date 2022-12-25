@@ -207,6 +207,7 @@ NVRAM_CMD_DETECT            .EQU    $D0
 ;==============================================================================
 VDP_G2_REG_0                .EQU    $02     ; Graphics II Mode, No External Video
 VDP_G2_REG_1                .EQU    $C0     ; 16K, Enable Disp., Disable Int., 8x8 Sprites, Mag. Off
+; VDP_G2_REG_1                .EQU    $E0     ; 16K, Enable Disp., Enable Int., 8x8 Sprites, Mag. Off
 VDP_G2_REG_2                .EQU    $0E     ; Name Table = $3800
 VDP_G2_REG_3                .EQU    $FF     ; Colour Table = $2000
 VDP_G2_REG_4                .EQU    $03     ; Pattern Table = $0000

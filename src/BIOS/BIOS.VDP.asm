@@ -219,10 +219,9 @@ BIOS_VDP_SHOW_DZ_LOGO:  ; ToDo - Optimise this
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      IX, VDP_LOGO_PATT_START ; DE = pointer to Logo patterns start
         ld      B, 88
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
 _logo_fill_patt_tab1:
         ld      A, (IX)
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     IX
         djnz    _logo_fill_patt_tab1    ; outer loop
 
@@ -233,10 +232,9 @@ _logo_fill_patt_tab1:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      IX, VDP_LOGO_PATT_START ; DE = pointer to Logo patterns start
         ld      B, 88
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
 _logo_fill_patt_tab2:
         ld      A, (IX)
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     IX
         djnz    _logo_fill_patt_tab2    ; outer loop
 
@@ -247,10 +245,10 @@ _logo_fill_patt_tab2:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      IX, VDP_LOGO_PATT_START ; DE = pointer to Logo patterns start
         ld      B, 88
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
+        ; ld      C, VDP_VRAM             ; MODE 0 (VRAM)
 _logo_fill_patt_tab3:
         ld      A, (IX)
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     IX
         djnz    _logo_fill_patt_tab3    ; outer loop
 
@@ -259,30 +257,28 @@ _logo_fill_patt_tab3:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
+        ; ld      C, VDP_VRAM             ; MODE 0 (VRAM)
         ld      A, $16                  ; Black pixels over Dark Red background
 _logo_fill_bck_clr1:
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     D
         jr      nz, _logo_fill_bck_clr1 ; inner loop
         djnz    _logo_fill_bck_clr1     ; outer loop
 
         ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
         ld      A, $1C                  ; Black pixels over Dark Green background
 _logo_fill_bck_clr2:
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     D
         jr      nz, _logo_fill_bck_clr2 ; inner loop
         djnz    _logo_fill_bck_clr2     ; outer loop
 
         ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
         ld      A, $14                  ; Black pixels over Dark Blue background
 _logo_fill_bck_clr3:
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     D
         jr      nz, _logo_fill_bck_clr3 ; inner loop
         djnz    _logo_fill_bck_clr3     ; outer loop
@@ -293,12 +289,25 @@ _logo_fill_bck_clr3:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      B, 3                   ; outer loop decrementing (768 / 256 = 3 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
 _logo_fill_name_tab:
         ld      A, (IX)                 ; White pixels over Black background
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     IX
         inc     D
         jr      nz, _logo_fill_name_tab ; inner loop
         djnz    _logo_fill_name_tab     ; outer loop
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_BYTE_TO_VRAM:
+; Writes a byte to VRAM
+; IN <= A = byte to be written
+; The VDP needs 2 microseconds to read or write a byte to its RAM
+; With the three instructions, plus the time it takes to do the call to this
+;   subroutine (call nn = 17 T States = 2.30 microsecs), we have a more than
+;   enough delay (6.24 microsecs)
+;   ld  r,n     =   7 T States      (7 / 7372800 Hz) * 1000000  = 0.95 microsecs
+;   out (C), r  =   12 T States     (12 / 7372800 Hz) * 1000000 = 1.63 microsecs
+;   ret         =   10 T States     (10 / 7372800 Hz) * 1000000 = 1.35 microsecs
+        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
+        out     (C), A
         ret

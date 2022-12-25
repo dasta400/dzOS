@@ -43,7 +43,7 @@ dzOS.2022.11.23.18.21.bin (old)
     A3010KBD now works with all alphanumeric keys, plus CapsLock, ScrollLock, Enter, Space and Backspace.
     CF Card replaced by ASMDC which contains SD Card and RTC.
 
-dzOS.2022.12.24.18.54.bin (current)
+dzOS.2022.12.24.18.54.bin (old)
     First release of Mark II, which mainly adds support for TMS9918A VDP.
     Show a logo via the Composite Video Output (VDP).
     Moved Jumpblocks to the end of the ROM address, so that it doesn't get modified everytime I change code on the BIOS and/or Kernel.
@@ -53,3 +53,5 @@ dzOS.2022.12.24.18.54.bin (current)
         Simplified Makefile
         Instead of multiple .exp files, now there is only sysvars.exp and dzOs.exp
 
+dzOS.2022.12.25.13.07.bin (current)
+    Solved bug that made the dastaZ80 logo display some artifacts.

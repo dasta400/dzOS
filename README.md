@@ -1,7 +1,7 @@
 # dzos
 
 1. [Project Status](#project-status)
-    * [Hardware](#hardware)
+    * [Hardware](#project-status)
       * [Mark I](#mark-i)
       * [Mark II](#mark-ii)
     * [Software](#software)
@@ -30,7 +30,9 @@ The OS consists of three parts:
 
 The Kernel and the CLI are hardware independent and will work on any Z80 based computer. Therefore, by adapting the BIOS code, **dzOS can easily be ported to other Z80 systems**.
 
-![dzOS v2022.12.05.18.44](https://github.com/dasta400/dzOS/blob/master/docs/dzOSv2022.12.05.18.44.png "dzOS v2022.12.05.18.44")
+![dzOS v2022.12.05.18.44](docs/dzOSv2022.12.05.18.44.png "dzOS v2022.12.05.18.44")
+
+![dastaZ80logoOnVDP](docs/dastaZ80logoOnVDP.png "dastaZ80 logo on VDP")
 
 ---
 
@@ -91,7 +93,7 @@ Same as Mark I, adding:
     * RCA female with  NTSC Composite Video output.
     * USB Type Mini-B female, for using keyboard as external keyboard of computers with USB.
 
-![dzOS v2022.07.19.13](https://github.com/dasta400/dzOS/blob/master/docs/dastaZ80BlockDiagram.png "dastaZ80 Block Diagram")
+![dzOS v2022.07.19.13](docs/dastaZ80BlockDiagram.png "dastaZ80 Block Diagram")
 
 ### Software
 
@@ -126,7 +128,7 @@ Same as Mark I, adding:
 * Message "_....Detecting RTC  [ RTC Battery needs replacement ] ....Detecting NVRAM  [ 56 Bytes ]_" lacks CarriageReturn
 * ✔ ~~Results of _cat_ command are longer than 80 columns.~~
 * _clrram_ executed after loading MS BASIC, hangs the computer.
-* There are some artifacts on the Composite Video screen, due to some bad data in the VDP's Colour Table.
+* ✔ ~~There are some artifacts on the Composite Video screen, due to some bad data in the VDP's Colour Table.~~
 
 ---
 

@@ -1193,6 +1193,20 @@
             \hline
         \end{tabular}
 
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_BYTE\_TO\_VRAM}
+        \label{func:fbiosvdpbytetovram}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Writes a byte to currently pointed VRAM cell.\\
+            \hline\textbf{Entry} & \texttt{A} = byte to be written\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{C} \\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
     \pagebreak
     % ==========================================================================
     \section{Kernel Jumpblocks}
