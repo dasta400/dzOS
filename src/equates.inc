@@ -206,8 +206,8 @@ NVRAM_CMD_DETECT            .EQU    $D0
 ; TMS9918A VDP
 ;==============================================================================
 VDP_G2_REG_0                .EQU    $02     ; Graphics II Mode, No External Video
-VDP_G2_REG_1                .EQU    $C0     ; 16K, Enable Disp., Disable Int., 8x8 Sprites, Mag. Off
-; VDP_G2_REG_1                .EQU    $E0     ; 16K, Enable Disp., Enable Int., 8x8 Sprites, Mag. Off
+; VDP_G2_REG_1                .EQU    $C0     ; 16K, Enable Disp., Disable Int., 8x8 Sprites, Mag. Off
+VDP_G2_REG_1                .EQU    $E0     ; 16K, Enable Disp., Enable Int., 8x8 Sprites, Mag. Off
 VDP_G2_REG_2                .EQU    $0E     ; Name Table = $3800
 VDP_G2_REG_3                .EQU    $FF     ; Colour Table = $2000
 VDP_G2_REG_4                .EQU    $03     ; Pattern Table = $0000
@@ -215,7 +215,7 @@ VDP_G2_REG_5                .EQU    $76     ; Sprite Attribute Table = $3B00
 VDP_G2_REG_6                .EQU    $03     ; Sprite Pattern Table = $1800
 
 VDP_G2_PATT_TAB             .EQU    $0000   ; Pattern Table
-VFP_G2_SPRP_TAB             .EQU    $1800   ; Sprite Pattern Table
+VDP_G2_SPRP_TAB             .EQU    $1800   ; Sprite Pattern Table
 VDP_G2_COLR_TAB             .EQU    $2000   ; Colour Table
 VDP_G2_NAME_TAB             .EQU    $3800   ; Name Table
 VDP_G2_SPRA_TAB             .EQU    $3B00   ; Sprite Attribute Table

@@ -123,13 +123,13 @@ KRN_INIT_VDP:
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
 
-        ; VDP VRAM test passed OK. Lets clear VRAM and show something on the screen
-        call    F_BIOS_VDP_VRAM_CLEAR
-        call    F_BIOS_VDP_SET_MODE_G2
-        call    F_BIOS_VDP_SHOW_DZ_LOGO
-
+        ; VDP VRAM test passed OK
+        call    F_BIOS_VDP_VRAM_CLEAR   ; CLear VRAM
+        call    F_BIOS_VDP_SET_MODE_G2  ; Set Graphics II Mode 
+        call    F_BIOS_VDP_SHOW_DZ_LOGO ; Show dastaZ80 Logo
+        ; call    F_BIOS_VDP_EI           ; Enable Interrupts
         ret
-_vdp_error:
+_vdp_error: ; VDP VRAM test NOT passed
         ld      HL, msg_left_brkt
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
@@ -424,6 +424,12 @@ KRN_INIT_SYSVARS:
         ; Set default File Type as 0=USR (User defined)
         ; Set loadsave address to default ($0000)
         call    F_KRN_DZFS_SET_FILE_DEFAULTS
+
+        ; Reset Jiffies counter
+        ld      IX, VDP_jiffy_byte1
+        ld      (IX + 0), 0             ; byte 1
+        ld      (IX + 1), 0             ; byte 2
+        ld      (IX + 2), 0             ; byte 3
 
         ret
 

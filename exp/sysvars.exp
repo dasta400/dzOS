@@ -45,6 +45,9 @@ SIO_CH_B_BUFFER_USED .EQU  $40a9
 SD_images_num    .EQU  $4174
 VDP_cursor_x     .EQU  $4182
 VDP_cursor_y     .EQU  $4183
+VDP_jiffy_byte1  .EQU  $4184
+VDP_jiffy_byte2  .EQU  $4185
+VDP_jiffy_byte3  .EQU  $4186
 tmp_addr1        .EQU  $417a
 tmp_addr2        .EQU  $417c
 tmp_addr3        .EQU  $417e

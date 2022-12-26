@@ -58,6 +58,8 @@ BIOS_NMI:
         push    IX
         push    IY
 
+        call    F_BIOS_VDP_JIFFY_COUNTER
+
         ld      A, (BIOS_NMI_FLAG)      ; If the flag
         cp      0                       ;   is 0,
         jp      z, BIOS_NMI_END         ;   do nothing and end the interrupt
@@ -70,12 +72,13 @@ BIOS_NMI_JP:                    .EXPORT         BIOS_NMI_JP
                                         ;   _nmi_flag byte to 1
 BIOS_NMI_END:
         ; Restore all registers
-        pop    AF
-        pop    BC
-        pop    DE
-        pop    HL
-        pop    IX
-        pop    IY
+        pop     IY
+        pop     IX
+        pop     HL
+        pop     DE
+        pop     BC
+        call    F_BIOS_VDP_READ_STATREG ; Acknowledge interrupt
+        pop     AF
         retn
 BIOS_NMI_FLAG:                  .EXPORT         BIOS_NMI_FLAG
 ; This flag enables (1) or disables (0) the second jump above that should

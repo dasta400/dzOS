@@ -74,6 +74,34 @@ BIOS_VDP_SET_REGISTER:
         out     (C), A                  ; send register to receive the value
         ret
 ;------------------------------------------------------------------------------
+BIOS_VDP_EI:
+; Enable VDP Interrupt
+; IN <= A = value used to initialise Register 1
+        set     5, A
+        ; ToDo - send value to VDP
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_DI:
+; Disable VDP Interrupt
+; IN <= A = value used to initialise Register 1
+        xor     $20                     ; Clear bit 5
+        ; ToDo - send value to VDP
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_READ_STATREG:
+; Read the read-only Status Register
+; If interrupts are enabled, the Status Register needs to be read frame-by-frame
+;   in order to clear the interrupt and receive the new interrupt for the next
+;   frame.
+; OUT => A = Status Register byte
+;               bits 0-4 = 5th Sprite Number
+;               bit 5    = Coincidence Flag
+;               bit 6    = 5th Sprite Flag
+;               bit 7    = Interrupt Flag
+        ld      C, VDP_REG
+        in      A, (C)
+        ret
+;------------------------------------------------------------------------------
 BIOS_VDP_VRAM_CLEAR:
 ; Set all cells of the VRAM ($0000-$3FFF) to zero
         ld      HL, $0000               ; HL = first address of VRAM
@@ -84,9 +112,8 @@ BIOS_VDP_VRAM_CLEAR:
         ld      B, 64                   ; outer loop decrementing
         xor     A                       ; all cells to zero
         ld      D, A                    ; inner loop incrementing (256 times)
-        ld      C, VDP_VRAM             ; MODE 0
 _clearvram:
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     D
         jr      nz, _clearvram          ; inner loop
         djnz    _clearvram              ; outer loop
@@ -105,10 +132,9 @@ BIOS_VDP_VRAM_TEST:
         ;   So do another loop with B, 16384 / 256 = 64 times
         ld      B, 64                   ; outer loop decrementing
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
 _testram_write:
         ld      A, D                    ; write same value as inner loop counter
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     D
         jr      nz, _testram_write      ; inner loop
         djnz    _testram_write          ; outer loop
@@ -119,9 +145,8 @@ _testram_write:
         ld      B, 64
         ld      HL, tmp_byte            ; Will use SYSVARS.tmp_byte
         ld      (HL), 0                 ;   as the comparator
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
 _testram_read:
-        in      A, (C)
+        call    F_BIOS_VDP_VRAM_TO_BYTE
         cp      (HL)                    ; is the same as expected?
         jp      nz, _testram_error      ; no, set error flag
         inc     (HL)                    ; yes, continue
@@ -174,10 +199,9 @@ BIOS_VDP_SET_MODE_G2:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      B, 24                   ; outer loop decrementing (6144 / 256 = 24 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
         ld      A, 0                    ; write zeros
 _ini_patt_tab:
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     D
         jr      nz, _ini_patt_tab       ; inner loop
         djnz    _ini_patt_tab           ; outer loop
@@ -187,10 +211,9 @@ _ini_patt_tab:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      B, 24                   ; outer loop decrementing (6144 / 256 = 24 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
         ld      A, $F1                  ; White pixels over Black background
 _ini_colr_tab:
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     D
         jr      nz, _ini_colr_tab       ; inner loop
         djnz    _ini_colr_tab           ; outer loop
@@ -201,10 +224,9 @@ _ini_colr_tab:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      B, 3                    ; outer loop decrementing (3 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
 _ini_name_tab:
         ld      A, D                    ; write same value as inner loop counter
-        out     (C), A
+        call    F_BIOS_VDP_BYTE_TO_VRAM
         inc     D
         jr      nz, _ini_name_tab       ; inner loop
         djnz    _ini_name_tab           ; outer loop
@@ -245,7 +267,6 @@ _logo_fill_patt_tab2:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      IX, VDP_LOGO_PATT_START ; DE = pointer to Logo patterns start
         ld      B, 88
-        ; ld      C, VDP_VRAM             ; MODE 0 (VRAM)
 _logo_fill_patt_tab3:
         ld      A, (IX)
         call    F_BIOS_VDP_BYTE_TO_VRAM
@@ -257,7 +278,6 @@ _logo_fill_patt_tab3:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ; ld      C, VDP_VRAM             ; MODE 0 (VRAM)
         ld      A, $16                  ; Black pixels over Dark Red background
 _logo_fill_bck_clr1:
         call    F_BIOS_VDP_BYTE_TO_VRAM
@@ -310,4 +330,50 @@ BIOS_VDP_BYTE_TO_VRAM:
 ;   ret         =   10 T States     (10 / 7372800 Hz) * 1000000 = 1.35 microsecs
         ld      C, VDP_VRAM             ; MODE 0 (VRAM)
         out     (C), A
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_VRAM_TO_BYTE:
+; Read a byte from VRAM
+; OUT => A = read byte
+        ld      C, VDP_VRAM             ; MODE 0 (VRAM)
+        in      A, (C)
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_JIFFY_COUNTER:
+; A Jiffy is time the between two ticks of the system timer interrupt.
+; On the dastaZ80, this timer is generated by the TMS9918A at roughly each
+;   1/60th second.
+; This counter is made of 3 bytes. Byte 1 is incremented in each VDP interrupt.
+;   Once it rolls over (256 increments), the byte 2 is incremented. Once the
+;   byte 2 rolls over, the byte 3 is incremented.
+;   Once the three bytes together (24-bit) reach the value 0x4F1A00, the three
+;   bytes are initialised to 0.
+; 0x4F1A00 (5,184,000) is the number of jiffies in 24 hours:
+;   24h x 60 minutes in an hour x 60 seconds in a minute x 60 jiffies in a second
+; Here we need speed, so we do all jumps with jp instead of jr
+_jiffy_loop:
+        ld      IX, VDP_jiffy_byte1
+        inc     (IX)                    ; increment byte 1
+        ld      A, (IX)                 ; if it didn't
+        cp      0                       ;   roll over
+        jp      nz, _nomoreinc          ;   do not touch the other bytes
+        inc     (IX + 1)                ; increment byte 2
+        ld      A, (IX + 1)             ; if it didn't
+        cp      0                       ;   roll over
+        jp      nz, _nomoreinc          ;   do not touch the other byte
+        inc     (IX + 2)                ; increment byte 3
+_nomoreinc:
+        ; Check if we reached the end of the 24h counter (0x4F1A00)
+        scf
+        ld      A, (IX + 1)
+        sbc     A, $1A
+        ld      A, (IX + 2)
+        sbc     A, $4F
+        jp      nc, _reset_jiffies      ; 24h reached, reset bytes to zero
+        jp      _jiffy_end              ; not reached
+_reset_jiffies:
+        ld      (IX), 0
+        ld      (IX + 1), 0
+        ld      (IX + 2), 0
+_jiffy_end:
         ret

@@ -176,6 +176,12 @@ VDP_cursor_x:                   .EXPORT         VDP_cursor_x
                 .BYTE   0
 VDP_cursor_y:                   .EXPORT         VDP_cursor_y
                 .BYTE   0
+VDP_jiffy_byte1:                .EXPORT         VDP_jiffy_byte1
+                .BYTE   0                       ; Jiffy counter
+VDP_jiffy_byte2:                .EXPORT         VDP_jiffy_byte2
+                .BYTE   0                       ; Jiffy counter
+VDP_jiffy_byte3:                .EXPORT         VDP_jiffy_byte3
+                .BYTE   0                       ; Jiffy counter
 
 ;==============================================================================
 ; END of CODE
