@@ -105,7 +105,6 @@ KRN_SERIAL_WRSTR:
         call    F_BIOS_SERIAL_CONOUT_A  ; otherwise, print it
         inc     HL                      ; pointer to next character of the string
         jr      KRN_SERIAL_WRSTR        ; repeat (until character = 00h)
-        ; ret
 ;------------------------------------------------------------------------------
 KRN_SERIAL_WR6DIG_NOLZEROS:
 ; Output to the Console a string of ASCII characters representing number
@@ -136,7 +135,7 @@ KRN_SERIAL_RDCHARECHO:
 ; Read a character from Console and outputs to the Screen
 ; Read character is stored in register A
         call    F_BIOS_SERIAL_CONIN_A   ; Read character
-        cp      $80                     ; Break/Pause key (Clear Screen)
+        cp      CLRSCR                  ; Break/Pause key (Clear Screen)
         jp      z, KRN_SERIAL_CLRSCR
         call    F_BIOS_SERIAL_CONOUT_A  ; Echo it
         ret
@@ -232,6 +231,23 @@ KRN_SERIAL_SEND_ANSI_CODE:
         call    F_BIOS_SERIAL_CONOUT_A
         inc     DE
         djnz    KRN_SERIAL_SEND_ANSI_CODE
+        ret
+;------------------------------------------------------------------------------
+KRN_SERIAL_CLR_SIOCHA_BUFFER:
+; Clear (sets to zeros) the SIO Channel A Buffer
+        ld      HL, SIO_CH_A_BUFFER
+        ld      B, 64                   ; Buffer is 64 bytes
+        ld      A, 0                    ; set to zeros
+_clr_sioa_buffer:
+        ld      (HL), A
+        inc     HL
+        djnz    _clr_sioa_buffer
+
+        ; Initialise Channel A buffer
+        ld      (SIO_CH_A_BUFFER_USED), A
+        ld      HL, SIO_CH_A_BUFFER
+        ld      (SIO_CH_A_IN_PTR), HL
+        ld      (SIO_CH_A_RD_PTR), HL
         ret
 ;==============================================================================
 ; ANSI escape codes for Serial (https://en.wikipedia.org/wiki/ANSI_escape_code)

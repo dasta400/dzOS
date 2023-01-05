@@ -7,7 +7,7 @@
 ;
 ; Version 1.0.0
 ; Created on 03 Jan 2018
-; Last Modification 21 Jun 2022
+; Last Modification 31 Dec 2022
 ;******************************************************************************
 ; CHANGELOG
 ; -
@@ -54,6 +54,8 @@ SIO_CH_A_IN_PTR:                .EXPORT         SIO_CH_A_IN_PTR
 SIO_CH_A_RD_PTR:                .EXPORT         SIO_CH_A_RD_PTR
             .BYTE       0, 0
 SIO_CH_A_BUFFER_USED:           .EXPORT         SIO_CH_A_BUFFER_USED
+            .BYTE       0
+SIO_CH_A_LASTCHAR:              .EXPORT         SIO_CH_A_LASTCHAR
             .BYTE       0
 SIO_CH_B_BUFFER:                .EXPORT         SIO_CH_B_BUFFER
             .FILL       SIO_BUFFER_SIZE, 0

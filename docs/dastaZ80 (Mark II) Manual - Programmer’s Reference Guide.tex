@@ -200,19 +200,19 @@
         \hline
         \hline
         \texttt{0x0000} & \texttt{0x0007} & Cold Boot & \textbf{\multirow{3}{4em}{BIOS}} & 8 \\
-        \texttt{0x0008} & \texttt{0x0216} & init SIO/2 & & 527 \\
-        \texttt{0x0217} & \texttt{0x133F} & BIOS code & & 4,393 \\
+        \texttt{0x0008} & \texttt{0x0206} & init SIO/2 & & 511 \\
+        \texttt{0x0207} & \texttt{0x133F} & BIOS code & & 4,409 \\
         \hline
-        \texttt{0x1340} & \texttt{0x2663} & Kernel code & \textbf{\multirow{2}{4em}{Kernel}} & 4,900 \\
-        \texttt{0x2653} & \texttt{0x2663} & dzOS version build & & 17 \\
+        \texttt{0x1340} & \texttt{0x26C7} & Kernel code & \textbf{\multirow{2}{4em}{Kernel}} & 5,000 \\
+        \texttt{0x26B7} & \texttt{0x26C7} & dzOS version build & & 17 \\
         \hline
-        \texttt{0x2664} & \texttt{0x3A24} & CLI code & \textbf{CLI} & 5,057 \\
+        \texttt{0x26C8} & \texttt{0x3A88} & CLI code & \textbf{CLI} & 5,057 \\
         \hline
-        \texttt{0x3A25} & \texttt{0x3A52} & Bootstrap & \textbf{BOOTSTRAP} & 46 \\
+        \texttt{0x3A89} & \texttt{0x3AB6} & Bootstrap & \textbf{BOOTSTRAP} & 46 \\
         \hline
-        \texttt{0x3A53} & \texttt{0x3DAA} & VDP dastaZ80 Logo & & 856 \\
+        \texttt{0x3AB7} & \texttt{0x3E0E} & VDP dastaZ80 Logo & & 856 \\
         \hline
-        \texttt{0x3E7A} & \texttt{0x3EFD} & BIOS Jumpblock & \textbf{\multirow{2}{4em}{Jumpblocks}} & 132 \\
+        \texttt{0x3E4A} & \texttt{0x3EFD} & BIOS Jumpblock & \textbf{\multirow{2}{4em}{Jumpblocks}} & 180 \\
         \texttt{0x3EFE} & \texttt{0x3FFF} & Kernel Jumpblock & & 258 \\
         \hline
     \end{tabular}
@@ -246,10 +246,10 @@
         & \multicolumn{2}{|l|}{\textbf{Stack}} & 32\\
         \hline
         \texttt{0x4020} & \texttt{0x4174} 
-        & \multicolumn{2}{|l|}{\textbf{System Variables}} & 359\\
+        & \multicolumn{2}{|l|}{\textbf{System Variables}} & 360\\
         \hline
-        \texttt{0x4184} & \texttt{0x421F} 
-        & \multicolumn{2}{|l|}{\textbf{Reserved for future use}} & 153\\
+        \texttt{0x4188} & \texttt{0x421F} 
+        & \multicolumn{2}{|l|}{\textbf{Reserved for future use}} & 152\\
         \hline
         \texttt{0x4220} & \texttt{0x441F} 
         & \multicolumn{2}{|l|}{\textbf{DISK Buffer}} & 512\\
@@ -295,35 +295,36 @@
             \item \texttt{0x4060} - \textbf{SIO\_CH\_A\_IN\_PTR} (2 bytes)
             \item \texttt{0x4062} - \textbf{SIO\_CH\_A\_RD\_PTR} (2 bytes)
             \item \texttt{0x4064} - \textbf{SIO\_CH\_A\_BUFFER\_USED} (1 byte)
-            \item \texttt{0x4065} - \textbf{SIO\_CH\_B\_BUFFER} (64 bytes):
+            \item \texttt{0x4065} - \textbf{SIO\_CH\_A\_LASTCHAR} (1 bytes)
+            \item \texttt{0x4066} - \textbf{SIO\_CH\_B\_BUFFER} (64 bytes):
             Buffer for SIO Channel B.
-            \item \texttt{0x40A5} - \textbf{SIO\_CH\_B\_IN\_PTR} (2 bytes)
-            \item \texttt{0x40A7} - \textbf{SIO\_CH\_B\_RD\_PTR} (2 bytes)
-            \item \texttt{0x40A9} - \textbf{SIO\_CH\_B\_BUFFER\_USED} (1 byte)
+            \item \texttt{0x40A6} - \textbf{SIO\_CH\_B\_IN\_PTR} (2 bytes)
+            \item \texttt{0x40A6} - \textbf{SIO\_CH\_B\_RD\_PTR} (2 bytes)
+            \item \texttt{0x40AA} - \textbf{SIO\_CH\_B\_BUFFER\_USED} (1 byte)
         \end{itemize}
         \item \textbf{DISK Superblock}
         \begin{itemize}
-            \item \texttt{0x40AA} - \textbf{DISK\_is\_formatted} (1 byte): tells
+            \item \texttt{0x40AB} - \textbf{DISK\_is\_formatted} (1 byte): tells
             to the OS if the \textbf{DISK} can be used.
             \begin{itemize}
                 \item \texttt{0xFF} = formatted with \textit{DZFS}.
                 \item \texttt{0x00} = not formatted.
             \end{itemize}
-            \item \texttt{0x40AB} - \textbf{DISK\_show\_deleted} (1 byte)
+            \item \texttt{0x40AC} - \textbf{DISK\_show\_deleted} (1 byte)
             \begin{itemize}
                 \item \texttt{0x00} = do not show deleted files in \textit{cat}
                 command results.
                 \item \texttt{0x01} = show also deleted files in \textit{cat}
                 command results.
             \end{itemize}
-            \item \texttt{0x40AC} - \textbf{DISK\_cur\_sector} (2 bytes): current
+            \item \texttt{0x40AD} - \textbf{DISK\_cur\_sector} (2 bytes): current
             Sector being used by the OS.
         \end{itemize}
         \item \textbf{DISK BAT}
         \begin{itemize}
-            \item \texttt{0x40AE} - \textbf{DISK\_cur\_file\_name} (14 bytes): 
+            \item \texttt{0x40AF} - \textbf{DISK\_cur\_file\_name} (14 bytes): 
             Filename of file currently being load or saved.
-            \item \texttt{0x40BC} - \textbf{DISK\_cur\_file\_attribs} (1 byte):
+            \item \texttt{0x40BD} - \textbf{DISK\_cur\_file\_attribs} (1 byte):
             Attributes of file currently being load or saved.
             \begin{itemize}
                 \item Bit 0: if set, file is Read Only.
@@ -334,90 +335,90 @@
                 \item Bit 3: if set, file is Executable.
                 \item Bits 4-7: not used.
             \end{itemize}
-            \item \texttt{0x40BD} - \textbf{DISK\_cur\_file\_time\_created} (2
+            \item \texttt{0x40BE} - \textbf{DISK\_cur\_file\_time\_created} (2
             bytes): time when currently being load or saved file was created.
-            \item \texttt{0x40BE} - \textbf{DISK\_cur\_file\_date\_created} (2
+            \item \texttt{0x40C0} - \textbf{DISK\_cur\_file\_date\_created} (2
             bytes): date when currently being load or saved file was created.
-            \item \texttt{0x40C1} - \textbf{DISK\_cur\_file\_time\_modified} (2
+            \item \texttt{0x40C2} - \textbf{DISK\_cur\_file\_time\_modified} (2
             bytes): time when currently being load or saved file was last modified.
-            \item \texttt{0x40C3} - \textbf{DISK\_cur\_file\_date\_modified} (2
+            \item \texttt{0x40C4} - \textbf{DISK\_cur\_file\_date\_modified} (2
             bytes): date when currently being load or saved file was last modified.
-            \item \texttt{0x40C5} - \textbf{DISK\_cur\_file\_size\_bytes} (2
+            \item \texttt{0x40C6} - \textbf{DISK\_cur\_file\_size\_bytes} (2
             bytes): size in bytes of file currently being load or saved.
-            \item \texttt{0x40C7} - \textbf{DISK\_cur\_file\_size\_sectors} (1
+            \item \texttt{0x40C8} - \textbf{DISK\_cur\_file\_size\_sectors} (1
             byte): size in sectors of file currently being load or saved.
-            \item \texttt{0x40C8} - \textbf{DISK\_cur\_file\_entry\_number} (2
+            \item \texttt{0x40C9} - \textbf{DISK\_cur\_file\_entry\_number} (2
             bytes): entry number in the BAT, of file currently being load or
             saved.
-            \item \texttt{0x40CA} - \textbf{DISK\_cur\_file\_1st\_sector} (2
+            \item \texttt{0x40CB} - \textbf{DISK\_cur\_file\_1st\_sector} (2
             bytes): sector number, of the first sector, where the bytes of file
             currently being load or saved are stored in the \textbf{DISK}.
-            \item \texttt{0x40CC} - \textbf{DISK\_cur\_file\_load\_addr} (2
+            \item \texttt{0x40CD} - \textbf{DISK\_cur\_file\_load\_addr} (2
             bytes): address where the bytes of file currently being load will be
             stored in \textbf{RAM}.
         \end{itemize}
         \item \textbf{CLI}: buffers used by CLI to store temporary data.
         \begin{itemize}
-            \item \texttt{0x40CE} - \textbf{CLI\_prompt\_addr} (2 bytes): The
+            \item \texttt{0x40CF} - \textbf{CLI\_prompt\_addr} (2 bytes): The
             address of the CLI Prompt subroutine. Programs that need to return
             control to CLI on exit, MUST jump to the address stored here.
-            \item \texttt{0x40D0} - \textbf{CLI\_buffer} (6 bytes): generic
+            \item \texttt{0x40D1} - \textbf{CLI\_buffer} (6 bytes): generic
             buffer.
-            \item \texttt{0x40D6} - \textbf{CLI\_buffer\_cmd} (16 bytes): when a
+            \item \texttt{0x40D7} - \textbf{CLI\_buffer\_cmd} (16 bytes): when a
             user enters a command and its parameters, the command alone is
             stored here.
-            \item \texttt{0x40E6} - \textbf{CLI\_buffer\_parm1\_val} (16 bytes):
+            \item \texttt{0x40E7} - \textbf{CLI\_buffer\_parm1\_val} (16 bytes):
             when a user enters a command and its parameters, the first parameter
             is stored here.
-            \item \texttt{0x40F6} - \textbf{CLI\_buffer\_parm2\_val} (16 bytes):
+            \item \texttt{0x40F7} - \textbf{CLI\_buffer\_parm2\_val} (16 bytes):
             when a user enters a command and its parameters, the second parameter
             is stored here.
-            \item \texttt{0x4106} - \textbf{CLI\_buffer\_pgm} (32 bytes): generic
+            \item \texttt{0x4107} - \textbf{CLI\_buffer\_pgm} (32 bytes): generic
             buffer.
-            \item \texttt{0x4126} - \textbf{CLI\_buffer\_full\_cmd} (64 bytes):
+            \item \texttt{0x4127} - \textbf{CLI\_buffer\_full\_cmd} (64 bytes):
             when a user enters a command and its parameters, the entire line
             entered by the user is stored here. This is useful for passing
             parameters to programs called with \textit{run} command.
         \end{itemize}
         \item \textbf{RTC}
         \begin{itemize}
-            \item \texttt{0x4166} - \textbf{RTC\_hour} (1 byte): 24h format,
+            \item \texttt{0x4167} - \textbf{RTC\_hour} (1 byte): 24h format,
             in hexadecimal (\texttt{0x00}-\texttt{0x17}).
-            \item \texttt{0x4167} - \textbf{RTC\_minutes} (1 byte): in
+            \item \texttt{0x4168} - \textbf{RTC\_minutes} (1 byte): in
             hexadecimal (\texttt{0x00}-\texttt{0x3B}).
-            \item \texttt{0x4168} - \textbf{RTC\_seconds} (1 byte): in
+            \item \texttt{0x4169} - \textbf{RTC\_seconds} (1 byte): in
             hexadecimal (\texttt{0x00}-\texttt{0x3B}).
-            \item \texttt{0x4169} - \textbf{RTC\_century} (1 byte): 20 part of
+            \item \texttt{0x416A} - \textbf{RTC\_century} (1 byte): 20 part of
             year 20xx, in hexadecimal (\texttt{0x14} = 20).
-            \item \texttt{0x416A} - \textbf{RTC\_year} (1 byte): xx part of
+            \item \texttt{0x416B} - \textbf{RTC\_year} (1 byte): xx part of
             year 20xx, in hexadecimal (e.g. \texttt{0x16} = 22). The \textbf{RTC}
             supports until 2079, therefore maximum value is \texttt{0x4F}.
-            \item \texttt{0x416B} - \textbf{RTC\_year4} (2 bytes): four digit
+            \item \texttt{0x416C} - \textbf{RTC\_year4} (2 bytes): four digit
             year, in hexadecimal (e.g. \texttt{0x07E6} = 2022). The \textbf{RTC}
             supports until 2079, therefore maximum value is \texttt{0x081F}.
-            \item \texttt{0x416D} - \textbf{RTC\_month} (1 byte): in
+            \item \texttt{0x416E} - \textbf{RTC\_month} (1 byte): in
             hexadecimal (\texttt{0x00}-\texttt{0x0C}).
-            \item \texttt{0x416E} - \textbf{RTC\_day} (1 byte): in hexadecimal
+            \item \texttt{0x416F} - \textbf{RTC\_day} (1 byte): in hexadecimal
             (\texttt{0x00}-\texttt{0x1F}).
-            \item \texttt{0x416F} - \textbf{RTC\_day\_of\_the\_week} (1 byte):
+            \item \texttt{0x4170} - \textbf{RTC\_day\_of\_the\_week} (1 byte):
             \texttt{0x00}=Sunday, \texttt{0x01}=Monday, \texttt{0x02}=Tuesday,
             \texttt{0x03}=Wednesday, \texttt{0x04}=Thursday, \texttt{0x05}=
             Friday, \texttt{0x06}=Saturday
         \end{itemize}
         \item \textbf{Math}
         \begin{itemize}
-            \item \texttt{0x4170} - \texttt{MATH\_CRC} (2 bytes): CRC-16 CRC.
-            \item \texttt{0x4172} - \texttt{MATH\_polynomial} (2 bytes): CRC-16
+            \item \texttt{0x4171} - \texttt{MATH\_CRC} (2 bytes): CRC-16 CRC.
+            \item \texttt{0x4173} - \texttt{MATH\_polynomial} (2 bytes): CRC-16
             Polynomial.
         \end{itemize}
         \item \textbf{Generic}
         \begin{itemize}
-            \item \texttt{0x4174} - \textbf{SD\_images\_num} (1 byte): number
+            \item \texttt{0x4175} - \textbf{SD\_images\_num} (1 byte): number
             of Disk Image Files found by \textbf{ASMDC}.
             \item \texttt{0x4175} - \textbf{DISK\_current} (1 byte): current 
             \textbf{DISK} unit active. All disk operations will be on this
             \textbf{DISK}.
-            \item \texttt{0x4176} - \textbf{DISK\_status} (1 byte): status of
+            \item \texttt{0x4177} - \textbf{DISK\_status} (1 byte): status of
             the \textbf{FDD}.
             \begin{itemize}
                 \item Low Nibble (\texttt{0x00} if all OK)
@@ -429,7 +430,7 @@
                 \end{itemize}
                 \item High Nibble: error code of last operation.
             \end{itemize}
-            \item \texttt{0x4176} - \textbf{DISK\_status} (1 byte): status of
+            \item \texttt{0x4177} - \textbf{DISK\_status} (1 byte): status of
             the \textbf{SD card}.
             \begin{itemize}
                 \item Low Nibble (\texttt{0x00} if all OK)
@@ -441,33 +442,33 @@
                 \end{itemize}
                 \item High Nibble: number of Disk Image Files found.
             \end{itemize}
-            \item \texttt{0x4177} - \textbf{DISK\_file\_type} (1 byte): File
+            \item \texttt{0x4178} - \textbf{DISK\_file\_type} (1 byte): File
             Type when creating (\textit{save}) next file.
-            \item \texttt{0x4178} - \textbf{DISK\_loadsave\_addr} (2 bytes): see
+            \item \texttt{0x4179} - \textbf{DISK\_loadsave\_addr} (2 bytes): see
             \hyperref[sec:howto_readdata]{Read data from DISK} and 
             \hyperref[sec:howto_writedata]{Write data to DISK}.
-            \item \texttt{0x417A} - \textbf{tmp\_addr1} (2 bytes): temporary
+            \item \texttt{0x417B} - \textbf{tmp\_addr1} (2 bytes): temporary
             storage for an address.
-            \item \texttt{0x417C} - \textbf{tmp\_addr2} (2 bytes): temporary
+            \item \texttt{0x417D} - \textbf{tmp\_addr2} (2 bytes): temporary
             storage for an address.
-            \item \texttt{0x417E} - \textbf{tmp\_addr3} (2 bytes): temporary
+            \item \texttt{0x417F} - \textbf{tmp\_addr3} (2 bytes): temporary
             storage for an address.
-            \item \texttt{0x4180} - \textbf{tmp\_byte} (1 byte): temporary
+            \item \texttt{0x4181} - \textbf{tmp\_byte} (1 byte): temporary
             storage for a byte.
-            \item \texttt{0x4181} - \textbf{tmp\_byte2} (1 byte): temporary
+            \item \texttt{0x4182} - \textbf{tmp\_byte2} (1 byte): temporary
             storage for a byte.
         \end{itemize}
         \item \textbf{VDP}
         \begin{itemize}
-            \item \texttt{0x4182} - \textbf{VDP\_cursor\_x} (1 byte): Current
+            \item \texttt{0x4183} - \textbf{VDP\_cursor\_x} (1 byte): Current
             horizontal position of the cursor on the VDP screen.
-            \item \texttt{0x4183} - \textbf{VDP\_cursor\_y} (1 byte): Current
+            \item \texttt{0x4184} - \textbf{VDP\_cursor\_y} (1 byte): Current
             vertical position of the cursor on the VDP screen.
-            \item \texttt{0x4184} - \textbf{VDP\_jiffy\_byte1} (1 byte):
+            \item \texttt{0x4185} - \textbf{VDP\_jiffy\_byte1} (1 byte):
             \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 1.
-            \item \texttt{0x4185} - \textbf{VDP\_jiffy\_byte2} (1 byte):
+            \item \texttt{0x4186} - \textbf{VDP\_jiffy\_byte2} (1 byte):
             \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 2.
-            \item \texttt{0x4186} - \textbf{VDP\_jiffy\_byte3} (1 byte):
+            \item \texttt{0x4187} - \textbf{VDP\_jiffy\_byte3} (1 byte):
             \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 3.
         \end{itemize}
     \end{itemize}
@@ -506,6 +507,10 @@
         \hline
         \textbf{ROM / RAM} & \texttt{0x38} & ROM Paging\\
         \hline
+        \multirow{2}{*}{\textbf{Joystick Ports}} & \texttt{0x40} 
+        & Joystick 1\\
+        & \texttt{0x41} & Joystick 2\\
+        \hline
         \multirow{4}{*}{\textbf{SIO}} & \texttt{0x80} & Channel A Control\\
         & \texttt{0x81} & Channel A Data\\
         & \texttt{0x82} & Channel B Control\\
@@ -524,8 +529,9 @@
 
     The chip used for the generation of the Composite Video (the Texas
     Instruments TMS9918A) generates an interrupt at the end of each
-    active-display scan (also known as \textit{raster interrupt}), which is
-    about every 1/60th second, by setting the \textit{/INT} active low pin.
+    active-display scan (also known as \textit{raster interrupt} or 
+    \textit{VBLANK interrupt}), which is about every 1/60th second, by setting
+    the \textit{/INT} active low pin.
 
     But this chip doesn't have the \textit{priority daisy-chain} feature of, for
     example the SIO/2 and other Zilog chips, and when raising an interrupt to
@@ -544,23 +550,42 @@
     enable and disable a jump to their own subroutine. For example, a video game
     playing a tune will need to update the \textbf{PSG} in an interrupt basis.
 
-    The code works as follows:
+    The NMI Interrupt code works as follows:
 
     \begin{itemize}
         \item First, all \textbf{CPU} registers are saved (with \textit{PUSH}).
+        \item Next, it calls \hyperref[func:fbiosvdpjiffycounter]
+        {F\_BIOS\_VDP\_JIFFY\_COUNTER}, that increments the
+        \hyperref[subsec:jiffy_counter]{Jiffy Counter}.
         \item Next, the subroutine checks the byte stored at
-        \textit{BIOS\_NMI\_FLAG}. This byte emulates the Enable Interrupt
-        (\textit{EI}) and Disable Interrupt (\textit{DI}) that the \textbf{CPU}
-        has for Maskable Interrupts.
+        \textit{BIOS\_NMI\_FLAG}. This allows for a user defined subroutine to
+        be called on each interrupt.
         \begin{itemize}
-            \item If the byte is equal to zero (i.e. disabled), it will restore
-            all previously saved \textbf{CPU} registers, and finish the
-            subroutine with a Return from non maskable interrupt (\textit{RETN}).
-            \item If the byte is equal to one (i.e. enabled), it will jump to
+            \item If the byte is equal to 1 (i.e. enabled), it will jump to
             whatever address is stored in the bytes 2 and 3 of
             \textit{BIOS\_NMI\_JP}
         \end{itemize}
+        \item Next, it will restore the \textbf{CPU} registers \texttt{IY}, 
+        \texttt{IX}, \texttt{HL} and \texttt{DE}.
+        \item Next, it will check if the NMI interrupts are enabled, in which
+        case will acknowledge the interrupt by calling
+        \hyperref[func:fbiosvdpreadstatreg]{F\_BIOS\_VDP\_READ\_STATREG}
+        \item Finally, will restore the \textbf{CPU} registers \texttt{BC} and 
+        \texttt{AF}
     \end{itemize}
+
+    To check if NMI interrupts are enabled or disabled, the subroutine uses a
+    byte that emulates the Enable Interrupt (\textit{EI}) and Disable Interrupt
+    (\textit{DI}) that the \textbf{CPU} has for Maskable Interrupts.
+
+    Important to notice is that if NMI interrupts are disabled two things will
+    happen:
+    \begin{enumerate}
+        \item The \hyperref[subsec:jiffy_counter]{Jiffy Counter} will stop.
+        \item The NMI Interrupt subroutine will not be called anymore until
+        NMI interrupts are enabled again, with a call to
+        \hyperref[func:fbiosvdpei]{F\_BIOS\_VDP\_EI}
+    \end{enumerate}
 
     In summary, if you want your program to perform any actions each time the
     \textbf{VDP} raises an interrupt (i.e. each 1/60th second), do the following:
@@ -609,15 +634,13 @@
     \label{func:fbiosnmiflag}
     % ==========================================================================
 
-    This is the address of a single byte that emulates the Enable Interrupt
-    (\textit{EI}) and Disable Interrupt (\textit{DI}) that the \textbf{CPU}
-    has for Maskable Interrupts.
+    This is the address of a single byte that enables the jump to the subroutine
+    at address \hyperref[func:fbiosnmijp]{F\_BIOS\_NMI\_JP}
 
-    By setting this byte to 1, the NMI subroutine will execute the jump at
-    \hyperref[func:fbiosnmijp]{BIOS\_NMI\_JP}.
+    By setting this byte to 1, the NMI subroutine will execute the jump.
 
-    By setting this byte to 0, the NMI subroutine will execute the
-    \hyperref[func:fbiosnmiend]{F\_BIOS\_NMI\_END}.
+    By setting this byte to 0, the NMI subroutine will skip the hump and just
+    execute the \hyperref[func:fbiosnmiend]{F\_BIOS\_NMI\_END}.
 
     % ==========================================================================
     \subsection{General Routines}
@@ -1073,9 +1096,9 @@
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
-            & Asks the \textbf{ASMDC} if the NVRAM is present. \\
+            & Asks the \textbf{ASMDC} if the \textbf{NVRAM} is present. \\
             \hline\textbf{Entry} & None \\
-            \hline\textbf{Exit} & length (in bytes) of the NVRAM, or
+            \hline\textbf{Exit} & length (in bytes) of the \textbf{NVRAM}, or
             \texttt{0xFF} if not detected.\\
             \hline\textbf{Destroys} & \texttt{A} \\
             \hline\multirow[t]{2}{4em}{\textbf{Calls}}
@@ -1136,13 +1159,17 @@
         \label{func:fbiosvdpei}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
-            \hline\textbf{Action}
-            & Enable VDP Interrupt. \\
-            \hline\textbf{Entry} & \texttt{A} = value used to initialise VDP's
-            Register 1.\\
+            \hline\multirow[t]{2}{4em}{\textbf{Action}}& Enable \textbf{VDP}
+            Interrupts.\\
+            & This is independent of the value (bit 5) in the \textbf{VDP}
+            \textit{Register 1}. What this does is that the NMI subroutine reads
+            the \textbf{VDP} \textit{Status Register} again in each run, and
+            therefore it does allow more interrupts to happen.\\
+            \hline\textbf{Entry} & None\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}\\
-            \hline\textbf{Calls} & None\\
+            \hline\textbf{Calls} & \hyperref[func:fbiosvdpreadstatreg]
+            {F\_BIOS\_VDP\_READ\_STATREG}\\
             \hline
         \end{tabular}
 
@@ -1151,10 +1178,15 @@
         \label{func:fbiosvdpdi}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
-            \hline\textbf{Action}
-            & Disable VDP Interrupt. \\
-            \hline\textbf{Entry} & \texttt{A} = value used to initialise VDP's
-            Register 1.\\
+            \hline\multirow[t]{3}{4em}{\textbf{Action}}& Disable \textbf{VDP}
+            Interrupts.\\
+            & This is independent of the value (bit 5) in the \textbf{VDP}
+            \textit{Register 1}. What this does is that the NMI subroutine does
+            not read the \textbf{VDP} \textit{Status Register} anymore, and
+            therefore does not allow more interrupts to happen.\\
+            & \textbf{IMPORTANT}: Disabling \textbf{VDP} Interrupts will stop
+            the \hyperref[subsec:jiffy_counter]{Jiffy Counter}.\\
+            \hline\textbf{Entry} & None\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}\\
             \hline\textbf{Calls} & None\\
@@ -1166,12 +1198,13 @@
         \label{func:fbiosvdpreadstatreg}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
-            \hline\textbf{Action}
-            & Read the read-only Status Register. \textbf{IMPORTANT}: Reading
-            the VDP Status Register clears (acknowledges) the VDP Interrupt.
-            This is already done by the \textit{BIOS\_NMI} subroutine, so this
-            function MUST not be used. It is only documented here for
-            completeness.\\
+            \hline\multirow[t]{2}{4em}{\textbf{Action}}& Read the read-only
+            \textbf{VDP} \textit{Status Register}.\\
+            & \textbf{IMPORTANT}: Reading the \textbf{VDP} \textit{Status
+            Register} clears (acknowledges) the \textbf{VDP} Interrupt. This is
+            already done by the BIOS' NMI subroutine, so this function MUST not
+            be used, unless NMI subroutines have been disabled with
+            \hyperref[func:fbiosvdpdi]{F\_BIOS\_VDP\_DI}\\
             \hline\textbf{Entry} & None\\
             \hline\textbf{Exit} & \texttt{A} = Status Register byte.\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{C}\\
@@ -1287,6 +1320,68 @@
             \hline\textbf{Destroys} & \texttt{A}, \texttt{IX},
             \texttt{VDP\_jiffy\_byte1}, \texttt{VDP\_jiffy\_byte2},
             \texttt{VDP\_jiffy\_byte3}\\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_VBLANK\_WAIT}
+        \label{func:fbiosvdpvblankwait}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Test \textit{Status Register} for \textit{Interrupt Flag}
+            (\texttt{0x80}) and loop until flag is raised.\\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}\\
+            \hline\textbf{Calls} & 
+            \hyperref[func:fbiosvdpreadstatreg]{F\_BIOS\_VDP\_READ\_STATREG}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_LDIR\_VRAM}
+        \label{func:fbiosvdpldirvram}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Block transfer from \textbf{RAM} to \textbf{VRAM}.\\
+            \hline\multirow[t]{2}{4em}{\textbf{Entry}} & \texttt{BC} = Block 
+            length (total number of bytes to copy)\\
+            & \texttt{HL} = Start address of \textbf{VRAM}\\
+            & \texttt{DE} = Start address of \textbf{RAM}\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
+            \texttt{HL}, \texttt{tmp\_byte}\\
+            \hline\multirow[t]{3}{4em}{\textbf{Call}}
+            & \hyperref[func:fkrndiv1616]{F\_KRN\_DIV1616}\\
+            & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
+            & \hyperref[func:fbiosvdpbytetovram]{F\_BIOS\_VDP\_BYTE\_TO\_VRAM}\\
+            \hline
+        \end{tabular}
+
+    % ==========================================================================
+    \subsection{Dual Joystick Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_JOYS\_GET\_STAT}
+        \label{func:fbiosjoysgetstat}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Get status of Joysticks. \\
+            \hline\textbf{Entry} & \texttt{A} = \textbf{Joystick Port} to get
+            status from (1=JOY1, 2=JOY2).\\
+            \hline\textbf{Exit} & \texttt{A}\\
+            & \texttt{0x00} = None\\
+            & \texttt{0x01} = Up\\
+            & \texttt{0x02} = Down\\
+            & \texttt{0x04} = Left\\
+            & \texttt{0x08} = Right\\
+            & \texttt{0x10} = Fire\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{C} \\
             \hline\textbf{Calls} & None\\
             \hline
         \end{tabular}
@@ -1511,6 +1606,22 @@
             \hline\textbf{Destroys} & \texttt{A}, \texttt{DE} \\
             \hline\textbf{Calls}
             & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_SERIAL\_CLR\_SIOCHA\_BUFFER}
+        \label{func:fkrnserialclrsiochabuffer}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Clear (sets to zeros) the SIO Channel A Buffer. \\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL},
+            \texttt{SIO\_CH\_A\_BUFFER\_USED}, \texttt{SIO\_CH\_A\_IN\_PTR},
+            \texttt{SIO\_CH\_A\_RD\_PTR}\\
+            \hline\textbf{Calls} & None\\
             \hline
         \end{tabular}
 
@@ -2858,8 +2969,8 @@
     Dates (day, month, 4-digit year) are converted into two bytes as follows:
 
     \begin{itemize}
-        \item Remove century from year (e.g. $2022 - 2000 = 22$)
-        \item Convert resulting number to hexadecimal (e.g. 22 = \texttt{0x0D})
+        \item Remove century from year (e.g. $2013 - 2000 = 13$)
+        \item Convert resulting number to hexadecimal (e.g. 13 = \texttt{0x0D})
         \item Bitwise Shift Left 9 positions (e.g. \texttt{0x0D} \(\ll\) 9 = 
         \texttt{0x1A00})
         \item Convert month to hexadecimal (e.g. 11 = \texttt{0x0B})
@@ -2909,26 +3020,61 @@
 
     Below is provided a table for quick reference:
 
-    \begin{tabular}{ |m{1.3cm}m{1.3cm}m{2.2cm}|l|m{1.3cm}m{1.3cm}m{2.2cm}|>{\raggedleft\arraybackslash}m{2cm}| }
+    % \begin{tabular}{ |m{1.3cm}m{1.3cm}m{2.2cm}|l|m{1.3cm}m{1.3cm}m{2.2cm}|>{\raggedleft\arraybackslash}m{2cm}| }
+    %     \hline
+    %     \rowcolor{lightgray}
+    %     Block & SecNum & Address & & Block & SecNum & Address\\
+    %     \hline
+    %     \hline
+    %     0 (\texttt{0x0000}) & 1     & \texttt{0x00000200} & & 1     & 65  (\texttt{0x0041}) & \texttt{0x00008200} \\
+    %     2     & 129   & \texttt{0x00010200} & & 3     & 193 (\texttt{0x00C1}) & \texttt{0x00018200} \\
+    %     4     & 257   & \texttt{0x00020200} & & 5     & 321 (\texttt{0x0141}) & \texttt{0x00028200} \\
+    %     6     & 385   & \texttt{0x00030200} & & 7     & 449 (\texttt{0x01C1}) & \texttt{0x00038200} \\
+    %     8     & 513   & \texttt{0x00040200} & & 9     & 577   & \texttt{0x00048200} \\
+    %     10    & 641   & \texttt{0x00050200} & & 11    & 705   & \texttt{0x00058200} \\
+    %     12    & 705   & \texttt{0x00060200} & & 13    & 833   & \texttt{0x00068200} \\
+    %     14    & 897   & \texttt{0x00070200} & & 15    & 961   & \texttt{0x00078200} \\
+    %     16    & 1025  & \texttt{0x00080200} & & 17    & 1089  & \texttt{0x00088200} \\
+    %     18    & 1153  & \texttt{0x00090200} & & 19    & 1217  & \texttt{0x00098200} \\
+    %     20    & 1281  & \texttt{0x000A0200} & & 21    & 1345  & \texttt{0x000A8200} \\
+    %     22    & 1409  & \texttt{0x000B0200} & & 23    & 1473  & \texttt{0x000B8200} \\
+    %     ...   & ...   & ...                 & & ...   & ...   & ... \\
+    %     1022  & 65409 & \texttt{0x01FF0200} & & 1023  & 65473 & \texttt{0x01FF8200} \\
+    %     \hline
+    % \end{tabular}
+
+    \begin{tabular}{ |m{1.3cm}m{3.3cm}m{2.2cm}|>{\raggedleft\arraybackslash}m{2cm}| }
         \hline
         \rowcolor{lightgray}
-        Block & SecNum & Address & & Block & SecNum & Address\\
+        Block & SecNum & Address \\
         \hline
         \hline
-        0     & 1     & \texttt{0x00000200} & & 1     & 65    & \texttt{0x00008200} \\
-        2     & 129   & \texttt{0x00010200} & & 3     & 193   & \texttt{0x00018200} \\
-        4     & 257   & \texttt{0x00020200} & & 5     & 321   & \texttt{0x00028200} \\
-        6     & 385   & \texttt{0x00030200} & & 7     & 385   & \texttt{0x00038200} \\
-        8     & 513   & \texttt{0x00040200} & & 9     & 577   & \texttt{0x00048200} \\
-        10    & 641   & \texttt{0x00050200} & & 11    & 705   & \texttt{0x00058200} \\
-        12    & 705   & \texttt{0x00060200} & & 13    & 833   & \texttt{0x00068200} \\
-        14    & 897   & \texttt{0x00070200} & & 15    & 961   & \texttt{0x00078200} \\
-        16    & 1025  & \texttt{0x00080200} & & 17    & 1089  & \texttt{0x00088200} \\
-        18    & 1153  & \texttt{0x00090200} & & 19    & 1217  & \texttt{0x00098200} \\
-        20    & 1281  & \texttt{0x000A0200} & & 21    & 1345  & \texttt{0x000A8200} \\
-        22    & 1409  & \texttt{0x000B0200} & & 23    & 1473  & \texttt{0x000B8200} \\
-        ...   & ...   & ...                 & & ...   & ...   & ... \\
-        1022  & 65409 & \texttt{0x01FF0200} & & 1023  & 65473 & \texttt{0x01FF8200} \\
+        0    & 1     (\texttt{0x0000}) & \texttt{0x00000200} \\
+        1    & 65    (\texttt{0x0041}) & \texttt{0x00008200} \\
+        2    & 129   (\texttt{0x0081}) & \texttt{0x00010200} \\
+        3    & 193   (\texttt{0x00C1}) & \texttt{0x00018200} \\
+        4    & 257   (\texttt{0x0101}) & \texttt{0x00020200} \\
+        5    & 321   (\texttt{0x0141}) & \texttt{0x00028200} \\
+        6    & 385   (\texttt{0x0181}) & \texttt{0x00030200} \\
+        7    & 449   (\texttt{0x01C1}) & \texttt{0x00038200} \\
+        8    & 513   (\texttt{0x0201}) & \texttt{0x00040200} \\
+        9    & 577   (\texttt{0x0241}) & \texttt{0x00048200} \\
+        10   & 641   (\texttt{0x0281}) & \texttt{0x00050200} \\
+        11   & 705   (\texttt{0x02C1}) & \texttt{0x00058200} \\
+        12   & 705   (\texttt{0x0301}) & \texttt{0x00060200} \\
+        13   & 833   (\texttt{0x0341}) & \texttt{0x00068200} \\
+        14   & 897   (\texttt{0x0381}) & \texttt{0x00070200} \\
+        15   & 961   (\texttt{0x03C1}) & \texttt{0x00078200} \\
+        16   & 1025  (\texttt{0x0401}) & \texttt{0x00080200} \\
+        17   & 1089  (\texttt{0x0441}) & \texttt{0x00088200} \\
+        18   & 1153  (\texttt{0x0481}) & \texttt{0x00090200} \\
+        19   & 1217  (\texttt{0x04C1}) & \texttt{0x00098200} \\
+        20   & 1281  (\texttt{0x0501}) & \texttt{0x000A0200} \\
+        21   & 1345  (\texttt{0x0541}) & \texttt{0x000A8200} \\
+        22   & 1409  (\texttt{0x0581}) & \texttt{0x000B0200} \\
+        23   & 1473  (\texttt{0x05C1}) & \texttt{0x000B8200} \\
+        ...  & ...                     & ...                 \\
+        1023 & 65473 (\texttt{0xFFC1}) & \texttt{0x01FF8200} \\
         \hline
     \end{tabular}
 

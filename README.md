@@ -20,7 +20,9 @@
 
 ---
 
-dzOS is a single-user single-task ROM-based operating system (OS) for the 8-bit homebrew computer **dastaZ80**, which runs on a Zilog Z80 processor. It is heavily influenced by ideas and paradigms coming from Digital Research’s CP/M, so some concepts may sound familiar to those who had the privilege of using this operating system.
+dzOS is a single-user single-task ROM-based operating system (OS) for my 8-bit homebrew computer **dastaZ80**, which runs on a Zilog Z80 processor.
+
+It is influenced by ideas and paradigms coming from Digital Research’s CP/M, but also from 8-bit computers of the 80s era. So some concepts may sound familiar to those who had the privilege of using those systems.
 
 The OS consists of three parts:
 
@@ -28,7 +30,7 @@ The OS consists of three parts:
 * The **Kernel**, that provides general functions for everything that is not hardware dependent.
 * The **Command-Line Interface (CLI)**, that provides commands for the user to talk to the Kernel and BIOS.
 
-The Kernel and the CLI are hardware independent and will work on any Z80 based computer. Therefore, by adapting the BIOS code, **dzOS can easily be ported to other Z80 systems**.
+The Kernel and the CLI are hardware independent and should work on any Z80 based computer. Therefore, by adapting the BIOS code, **dzOS can potentially be ported to other Z80 systems**.
 
 ![dzOS v2022.12.05.18.44](docs/dzOSv2022.12.05.18.44.png "dzOS v2022.12.05.18.44")
 
@@ -40,7 +42,7 @@ The Kernel and the CLI are hardware independent and will work on any Z80 based c
 
 I've decided to divide the project into progressive models (or **Mark**, as I call it).
 
-* Current model: **Mark II**
+* Current model: [Mark II](#mark-ii)
 
 ### Mark I
 
@@ -110,6 +112,7 @@ Same as Mark I, adding:
     * Reads input from keyboard and calls subroutines to the corresponding commands entered by the user.
     * Displays information back to the user.
   * **DZFS** (dastaZ80 File System) **This file system is still in experimental phase. Lost of data may occur due to unknown bugs or changes in specifications.**
+* **Programs and Tools**: My [dzSoftware repo](https://github.com/dasta400/dzSoftware) contains software that I'm developing for dzOS.
 
 ### TODOs
 
@@ -183,7 +186,7 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 * **help**: shows a list of some commands, with a short description and usage example.
 * **run _[address]_**: moves the CPU Program Counter (PC) to the specified RAM address, so that the CPU starts executing whatever code finds in there.
 * **crc16 _[address_start]_,_[address_end]_**: Generates and prints a 16-bit cyclic redundancy check (CRC) based on the IBM Binary Synchronous Communications protocol (BSC or Bisync), for the bytes between start and end address.
-* **reset**: resets the system. It's effectively the same as pressing the reset button on the side of the computer. The contents of RAM are notr cleared. So it some cases it's safe to reset the computer and continue work when it was left.
+* **reset**: resets the system. It's effectively the same as pressing the reset button on the side of the computer. The contents of RAM are not cleared. Note that in both cases, reset by button or reset by this command, the [ASMDC](https://github.com/dasta400/ASMDC) is not reset.
 * **halt**: halts the system. Tells [ASMDC](https://github.com/dasta400/ASMDC) to close the image files, and puts the computer in the state of HALT.
 
 ### Disk commands
@@ -191,10 +194,10 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 * **cat**: shows disk (Floppy or SD Card Disk Image File) catalogue (i.e. the contents of the disk).
 * **load _[filename]_**: loads specified filename from disk to RAM.
 * **run _[filename]_**: loads specified filename from disk to RAM and starts running it.
-* **formatdsk _[label]_**: formats a Floppy Disk or a Disk Image File with DZFS.
+* **formatdsk _[label]_**: formats a Floppy Disk or a Disk Image File with DZFS (my own design file system).
 * **rename _[old_filename]_,_[new_filename]_**: changes the name of file old_filename to new_filename.
 * **delete _[filename]_**: deletes filename. Data isn't deleted, just the first character of the filename in the BAT is set to 7E (~), so it can be undeleted. Be aware, that it's planned that in future versions the _save_ command will search for an empty entry in the BAT, but if it finds none, then it will re-use the first entry of a deleted file. Therefore, undelete of a file will only be guaranteed if no file was created since the delete command was issued.
-* **chgattr _[filename]_,_[new_attributes(RHSE)]_**: changes the attributes of filename to the new specified attributes.
+* **chgattr _[filename]_,_[new_attributes(RHSE)]_**: changes the attributes of filename to the new specified attributes (R=Read Only, H=Hidden from _cat_ command, S=System, E=Executable).
 * **save _[address_start]_,_[number_bytes]_**: creates a new file on the disk, that will contain _n_ number of bytes, starting at the specified address. After entering the command, the user will be prompted to type the filename.
 * **dsk _[disk unit]_**: changes the current disk to the number specified. 0 is always the FDD and then 1 to 15 are the Disk Image Files on the SD Card.
 * **diskinfo**: shows label, serial number, date and time of formatting of current disk.
@@ -212,8 +215,8 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 
 * **date**: shows the current date.
 * **time**: shows the current time.
-* **setdate**: changes the date stored in the RTC.
-* **settime**: changes the time stored in the RTC.
+* **setdate _[ddmmyyyy]_**: changes the date stored in the RTC.
+* **settime _[hhmmss]_**: changes the time stored in the RTC.
 
 ---
 
@@ -236,7 +239,10 @@ Follow the steps:
 1. Insert the Micro SD Card in the MicroSD Card Adapter
 1. Turn dastaZ80 on, and format each disk with the commmand _formatdsk_
 
-Alternatively, the image file can be formatted with _imgmngr_ (tool provided with [ASMDC](https://github.com/dasta400/ASMDC)): _imgmngr -new myimage.img mydisk_
+Alternatively,
+
+* the image file can be formatted with _imgmngr_ (tool provided with [ASMDC](https://github.com/dasta400/ASMDC)): _imgmngr -new myimage.img mydisk_
+* an image file can be generated and include in it a list of programs with _makeimgfile_ (tool provided with [ASMDC](https://github.com/dasta400/ASMDC))
 
 ---
 
@@ -256,8 +262,8 @@ A release of DZOS contains all three parts (referred as _Components_), and is na
 
 As components we understand the **BIOS**, the **Kernel** and the **Command-Line Interface (CLI)**. These components are versioned as _component_name v_ and then _maj.min.patch_ (e.g. Kernel v0.1.0), where:
 
-* **_maj_** indicates a **major change** in functionality. Some features may be imcompatible with previous major version.
-* **_min_** indicates adding of **new features**.
+* **_maj_** indicates a **major change** in functionality. Some features may be incompatible with previous major version.
+* **_min_** indicates adding of **new features** to a major version.
 * **_patch_** indicates **bug solving** of current functionality/features.
 
 During initial development, until I decide that DZOS is stable enough to be used, all components will have v0.1.0. After that, I will release v1.0.0 and then the _maj.min.patch_ will start applying.

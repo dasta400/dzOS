@@ -70,6 +70,8 @@ F_KRN_SERIAL_SEND_ANSI_CODE:        .EXPORT         F_KRN_SERIAL_SEND_ANSI_CODE
         jp      KRN_SERIAL_SEND_ANSI_CODE
 F_KRN_SERIAL_CLRSCR:                .EXPORT         F_KRN_SERIAL_CLRSCR
         jp      KRN_SERIAL_CLRSCR
+F_KRN_SERIAL_CLR_SIOCHA_BUFFER:     .EXPORT         F_KRN_SERIAL_CLR_SIOCHA_BUFFER
+        jp      KRN_SERIAL_CLR_SIOCHA_BUFFER
 
         ; String subroutines
 F_KRN_TOUPPER:                      .EXPORT         F_KRN_TOUPPER

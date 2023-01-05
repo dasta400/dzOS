@@ -47,6 +47,8 @@
 VDP_VRAM                    .EQU    $10 ; TMS9918A VDP => A0 = 0 (Mode VRAM)
 VDP_REG                     .EQU    $11 ; ^            => A0 = 1 (Mode Register)
 ROMRAM_PAGING               .EQU    $38 ; ROM/RAM paging
+JOY1_STAT                   .EQU    $40 ; Dual Digital Joystick Port
+JOY2_STAT                   .EQU    $41 ; ^
 SIO_CH_A_CONTROL            .EQU    $80 ; Zilog SIO/2
 SIO_CH_A_DATA               .EQU    $81 ; ^
 SIO_CH_B_CONTROL            .EQU    $82 ; ^
@@ -55,14 +57,14 @@ SIO_CH_B_DATA               .EQU    $83 ; ^
 ;==============================================================================
 ; ROM positions
 ;==============================================================================
-INITSIO2_END                .EQU    $0216
+INITSIO2_END                .EQU    $0215
 KRN_START                   .EQU    $1340
-KRN_DZOS_VERSION            .EQU    $2653
-CLI_START                   .EQU    $2664
-BOOTSTRAP_START             .EQU    $3A25
-VDP_LOGO_NAME_START         .EQU    $3A53
-VDP_LOGO_PATT_START         .EQU    $3DAA
-BIOS_JBLK_START             .EQU    $3E7A
+KRN_DZOS_VERSION            .EQU    $26B7
+CLI_START                   .EQU    $26C8
+BOOTSTRAP_START             .EQU    $3A89
+VDP_LOGO_NAME_START         .EQU    $3AB7
+VDP_LOGO_PATT_START         .EQU    VDP_LOGO_NAME_START + 768
+BIOS_JBLK_START             .EQU    $3E4A
 BIOS_JBLK_END               .EQU    $3EFD
 KRN_JBLK_START              .EQU    $3EFE
 KRN_JBLK_END                .EQU    $3FFF
@@ -99,6 +101,7 @@ LF                          .EQU    $0A     ; Line Feed
 CR                          .EQU    $0D     ; Carriage Return
 ESC                         .EQU    $1B     ; Escape
 SPACE                       .EQU    $20     ; Space
+CLRSCR                      .EQU    $80     ; Break/Pause key (Clear Screen)
 
 ;==============================================================================
 ; SIO/2
@@ -122,11 +125,11 @@ SIO_N81                     .EQU    $C4     ; 8 bits, no parity, 1 stop bit, 115
 SIO_ENRX                    .EQU    $C1     ; 8 bits per Rx character, disable Auto Enables (RTS/CTS flow control), enable RX
 SIO_ENTX                    .EQU    $68     ; 8 bits per Tx character, enable TX, disable DTR & RTS
 SIO_INT_ALLRX               .EQU    $1C     ; Interrupt on all Rx characters (parity irrelevant), enable Status Affects Vector
-SIO_INT_VECT                .EQU    $90     ; SIO INTerrupt Vector
+SIO_INT_VECT                .EQU    $A0     ; SIO INTerrupt Vector
                                             ; The interrupt table is 16-bit,
                                             ;   therefore the start of the vector
                                             ;   table MUST be in a 16-bit boundary
-                                            ;   (e.g. $20, $30, $40, $50, $60, $70, $80, $90, ...)
+                                            ;   (e.g. $20, $30, $40, $50, $60, $70, $80, $90, $A0, ...)
 SIO_CH_RESET                .EQU    $18     ; Channel Reset
 
 ;==============================================================================
@@ -236,6 +239,17 @@ VDP_COLR_D_GRN              .EQU    $C      ; Dark Green
 VDP_COLR_MGNTA              .EQU    $D      ; Magenta
 VDP_COLR_GREY               .EQU    $E      ; Grey
 VDP_COLR_WHITE              .EQU    $F      ; White
+
+;==============================================================================
+; Dual Digital Joystick Port
+;==============================================================================
+JOY_NONE                    .EQU    $00
+JOY_UP                      .EQU    $01
+JOY_DOWN                    .EQU    $02
+JOY_LEFT                    .EQU    $04
+JOY_RIGHT                   .EQU    $08
+JOY_FIRE                    .EQU    $10
+
 
 #ENDIF
 

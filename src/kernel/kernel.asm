@@ -140,6 +140,7 @@ _vdp_error: ; VDP VRAM test NOT passed
         ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
         ret
+
 ;------------------------------------------------------------------------------
 KRN_INIT_FDD:
 ; Detect FDD
@@ -539,6 +540,9 @@ msg_nvram_bytes:
 msg_vdp_detect:
         .BYTE    CR, LF
         .BYTE   "....Detecting VDP  ", 0
+msg_psg_detect:
+        .BYTE    CR, LF
+        .BYTE   "....Detecting PSG  ", 0
 msg_left_brkt:
         .BYTE   " [ ", 0
 msg_right_brkt:
@@ -565,6 +569,8 @@ error_2101:
         .BYTE   "NVRAM not responding", 0
 error_3001:
         .BYTE   "VDP not detected", 0
+error_4001:
+        .BYTE   "PSG not detected", 0
 
 ;==============================================================================
 ; DZOS Version

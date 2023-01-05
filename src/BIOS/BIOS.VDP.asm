@@ -15,7 +15,7 @@
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2018-2022 David Asta
+; Copyright (c) 2022 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -75,17 +75,24 @@ BIOS_VDP_SET_REGISTER:
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_EI:
-; Enable VDP Interrupt
-; IN <= A = value used to initialise Register 1
-        set     5, A
+; Enable VDP Interrupt.
+; NOTE: this is independent of the value (bit 5) in VDP Register 1. What this
+;       does is that the NMI subroutine reads the VDP Status Register again in
+;       each run, and therefore it does allow more interrupts to happen.
+        ; set     5, A
         ; ToDo - send value to VDP
+        ld      A, 1
+        ld      (BIOS_NMI_ENABLE), A
+        call    F_BIOS_VDP_READ_STATREG ; Acknowledge interrupt to allow more interrupts coming
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_DI:
 ; Disable VDP Interrupt
-; IN <= A = value used to initialise Register 1
-        xor     $20                     ; Clear bit 5
-        ; ToDo - send value to VDP
+; NOTE: this is independent of the value (bit 5) in VDP Register 1. What this
+;       does is that the NMI subroutine doesn't read the VDP Status Register
+;       anymore, and therefore doesn't allow more interrupts to happen.
+        ld      A, 0
+        ld      (BIOS_NMI_ENABLE), A
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_READ_STATREG:
@@ -324,8 +331,8 @@ BIOS_VDP_BYTE_TO_VRAM:
 ; The VDP needs 2 microseconds to read or write a byte to its RAM
 ; With the three instructions, plus the time it takes to do the call to this
 ;   subroutine (call nn = 17 T States = 2.30 microsecs), we have a more than
-;   enough delay (6.24 microsecs)
-;   ld  r,n     =   7 T States      (7 / 7372800 Hz) * 1000000  = 0.95 microsecs
+;   enough delay (6.23 microsecs)
+;   ld  r,n     =    7 T States     (7 / 7372800 Hz) * 1000000  = 0.95 microsecs
 ;   out (C), r  =   12 T States     (12 / 7372800 Hz) * 1000000 = 1.63 microsecs
 ;   ret         =   10 T States     (10 / 7372800 Hz) * 1000000 = 1.35 microsecs
         ld      C, VDP_VRAM             ; MODE 0 (VRAM)
@@ -335,6 +342,13 @@ BIOS_VDP_BYTE_TO_VRAM:
 BIOS_VDP_VRAM_TO_BYTE:
 ; Read a byte from VRAM
 ; OUT => A = read byte
+; The VDP needs 2 microseconds to read or write a byte to its RAM
+; With the three instructions, plus the time it takes to do the call to this
+;   subroutine (call nn = 17 T States = 2.30 microsecs), we have a more than
+;   enough delay (6.24 microsecs)
+;   ld  C, n    =   7 T States     (7 / 7372800 Hz) * 1000000  = 0.95 microsecs
+;   in  A, (C)  =  12 T States     (12 / 7372800 Hz) * 1000000 = 1.63 microsecs
+;   ret         =  10 T States     (10 / 7372800 Hz) * 1000000 = 1.35 microsecs
         ld      C, VDP_VRAM             ; MODE 0 (VRAM)
         in      A, (C)
         ret
@@ -376,4 +390,64 @@ _reset_jiffies:
         ld      (IX + 1), 0
         ld      (IX + 2), 0
 _jiffy_end:
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_VBLANK_WAIT:
+; Test Status Register for Interrupt Flag ($80)
+;   and loop here until flag is raised
+        call    F_BIOS_VDP_READ_STATREG
+        and     $80
+        jr      z, BIOS_VDP_VBLANK_WAIT
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_LDIR_VRAM:
+; Block transfer from RAM to VRAM
+; IN <= BC = Block length (total number of bytes to copy)
+;       DE = Start address of RAM
+;       HL = Start address of VRAM
+        push    DE                      ; Backup Start address of RAM
+        push    HL                      ; Backup Start address of VRAM
+        ld      DE, 256
+        call    F_KRN_DIV1616           ; BC = BC / DE, HL = remainder
+                                        ; As VRAM is 16KB (16384 bytes),
+                                        ;   max. will have is 16384/256 = 64
+                                        ; Meaning, B will be 0 and C will have
+                                        ;   the result. And remainder max. is 255
+
+        ld      (tmp_byte), HL          ; backup remainder
+
+        ld      A, C                    ; If the division resulted in 0, then
+        cp      0                       ;   will do only one pass of the outer
+        jr      nz, _ldir_256ormore     ;   loop. And inner loop = remainder
+        ld      B, L                    ; inner loop = remainder
+        pop     HL                      ; Restore Start address of VRAM
+        pop     DE                      ; Restore Start address of RAM
+        jr      _ldir_remainder
+
+_ldir_256ormore
+        ld      A, C                    ; Otherwise, transfer result to B
+        ld      B, A                    ; B is the outer loop
+        ld      C, 0                    ; C is the inner loop
+        pop     HL                      ; Restore Start address of VRAM
+        call    F_BIOS_VDP_SET_ADDR_WR  ; Set start of VRAM to HL
+        pop     DE                      ; Restore Start address of RAM
+
+_ldir_loop:
+        ld      A, (DE)                 ; Read byte from RAM
+        call    F_BIOS_VDP_BYTE_TO_VRAM ;   and copy it to VRAM
+        inc     DE                      ; next byte in RAM
+        inc     C                       ; increment inner loop counter
+        jr      nz, _ldir_loop          ; if inner loop didn't reach 0, repeat
+        djnz    _ldir_loop              ; if outer loop didn't reach 0, repeat
+
+        ; Do remainder
+        ld      A, (tmp_byte)
+        add     A, 1
+        ld      B, A                    ; loop = remainder + 1
+_ldir_remainder:
+        ld      A, (DE)                 ; Read byte from RAM
+        call    F_BIOS_VDP_BYTE_TO_VRAM ;   and copy it to VRAM
+        inc     DE                      ; next byte in RAM
+        djnz    _ldir_remainder
+
         ret

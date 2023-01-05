@@ -11,12 +11,13 @@
 ;
 ; IMPORTANT: Adding code to this file requires changing INITSIO2_END in equates.inc
 ;
-; Version 1.0.0
+; Version 1.1.0
 ; Created on 04 Jun 2022
-; Last Modification 04 Jun 2022
+; Last Modification 31 Dec 2022
 ;******************************************************************************
 ; CHANGELOG
-;  -
+;  - 31 Dec 2022 - Added SIO_CH_A_LASTCHAR
+;                  RTS code commented as dastaZ80 doesn't use RTS
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -64,51 +65,51 @@
 ;------------------------------------------------------------------------------
 ; SIO INTerrupt Vector
         .ORG    SIO_INT_VECT
-        .WORD   int_chB_60              ; Ch B Transmit Buffer Empty
+        .WORD   int_chB_V0              ; Ch B Transmit Buffer Empty
         .ORG    SIO_INT_VECT + $2
-        .WORD   int_chB_62              ; Ch B External/Status Change
+        .WORD   int_chB_V2              ; Ch B External/Status Change
         .ORG    SIO_INT_VECT + $4
-        .WORD   int_chB_64              ; Ch B Receive Character Available
+        .WORD   int_chB_V4              ; Ch B Receive Character Available
         .ORG    SIO_INT_VECT + $6
-        .WORD   int_chB_66              ; Ch B Special Receive Condition
+        .WORD   int_chB_V6              ; Ch B Special Receive Condition
         .ORG    SIO_INT_VECT + $8
-        .WORD   int_chA_68              ; Ch A Transmit Buffer Empty
+        .WORD   int_chA_V8              ; Ch A Transmit Buffer Empty
         .ORG    SIO_INT_VECT + $A
-        .WORD   int_chA_6A              ; Ch A External/Status Change
+        .WORD   int_chA_VA              ; Ch A External/Status Change
         .ORG    SIO_INT_VECT + $C
-        .WORD   int_chA_6C              ; Ch A Receive Character Available
+        .WORD   int_chA_VC              ; Ch A Receive Character Available
         .ORG    SIO_INT_VECT + $E
-        .WORD   int_chA_6E              ; Ch A Special Receive Condition
+        .WORD   int_chA_VE              ; Ch A Special Receive Condition
 
 ;------------------------------------------------------------------------------
-int_chB_60:
+int_chB_V0:
         nop
         ei
         reti
-int_chB_62:
+int_chB_V2:
         nop
         ei
         reti
-int_chB_66:
+int_chB_V6:
         nop
         ei
         reti
-int_chA_68:
+int_chA_V8:
         nop
         ei
         reti
-int_chA_6A:
+int_chA_VA:
         nop
         ei
         reti
-int_chA_6E:
+int_chA_VE:
         nop
         ei
         reti
 
 ;------------------------------------------------------------------------------
 ; Ch A Receive Character Available
-int_chA_6C:
+int_chA_VC:
         push    AF
         push    HL
         ld      HL, (SIO_CH_A_IN_PTR)
@@ -120,16 +121,18 @@ int_chA_6C:
 not_A_wrap:
         ld      (SIO_CH_A_IN_PTR), HL
         in      A, (SIO_CH_A_DATA)
-        ld      (HL), A
+        ld      (HL), A                 ; Store received byte in Ch A buffer
+        ld      IX, SIO_CH_A_LASTCHAR
+        ld      (IX), A                 ; Store received byte in Last Char
         ld      A,  (SIO_CH_A_BUFFER_USED)
         inc     A
         ld      (SIO_CH_A_BUFFER_USED), A
-        cp      SIO_FULL_SIZE
-        jr      c, rts_ch_a
-        ld      A, $05
-        out     (SIO_CH_A_CONTROL), A
-        ld      A, SIO_RTS_HIGH
-        out     (SIO_CH_A_CONTROL), A
+        ; cp      SIO_FULL_SIZE         ; dastaZ80 doesn't use RTS
+        ; jr      c, rts_ch_a           ; ^
+        ; ld      A, $05                ; But can be enabled if needed
+        ; out     (SIO_CH_A_CONTROL), A ;   by uncommenting these lines
+        ; ld      A, SIO_RTS_HIGH       ; If uncommenting, SYSVARS.INITSIO2_END
+        ; out     (SIO_CH_A_CONTROL), A ;   needs to be modified
 rts_ch_a:
         pop     HL
         pop     AF
@@ -138,7 +141,7 @@ rts_ch_a:
 
 ;------------------------------------------------------------------------------
 ; Ch B Receive Character Available
-int_chB_64:
+int_chB_V4:
         push    AF
         push    HL
         ld      HL, (SIO_CH_B_IN_PTR)
@@ -154,12 +157,12 @@ not_B_wrap:
         ld      A, (SIO_CH_B_BUFFER_USED)
         inc     A
         ld      (SIO_CH_B_BUFFER_USED), A
-        cp      SIO_FULL_SIZE
-        jr      c, rts_ch_b
-        ld      A, $05
-        out     (SIO_CH_B_CONTROL), A
-        ld      A, SIO_RTS_HIGH
-        out     (SIO_CH_B_CONTROL), A
+        ; cp      SIO_FULL_SIZE         ; dastaZ80 doesn't use RTS
+        ; jr      c, rts_ch_b           ; ^
+        ; ld      A, $05                ; But can be enabled if needed
+        ; out     (SIO_CH_B_CONTROL), A ;   by uncommenting these lines
+        ; ld      A, SIO_RTS_HIGH       ; If uncommenting, SYSVARS.INITSIO2_END
+        ; out     (SIO_CH_B_CONTROL), A ;   needs to be modified
 rts_ch_b:
         pop     HL
         pop     AF

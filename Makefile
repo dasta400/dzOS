@@ -18,7 +18,7 @@ CYAN = \033[0;36m
 WHITE = \033[0;37m
 
 OS_MAXSIZE = 16384
-VERSION_ADDR = 9811     # $2653
+VERSION_ADDR = 9911     # $26B7
 
 YEAR = $(shell date +"%Y")
 MONTH = $(shell date +"%m")

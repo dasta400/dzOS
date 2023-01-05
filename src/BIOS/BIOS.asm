@@ -62,7 +62,7 @@ BIOS_NMI:
 
         ld      A, (BIOS_NMI_FLAG)      ; If the flag
         cp      0                       ;   is 0,
-        jp      z, BIOS_NMI_END         ;   do nothing and end the interrupt
+        jr      z, BIOS_NMI_END         ;   do nothing and end the interrupt
         ; If the flag is 1, jump to the specified address
 BIOS_NMI_JP:                    .EXPORT         BIOS_NMI_JP
         jp      F_BIOS_NMI_END          ; Just reserve space for a JUMP
@@ -76,14 +76,25 @@ BIOS_NMI_END:
         pop     IX
         pop     HL
         pop     DE
+        ld      A, (BIOS_NMI_ENABLE)    ; If the flag
+        cp      0                       ;   is 0, NMI is disabled
+        jr      z, _NMI_is_disabled     ;   so don't read the VDP Status Register
+        call    F_BIOS_VDP_READ_STATREG ; Acknowledge interrupt to allow more interrupts coming
+_NMI_is_disabled:
+        ; Restore the remaining registers
         pop     BC
-        call    F_BIOS_VDP_READ_STATREG ; Acknowledge interrupt
         pop     AF
         retn
+
 BIOS_NMI_FLAG:                  .EXPORT         BIOS_NMI_FLAG
 ; This flag enables (1) or disables (0) the second jump above that should
 ;   be set up by programs
         .BYTE   0
+BIOS_NMI_ENABLE:
+; This flag enables (1) or disables (0) the read of the VDP Status Register.
+; If disabled, no more interrupts will be accepted, hence the whole BIOS_NMI code
+;   won't be executed until this flag is set to 1 again.
+        .BYTE   1
 
 ;------------------------------------------------------------------------------
         .ORG    INITSIO2_END + 1        ; To avoid overwritting RST08, RST10, RST18,

@@ -134,5 +134,13 @@ F_BIOS_VDP_VRAM_TO_BYTE:        .EXPORT         F_BIOS_VDP_VRAM_TO_BYTE
         jp      BIOS_VDP_VRAM_TO_BYTE
 F_BIOS_VDP_JIFFY_COUNTER:       .EXPORT         F_BIOS_VDP_JIFFY_COUNTER
         jp      BIOS_VDP_JIFFY_COUNTER
+F_BIOS_VDP_VBLANK_WAIT:         .EXPORT         F_BIOS_VDP_VBLANK_WAIT
+        jp      BIOS_VDP_VBLANK_WAIT
+F_BIOS_VDP_LDIR_VRAM:           .EXPORT         F_BIOS_VDP_LDIR_VRAM
+        jp      BIOS_VDP_LDIR_VRAM
+
+        ; Dual Digital Joystick Port
+F_BIOS_JOYS_GET_STAT:           .EXPORT         F_BIOS_JOYS_GET_STAT
+        jp      BIOS_JOYS_GET_STAT
 
         .ORG    BIOS_JBLK_END

@@ -554,6 +554,46 @@
     published on BYTE magazine.
 
     % ==========================================================================
+    \subsection{Dual Digital Joystick Port}
+    % ==========================================================================
+
+    The Dual Digital Joystick Port consist of two DE-9 Male connectors for
+    connection of one or two \textit{Atari joystick ports}\footnote{Originally introduced
+    on the Atari 2600 home video game console in 1977, became the \textit{de
+    facto} standard in the 1980s.}.
+
+    Compatible joysticks are those used on Atari 800, Atari VCS, Atari ST,
+    VIC-20, C64, Amiga and ZX Spectrum. Other joysticks, like the ones for the 
+    Amstrad CPC and MSX, changed the +5V and GND pins, so it MUST not be used.
+
+        % ==========================================================================
+        \subsubsection{Pinout}
+        % ==========================================================================
+
+        Seen from the back of the computer case.
+
+        \includegraphics[scale=0.2]{JoystickPortPinout.png}
+        
+
+        \begin{tabular}{| c | m{3.8cm} | c | c | m{3.5cm} | }
+            \hline
+            \rowcolor{lightgray}
+            Pin & Function & & Pin & Function\\
+            \hline
+            1 & Up & & 6 & Fire\\
+            \hline
+            2 & Down & & 7 & +5V\\
+            \hline
+            3 & Left & & 8 & GND\\
+            \hline
+            4 & Right & & 9 & Not connected\\
+            \hline
+            5 & Not connected & & & \\
+            \hline
+        \end{tabular}
+
+
+    % ==========================================================================
     \subsection{Backplane}
     % ==========================================================================
 
@@ -598,14 +638,14 @@
     keys and LEDs for Caps Lock, Scroll Lock and Num Lock.
 
     The back of the case offers holes for connectors for: one DB-25 parallel, 
-    one DB-9 serial, two DB-9 joysticks, one stereo jack, one VGA, one RF and
+    one DB-9 serial, two DE-9 joysticks, one stereo jack, one VGA, one RF and
     ON/OFF switch.
 
     Also there is a hole in the left side for a reset button, and a disk drive
     bay at the right side.
 
     At the moment, only the ON/OFF switch, VGA connector, Composite video RCA
-    output, and reset button are used.
+    output, joystick 1, joystick 2 and reset button are used.
 
     \pagebreak
     % ==========================================================================
@@ -635,14 +675,15 @@
         \hline
         0 & 0 & 0 & /Y0 & \texttt{0x00} - \texttt{0x0F} & For future use\\
         \hline
-        0 & 0 & 1 & /Y1 & \texttt{0x10} - \texttt{0x1F} & TMS9918A (VDP)\\
+        0 & 0 & 1 & /Y1 & \texttt{0x10} - \texttt{0x1F} & \textbf{TMS9918A (VDP)}\\
         \hline
         0 & 1 & 0 & /Y2 & \texttt{0x20} - \texttt{0x2F} & For future use\\
         \hline
-        0 & 1 & 1 & /Y3 & \texttt{0x30} - \texttt{0x3F} & \textbf{ROM} Page
+        0 & 1 & 1 & /Y3 & \texttt{0x30} - \texttt{0x3F} & \textbf{ROM Page}
         (\texttt{0x38})\\
         \hline
-        1 & 0 & 0 & /Y4 & \texttt{0x40} - \texttt{0x4F} & For future use\\
+        1 & 0 & 0 & /Y4 & \texttt{0x40} - \texttt{0x4F} & \textbf{Dual Joystick
+        Port}\\
         \hline
         1 & 0 & 1 & /Y5 & \texttt{0x50} - \texttt{0x5F} & For future use\\
         \hline
@@ -891,6 +932,8 @@
             takes 0.54 \si{\micro\second}, so I need at least four \textit{NOP}s.
             Instead I went for creating a subroutine, that with its instructions
             plus the \textit{call} takes 6.24 \si{\micro\second}
+            \item Last day of the year! I built and tested successfully a
+            circuit for the Dual Joystick Port.
         \end{itemize}
     \end{itemize}
 
@@ -931,8 +974,6 @@
 
     \begin{itemize}
         \item \textbf{Sound Interface}: stereo sound output with an AY-3-8912.
-        \item \textbf{Dual Digital Joystick Port}: Allowing connection of two
-        Commodore 64 compatible (because I have a few of them) joysticks.
         \item \textbf{Cartridge Port}: allowing almost instantaneously load and
         access to programs stored in EEPROMs.
     \end{itemize}
