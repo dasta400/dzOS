@@ -53,5 +53,12 @@ dzOS.2022.12.24.18.54.bin (old)
         Simplified Makefile
         Instead of multiple .exp files, now there is only sysvars.exp and dzOs.exp
 
-dzOS.2022.12.25.13.07.bin (current)
+dzOS.2022.12.25.13.07.bin (old)
     Solved bug that made the dastaZ80 logo display some artifacts.
+
+dzOS.2023.01.11.18.28.bin (current)
+    Added more functions for TMS9918A VDP.
+        Initialise for all modes.
+        Print a character at an XY position.
+        Wait for VBLANK.
+        Copy blocks of RAM to VRAM.
