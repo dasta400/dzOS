@@ -89,7 +89,7 @@
 
     \hrulefill
 
-    \textcopyright 2022 David Asta
+    \textcopyright 2023 David Asta
 
     \pagebreak
     % ==========================================================================
@@ -740,6 +740,21 @@
             \end{tabular}
         }}
 
+        The File Types are:
+
+        \begin{itemize}
+            \item \textbf{USR}: User defined.
+            \item \textbf{EXE}: Executable binary.
+            \item \textbf{BIN}: Binary (non-executable) data.
+            \item \textbf{BAS}: BASIC code.
+            \item \textbf{TXT}: Plain ASCII Text file.
+            \item \textbf{FN6}: Font (6×8) for Text Mode.
+            \item \textbf{FN8}: Font (8×8) for Graphics Modes.
+            \item \textbf{SC1}: Screen 1 (Graphics I Mode) Picture.
+            \item \textbf{SC2}: Screen 2 (Graphics II Mode) Picture.
+            \item \textbf{SC3}: Screen 3 (Multicolour Mode) Picture.
+        \end{itemize}
+
         % ======================================================================
         \subsubsection{{\color{blue}erasedsk}}
         % ======================================================================
@@ -1045,6 +1060,58 @@
         
         % \hspace{1cm}\texttt{CRC16:\ 0x3ABC}
 
+    % ==========================================================================
+    \subsection{VDP (\textit{Low Resolution Screen}) Commands}\label{vdpcmds}
+    % ==========================================================================
+        % ======================================================================
+        \subsubsection{{\color{blue}vpoke}}
+        % ======================================================================
+        Changes the value of the byte stored at a specified \textbf{VRAM}
+        address.
+
+        \hspace{1.9cm}\textbf{$>$ vpoke \textit{$<$address$>$,$<$value$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{address}}: address where the user wants
+        to change a value.
+        
+        \hspace{1cm}\textbf{\textit{value}}: new value (in Hexadecimal notation)
+        to be stored at \textit{address}.
+
+        \textbf{Example}: \texttt{$>$ vpoke 3800,00}
+
+        Will overwrite the contents of the address 0x3800 of the \textbf{VRAM}
+        with the value 0x00.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}screen}}
+        % ======================================================================
+        Changes the \textbf{Low Resolution Screen} display mode.
+
+        \hspace{1.9cm}\textbf{$>$ screen \textit{$<$mode$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{mode}}: one of the following values:
+
+        \begin{itemize}
+            \item \textbf{0}: \textbf{Text Mode} (40 columns by 24 lines. 6x8 bytes
+            characters. 2 colours (Text and Background). No Sprites).
+            \item \textbf{1}: \textbf{Graphics I Mode} (256 by 192 pixels. 32 columns by
+            24 lines for text, with 8x8 bytes characters. 15 colours. Sprites).
+            \item \textbf{2}: \textbf{Graphics II Mode} (256 by 192 pixels. 32 columns by
+            24 lines for text, with 8x8 bytes characters. 15 colours. Sprites).
+            \item \textbf{3}: \textbf{Multicolour Mode} (64 by 48 pixels. No characters.
+            15 colours. Sprites).
+            \item \textbf{4}: \textbf{Graphics II Mode Bitmapped} (same as mode 2, but
+            screen is bitmapped for addressing every pixel individually).
+        \end{itemize}
+        
+        \textbf{Example}: \texttt{$>$ screen 0}
+
+        Will put the \textbf{Low Resolution Screen} in Text Mode.
+
     \pagebreak
     % ==========================================================================
     \section{Other Software}
@@ -1130,6 +1197,36 @@
     to let the user decide what to do next:
 
     \hspace{1cm}\texttt{[SPACE] for more or another key to stop}
+
+    % ======================================================================
+    \subsubsection{Load Screen dumps (loadscr)}
+    % ======================================================================
+    This program loads screen dumps, saved as raw data, to the the VRAM. It is
+    in essence a picture display program.
+
+    In Mode 2 (Graphics II Mode bitmapped), screen data dumps are files of
+    14,336 bytes in length, composed by:
+    \begin{itemize}
+        \item Dump of the Pattern Table (6,144 bytes)
+        \item Dump of the Sprite Pattern Table (2,048 bytes) filled with zeros
+        \item Dump of the Colour Table (6,144 bytes)
+    \end{itemize}
+
+    In dzOS, these files are identified as File Type \textit{SC1}
+    (Graphics I Mode), \textit{SC2} (Graphics II Bitmapped Mode) and
+    \textit{SC3} (Multicolour Mode).
+
+    % ======================================================================
+    \subsubsection{Load Font (loadfont)}
+    % ======================================================================
+    This program loads font files, which contain pattern definitions for text
+    characters to be used for text display.
+
+    Mode 0 (Text Mode) uses 6x8 bytes characters. The rest of the modes use 8x8
+    bytes characters.
+    
+    In dzOS, these files are identified as File Type \textit{FN6} and
+    \textit{FN8} respectively.
 
     % ==========================================================================
     \subsection{MS BASIC 4.7b}

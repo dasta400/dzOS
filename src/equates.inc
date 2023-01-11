@@ -101,6 +101,7 @@ LF                          .EQU    $0A     ; Line Feed
 CR                          .EQU    $0D     ; Carriage Return
 ESC                         .EQU    $1B     ; Escape
 SPACE                       .EQU    $20     ; Space
+DELETE                      .EQU    $7F     ; Delete
 CLRSCR                      .EQU    $80     ; Break/Pause key (Clear Screen)
 
 ;==============================================================================
@@ -125,11 +126,11 @@ SIO_N81                     .EQU    $C4     ; 8 bits, no parity, 1 stop bit, 115
 SIO_ENRX                    .EQU    $C1     ; 8 bits per Rx character, disable Auto Enables (RTS/CTS flow control), enable RX
 SIO_ENTX                    .EQU    $68     ; 8 bits per Tx character, enable TX, disable DTR & RTS
 SIO_INT_ALLRX               .EQU    $1C     ; Interrupt on all Rx characters (parity irrelevant), enable Status Affects Vector
-SIO_INT_VECT                .EQU    $A0     ; SIO INTerrupt Vector
+SIO_INT_VECT                .EQU    $90     ; SIO INTerrupt Vector
                                             ; The interrupt table is 16-bit,
                                             ;   therefore the start of the vector
                                             ;   table MUST be in a 16-bit boundary
-                                            ;   (e.g. $20, $30, $40, $50, $60, $70, $80, $90, $A0, ...)
+                                            ;   (e.g. $10, $20, $30, $40, $50, $60, $70, $80, $90, $A0, ...)
 SIO_CH_RESET                .EQU    $18     ; Channel Reset
 
 ;==============================================================================
@@ -208,21 +209,76 @@ NVRAM_CMD_DETECT            .EQU    $D0
 ;==============================================================================
 ; TMS9918A VDP
 ;==============================================================================
+VDP_MODE_TXT                .EQU    $0      ; Text Mode
+VDP_MODE_G1                 .EQU    $1      ; Graphics I Mode
+VDP_MODE_G2                 .EQU    $2      ; Graphics II Mode
+VDP_MODE_MM                 .EQU    $3      ; Multicolour Mode
+VDP_MODE_G2BM               .EQU    $4      ; Graphics II Mode Bitmapped
+
+; Text Mode
+VDP_TXT_REG_0               .EQU    $00     ; Text Mode, No External Video
+VDP_TXT_REG_1               .EQU    $F0     ; 16K, Enable Disp., Enable Int., M1, 8x8 Sprites, Mag. Off
+VDP_TXT_REG_2               .EQU    $02     ; Name Table = $0800
+VDP_TXT_REG_3               .EQU    $00     ; Colour Table not used
+VDP_TXT_REG_4               .EQU    $00     ; Pattern Table = $0000
+VDP_TXT_REG_5               .EQU    $00     ; Sprites not allowed in this mode
+VDP_TXT_REG_6               .EQU    $00     ; Sprites not allowed in this mode
+VDP_TXT_REG_7               .EQU    $F5     ; White text on Light Blue Background
+VDP_TXT_PATT_TAB            .EQU    $0000   ; Pattern Table
+; VDP_TXT_SPRP_TAB            .EQU    $0000   ; Sprites not allowed in this mode
+; VDP_TXT_COLR_TAB            .EQU    $0000   ; Colour Table not used
+VDP_TXT_NAME_TAB            .EQU    $0800   ; Name Table
+; VDP_TXT_SPRA_TAB            .EQU    $1000   ; Sprites not allowed in this mode
+
+; Graphics I Mode
+VDP_G1_REG_0                .EQU    $00     ; Graphics I Mode, No External Video
+VDP_G1_REG_1                .EQU    $E0     ; 16K, Enable Disp., Enable Int., 8x8 Sprites, Mag. Off
+VDP_G1_REG_2                .EQU    $05     ; Name Table = $1400
+VDP_G1_REG_3                .EQU    $80     ; Colour Table = $2000
+VDP_G1_REG_4                .EQU    $01     ; Pattern Table = $0800
+VDP_G1_REG_5                .EQU    $20     ; Sprite Attribute Table = $1000
+VDP_G1_REG_6                .EQU    $00     ; Sprite Pattern Table = $0000
+VDP_G1_REG_7                .EQU    $04     ; Backdrop colour = Black
+VDP_G1_PATT_TAB             .EQU    $0800   ; Pattern Table
+VDP_G1_SPRP_TAB             .EQU    $1000   ; Sprite Pattern Table
+VDP_G1_COLR_TAB             .EQU    $2000   ; Colour Table
+VDP_G1_NAME_TAB             .EQU    $1400   ; Name Table
+VDP_G1_SPRA_TAB             .EQU    $1000   ; Sprite Attribute Table
+VDP_G1_DEFT_TBC             .EQU    $F1     ; Default Text Background Colour
+
+; Graphics II Mode and Graphics II Mode Bitmapped
 VDP_G2_REG_0                .EQU    $02     ; Graphics II Mode, No External Video
-; VDP_G2_REG_1                .EQU    $C0     ; 16K, Enable Disp., Disable Int., 8x8 Sprites, Mag. Off
 VDP_G2_REG_1                .EQU    $E0     ; 16K, Enable Disp., Enable Int., 8x8 Sprites, Mag. Off
+; VDP_G2_REG_1                .EQU    $C0     ; 16K, Enable Disp., Disable Int., 8x8 Sprites, Mag. Off
 VDP_G2_REG_2                .EQU    $0E     ; Name Table = $3800
 VDP_G2_REG_3                .EQU    $FF     ; Colour Table = $2000
 VDP_G2_REG_4                .EQU    $03     ; Pattern Table = $0000
 VDP_G2_REG_5                .EQU    $76     ; Sprite Attribute Table = $3B00
 VDP_G2_REG_6                .EQU    $03     ; Sprite Pattern Table = $1800
-
+VDP_G2_REG_7                .EQU    $0F     ; Backdrop colour = White
 VDP_G2_PATT_TAB             .EQU    $0000   ; Pattern Table
 VDP_G2_SPRP_TAB             .EQU    $1800   ; Sprite Pattern Table
 VDP_G2_COLR_TAB             .EQU    $2000   ; Colour Table
 VDP_G2_NAME_TAB             .EQU    $3800   ; Name Table
 VDP_G2_SPRA_TAB             .EQU    $3B00   ; Sprite Attribute Table
+VDP_G2_DEFT_TBC             .EQU    $F1     ; Default Text Background Colour
 
+; Multicolour Mode
+VDP_MM_REG_0                .EQU    $00     ; Multicolour Mode, No External Video
+VDP_MM_REG_1                .EQU    $E8     ; 16K, Enable Disp., Enable Int., M2, 8x8 Sprites, Mag. Off
+VDP_MM_REG_2                .EQU    $05     ; Name Table = $1400
+VDP_MM_REG_3                .EQU    $00     ; Colour Table not used
+VDP_MM_REG_4                .EQU    $01     ; Pattern Table = $0800
+VDP_MM_REG_5                .EQU    $20     ; Sprite Attribute Table = $1000
+VDP_MM_REG_6                .EQU    $00     ; Sprite Pattern Table = $0000
+VDP_MM_REG_7                .EQU    $04     ; Backdrop colour = Dark Blue
+VDP_MM_PATT_TAB             .EQU    $0800   ; Pattern Table
+VDP_MM_SPRP_TAB             .EQU    $0000   ; Sprite Pattern Table
+; VDP_MM_COLR_TAB             .EQU    $0000   ; Colour Table not used
+VDP_MM_NAME_TAB             .EQU    $1400   ; Name Table
+VDP_MM_SPRA_TAB             .EQU    $1000   ; Sprite Attribute Table
+
+; Colours
 VDP_COLR_TRNSP              .EQU    $0      ; Transparent
 VDP_COLR_BLACK              .EQU    $1      ; Black
 VDP_COLR_M_GRN              .EQU    $2      ; Medium Green

@@ -174,10 +174,29 @@ tmp_byte2:                      .EXPORT         tmp_byte2
 ;==============================================================================
 ; VDP
 ;==============================================================================
+NMI_enable:                     .EXPORT         NMI_enable
+                .BYTE   0                       ; Enable (1) / Disable (0) the
+                                                ;   execution of the NMI subroutine
+NMI_usr_jump:                   .EXPORT         NMI_usr_jump
+                .BYTE   0                       ; Enable (1) / Disable (0) the
+                                                ;   user configurable BIOS_NMI_JP jump
+VDP_cur_mode:                   .EXPORT         VDP_cur_mode
+                .BYTE   0                       ; 0=Text Mode, 1=Graphics I Mode,
+                                                ; 2=Graphics II Mode, 3=Multicolour Mode
 VDP_cursor_x:                   .EXPORT         VDP_cursor_x
                 .BYTE   0
 VDP_cursor_y:                   .EXPORT         VDP_cursor_y
                 .BYTE   0
+VDP_PTRNTAB_addr:               .EXPORT         VDP_PTRNTAB_addr
+                .BYTE   0, 0                    ; Address of current mode’s Pattern Table
+VDP_NAMETAB_addr:               .EXPORT         VDP_NAMETAB_addr
+                .BYTE   0, 0                    ; Address of current mode’s Name Table
+VDP_COLRTAB_addr:               .EXPORT         VDP_COLRTAB_addr
+                .BYTE   0, 0                    ; Address of current mode’s Colour Table
+VDP_SPRPTAB_addr:               .EXPORT         VDP_SPRPTAB_addr
+                .BYTE   0, 0                    ; Address of current mode’s Sprite Pattern Table
+VDP_SPRATAB_addr:               .EXPORT         VDP_SPRATAB_addr
+                .BYTE   0, 0                    ; Address of current mode’s Sprite Attribute Table
 VDP_jiffy_byte1:                .EXPORT         VDP_jiffy_byte1
                 .BYTE   0                       ; Jiffy counter
 VDP_jiffy_byte2:                .EXPORT         VDP_jiffy_byte2

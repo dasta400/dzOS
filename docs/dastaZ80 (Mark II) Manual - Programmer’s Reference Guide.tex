@@ -12,6 +12,7 @@
 \usepackage{multirow}
 \usepackage{longtable}
 \usepackage{listings}
+\usepackage{siunitx}
 % the hyperref package must always be the last package to be included
 \usepackage[pdftex,
             pdfusetitle,
@@ -93,7 +94,7 @@
 
     \hrulefill
 
-    \textcopyright 2022 David Asta
+    \textcopyright 2023 David Asta
 
     \pagebreak
     % ==========================================================================
@@ -141,7 +142,7 @@
     \textbf{High Resolution Display}.
 
     The 40 column graphics Composite Video output is referred as \textbf{Low
-    Resolution Display}.
+    Resolution Display} or \textbf{VDP screen}.
 
     The Operating System may be referred as DZOS, dzOS or simply OS.
 
@@ -200,8 +201,8 @@
         \hline
         \hline
         \texttt{0x0000} & \texttt{0x0007} & Cold Boot & \textbf{\multirow{3}{4em}{BIOS}} & 8 \\
-        \texttt{0x0008} & \texttt{0x0206} & init SIO/2 & & 511 \\
-        \texttt{0x0207} & \texttt{0x133F} & BIOS code & & 4,409 \\
+        \texttt{0x0008} & \texttt{0x0215} & init SIO/2 & & 526 \\
+        \texttt{0x0216} & \texttt{0x133F} & BIOS code & & 4,394 \\
         \hline
         \texttt{0x1340} & \texttt{0x26C7} & Kernel code & \textbf{\multirow{2}{4em}{Kernel}} & 5,000 \\
         \texttt{0x26B7} & \texttt{0x26C7} & dzOS version build & & 17 \\
@@ -246,10 +247,10 @@
         & \multicolumn{2}{|l|}{\textbf{Stack}} & 32\\
         \hline
         \texttt{0x4020} & \texttt{0x4174} 
-        & \multicolumn{2}{|l|}{\textbf{System Variables}} & 360\\
+        & \multicolumn{2}{|l|}{\textbf{System Variables}} & 373\\
         \hline
         \texttt{0x4188} & \texttt{0x421F} 
-        & \multicolumn{2}{|l|}{\textbf{Reserved for future use}} & 152\\
+        & \multicolumn{2}{|l|}{\textbf{Reserved for future use}} & 139\\
         \hline
         \texttt{0x4220} & \texttt{0x441F} 
         & \multicolumn{2}{|l|}{\textbf{DISK Buffer}} & 512\\
@@ -460,15 +461,37 @@
         \end{itemize}
         \item \textbf{VDP}
         \begin{itemize}
-            \item \texttt{0x4183} - \textbf{VDP\_cursor\_x} (1 byte): Current
-            horizontal position of the cursor on the VDP screen.
-            \item \texttt{0x4184} - \textbf{VDP\_cursor\_y} (1 byte): Current
-            vertical position of the cursor on the VDP screen.
-            \item \texttt{0x4185} - \textbf{VDP\_jiffy\_byte1} (1 byte):
+            \item \texttt{0x4183} - \textbf{NMI\_enable}: Enable (1) / Disable
+            (0) the execution of the \hyperref[sec:nmi]{NMI subroutine}.
+            \item \texttt{0x4184} - \textbf{NMI\_usr\_jump}: Enable (1) / Disable
+            (0) the user configurable \textit{BIOS\_NMI\_JP} jump of the 
+            \hyperref[sec:nmi]{NMI subroutine}.
+            \item \texttt{0x4185} - \textbf{VDP\_cur\_mode}:
+            \begin{itemize}
+                \item 0 = Text Mode
+                \item 1 = Graphics I Mode
+                \item 2 = Graphics II Mode
+                \item 3 = Multicolour Mode
+            \end{itemize}
+            \item \texttt{0x4186} - \textbf{VDP\_cursor\_x} (1 byte): Current
+            horizontal position of the cursor on the \textbf{VDP} screen.
+            \item \texttt{0x4187} - \textbf{VDP\_cursor\_y} (1 byte): Current
+            vertical position of the cursor on the \textbf{VDP} screen.
+            \item \texttt{0x4188} - \textbf{VDP\_PTRNTAB\_addr} (2 bytes):
+            Address of current Mode’s Pattern Table.
+            \item \texttt{0x418A} - \textbf{VDP\_NAMETAB\_addr} (2 bytes):
+            Address of current Mode’s Name Table.
+            \item \texttt{0x418C} - \textbf{VDP\_COLRTAB\_addr} (2 bytes):
+            Address of current Mode’s Colour Table.
+            \item \texttt{0x418E} - \textbf{VDP\_SPRPTAB\_addr} (2 bytes):
+            Address of current Mode’s Sprite Pattern Table.
+            \item \texttt{0x4190} - \textbf{VDP\_SPRATAB\_addr} (2 bytes):
+            Address of current Mode’s Sprite Attribute Table.
+            \item \texttt{0x4192} - \textbf{VDP\_jiffy\_byte1} (1 byte):
             \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 1.
-            \item \texttt{0x4186} - \textbf{VDP\_jiffy\_byte2} (1 byte):
+            \item \texttt{0x4193} - \textbf{VDP\_jiffy\_byte2} (1 byte):
             \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 2.
-            \item \texttt{0x4187} - \textbf{VDP\_jiffy\_byte3} (1 byte):
+            \item \texttt{0x4194} - \textbf{VDP\_jiffy\_byte3} (1 byte):
             \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 3.
         \end{itemize}
     \end{itemize}
@@ -526,79 +549,57 @@
     % ==========================================================================
     \subsection{Non-Maskable Interrupt (NMI)}
     % ==========================================================================
+    \label{sec:nmi}
 
-    The chip used for the generation of the Composite Video (the Texas
-    Instruments TMS9918A) generates an interrupt at the end of each
-    active-display scan (also known as \textit{raster interrupt} or 
-    \textit{VBLANK interrupt}), which is about every 1/60th second, by setting
-    the \textit{/INT} active low pin.
+    When the chip used for the generation of the Composite Video (the \textit{Texas
+    Instruments TMS9918A VDP}) is done drawing the screen, it enters the so
+    called \textit{vertical refresh mode} and issues an interrupt that gives the
+    \textbf{CPU} a window of 4.3 miliseconds (4300 \si{\micro\second}). This
+    interrupt occurs about every 1/60th second.
 
-    But this chip doesn't have the \textit{priority daisy-chain} feature of, for
-    example the SIO/2 and other Zilog chips, and when raising an interrupt to
-    the \textbf{CPU} pin \textit{/INT} could create bus contention\footnote{Bus
-    contention occurs when all devices communicate directly with each other
-    through a single shared channel (Address and Data buses), and more than one
-    device attempts to place values on the channel at the same time.}. Therefore,
-    the interrupt pin \textit{/INT} of the TMS9918A is connected to the
-    \textit{/NMI} pin of the \textbf{CPU}.
+    But this chip doesn't have the \textit{priority daisy-chain} feature of
+    other Zilog chips, and when raising an interrupt to the \textbf{CPU} pin
+    \textit{/INT} could create bus contention\footnote{Bus contention occurs
+    when all devices communicate directly with each other through a single
+    shared channel (Address and Data buses), and more than one device attempts
+    to place values on the channel at the same time.}. Therefore, the interrupt
+    pin \textit{/INT} of the TMS9918A is connected to the \textit{/NMI} pin of
+    the \textbf{CPU}.
 
-    This means that every 1/60th second the \textbf{CPU} will receive a
-    Non-Maskable Interrupt and therefore, store the current Program Counter (PC)
-    in the stack and jump to the location \texttt{0x0066}.
+    This means that 1) there is no standard way\footnote{By design the
+    \textbf{CPU} doesn't offer an instruction to enable/disable this type of
+    interrupts, hence are called \textit{non-maskable}. But this has been
+    implemented programatically within dzOS, and therefore NMI can be
+    enabled/disabled via the funtions \hyperref[func:fbiosvdpei]
+    {F\_BIOS\_VDP\_EI} and \hyperref[func:fbiosvdpdi]{F\_BIOS\_VDP\_DI}} to
+    programatically disable these interrupts, and 2) that every 1/60th second
+    the \textbf{CPU} will receive a Non-Maskable Interrupt and therefore, store
+    the current Program Counter (PC) in the stack and jump to the location
+    \texttt{0x0066}.
 
-    At that address, dzOS contains a small piece of code that allows programs to
+    At this address, dzOS contains a small piece of code that allows programs to
     enable and disable a jump to their own subroutine. For example, a video game
     playing a tune will need to update the \textbf{PSG} in an interrupt basis.
 
-    The NMI Interrupt code works as follows:
+    This code works as follows:
 
     \begin{itemize}
-        \item First, all \textbf{CPU} registers are saved (with \textit{PUSH}).
-        \item Next, it calls \hyperref[func:fbiosvdpjiffycounter]
-        {F\_BIOS\_VDP\_JIFFY\_COUNTER}, that increments the
-        \hyperref[subsec:jiffy_counter]{Jiffy Counter}.
-        \item Next, the subroutine checks the byte stored at
-        \textit{BIOS\_NMI\_FLAG}. This allows for a user defined subroutine to
-        be called on each interrupt.
-        \begin{itemize}
-            \item If the byte is equal to 1 (i.e. enabled), it will jump to
-            whatever address is stored in the bytes 2 and 3 of
-            \textit{BIOS\_NMI\_JP}
-        \end{itemize}
-        \item Next, it will restore the \textbf{CPU} registers \texttt{IY}, 
-        \texttt{IX}, \texttt{HL} and \texttt{DE}.
-        \item Next, it will check if the NMI interrupts are enabled, in which
-        case will acknowledge the interrupt by calling
-        \hyperref[func:fbiosvdpreadstatreg]{F\_BIOS\_VDP\_READ\_STATREG}
-        \item Finally, will restore the \textbf{CPU} registers \texttt{BC} and 
-        \texttt{AF}
+        \item All \textbf{CPU} registers are saved (with \textit{PUSH}).
+        \item The \hyperref[subsec:jiffy_counter]{Jiffy Counter} is incremented.
+        \item If the flag \textit{NMI\_usr\_jump} is enabled (1), the subroutine
+        jumps to whatever address is in bytes 2 and 3 of \textit{BIOS\_NMI\_JP}
+        \item If the flag is disabled (0), \textbf{CPU} registers are restored,
+        and the subroutine ends.
     \end{itemize}
 
-    To check if NMI interrupts are enabled or disabled, the subroutine uses a
-    byte that emulates the Enable Interrupt (\textit{EI}) and Disable Interrupt
-    (\textit{DI}) that the \textbf{CPU} has for Maskable Interrupts.
+    The end of your subroutine MUST be a \textit{jp F\_BIOS\_NMI\_END}. This is
+    the part that restores the previously saved \textbf{CPU} registers and ends
+    the subrutine with \textit{RETN}. Otherwise the system will certainly crash.
 
-    Important to notice is that if NMI interrupts are disabled two things will
-    happen:
-    \begin{enumerate}
-        \item The \hyperref[subsec:jiffy_counter]{Jiffy Counter} will stop.
-        \item The NMI Interrupt subroutine will not be called anymore until
-        NMI interrupts are enabled again, with a call to
-        \hyperref[func:fbiosvdpei]{F\_BIOS\_VDP\_EI}
-    \end{enumerate}
-
-    In summary, if you want your program to perform any actions each time the
-    \textbf{VDP} raises an interrupt (i.e. each 1/60th second), do the following:
-
-    \begin{itemize}
-        \item The end of your subroutine MUST be a \textit{jp F\_BIOS\_NMI\_END}
-        This is the part that restores the previously saved \textbf{CPU}
-        registers and ends the subrutine with \textit{RETN}.
-        \item Store the address of your subroutine, in little-endian, in the
-        bytes \textit{BIOS\_NMI\_JP} + 2 and \textit{BIOS\_NMI\_JP} + 3.
-        \item Enable the calling to your subroutine, by storing a 1 in the byte
-        \textit{BIOS\_NMI\_FLAG}
-    \end{itemize}
+    When writing a subroutine that will be called at each interrupt, remember
+    that the window given for \textbf{CPU} time is 4.3 miliseconds (4300
+    \si{\micro\second}). The current NMI routine takes 35.81 \si{\micro\second}.
+    After this window, the \textbf{VDP} will start drawing again in the screen.
 
     % ==========================================================================
     \subsubsection{F\_BIOS\_NMI\_END}
@@ -606,16 +607,17 @@
     % ==========================================================================
     \begin{tabular}{l p{9cm}}
         \hline\textbf{Action}
-        & Performs \textit{POP} instructions for all \textbf{CPU} registers and
-        performs a Return from non maskable interrupt (\textit{RETN})\\
+        & Performs \textit{POP} instructions for all \textbf{CPU} registers.
+        Reads the \textbf{VDP} \textit{Status Register}, to acknowledge the
+        interrupt and allow more to happen, and  performs a return from non
+        maskable interrupt (\textit{RETN}).\\
         \hline\textbf{Entry} & None\\
         \hline\textbf{Exit} & None\\
         \hline\textbf{Destroys} & Restores \textbf{CPU} registers \texttt{AF},
         \texttt{BC},\texttt{DE}, \texttt{HL}, \texttt{IX} and \texttt{IY} to the
         values they had before the NMI was triggered.\\
-        \hline\textbf{Calls} & Programmable \textit{jp}, by changing the address
-        of the \textit{BIOS\_NMI\_JP} and enabling the jump by setting 
-        \textit{BIOS\_NMI\_FLAG} to 1.\\
+        \hline\textbf{Calls} & \hyperref[func:fbiosvdpreadstatreg]
+        {F\_BIOS\_VDP\_READ\_STATREG}\\
         \hline
     \end{tabular}
 
@@ -628,19 +630,6 @@
     \textit{jp BIOS\_NMI\_END}. The first byte (\textit{C3}) MUST not be changed.
     The next two bytes are the ones a program can change to make the interrupt
     jump to a desired subroutine.
-
-    % ==========================================================================
-    \subsubsection{BIOS\_NMI\_FLAG}
-    \label{func:fbiosnmiflag}
-    % ==========================================================================
-
-    This is the address of a single byte that enables the jump to the subroutine
-    at address \hyperref[func:fbiosnmijp]{F\_BIOS\_NMI\_JP}
-
-    By setting this byte to 1, the NMI subroutine will execute the jump.
-
-    By setting this byte to 0, the NMI subroutine will skip the hump and just
-    execute the \hyperref[func:fbiosnmiend]{F\_BIOS\_NMI\_END}.
 
     % ==========================================================================
     \subsection{General Routines}
@@ -667,9 +656,10 @@
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
-            & Halts the computer. Executed after a \textit{halt} command \\
+            & Halts the computer.\\
             \hline\textbf{Entry} & None \\
-            \hline\textbf{Exit} & Disables Interrupts (DI) \\
+            \hline\textbf{Exit} & Disables both Maskable and Non-Maskable
+            interrupts, and then executes a \textit{halt} command.\\
             \hline\textbf{Destroys} & None \\
             \hline\textbf{Calls} & None \\
             \hline
@@ -1149,7 +1139,7 @@
             \hline\textbf{Entry} & \texttt{A} = register number, \texttt{B} =
             value to set\\
             \hline\textbf{Exit} & None\\
-            \hline\textbf{Destroys} & \texttt{A}, \texttt{C} \\
+            \hline\textbf{Destroys} & \texttt{C} \\
             \hline\textbf{Calls} & None\\
             \hline
         \end{tabular}
@@ -1356,6 +1346,26 @@
             \texttt{HL}, \texttt{tmp\_byte}\\
             \hline\multirow[t]{3}{4em}{\textbf{Call}}
             & \hyperref[func:fkrndiv1616]{F\_KRN\_DIV1616}\\
+            & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
+            & \hyperref[func:fbiosvdpbytetovram]{F\_BIOS\_VDP\_BYTE\_TO\_VRAM}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_CHAROUT\_ATXY}
+        \label{func:fbiosvdpcharoutatxy}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Print a character in the \textbf{Low Resolution display}, at the
+            \textit{VDP\_cursor\_X}, \textit{VDP\_cursor\_Y} postition.\\
+            \hline\textbf{Entry} & \texttt{A} = Character to be printed, in
+            Hexadecimal ASCII.\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
+            \texttt{HL}, \texttt{IX}, \texttt{VDP\_cursor\_x},
+            \texttt{VDP\_cursor\_y}\\
+            \hline\multirow[t]{2}{4em}{\textbf{Call}}
             & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
             & \hyperref[func:fbiosvdpbytetovram]{F\_BIOS\_VDP\_BYTE\_TO\_VRAM}\\
             \hline
@@ -2032,7 +2042,8 @@
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
-            & Checks if a specified filename exsists in the \textbf{DISK}.\\
+            & Checks if a specified filename exists in the \textbf{DISK}. The
+            filename MUST be terminated by a zero.\\
             \hline\textbf{Entry} & \texttt{HL} = \textbf{MEMORY} address where
             the filename to check is stored.\\
             \hline\textbf{Exit} & \texttt{Z Flag} set if filename is not found.\\
@@ -2264,6 +2275,26 @@
             & \texttt{B} = maximum length to be checked.\\
             \hline\textbf{Exit} & \texttt{B} = lenght of the string.\\
             \hline\textbf{Destroys} & \texttt{BC}, \texttt{DE}, \texttt{HL}\\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_INSTR}
+        \label{func:fkrninstr}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Locates the first occurrence of a character within a string.\\
+            \hline\multirow[t]{3}{4em}{\textbf{Entry}}
+            & \texttt{HL} = \textbf{MEMORY} address where the first byte of the
+            string is located.\\
+            & \texttt{B} = character to search in string.\\
+            & \texttt{D} = terminating character.\\
+            \hline\multirow[t]{2}{4em}{\textbf{Exit}}
+            & \texttt{E} = position of character in string.\\
+            & \texttt{Carry Flag} = Set if character was found.\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{C}, \texttt{E}\\
             \hline\textbf{Calls} & None\\
             \hline
         \end{tabular}
@@ -3404,6 +3435,14 @@
     hours: 24 hours x 60 minutes in an hour x 60 seconds in a minute x 60
     jiffies in a second.
 
+    \textbf{IMPORTANT}: This counter MUST not be interpreted as an accurate
+    clock, because when transferring data to the \textbf{VRAM} the OS disables
+    the \hyperref[sec:nmi]{NMI}\footnote{It is also highly recommended that in
+    your programs you also disable the \hyperref[sec:nmi]{NMI} when copying
+    large amounts of data. Otherwise, the process will be interrupted 60 times
+    per second, and therefore slow it down.}, and therefore the counter stops
+    for a while.
+
     % ==========================================================================
     \subsection{OS Boot Sequence}
     % ==========================================================================
@@ -3502,6 +3541,7 @@
         \textit{ld A,0}).
         \item Labels for subroutines that will be public (i.e. called via a
         Jumpblock) are written in uppercase.
+        \item No mnemonics are written in the same line as a label.
         \item Public subroutines contain comments specifying:
         \begin{itemize}
             \item Short description.

@@ -17,6 +17,7 @@
 * ✔ ~~Results of _cat_ command are longer than 80 columns.~~
 * ✔ ~~_halt_ makes the computer to reset.~~
 * _clrram_ executed after loading MS BASIC, hangs the computer
+* ✔ ~~Backspace is not reflected in _CLI_buffer_full_cmd_~~
 
 ## VDP
 

@@ -207,8 +207,9 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 
 * ~~**memdump _[address_start]_,_[address_end]_**: shows all the contents of memory (ROM/RAM) from address_start to address_end.~~ This command is now an stand-alone program (part of the [dzSoftware repo](https://github.com/dasta400/dzSoftware) that can be loaded from disk, instead of being part of the ROM.
 * **peek _[address]_**: shows the byte stored at _address_.
-* **poke _[address]_,_[value]_**: overwrittes the byte stored at _address_, with _value_.
-* **autopoke _[start_address]_**: allows to enter hexadecimal values that will be stored at the _start_address_ and consecutive positions. The address is incremented automatically after each hexadecimal value is entered (2 digits). Entering no value (i.e. just press ENTER) will stop the process.
+* **poke _[address]_,_[value]_**: overwrittes the byte stored at _address_ of RAM, with _value_.
+* **vpoke _[address]_,_[value]_**: overwrittes the byte stored at _address_ of VRAM, with _value_.
+* **autopoke _[start_address]_**: allows to enter hexadecimal values that will be stored at the RAM _start_address_ and consecutive positions. The address is incremented automatically after each hexadecimal value is entered (2 digits). Entering no value (i.e. just press ENTER) will stop the process.
 * **clrram**: fills with zeros the entire Free RAM area (i.e. from 0x4420 to 0xFFFF).
 
 ### Real-Time Clock (RTC) commands

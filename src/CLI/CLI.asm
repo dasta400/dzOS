@@ -106,13 +106,13 @@ F_CLI_READCMD:
 ; Parameters (identified by comma) are detected and stored in 'parameters buffer',
 ; meanwhile the command is stored in 'command buffer'.
         ld      HL, CLI_buffer_cmd      ; address where command (no params) is stored
-        ld      IX, CLI_buffer_full_cmd ; address where commands + params is stored
+        ld      DE, CLI_buffer_full_cmd ; address where commands + params is stored
 readcmd_loop:
         call    F_KRN_SERIAL_RDCHARECHO ; A = character read from serial (keyboard)
         cp      0                       ; if no character (e.g. CLRSCR)
         jp      z, readcmd_loop         ;   read another
-        ld      (IX), A                 ; store character
-        inc     IX                      ;   in full command buffer
+        ld      (DE), A                 ; store character
+        inc     DE                      ;   in full command buffer
 
         ; Test for parameter entered (comma or space separated)
         cp      ' '
@@ -132,20 +132,22 @@ readcmd_loop:
         ld      (HL), A
         inc     HL
 no_buffer:
-        jp      readcmd_loop            ; don't add last entered char to buffer
+        jp      readcmd_loop
         ret
 was_backspace:
         dec     HL                      ; go back 1 unit on this buffer pointer
         ld      (HL), 0                 ; and clear whatever was there before
-        dec     IX                      ; go back 2 units
-        dec     IX                      ;    on full command buffer
+        dec     DE                      ; go back 2 units
+        dec     DE                      ;    on full command buffer
         ; Delete character on screen
         ld      A, SPACE
         call    F_BIOS_SERIAL_CONOUT_A
         ; and go back 1 character on screen
         ld      B, 4
+        push    DE
         ld      DE, ANSI_CURSOR_BACK
         call    F_KRN_SERIAL_SEND_ANSI_CODE
+        pop     DE
         jp      readcmd_loop            ; read another character
 was_param:
         ld      A, (CLI_buffer_parm1_val)
@@ -240,6 +242,7 @@ check_param2:
         ld      A, (CLI_buffer_parm2_val)   ; get what's in param2
 check_param:
         cp      0                           ; was a parameter specified?
+                                            ; ToDo - this will fail if parameter was a zero
         jp      z, bad_params               ; no, show error and exit subroutine
         ret
 bad_params:
@@ -441,6 +444,9 @@ error_9010:
 error_9011:
         .BYTE   CR, LF
         .BYTE   "Error", CR, LF, 0
+error_9012:
+        .BYTE   CR, LF
+        .BYTE   "Mode number incorrect. Valid modes 0 to 4.", CR, LF, 0
 ;==============================================================================
 ; Tables
 ;==============================================================================
@@ -451,11 +457,11 @@ tab_file_types:
         .BYTE   "BIN"                   ; $2 = Binary (non-executable) data
         .BYTE   "BAS"                   ; $3 = BASIC code
         .BYTE   "TXT"                   ; $4 = Plain ASCII text file
-        .BYTE   "---"                   ; $5 = Unused
-        .BYTE   "---"                   ; $6 = Unused
-        .BYTE   "---"                   ; $7 = Unused
-        .BYTE   "---"                   ; $8 = Unused
-        .BYTE   "---"                   ; $9 = Unused
+        .BYTE   "SC1"                   ; $5 = Screen 1 (Graphics I Mode) Picture
+        .BYTE   "FN6"                   ; $6 = Font (6×8) for Text Mode
+        .BYTE   "SC2"                   ; $7 = Screen 2 (Graphics II Mode) Picture
+        .BYTE   "FN8"                   ; $8 = Font (8×8) for Graphics Modes
+        .BYTE   "SC3"                   ; $9 = Screen 3 (Multicolour Mode) Picture
         .BYTE   "---"                   ; $A = Unused
         .BYTE   "---"                   ; $B = Unused
         .BYTE   "---"                   ; $C = Unused

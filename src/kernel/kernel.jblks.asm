@@ -88,6 +88,8 @@ F_KRN_STRLEN:                       .EXPORT         F_KRN_STRLEN
         jp      KRN_STRLEN
 F_KRN_STRLENMAX:                    .EXPORT         F_KRN_STRLENMAX
         jp      KRN_STRLENMAX
+F_KRN_INSTR:                        .EXPORT         F_KRN_INSTR
+        jp      KRN_INSTR
 
         ; Memory subroutines
 F_KRN_SETMEMRNG:                    .EXPORT         F_KRN_SETMEMRNG

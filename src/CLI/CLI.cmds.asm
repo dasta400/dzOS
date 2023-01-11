@@ -105,6 +105,37 @@ CLI_CMD_POKE:
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
+;    vpoke - Changes a single VRAM memory address to a specified value
+;------------------------------------------------------------------------------
+CLI_CMD_VDP_VPOKE:
+; IN <= CLI_buffer_parm1_val = memory address
+;       CLI_buffer_parm2_val = specified value
+; OUT => print message 'OK' to default output (e.g. screen, I/O)
+        call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
+        call    param1val_uppercase
+        call    param2val_uppercase
+        call    F_KRN_ASCII_TO_HEX      ; Hex ASCII to Binary conversion
+        ; CLI_buffer_parm1_val has the address in hexadecimal ASCII
+        ; we need to convert its hexadecimal value (e.g. 33 => 03)
+        ld      IX, CLI_buffer_parm1_val
+        call    F_KRN_ASCIIADR_TO_HEX
+        push    HL                      ; Backup HL
+        ; CLI_buffer_parm2_val has the value in hexadecimal ASCII
+        ; we need to convert its hexadecimal value (e.g. 33 => 03)
+        ld      A, (CLI_buffer_parm2_val)
+        ld      H, A
+        ld      A, (CLI_buffer_parm2_val + 1)
+        ld      L, A
+        call    F_KRN_ASCII_TO_HEX      ; A contains the binary value for param2
+        pop     HL                      ; Restore HL
+        call    F_BIOS_VDP_SET_ADDR_WR  ; Store at VRAM address
+        call    F_BIOS_VDP_BYTE_TO_VRAM ;   the value stored in A
+        ; print OK, to let the user know that the command was successful
+        ld      HL, msg_ok
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      cli_promptloop
+;------------------------------------------------------------------------------
 ;    autopoke - Allows to enter hexadecimal values that will be stored at the
 ;              address in parm1 and consecutive positions.
 ;              The address is incremented automatically after each hexadecimal 
@@ -820,6 +851,55 @@ CLI_CMD_CLRRAM:
         ld      BC, FREERAM_END - FREERAM_START
         ld      A, 0
         call    F_KRN_SETMEMRNG
+        jp      cli_promptloop
+;------------------------------------------------------------------------------
+;    screen - Changes the VDP screen mode
+;------------------------------------------------------------------------------
+CLI_CMD_VDP_SCREEN:
+; IN <= CLI_buffer_parm1_val = screen mode
+        call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+        ; call    F_KRN_IS_NUMERIC        ; and check  if it's a number (C Flag set)
+        ; jp      nc, _vdp_mode_error     ; if no numeric, error
+
+        ld      A, (CLI_buffer_parm1_val)
+        cp      $30
+        jp      z, _set_mode0
+        cp      $31
+        jp      z, _set_mode1
+        cp      $32
+        jp      z, _set_mode2
+        cp      $33
+        jp      z, _set_mode3
+        cp      $34
+        jp      z, _set_mode4
+        
+        ld      HL, error_9012          ; wasn't any of the valid values
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        jp      cli_promptloop
+
+_set_mode0:
+        call    F_BIOS_VDP_SET_MODE_TXT
+        jp      cli_promptloop
+_set_mode1:
+        call    F_BIOS_VDP_SET_MODE_G1
+        jp      cli_promptloop
+_set_mode2:
+        call    F_BIOS_VDP_SET_MODE_G2
+        jp      cli_promptloop
+_set_mode3:
+        call    F_BIOS_VDP_SET_MODE_MULTICLR
+        jp      cli_promptloop
+_set_mode4:
+        call    F_BIOS_VDP_SET_MODE_G2BM
+        jp      cli_promptloop
+
+_vdp_mode_error:
+        ld      HL, error_9002
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 
 ;==============================================================================

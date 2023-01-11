@@ -125,7 +125,7 @@ KRN_INIT_VDP:
 
         ; VDP VRAM test passed OK
         call    F_BIOS_VDP_VRAM_CLEAR   ; CLear VRAM
-        call    F_BIOS_VDP_SET_MODE_G2  ; Set Graphics II Mode 
+        call    BIOS_VDP_SET_MODE_G2BM  ; Set Graphics II Bitmapped Mode
         call    F_BIOS_VDP_SHOW_DZ_LOGO ; Show dastaZ80 Logo
         ; call    F_BIOS_VDP_EI           ; Enable Interrupts
         ret
@@ -422,6 +422,10 @@ KRN_INIT_SYSVARS:
         ld      A, 0
         ld      (DISK_show_deleted), A
 
+        ; Reset VDP Cursor position
+        ld      (VDP_cursor_x), A
+        ld      (VDP_cursor_y), A
+
         ; Set default File Type as 0=USR (User defined)
         ; Set loadsave address to default ($0000)
         call    F_KRN_DZFS_SET_FILE_DEFAULTS
@@ -540,9 +544,6 @@ msg_nvram_bytes:
 msg_vdp_detect:
         .BYTE    CR, LF
         .BYTE   "....Detecting VDP  ", 0
-msg_psg_detect:
-        .BYTE    CR, LF
-        .BYTE   "....Detecting PSG  ", 0
 msg_left_brkt:
         .BYTE   " [ ", 0
 msg_right_brkt:
@@ -569,8 +570,6 @@ error_2101:
         .BYTE   "NVRAM not responding", 0
 error_3001:
         .BYTE   "VDP not detected", 0
-error_4001:
-        .BYTE   "PSG not detected", 0
 
 ;==============================================================================
 ; DZOS Version

@@ -95,6 +95,10 @@ _CMD_RTC_TIME           .BYTE   "time", 0
 _CMD_RTC_SETDATE        .BYTE   "setdate", 0
 _CMD_RTC_SETTIME        .BYTE   "settime", 0
 
+; VDP commands
+_CMD_VDP_VPOKE          .BYTE   "vpoke", 0
+_CMD_VDP_SCREEN         .BYTE   "screen", 0
+
 ;==============================================================================
 ; TABLES
 ;==============================================================================
@@ -126,6 +130,8 @@ cmd_list_table:
         .WORD       _CMD_RTC_SETTIME
         .WORD       _CMD_CRC16BSC
         .WORD       _CMD_CLRRAM
+        .WORD       _CMD_VDP_VPOKE
+        .WORD       _CMD_VDP_SCREEN
 
 ; Jump table for available CLI commands (add above too)
 cmd_jmptable:
@@ -154,11 +160,13 @@ cmd_jmptable:
         .WORD       CLI_CMD_RTC_SETTIME
         .WORD       CLI_CMD_CRC16BSC
         .WORD       CLI_CMD_CLRRAM
+        .WORD       CLI_CMD_VDP_VPOKE
+        .WORD       CLI_CMD_VDP_SCREEN
 
 ;==============================================================================
 ; Local Equates
 ;==============================================================================
-JMPTABLE_LENGTH     .EQU        24      ; total number of available commands
+JMPTABLE_LENGTH     .EQU        26      ; total number of available commands
                                         ; in jump table above
 
 CLI_NOCMD:

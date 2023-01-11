@@ -133,14 +133,14 @@ _wr6dig_next_digit:
 KRN_SERIAL_RDCHARECHO:
 ; Read a character, with echo
 ; Read a character from Console and outputs to the Screen
-; Read character is stored in register A
+; OUT => A = Read character
         call    F_BIOS_SERIAL_CONIN_A   ; Read character
         cp      CLRSCR                  ; Break/Pause key (Clear Screen)
         jp      z, KRN_SERIAL_CLRSCR
         call    F_BIOS_SERIAL_CONOUT_A  ; Echo it
         ret
 ;------------------------------------------------------------------------------
-KRN_SERIAL_CLRSCR:
+KRN_SERIAL_CLRSCR:  ; ToDo - delete?
         ld      DE, KRN_ANSI_CLRSCR
         ld      B, 7
         call    F_KRN_SERIAL_SEND_ANSI_CODE

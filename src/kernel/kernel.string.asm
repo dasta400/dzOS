@@ -54,14 +54,15 @@ is_printable:
 ;------------------------------------------------------------------------------
 KRN_IS_NUMERIC:
 ; Checks if a character is numeric (0..9)
+; In ASCII table numbers go from 0 to 9, in Hex 30 to 39
 ; IN <= A contains character to check
 ; OUT => C flag is set if character is numeric
-        cp      $30                     ; first numeric character in ASCII table
+        cp      $30                     ; C flag not set if A >= $30
         jr      nc, is_numeric
         ccf
         ret
 is_numeric:
-        cp      $3A                     ; last + 1 numeric character in ASCII table
+        cp      $3A                     ; C flag set if A < $3A
         ret
 ;------------------------------------------------------------------------------
 KRN_TOUPPER:
@@ -148,4 +149,33 @@ lenmax:
         djnz    lenmax                  ; loop if we didn't yet check maximum length
 lenmax_end:
         ld      B, E                    ; move temporary counter to output register
+        ret
+;------------------------------------------------------------------------------
+KRN_INSTR:
+; Locates the first occurrence of a character within a string
+; IN <= HL = pointer to start of string
+;       B = character to search in string
+;       D = character that marks end of string (erminating Char)
+; OUT => E = position of character in string
+;        Carry Flag = Set if character found
+        push    HL
+        ld      E, 0                    ; initialise position counter
+        ld      C, 0                    ; initialise counter erminating Char
+_instr:
+        ld      A, (HL)                 ; get character
+        cp      D                       ; is it the erminating Char?
+        jr      z, _instr_notfound      ; yes, exit
+        cp      B                       ; no, is it the one we're looking for?
+        jr      z, _instr_found         ; yes, exit
+        inc     HL                      ; no, next character
+        inc     E                       ; position +1
+        jr      _instr
+
+_instr_found:
+        scf                             ; Set Carry flag to indicate found
+        jr      _instr_end
+_instr_notfound
+        xor     A                       ; Clear Carry flag to indicate not found
+_instr_end:
+        pop     HL
         ret

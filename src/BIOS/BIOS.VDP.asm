@@ -41,6 +41,101 @@
 ;   /CSR Low = /IORQ Low & /CS ($10-$1F) Low & /RD Low
 ;   MODE = A0
 
+;==============================================================================
+; Tables
+;==============================================================================
+VDP_G1_REG_TAB:     ; Graphics I Mode
+        .BYTE   VDP_G1_REG_0
+        .BYTE   VDP_G1_REG_1
+        .BYTE   VDP_G1_REG_2
+        .BYTE   VDP_G1_REG_3
+        .BYTE   VDP_G1_REG_4
+        .BYTE   VDP_G1_REG_5
+        .BYTE   VDP_G1_REG_6
+        .BYTE   VDP_G1_REG_7
+VDP_G2_REG_TAB:     ; Graphics II Mode
+        .BYTE   VDP_G2_REG_0
+        .BYTE   VDP_G2_REG_1
+        .BYTE   VDP_G2_REG_2
+        .BYTE   VDP_G2_REG_3
+        .BYTE   VDP_G2_REG_4
+        .BYTE   VDP_G2_REG_5
+        .BYTE   VDP_G2_REG_6
+        .BYTE   VDP_G2_REG_7
+VDP_MM_REG_TAB:     ; Multicolour Mode
+        .BYTE   VDP_MM_REG_0
+        .BYTE   VDP_MM_REG_1
+        .BYTE   VDP_MM_REG_2
+        .BYTE   VDP_MM_REG_3
+        .BYTE   VDP_MM_REG_4
+        .BYTE   VDP_MM_REG_5
+        .BYTE   VDP_MM_REG_6
+        .BYTE   VDP_MM_REG_7
+VDP_TXT_REG_TAB:    ; Text Mode
+        .BYTE   VDP_TXT_REG_0
+        .BYTE   VDP_TXT_REG_1
+        .BYTE   VDP_TXT_REG_2
+        .BYTE   VDP_TXT_REG_3
+        .BYTE   VDP_TXT_REG_4
+        .BYTE   VDP_TXT_REG_5
+        .BYTE   VDP_TXT_REG_6
+        .BYTE   VDP_TXT_REG_7
+;------------------------------------------------------------------------------
+VDP_MULT_32Y:
+; Result of (32 * Y)
+        .WORD   $0000
+        .WORD   $0020
+        .WORD   $0040
+        .WORD   $0060
+        .WORD   $0080
+        .WORD   $00A0
+        .WORD   $00C0
+        .WORD   $00E0
+        .WORD   $0100
+        .WORD   $0120
+        .WORD   $0140
+        .WORD   $0160
+        .WORD   $0180
+        .WORD   $01A0
+        .WORD   $01C0
+        .WORD   $01E0
+        .WORD   $0200
+        .WORD   $0220
+        .WORD   $0240
+        .WORD   $0260
+        .WORD   $0280
+        .WORD   $02A0
+        .WORD   $02C0
+        .WORD   $02E0
+VDP_MULT_40Y:
+; Result of (40 * Y)
+        .WORD   $0000
+        .WORD   $0028
+        .WORD   $0050
+        .WORD   $0078
+        .WORD   $00A0
+        .WORD   $00C8
+        .WORD   $00F0
+        .WORD   $0118
+        .WORD   $0140
+        .WORD   $0168
+        .WORD   $0190
+        .WORD   $01B8
+        .WORD   $01E0
+        .WORD   $0208
+        .WORD   $0230
+        .WORD   $0258
+        .WORD   $0280
+        .WORD   $02A8
+        .WORD   $02D0
+        .WORD   $02F8
+        .WORD   $0320
+        .WORD   $0348
+        .WORD   $0370
+        .WORD   $0398
+;==============================================================================
+; Subroutines
+;==============================================================================
 ;------------------------------------------------------------------------------
 BIOS_VDP_SET_ADDR_WR:
 ; Set a VRAM address for writting
@@ -67,11 +162,13 @@ BIOS_VDP_SET_REGISTER:
 ; Set a value to a VDP register
 ; IN <= A = register number
 ;       B = value to set
+        push    AF
         add     A, $80                  ; set VDP to write to registers
         ld      C, VDP_REG
         out     (C), B                  ; send value
         nop                             ; recommended delay between sends
         out     (C), A                  ; send register to receive the value
+        pop     AF
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_EI:
@@ -79,10 +176,8 @@ BIOS_VDP_EI:
 ; NOTE: this is independent of the value (bit 5) in VDP Register 1. What this
 ;       does is that the NMI subroutine reads the VDP Status Register again in
 ;       each run, and therefore it does allow more interrupts to happen.
-        ; set     5, A
-        ; ToDo - send value to VDP
         ld      A, 1
-        ld      (BIOS_NMI_ENABLE), A
+        ld      (NMI_enable), A
         call    F_BIOS_VDP_READ_STATREG ; Acknowledge interrupt to allow more interrupts coming
         ret
 ;------------------------------------------------------------------------------
@@ -92,7 +187,7 @@ BIOS_VDP_DI:
 ;       does is that the NMI subroutine doesn't read the VDP Status Register
 ;       anymore, and therefore doesn't allow more interrupts to happen.
         ld      A, 0
-        ld      (BIOS_NMI_ENABLE), A
+        ld      (NMI_enable), A
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_READ_STATREG:
@@ -166,40 +261,212 @@ _testram_error:
         scf                             ; Set Carry Flag to indicate error
         ret
 ;------------------------------------------------------------------------------
+; Initialises VDP registers 0 to 6 according with values from table
+; IN <= IX = table with initialisation values
+BIOS_VDP_INIT_REGS:
+        ld      A, 0                    ; initialise register counter
+_ini_regs_loop:
+        ld      B, (IX)
+        call    BIOS_VDP_SET_REGISTER
+        inc     IX
+        inc     A
+        cp      7                       ; did we initialise already 6 registers
+        jr      nz, _ini_regs_loop      ; no, do more registers
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_INIT_TAB:
+; Initialises an entire Table with a value
+; IN <= A = value to initialise to
+;       B = outer loop counter (how many times the inner loop will be repeated)
+;       D = inner loop counter (how many bytes to copy in this loop)
+        call    F_BIOS_VDP_BYTE_TO_VRAM
+        inc     D
+        jr      nz, BIOS_VDP_INIT_TAB   ; inner loop
+        djnz    BIOS_VDP_INIT_TAB       ; outer loop
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_SET_MODE_TXT:
+; ToDo - Set VDP to Text Mode
+;   Pattern Table           = 2048 bytes, arranged as 256 6x8 patterns
+;   Name Table              = 960 bytes
+;   Colour Table            = No colour table
+;   Sprite Patterns Table   = No sprites
+;   Sprite Attributes Table = No sprites
+
+        ; Initialise registers
+        ld      IX, VDP_TXT_REG_TAB     ; register table of initialisation values
+        call    BIOS_VDP_INIT_REGS
+
+        ; Initialise the 2048 bytes of the Pattern Table, with all zeros
+        ld      HL, VDP_TXT_PATT_TAB
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ld      A, 0                    ; write zeros
+        ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
+        ld      D, 0                    ; inner loop incrementing (256 times)
+        call    BIOS_VDP_INIT_TAB
+
+        ; Initialise the 960 bytes of the Name Table, with all zeros
+        ; ld      HL, VDP_TXT_NAME_TAB      ; Name table is next to the Pattern Table
+        ; call    F_BIOS_VDP_SET_ADDR_WR    ;   so no need to reposition VRAM pointer
+        ld      A, 0                    ; write zeros
+        ld      B, 3                    ; outer loop decrementing (960 / 256 = 3 times)
+        ld      D, 0                    ; inner loop incrementing (256 times)
+        call    BIOS_VDP_INIT_TAB
+        ld      A, 0                    ; write zeros
+        ld      B, 0                    ; outer loop decrementing (0 times)
+        ld      D, 192                  ; inner loop incrementing (960 mod 256 = 192 times)
+        call    BIOS_VDP_INIT_TAB
+
+        ; Set Text and Background colours
+        ld      A, 7
+        ld      B, VDP_TXT_REG_7
+        call    BIOS_VDP_SET_REGISTER
+
+        ; Set SYSVARS
+        ld      A, VDP_MODE_TXT
+        ld      (VDP_cur_mode), A
+        ld      HL, VDP_TXT_PATT_TAB
+        ld      (VDP_PTRNTAB_addr), HL
+        ld      HL, VDP_TXT_NAME_TAB
+        ld      (VDP_NAMETAB_addr), HL
+        ld      HL, $0000
+        ld      (VDP_COLRTAB_addr), HL  ; No Colour Table for Text Mode
+        ld      (VDP_SPRPTAB_addr), HL  ; No Sprites for Text Mode
+        ld      (VDP_SPRATAB_addr), HL  ; No Sprites for Text Mode
+
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_SET_MODE_G1:
+; Set VDP to Graphics I Mode
+;   Pattern Table           = 2048 bytes, arranged as 256 8x8 patterns
+;   Name Table              = 768 bytes
+;   Colour Table            = 32 bytes
+;   Sprite Patterns Table   = 2048 bytes
+;   Sprite Attributes Table = 128 bytes
+        ; Initialise registers
+        ld      IX, VDP_G1_REG_TAB      ; register table of initialisation values
+        call    BIOS_VDP_INIT_REGS
+
+        ; Initialise the 2048 bytes of the Pattern Table, with all zeros
+        ld      HL, VDP_G1_PATT_TAB
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
+        ld      D, 0                    ; inner loop incrementing (256 times)
+        ld      A, 0                    ; write zeros
+        call    BIOS_VDP_INIT_TAB
+
+        ; Initialise the Color Table
+        ld      HL, VDP_G1_COLR_TAB
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ld      A, VDP_G1_DEFT_TBC
+        ld      B, 0                    ; Graphics I Mode Colour Table
+        ld      D, 32                   ;   is just 32 bytes long
+        call    BIOS_VDP_INIT_TAB
+
+        ; Initialise the Name Table with Black Text on Light Blue
+        ld      HL, VDP_G1_NAME_TAB
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ; ld      A, $05
+        ld      A, 0                    ; write zeros
+        ld      B, 3                    ; outer loop decrementing (768 / 256 = 3 times)
+        ld      D, 0                    ; inner loop incrementing (256 times)
+        call    BIOS_VDP_INIT_TAB
+
+        ; Set Backdrop colour
+        ld      A, 7
+        ld      B, VDP_G1_REG_7
+        call    BIOS_VDP_SET_REGISTER
+
+        ; Set SYSVARS
+        ld      A, VDP_MODE_G1
+        ld      (VDP_cur_mode), A
+        ld      HL, VDP_G1_PATT_TAB
+        ld      (VDP_PTRNTAB_addr), HL
+        ld      HL, VDP_G1_NAME_TAB
+        ld      (VDP_NAMETAB_addr), HL
+        ld      HL, VDP_G1_COLR_TAB
+        ld      (VDP_COLRTAB_addr), HL
+        ld      HL, VDP_G1_SPRP_TAB
+        ld      (VDP_SPRPTAB_addr), HL
+        ld      HL, VDP_G1_SPRA_TAB
+        ld      (VDP_SPRATAB_addr), HL
+
+        ret
+;------------------------------------------------------------------------------
 BIOS_VDP_SET_MODE_G2:
+; Set VDP to Graphics II Mode\
+;   Pattern Table           = 6144 bytes, arranged in three blocks of 2048 as 256 8x8 patterns each
+;   Name Table              = 768 bytes
+;   Colour Table            = 6144 bytes
+;   Sprite Patterns Table   = 2048 bytes
+;   Sprite Attributes Table = 256 bytes
+        ; Initialise registers
+        ld      IX, VDP_G2_REG_TAB      ; register table of initialisation values
+        call    BIOS_VDP_INIT_REGS
+
+        ; Initialise the 6144 bytes of the Pattern Table, with all zeros
+        ld      HL, VDP_G2_PATT_TAB
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ld      A, 0                    ; write zeros
+        ld      B, 24                   ; outer loop decrementing (6144 / 256 = 24 times)
+        ld      D, 0                    ; inner loop incrementing (256 times)
+        call    BIOS_VDP_INIT_TAB
+
+        ; ; Initialise the 6144 bytes of the Colour Table
+        ; ld      HL, VDP_G2_PATT_TAB
+        ; call    F_BIOS_VDP_SET_ADDR_WR
+        ; ld      B, 24                   ; outer loop decrementing (6144 / 256 = 24 times)
+        ; ld      D, 0                    ; inner loop incrementing (256 times)
+        ; ld      A, VDP_G2_REG_7
+        ; call    BIOS_VDP_INIT_TAB
+
+        ; ; Initialise the 6144 bytes of the Colour Table
+        ld      HL, VDP_G2_COLR_TAB
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ld      A, VDP_G1_DEFT_TBC
+        ld      B, 24                   ; outer loop decrementing (6144 / 256 = 24 times)
+        ld      D, 0                    ; inner loop incrementing (256 times)
+        call    BIOS_VDP_INIT_TAB
+
+        ; Initialise the Name Table with zeros
+        ; ld      HL, VDP_G2_NAME_TAB     ; Name table is next to the Colour Table
+        ; call    F_BIOS_VDP_SET_ADDR_WR  ;   so no need to reposition VRAM pointer
+        ld      A, 0
+        ld      B, 3                    ; outer loop decrementing (768 / 256 = 3 times)
+        ld      D, 0                    ; inner loop incrementing (256 times)
+        call    BIOS_VDP_INIT_TAB
+
+        ; Set Backdrop colour
+        ld      A, 7
+        ld      B, VDP_G2_REG_7
+        call    BIOS_VDP_SET_REGISTER
+
+        ; Set SYSVARS
+        ld      A, VDP_MODE_G2
+        ld      (VDP_cur_mode), A
+        ld      HL, VDP_G2_PATT_TAB
+        ld      (VDP_PTRNTAB_addr), HL
+        ld      HL, VDP_G2_NAME_TAB
+        ld      (VDP_NAMETAB_addr), HL
+        ld      HL, VDP_G2_COLR_TAB
+        ld      (VDP_COLRTAB_addr), HL
+        ld      HL, VDP_G2_SPRP_TAB
+        ld      (VDP_SPRPTAB_addr), HL
+        ld      HL, VDP_G2_SPRA_TAB
+        ld      (VDP_SPRATAB_addr), HL
+
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_SET_MODE_G2BM:
 ; Set VDP to Graphics II Mode as Bit-mapped display
 ;   Initialise Pattern Table with all zeros
 ;   Set all colours the same
 ;   Write consecutive numbers for each entry in the Name Table
 ;       (i.e. 0x00-0xFF three times)
-        ld      A, 0
-        ld      B, VDP_G2_REG_0
-        call    BIOS_VDP_SET_REGISTER
 
-        ld      A, 1
-        ld      B, VDP_G2_REG_1
-        call    BIOS_VDP_SET_REGISTER
-
-        ld      A, 2
-        ld      B, VDP_G2_REG_2
-        call    BIOS_VDP_SET_REGISTER
-
-        ld      A, 3
-        ld      B, VDP_G2_REG_3
-        call    BIOS_VDP_SET_REGISTER
-
-        ld      A, 4
-        ld      B, VDP_G2_REG_4
-        call    BIOS_VDP_SET_REGISTER
-
-        ld      A, 5
-        ld      B, VDP_G2_REG_5
-        call    BIOS_VDP_SET_REGISTER
-
-        ld      A, 6
-        ld      B, VDP_G2_REG_6
-        call    BIOS_VDP_SET_REGISTER
-
+        ; Initialise registers
+        ld      IX, VDP_G2_REG_TAB      ; register table of initialisation values
+        call    BIOS_VDP_INIT_REGS
 
         ; Initialise the 6144 bytes of the Pattern Table, with all zeros
         ld      HL, VDP_G2_PATT_TAB
@@ -207,11 +474,7 @@ BIOS_VDP_SET_MODE_G2:
         ld      B, 24                   ; outer loop decrementing (6144 / 256 = 24 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
         ld      A, 0                    ; write zeros
-_ini_patt_tab:
-        call    F_BIOS_VDP_BYTE_TO_VRAM
-        inc     D
-        jr      nz, _ini_patt_tab       ; inner loop
-        djnz    _ini_patt_tab           ; outer loop
+        call    BIOS_VDP_INIT_TAB
 
         ; Initialise the Color Table with White pixels over Black background
         ld      HL, VDP_G2_COLR_TAB
@@ -219,11 +482,7 @@ _ini_patt_tab:
         ld      B, 24                   ; outer loop decrementing (6144 / 256 = 24 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
         ld      A, $F1                  ; White pixels over Black background
-_ini_colr_tab:
-        call    F_BIOS_VDP_BYTE_TO_VRAM
-        inc     D
-        jr      nz, _ini_colr_tab       ; inner loop
-        djnz    _ini_colr_tab           ; outer loop
+        call    BIOS_VDP_INIT_TAB
 
         ; Write consecutive numbers for each entry in the Name Table
         ; Write values to VRAM
@@ -238,6 +497,68 @@ _ini_name_tab:
         jr      nz, _ini_name_tab       ; inner loop
         djnz    _ini_name_tab           ; outer loop
 
+        ; Set SYSVARS
+        ld      A, VDP_MODE_G2BM
+        ld      (VDP_cur_mode), A
+        ld      HL, VDP_G2_PATT_TAB
+        ld      (VDP_PTRNTAB_addr), HL
+        ld      HL, VDP_G2_NAME_TAB
+        ld      (VDP_NAMETAB_addr), HL
+        ld      HL, VDP_G2_COLR_TAB
+        ld      (VDP_COLRTAB_addr), HL
+        ld      HL, VDP_G2_SPRP_TAB
+        ld      (VDP_SPRPTAB_addr), HL
+        ld      HL, VDP_G2_SPRA_TAB
+        ld      (VDP_SPRATAB_addr), HL
+
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_SET_MODE_MULTICLR:
+; ToDo - Set VDP to Multicolour Mode
+;   Pattern Table           = 1536 bytes, arranged as 256 8x8 patterns
+;   Name Table              = 768 bytes
+;   Colour Table            = No colour table
+;   Sprite Patterns Table   = 2048 bytes
+;   Sprite Attributes Table = 128 
+
+        ; Initialise registers
+        ld      IX, VDP_MM_REG_TAB      ; register table of initialisation values
+        call    BIOS_VDP_INIT_REGS
+
+        ; Initialise the 1536 bytes of the Pattern Table, with all zeros
+        ld      HL, VDP_MM_PATT_TAB
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ld      B, 6                    ; outer loop decrementing (1536 / 256 = 6 times)
+        ld      D, 0                    ; inner loop incrementing (256 times)
+        ld      A, 0                    ; write zeros
+        call    BIOS_VDP_INIT_TAB
+
+        ; Initialise the 768 bytes of the Name Table, with all zeros
+        ld      HL, VDP_MM_PATT_TAB
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ld      B, 3                    ; outer loop decrementing (768 / 256 = 3 times)
+        ld      D, 0                    ; inner loop incrementing (256 times)
+        ld      A, 0                    ; write zeros
+        call    BIOS_VDP_INIT_TAB
+
+        ; Set Backdrop colour
+        ld      A, 7
+        ld      B, VDP_MM_REG_7
+        call    BIOS_VDP_SET_REGISTER
+
+        ; Set SYSVARS
+        ld      A, VDP_MODE_MM
+        ld      (VDP_cur_mode), A
+        ld      HL, VDP_MM_PATT_TAB
+        ld      (VDP_PTRNTAB_addr), HL
+        ld      HL, VDP_MM_NAME_TAB
+        ld      (VDP_NAMETAB_addr), HL
+        ld      HL, $0000
+        ld      (VDP_COLRTAB_addr), HL  ; No Colour Table for Multicolour Mode
+        ld      HL, VDP_MM_SPRP_TAB
+        ld      (VDP_SPRPTAB_addr), HL
+        ld      HL, VDP_MM_SPRA_TAB
+        ld      (VDP_SPRATAB_addr), HL
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_SHOW_DZ_LOGO:  ; ToDo - Optimise this
@@ -450,4 +771,89 @@ _ldir_remainder:
         inc     DE                      ; next byte in RAM
         djnz    _ldir_remainder
 
+        ret
+;------------------------------------------------------------------------------
+BIOS_VDP_CHAROUT_ATXY:
+; Print a character in the current VDP_cursor_X, VDP_cursor_Y postition
+; IN <= A = Character to be printed in Hexadecimal ASCII
+        push    AF                      ; backup character to be printed
+        ld      HL, (VDP_NAMETAB_addr)  ; HL = address of Name Table
+        ld      B, H
+        ld      C, L                    ; BC = address of Name Table (NAMTAB)
+        push    BC
+
+        ; VRAM cell to be modified: NAMTAB + (width * Y) + X
+        ld      A, (VDP_cursor_y)
+        add     A, A                    ; addresses in lookup table are 16-bit
+        push    AF                      ; multiply by pre-calculated lookup table
+        call    _mult_by_y              ;   IX = lookup table for 32 or 40 width
+        pop     AF                      ; restore A+A
+        ld      D, 0
+        ld      E, A                    ; DE = A+A
+        add     IX, DE                  ; IX = pre-calculated multiplication + A+A
+        ld      L, (IX)
+        ld      H, (IX+1)               ; HL = 32 * Y
+        pop     BC                      ; BC = address of Name Table (NAMTAB)
+        add     HL, BC                  ; HL = NAMTAB + (32 * Y)
+        ld      B, 0
+        ld      A, (VDP_cursor_x)
+        ld      C, A                    ; BC = X
+        add     HL, BC                  ; HL = NAMTAB  + (32 * Y) + X
+
+        ; Output char, but before check for special characters
+        call    F_BIOS_VDP_SET_ADDR_WR
+        pop     AF                      ; restore character to be printed
+        ; Check for special characters CarriageReturn and Backspace
+        cp      CR
+        jr      z, _resetX
+        ; cp      BSPACE                  ; ToDo - add support for Backspace
+        ; cp      TAB                     ; ToDo - add support for TAB
+        ; cp      DELETE                  ; ToDo - add support for Delete
+
+        ; Output char
+        call    F_BIOS_VDP_BYTE_TO_VRAM
+
+        ; Advance cursor X, and possibly cursor Y if end of the line was reached
+        ld      HL, VDP_cursor_x
+        inc     (HL)
+        ; If X has reached the maximum width (Mode 0 = 40, others = 32)
+        ;   reset X to zero and increase Y by 1
+        ld      A, (VDP_cur_mode)
+        cp      0                       ; Mode 0
+        jr      z, _inc_xy_40           ;   is 40 characters per line
+_inc_xy_32:                             ; Other modes, 32 per line
+        ld      A, (VDP_cursor_x)
+        cp      32
+        jr      z, _resetX
+        ret
+_inc_xy_40:
+        ld      A, (VDP_cursor_x)
+        cp      40
+        jr      z, _resetX
+        ret
+_resetX:                                ; Set X to 0, and increment Y
+        ld      A, 0
+        ld      (VDP_cursor_x), A
+        ld      HL, VDP_cursor_y
+        inc     (HL)
+        ; If Y has reached the maximum height (24 for all modes)
+        ;   reset to zero both X and Y
+        ld      A, (VDP_cursor_y)
+        cp      24
+        ret     nz
+_resetY:                                ; Set X and Y to 0
+        ld      A, 0
+        ld      (VDP_cursor_x), A
+        ld      (VDP_cursor_y), A
+        ret
+
+_mult_by_y:
+        ld      A, (VDP_cur_mode)
+        cp      0
+        jp      z, _mult_by_y_by40
+_mult_by_y_by32:
+        ld      IX, VDP_MULT_32Y
+        ret
+_mult_by_y_by40:
+        ld      IX, VDP_MULT_40Y
         ret

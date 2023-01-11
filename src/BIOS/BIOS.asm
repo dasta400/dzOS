@@ -50,51 +50,49 @@ BIOS_CBOOT:
 ;------------------------------------------------------------------------------
 ;Non-Maskable Interrupt (NMI) Vector
 BIOS_NMI:
-        ; Backup all registers
-        push    AF
-        push    BC
-        push    DE
-        push    HL
-        push    IX
-        push    IY
+        push    AF                      ; Backup AF                             ; 11 T cycles
+        ld      A, (NMI_enable)         ; If the flag                           ; 13 T cycles
+        cp      0                       ;   is 0, NMI is disabled               ; 7 T cycles
+        jr      z, _NMI_is_disabled     ;   so don't do anything                ; 12 T cycles
 
-        call    F_BIOS_VDP_JIFFY_COUNTER
+        ; Backup all other registers
+        push    BC                                                              ; 11 T cycles
+        push    DE                                                              ; 11 T cycles
+        push    HL                                                              ; 11 T cycles
+        push    IX                                                              ; 15 T cycles
+        push    IY                                                              ; 15 T cycles
 
-        ld      A, (BIOS_NMI_FLAG)      ; If the flag
-        cp      0                       ;   is 0,
-        jr      z, BIOS_NMI_END         ;   do nothing and end the interrupt
+        call    F_BIOS_VDP_JIFFY_COUNTER                                        ; 17  T cycles
+
+        ld      A, (NMI_usr_jump)       ; If the flag                           ; 13 T cycles
+        cp      0                       ;   is 0,                               ; 7 T cycles
+        jr      z, BIOS_NMI_END         ;   do not jump                         ; 12 T cycles
         ; If the flag is 1, jump to the specified address
 BIOS_NMI_JP:                    .EXPORT         BIOS_NMI_JP
-        jp      F_BIOS_NMI_END          ; Just reserve space for a JUMP
+        jp      F_BIOS_NMI_END          ; Just reserve space for a JUMP         ; 10 T cycles
                                         ; Programs that want to use the NMI
                                         ;   should change this jump to their
                                         ;   subroutine address, and set the 
                                         ;   _nmi_flag byte to 1
 BIOS_NMI_END:
         ; Restore all registers
-        pop     IY
-        pop     IX
-        pop     HL
-        pop     DE
-        ld      A, (BIOS_NMI_ENABLE)    ; If the flag
-        cp      0                       ;   is 0, NMI is disabled
-        jr      z, _NMI_is_disabled     ;   so don't read the VDP Status Register
-        call    F_BIOS_VDP_READ_STATREG ; Acknowledge interrupt to allow more interrupts coming
-_NMI_is_disabled:
-        ; Restore the remaining registers
-        pop     BC
-        pop     AF
-        retn
+        pop     IY                                                              ; 14 T cycles
+        pop     IX                                                              ; 14 T cycles
+        pop     HL                                                              ; 10 T cycles
+        pop     DE                                                              ; 10 T cycles
 
-BIOS_NMI_FLAG:                  .EXPORT         BIOS_NMI_FLAG
-; This flag enables (1) or disables (0) the second jump above that should
-;   be set up by programs
-        .BYTE   0
-BIOS_NMI_ENABLE:
-; This flag enables (1) or disables (0) the read of the VDP Status Register.
-; If disabled, no more interrupts will be accepted, hence the whole BIOS_NMI code
-;   won't be executed until this flag is set to 1 again.
-        .BYTE   1
+        call    F_BIOS_VDP_READ_STATREG ; Acknowledge interrupt to allow more   ; 17  T cycles
+                                        ;   interrupts coming
+        ; Restore the remaining registers
+        pop     BC                                                              ; 10 T cycles
+_NMI_is_disabled:
+        pop     AF                                                              ; 10 T cycles
+        retn                                                                    ; 14 T cycles
+                                                                                ;-------------
+                                                                                ; 264 T cycles
+; As per Zilog Z80 User's Manual, 7 T States take 1.75 microseconds for a 4 MHz clock.
+; Therefore the formula is: T States / Frequency in 1/s (i.e. 7 / 4000000 = 1.75)
+; For a 7.3728 Mhz clock, 264 / 7372800 = 35.81 microseconds
 
 ;------------------------------------------------------------------------------
         .ORG    INITSIO2_END + 1        ; To avoid overwritting RST08, RST10, RST18,
@@ -102,19 +100,34 @@ BIOS_NMI_ENABLE:
 ;------------------------------------------------------------------------------
 ; Warm Boot
 BIOS_WBOOT:
-        ; ; Set NMI jp to default. In case it was modified by a program
-        ; ld      IX, BIOS_NMI
-        ; ld      HL, _nmi_end
-        ; ld      (IX + 1), L
-        ; ld      (IX + 2), H
+        ; Enable NMI (VDP) Interrupts
+        ld      A, 1
+        ld      (NMI_enable), A
+        ; Disable usr configurable jump
+        ld      A, 0
+        ld      (NMI_usr_jump), A
+        ; Set NMI jp to default. In case it was modified by a program
+        ld      IX, BIOS_NMI_JP
+        ld      HL, BIOS_NMI_END
+        ld      (IX + 1), L
+        ld      (IX + 2), H
         ; transfer control to Kernel
         jp      KRN_START
 
 ;------------------------------------------------------------------------------
 ; Halts the system
 BIOS_SYSHALT:
-        di                              ; disable interrupts
-        halt                            ; halt the computer
+        ; disable Maskable Interrupts
+        di
+        ; disable Non-Maskable Interrupts
+        call    F_BIOS_VDP_DI           
+        ld      B, 0                    
+        ld      A, 0
+        call    F_BIOS_VDP_SET_REGISTER
+        ld      A, 1
+        call    F_BIOS_VDP_SET_REGISTER
+        ; halt the computer
+        halt
 
 ;==============================================================================
 ; Messages
