@@ -134,9 +134,8 @@
         \end{tabular}
     \end{center}
 
-    The SD card is referred as \textbf{DISK}.
-    
-    The Floppy Disk Drive is referred as \textbf{DISK} or as \textbf{FDD}.
+    The SD card is referred as \textbf{DISK}, while the Floppy Disk Drive is
+    referred as \textbf{DISK} or as \textbf{FDD}.
 
     The 80 column text VGA output is referred as \textbf{CONSOLE} or as
     \textbf{High Resolution Display}.
@@ -151,12 +150,17 @@
     Memory used by the \textbf{Low Resolution Display} is referred as
     \textbf{VRAM} (Video RAM).
 
-    In the list of routines, the \textbf{Destroys} lists the \textbf{CPU}
-    registers and \textbf{MEMORY} System Variables that are destroyed by the
-    routine in question. But bare in mind that a routine may call other routines
-    that may destroy other registers and variables. Refer to the \textbf{Calls}
-    list to check the entire flow. By \textit{Destroys} is understood that the
-    listed register or variable value is overwritten within the routine.
+    The sound chip may be referred as \textbf{Sound Chip} or \textbf{PSG}
+    (Programmable Sound Generator).
+
+    In the list of subroutines, the \textbf{Destroys} lists the \textbf{CPU}
+    registers and OS System Variables that are destroyed by the subroutine.
+    Nevertheless, a subroutine may call other subroutines that may have other
+    \textbf{Destroys}. Refer to the \textbf{Calls} list to check the entire
+    flow. 
+    
+    By \textbf{Destroys} is understood that the listed register or variable
+    value is overwritten within the subroutine.
 
     \pagebreak
     % ==========================================================================
@@ -527,6 +531,9 @@
         \hline
         \multirow{2}{*}{\textbf{VDP}} & \texttt{0x10} & Mode 0 (VRAM)\\
         & \texttt{0x11} & Mode 1 (Register)\\
+        \hline
+        \multirow{2}{*}{\textbf{PSG}} & \texttt{0x20} & PSG Register\\
+        & \texttt{0x21} & PSG Data\\
         \hline
         \textbf{ROM / RAM} & \texttt{0x38} & ROM Paging\\
         \hline
@@ -1368,6 +1375,71 @@
             \hline\multirow[t]{2}{4em}{\textbf{Call}}
             & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
             & \hyperref[func:fbiosvdpbytetovram]{F\_BIOS\_VDP\_BYTE\_TO\_VRAM}\\
+            \hline
+        \end{tabular}
+
+    % ==========================================================================
+    \subsection{PSG Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_PSG\_SET\_REGISTER}
+        \label{func:fbiospsgsetregister}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set a value to a PSG Register. \\
+            \hline\textbf{Entry} & \texttt{A} = register number to set, \texttt{E}
+            = value to set.\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{C} \\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_PSG\_READ\_REGISTER}
+        \label{func:fbiospsgreadregister}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Read the value of a PSG Register. \\
+            \hline\textbf{Entry} & \texttt{A} = register number to read.\\
+            \hline\textbf{Exit} & \texttt{A} = value of the register.\\
+            \hline\textbf{Destroys} & \texttt{C} \\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_PSG\_INIT}
+        \label{func:fbiospsginit}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Initialises the PSG to: Noise OFF, Audio OFF, I/O Port as Output. \\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL},
+            \texttt{DE} \\
+            \hline\textbf{Calls} & \hyperref[func:fbiospsgsetregister]
+            {F\_BIOS\_PSG\_SET\_REGISTER}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_PSG\_BEEP}
+        \label{func:fbiospsgbeep}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action} & Makes a short beep-like sound. \\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL},
+            \texttt{E} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosvdpvblankwait]{F\_BIOS\_VDP\_VBLANK\_WAIT}\\
+            & \hyperref[func:fbiospsgsetregister]{F\_BIOS\_PSG\_SET\_REGISTER}\\
             \hline
         \end{tabular}
 
@@ -3487,6 +3559,11 @@
                 \item Set \textbf{Low Resolution Display} as \textit{Graphics II
                 Bit-mapped Mode}.
                 \item Show dastaZ80 Logo in the \textbf{Low Resolution Display}.
+            \end{itemize}
+            \item Initialise \textbf{PSG}.
+            \begin{itemize}
+                \item Set Noise OFF, Audio OFF, I/O Port as Output.
+                \item Make a beep.
             \end{itemize}
             \item Initialise \textbf{FDD}.
             \item Initialise \textbf{SD Card}.

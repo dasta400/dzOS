@@ -137,6 +137,9 @@
     Memory used by the \textbf{Low Resolution Display} is referred as
     \textbf{VRAM} (Video RAM).
 
+    The sound chip may be referred as \textbf{Sound Chip} or \textbf{PSG}
+    (Programmable Sound Generator).
+
     \pagebreak
     % ==========================================================================
     \section*{Related Documentation}
@@ -554,6 +557,17 @@
     published on BYTE magazine.
 
     % ==========================================================================
+    \subsection{Programmable Sound Generator (PSG)}
+    % ==========================================================================
+
+    The sound generation is provided by a General Instrument AY-3-8912
+    \footnote{The AY-3-8912 and its variants were used in numerous Arcade
+    machines and in home computers like the Amstrad CPC, Atari ST, MSX, ZX
+    Spectrum and others.}, which is the same as the original AY-3-8910 but with
+    only one parallel port instead of two. This fact does not affect the
+    sound generation.
+
+    % ==========================================================================
     \subsection{Dual Digital Joystick Port}
     % ==========================================================================
 
@@ -677,7 +691,7 @@
         \hline
         0 & 0 & 1 & /Y1 & \texttt{0x10} - \texttt{0x1F} & \textbf{TMS9918A (VDP)}\\
         \hline
-        0 & 1 & 0 & /Y2 & \texttt{0x20} - \texttt{0x2F} & For future use\\
+        0 & 1 & 0 & /Y2 & \texttt{0x20} - \texttt{0x2F} & \textbf{AY-3-8912 (PSG)}\\
         \hline
         0 & 1 & 1 & /Y3 & \texttt{0x30} - \texttt{0x3F} & \textbf{ROM Page}
         (\texttt{0x38})\\
@@ -940,8 +954,12 @@
             \item I've spent the first days of the year making programs to test
             the \textbf{VDP}. Changing screen modes, loading fonts, writing text
             to the screen, and displaying images all successful.
-            \item I've also designed a new circuit that will contain the Dual
-            Joystick Port and the AY-3-8912 PSG. Waiting for the PCB to arrive.
+            \item I've also designed a new circuit that contains the Dual
+            Joystick Port and the AY-3-8912 PSG. All tests were successful.
+            \item I've also installed at the back of the case a 3.5mm jack to
+            3 RCA Audio/Video cable. The Composite video and the stereo audio
+            are connected to this jack, to be used with a cable like those used
+            for  Raspberry Pi.
         \end{itemize}
     \end{itemize}
 
@@ -981,7 +999,6 @@
     These are some ideas I have for improvements:
 
     \begin{itemize}
-        \item \textbf{Sound Interface}: stereo sound output with an AY-3-8912.
         \item \textbf{Cartridge Port}: allowing almost instantaneously load and
         access to programs stored in EEPROMs.
     \end{itemize}

@@ -89,10 +89,11 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
 Same as Mark I, adding:
 
 * **Power Supply**: 5V/4A External Power Supply. Removed the 12V to 5V DC-DC converter.
-* **Video output**: Added 256×192 pixels (32 columns by 24 rows) NTSC Composite 16 Colours (Graphics II Mode) video output, via TMS9918A VDP. dastaZ80 has now become a [Dual video output (VGA & Composite) system](#dual-video-output-vga--composite).
+* **Video output**: Added NTSC Composite 15 Colours video output, via TMS9918A VDP. dastaZ80 has now become a [Dual video output (VGA & Composite) system](#dual-video-output-vga--composite).
+* **Sound output**: Added AY-3-8912 (Programmable Sound Generator)
 * **Case**:
   * Connectors:
-    * RCA female with  NTSC Composite Video output.
+    * Added 3.5mm jack to 3 RCA Audio/Video cable (same cable used on the Raspberry Pi for Composite output), with NTSC Composite from TMS9918A and stereo audio from AY-3-8912.
     * USB Type Mini-B female, for using keyboard as external keyboard of computers with USB.
 
 ![dzOS v2022.07.19.13](docs/dastaZ80BlockDiagram.png "dastaZ80 Block Diagram")
@@ -183,7 +184,6 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 
 ### General commands
 
-* **help**: shows a list of some commands, with a short description and usage example.
 * **run _[address]_**: moves the CPU Program Counter (PC) to the specified RAM address, so that the CPU starts executing whatever code finds in there.
 * **crc16 _[address_start]_,_[address_end]_**: Generates and prints a 16-bit cyclic redundancy check (CRC) based on the IBM Binary Synchronous Communications protocol (BSC or Bisync), for the bytes between start and end address.
 * **reset**: resets the system. It's effectively the same as pressing the reset button on the side of the computer. The contents of RAM are not cleared. Note that in both cases, reset by button or reset by this command, the [ASMDC](https://github.com/dasta400/ASMDC) is not reset.
@@ -203,7 +203,7 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 * **diskinfo**: shows label, serial number, date and time of formatting of current disk.
 * **disklist**: shows a list of all Disk Image Files and their disk unit number.
 
-### Memmory commands
+### Memory commands
 
 * ~~**memdump _[address_start]_,_[address_end]_**: shows all the contents of memory (ROM/RAM) from address_start to address_end.~~ This command is now an stand-alone program (part of the [dzSoftware repo](https://github.com/dasta400/dzSoftware) that can be loaded from disk, instead of being part of the ROM.
 * **peek _[address]_**: shows the byte stored at _address_.
@@ -218,6 +218,16 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 * **time**: shows the current time.
 * **setdate _[ddmmyyyy]_**: changes the date stored in the RTC.
 * **settime _[hhmmss]_**: changes the time stored in the RTC.
+
+### Low Resolution Display (VDP) commands
+
+* **screen _[n]_**: changes the display Mode.
+  * Available Modes are:
+    * 0 = Text Mode (40 columns by 24 lines. Text only.)
+    * 1 = Graphics I Mode (256x192 pixels. 32 columns by 24 lines. Graphics and Sprites)
+    * 2 = Graphics II Mode (256x192 pixels. 32 columns by 24 lines. Graphics and Sprites)
+    * 3 = Multicolour Mode (256x192 pixels. 32 columns by 24 lines. Graphics and Sprites)
+    * 4 = Graphics II Mode Bitmapped (256x192 pixels. 64 by 48 blocks of 4x4 pixels. Graphics and Sprites)
 
 ---
 

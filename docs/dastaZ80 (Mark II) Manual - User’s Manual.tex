@@ -150,7 +150,7 @@
 
     Memory used by the \textbf{Low Resolution Display} is referred as
     \textbf{VRAM} (Video RAM).
-    
+
     \pagebreak
     % ==========================================================================
     \section*{Related Documentation}
@@ -225,10 +225,17 @@
             \item VGA 80 columns by 25 lines and 16 colours
             \item Composite NTSC 15 colours
         \end{itemize}
+        \item Stereo Sound
+        \begin{itemize}
+            \item Programmable Sound Generator (PSG) with 3 channels (1 tone
+            per channel), 7 octaves, 1 noise channel, envelope generator
+            \footnote{Same chip as used in numerous Arcade machines and in
+            Amstrad CPC, Atari ST, MSX, ZX Spectrum and other home computers.}
+        \end{itemize}
         \item Real-Time Clock
         \begin{itemize}
-            \item DS3231 RTC, provides valid until the year 2100 leap year
-            compensation
+            \item Date and Time backed up with button cell battery, provides
+            valid until the year 2100 leap year compensation.
         \end{itemize}
         \item Keyboard
         \begin{itemize}
@@ -403,15 +410,15 @@
     % ==========================================================================
     \subsection{The Command Prompt}
     % ==========================================================================
-    When you switch on the computer, the \textbf{Low Resolution Display} shows
-    the computer logo:
+    When you switch ON the computer, you will hear a low tone (beep) and the
+    \textbf{Low Resolution Display} will show the computer logo:
 
     \includegraphics[scale=0.2]{dastaZ80logoOnVDP.png}
 
-    and the \textbf{High Resolution Display}, shows some information on the
+    the \textbf{High Resolution Display}, will show some information on the
     screen:
 
-    \includegraphics[scale=0.7]{dzOS.png}
+    \includegraphics[scale=0.6]{dzOS.png}
 
     This information tells you about the release version of DZOS (2022.07.19.13
     in the screenshot). The BIOS, Kernel and CLI versions, and the detection of

@@ -149,6 +149,16 @@ F_BIOS_VDP_LDIR_VRAM:           .EXPORT         F_BIOS_VDP_LDIR_VRAM
 F_BIOS_VDP_CHAROUT_ATXY:        .EXPORT         F_BIOS_VDP_CHAROUT_ATXY
         jp      BIOS_VDP_CHAROUT_ATXY
 
+        ; AY-3-8912 PSG
+F_BIOS_PSG_SET_REGISTER:        .EXPORT         F_BIOS_PSG_SET_REGISTER
+        jp      BIOS_PSG_SET_REGISTER
+F_BIOS_PSG_READ_REGISTER:       .EXPORT         F_BIOS_PSG_READ_REGISTER
+        jp      BIOS_PSG_READ_REGISTER
+F_BIOS_PSG_INIT:              .EXPORT           F_BIOS_PSG_INIT
+        jp      BIOS_PSG_INIT
+F_BIOS_PSG_BEEP:                .EXPORT         F_BIOS_PSG_BEEP
+        jp      BIOS_PSG_BEEP
+        
         ; Dual Digital Joystick Port
 F_BIOS_JOYS_GET_STAT:           .EXPORT         F_BIOS_JOYS_GET_STAT
         jp      BIOS_JOYS_GET_STAT

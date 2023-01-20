@@ -61,6 +61,7 @@
         ; Devices initialisations
         call    KRN_INIT_RAM
         call    KRN_INIT_VDP
+        call    KRN_INIT_PSG
         call    KRN_INIT_FDD
         call    KRN_INIT_SD
         call    KRN_INIT_RTC
@@ -135,6 +136,25 @@ _vdp_error: ; VDP VRAM test NOT passed
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, error_3001
         ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_right_brkt
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+        ret
+
+;------------------------------------------------------------------------------
+KRN_INIT_PSG:
+; Detect PSG
+        ld      HL, msg_psg_detect
+        ld      A, ANSI_COLR_YLW
+        call    F_KRN_SERIAL_WRSTRCLR
+        call    F_BIOS_PSG_INIT         ; Initialise PSG chip
+        call    F_BIOS_PSG_BEEP         ; Make a beep sound
+        ld      HL, msg_left_brkt
+        ld      A, ANSI_COLR_GRN
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_OK
+        ld      A, ANSI_COLR_GRN
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
         ld      A, ANSI_COLR_GRN
@@ -544,6 +564,9 @@ msg_nvram_bytes:
 msg_vdp_detect:
         .BYTE    CR, LF
         .BYTE   "....Detecting VDP  ", 0
+msg_psg_detect:
+        .BYTE    CR, LF
+        .BYTE   "....Detecting PSG  ", 0
 msg_left_brkt:
         .BYTE   " [ ", 0
 msg_right_brkt:
@@ -554,7 +577,7 @@ msg_halt:
         .BYTE    CR, LF
         .BYTE   "Computer was halted", CR, LF, CR, LF
         .BYTE   "IMPORTANT: To use it again you MUST turn it off and on again.", CR, LF
-        .BYTE   "           Do NOT just press the Reset button.", 0
+        ; .BYTE   "           Do NOT just press the Reset button.", 0
 ;------------------------------------------------------------------------------
 ;             ERROR MESSAGES
 ;------------------------------------------------------------------------------

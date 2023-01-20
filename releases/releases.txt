@@ -56,9 +56,12 @@ dzOS.2022.12.24.18.54.bin (old)
 dzOS.2022.12.25.13.07.bin (old)
     Solved bug that made the dastaZ80 logo display some artifacts.
 
-dzOS.2023.01.11.18.28.bin (current)
+dzOS.2023.01.11.18.28.bin (old)
     Added more functions for TMS9918A VDP.
         Initialise for all modes.
         Print a character at an XY position.
         Wait for VBLANK.
         Copy blocks of RAM to VRAM.
+
+dzOS.2023.01.20.17.31.bin (current)
+    Added support for AY-3-8912 (Programmable Sound Generator)

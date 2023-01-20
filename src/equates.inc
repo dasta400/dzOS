@@ -46,6 +46,8 @@
 ;==============================================================================
 VDP_VRAM                    .EQU    $10 ; TMS9918A VDP => A0 = 0 (Mode VRAM)
 VDP_REG                     .EQU    $11 ; ^            => A0 = 1 (Mode Register)
+PSG_REG                     .EQU    $20 ; AY-3-8912 PSG
+PSG_DATA                    .EQU    $21 ; ^
 ROMRAM_PAGING               .EQU    $38 ; ROM/RAM paging
 JOY1_STAT                   .EQU    $40 ; Dual Digital Joystick Port
 JOY2_STAT                   .EQU    $41 ; ^
@@ -295,6 +297,26 @@ VDP_COLR_D_GRN              .EQU    $C      ; Dark Green
 VDP_COLR_MGNTA              .EQU    $D      ; Magenta
 VDP_COLR_GREY               .EQU    $E      ; Grey
 VDP_COLR_WHITE              .EQU    $F      ; White
+
+;==============================================================================
+; AY-3-8912 PSG
+;==============================================================================
+PSG_R0_CH_A_FTUNE           .EQU    $0      ; Channel A Tone Period (8-bit Fine Tune A)
+PSG_R1_CH_A_CTUNE           .EQU    $1      ; Channel A Tone Period (4-bit Coarse Tune A)
+PSG_R2_CH_B_FTUNE           .EQU    $2      ; Channel A Tone Period (8-bit Fine Tune B)
+PSG_R3_CH_B_CTUNE           .EQU    $3      ; Channel A Tone Period (4-bit Coarse Tune B)
+PSG_R4_CH_C_FTUNE           .EQU    $4      ; Channel A Tone Period (8-bit Fine Tune C)
+PSG_R5_CH_C_CTUNE           .EQU    $5      ; Channel A Tone Period (4-bit Coarse Tune C)
+PSG_R6_NOISE_PERIOD         .EQU    $6      ; Noise Period (5-bit Period Control)
+PSG_R7_ENABLE               .EQU    $7      ; Enable ABC Noise / ABC Tone
+PSG_R10_CH_A_AMPL           .EQU    $8      ; Channel A Amplitude
+PSG_R11_CH_B_AMPL           .EQU    $9      ; Channel B Amplitude
+PSG_R12_CH_C_AMPL           .EQU    $A      ; Channel C Amplitude
+PSG_R13_ENV_FTUNE           .EQU    $B      ; Envelope Period (8-bit Fine Tune E)
+PSG_R14_ENV_CTUNE           .EQU    $C      ; Envelope Period (8-bit Coarse Tune E)
+PSG_R15_ENV_SHAPCYC         .EQU    $D      ; Envelope Shape/Cycle
+PSG_R16_IO_A_DATA           .EQU    $E      ; I/O Port A Data Store (8-bit parallel)
+; PSG_R17_IO_B_DATA           .EQU    $F      ; AY-3-8912 does not have I/O Port B
 
 ;==============================================================================
 ; Dual Digital Joystick Port

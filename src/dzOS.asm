@@ -47,6 +47,7 @@
 #include "src/BIOS/BIOS.asm"            ; BIOS routines
 #include "src/BIOS/BIOS.ASMDC.asm"      ; Arduino Serial Multi Device Controller
 #include "src/BIOS/BIOS.VDP.asm"        ; TMS9918A VDP
+#include "src/BIOS/BIOS.PSG.asm"        ; AY-3-8912 PSG
 #include "src/BIOS/BIOS.joys.asm"       ; Dual Digital Joystick Port
 #include "src/BIOS/BIOS.jblks.asm"      ; BIO Jumpblocks
 #include "src/BIOS/BIOS.serial.asm"     ; this include MUST be always the last of src/BIOS/
