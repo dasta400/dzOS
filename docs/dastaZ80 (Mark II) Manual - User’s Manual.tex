@@ -160,6 +160,7 @@
         \item dastaZ80 Technical Reference Manual\cite{dastaz80techman}
         \item dzOS Github Repository\cite{dastaZ80github}
         \item Software for dzOS Github Repository\cite{dastaZ80githubsoft}
+        \item Nascom 2 Microcomputer BASIC Programming Manuals\cite{nascombasic}
     \end{itemize}
 
     \pagebreak
@@ -1271,39 +1272,150 @@
     \end{itemize}
 
     % ==========================================================================
-    \subsection{Commands for MS BASIC dastaZ80 version}
+    \subsection{MS BASIC 4.7 Standard version}
     % ==========================================================================
 
-    In addition to adapt Grant Searle's version to dastaZ80, some commands have
-    been added.
+    Standard version is referring to the version adapted by Grant Searle
+    \cite{searle1} of the original NASCOM 2 version.
+
+    For more detailed information on commands, statements, functions, etc.,
+    refer to the Nascom 2 Microcomputer BASIC Programming Manuals\cite{nascombasic}.
+
+    % ==========================================================================
+    \subsubsection{Intrinsic Functions}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{ABS}: Returns absolute value of a number
+        \item \textbf{ASC}: Returns the ASCII code of the first character of a string
+        \item \textbf{ATN}: Returns arctangent in radians
+        \item \textbf{CHR\$}: Returns a string whose one element has its ASCII code
+        \item \textbf{COS}: Returns cosine in radians
+        \item \textbf{EXP}: Returns a number to the power of another number
+        \item \textbf{FRE}: Returns number of bytes in memory not being used by BASIC.
+        \item \textbf{INP}: Reads a byte from a port
+        \item \textbf{INT}: Returns the largest integer of a floating number
+        \item \textbf{LEFT\$}: Returns x leftmost characters of a string
+        \item \textbf{LEN}: Returns length of a string
+        \item \textbf{LOG}: Returns natural log of a number
+        \item \textbf{MID\$}: Returns x characters of a string
+        \item \textbf{POS}: Returns present column position of terminal's print head.
+        \item \textbf{RIGHT\$}: Returns x rightmost characters of a string
+        \item \textbf{RND}: Returns a random number between 0 and 1.
+        \item \textbf{SGN}: Returns 0 or 1 depending on the sign of a number
+        \item \textbf{SIN}: Returns the sine in radians
+        \item \textbf{SPC}: Prints x number of blanks
+        \item \textbf{SQR}: Returns square root of a number
+        \item \textbf{STR\$}: Returns string representation of value of a number
+        \item \textbf{TAB}: Spaces to x position on the terminal
+        \item \textbf{TAN}: Returns tangent in radians
+        \item \textbf{USR}: Calls a user's machine language subroutine
+        \item \textbf{VAL}: Returns numerical value of a string
+    \end{itemize}
+
+    % ==========================================================================
+    \subsubsection{Statements}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{DATA}, \textbf{DEEK}, \textbf{DEF}, \textbf{DIM},
+        \textbf{DOKE}, \textbf{END}, \textbf{FN}, \textbf{FOR...NEXT...STEP},
+        \textbf{GOTO}, \textbf{GOSUB}, \textbf{IF...THEN}, \textbf{INPUT},
+        \textbf{LET}, \textbf{LINES}, \textbf{ON...GOTO}, \textbf{ON...GOSUB},
+        \textbf{OUT}, \textbf{PEEK}, \textbf{POKE}, \textbf{PRINT},
+        \textbf{READ}, \textbf{REM}, \textbf{RESTORE}, \textbf{RETURN},
+        \textbf{STOP}, \textbf{WAIT}, \textbf{WIDTH}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsubsection{Commands}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{CLEAR}: Sets all program variables to zero
+        \item \textbf{CLS}: Clears the screen
+        \item \textbf{CONT}: Continues program execution after \textit{Escape}
+        key was pressed, or a \textit{STOP} or \textit{END} statement has
+        been executed
+        \item \textbf{LIST}: List the contents of the BASIC program in memory
+        \item \textbf{MONITOR}: Transfer command to dzOS Command-Line
+        Interface (CLI)
+        \item \textbf{NEW}: Deletes the current program and clears all
+        variables
+        \item \textbf{NULL}: Sets the number of nulls to be printed at the
+        end of each line
+        \item \textbf{RUN}: Starts execution of the current program
+    \end{itemize}
+
+    % ==========================================================================
+    \subsubsection{Operators}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{+}: addition
+        \item \textbf{-}: subtraction
+        \item \textbf{*}: multiplication
+        \item \textbf{/}: division
+        \item \textbf{\textasciicircum}: exponentiation
+    \end{itemize}
+
+    % ==========================================================================
+    \subsubsection{Relational Operators}
+    % ==========================================================================
+    
+    \begin{itemize}
+        \item \textbf{$>$}: greater than
+        \item \textbf{$<$}: less than
+        \item \textbf{$<>$}: not equal
+        \item \textbf{=}: equal
+        \item \textbf{$<=$}: less than or equal to
+        \item \textbf{$>=$}: greater than or equal to
+    \end{itemize}
+
+    % ==========================================================================
+    \subsubsection{Logical Operators}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{AND}: bitwise disjunction
+        \item \textbf{NOT}: bitwise negation
+        \item \textbf{OR}: bitwise conjunction
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{MS BASIC 4.7 dastaZ80 version}
+    % ==========================================================================
+
+    In addition to adapting Grant Searle's version to the dastaZ80 computer,
+    the following has been added:
 
     % ======================================================================
     \subsubsection{{\color{blue}load}}
     % ======================================================================
     Loads a BASIC program from \textbf{DISK} into \textbf{MEMORY}.
 
-    \hspace{1.9cm}\textbf{load "\textit{$<$filename$>$}"}
+    \hspace{1.9cm}\textbf{load "\textit{$<$filename$>$}}
 
     \textbf{Parameters}:
 
     \hspace{1cm}\textbf{\textit{$<$filename$>$}}: the name of the file to be
     loaded.
 
-    \textbf{Example}: \texttt{load "mandelbrot"}
+    \textbf{Example}: \texttt{load "mandelbrot}
 
     % ======================================================================
     \subsubsection{{\color{blue}save}}
     % ======================================================================
     Saves current BASIC program from \textbf{MEMORY} into \textbf{DISK}.
 
-    \hspace{1.9cm}\textbf{save "\textit{$<$filename$>$}"}
+    \hspace{1.9cm}\textbf{save "\textit{$<$filename$>$}}
 
     \textbf{Parameters}:
 
     \hspace{1cm}\textbf{\textit{$<$filename$>$}}: the name of the file to be
     saved.
 
-    \textbf{Example}: \texttt{save "mandelbrot"}
+    \textbf{Example}: \texttt{save "mandelbrot}
 
     \pagebreak
     % ==========================================================================
@@ -1329,6 +1441,35 @@
         \item \textbf{7}: Drive does not have power.
         \item \textbf{8}: Disk is write protected or bad disk.
         \item \textbf{9}: Disk is write protected.
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{MS BASIC  Error Codes}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{NF}: NEXT without FOR
+        \item \textbf{SN}: Syntax error
+        \item \textbf{RG}: RETURN without GOSUB
+        \item \textbf{OD}: Out of DATA
+        \item \textbf{FC}: Function call error
+        \item \textbf{OV}: Overflow
+        \item \textbf{OM}: Out of memory
+        \item \textbf{UL}: Undefined line number
+        \item \textbf{BS}: Bad subscript
+        \item \textbf{DD}: Re-DIMensioned array
+        \item \textbf{DZ}: Division by zero (/0)
+        \item \textbf{ID}: Illegal direct
+        \item \textbf{TM}: Type miss-match
+        \item \textbf{OS}: Out of string space
+        \item \textbf{LS}: String too long
+        \item \textbf{ST}: String formula too complex
+        \item \textbf{CN}: Can't CONTinue
+        \item \textbf{UF}: UnDEFined FN function
+        \item \textbf{MO}: Missing operand
+        \item \textbf{HX}: HEX error
+        \item \textbf{BN}: BIN error
+        \item \textbf{LE}: File not found while LOADing
     \end{itemize}
 
     % ==========================================================================
