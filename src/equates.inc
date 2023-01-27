@@ -308,7 +308,7 @@ PSG_R3_CH_B_CTUNE           .EQU    $3      ; Channel A Tone Period (4-bit Coars
 PSG_R4_CH_C_FTUNE           .EQU    $4      ; Channel A Tone Period (8-bit Fine Tune C)
 PSG_R5_CH_C_CTUNE           .EQU    $5      ; Channel A Tone Period (4-bit Coarse Tune C)
 PSG_R6_NOISE_PERIOD         .EQU    $6      ; Noise Period (5-bit Period Control)
-PSG_R7_ENABLE               .EQU    $7      ; Enable ABC Noise / ABC Tone
+PSG_R7_MIXER                .EQU    $7      ; Enable ABC Noise / ABC Tone
 PSG_R10_CH_A_AMPL           .EQU    $8      ; Channel A Amplitude
 PSG_R11_CH_B_AMPL           .EQU    $9      ; Channel B Amplitude
 PSG_R12_CH_C_AMPL           .EQU    $A      ; Channel C Amplitude
