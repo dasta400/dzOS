@@ -1257,6 +1257,12 @@
     % ==========================================================================
 
     \begin{itemize}
+        \item Commands
+        \begin{itemize}
+            \item There is no support for \textit{ELSE} in \textit{IF}...
+            \textit{THEN}. Instead, it MUST be done with another \textit{IF}...
+            \textit{THEN}.
+        \end{itemize}
         \item Variables
         \begin{itemize}
             \item The first character of a variable name MUST be a letter.
@@ -1269,6 +1275,30 @@
             2's complement number (i.e \textit{n}-65536)
             \item Flotaing point is in the range 1.70141E38 to 2.9387E-38
         \end{itemize}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsubsection{Speeding up programs}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item Delete \textit{REM} statements.
+        \item Delete spaces. For example, \textit{10FORA=0TO10} is faster than
+        \textit{10 FOR A=0 TO 10}
+        \item Use \textit{NEXT} without the index variable.
+        \item Use variables instead of constants, especially in \textit{FOR}
+        loop and other code that is executed repeatedly.
+        \item Reuse variable names and keep the list of variables as short as
+        possible. Variables are set up in a table in the order of their first
+        appearance in the program. Later in the program, BASIC searches the
+        table for the variable at each reference. Variables at the head of the
+        table take less time to search.
+        \item MS BASIC uses a \textit{garbage collector} to clear out unwanted 
+        space. The frequency of grabage collection is inversely proportional to
+        the amount of string space. The time garbage collection takes is
+        proportional to the square of the number of string variables. To
+        minimise the time, make string space as large as possible and use as few
+        string variables as possible.
     \end{itemize}
 
     % ==========================================================================
@@ -1352,11 +1382,8 @@
     % ==========================================================================
 
     \begin{itemize}
-        \item \textbf{+}: addition
-        \item \textbf{-}: subtraction
-        \item \textbf{*}: multiplication
-        \item \textbf{/}: division
-        \item \textbf{\textasciicircum}: exponentiation
+        \item \textbf{+}, \textbf{-}, \textbf{*}, \textbf{/},
+        \textbf{\textasciicircum}
     \end{itemize}
 
     % ==========================================================================
@@ -1364,12 +1391,8 @@
     % ==========================================================================
     
     \begin{itemize}
-        \item \textbf{$>$}: greater than
-        \item \textbf{$<$}: less than
-        \item \textbf{$<>$}: not equal
-        \item \textbf{=}: equal
-        \item \textbf{$<=$}: less than or equal to
-        \item \textbf{$>=$}: greater than or equal to
+        \item \textbf{$>$}, \textbf{$<$}, \textbf{$<>$}, \textbf{=},
+        \textbf{$<=$}, \textbf{$>=$}
     \end{itemize}
 
     % ==========================================================================
@@ -1377,9 +1400,7 @@
     % ==========================================================================
 
     \begin{itemize}
-        \item \textbf{AND}: bitwise disjunction
-        \item \textbf{NOT}: bitwise negation
-        \item \textbf{OR}: bitwise conjunction
+        \item \textbf{AND}, \textbf{NOT}, \textbf{OR}
     \end{itemize}
 
     % ==========================================================================
@@ -1390,32 +1411,48 @@
     the following has been added:
 
     % ======================================================================
-    \subsubsection{{\color{blue}load}}
+    \subsubsection{{\color{blue}LOAD}}
     % ======================================================================
     Loads a BASIC program from \textbf{DISK} into \textbf{MEMORY}.
 
-    \hspace{1.9cm}\textbf{load "\textit{$<$filename$>$}}
+    \hspace{1.9cm}\textbf{LOAD "\textit{$<$filename$>$}}
 
     \textbf{Parameters}:
 
     \hspace{1cm}\textbf{\textit{$<$filename$>$}}: the name of the file to be
     loaded.
 
-    \textbf{Example}: \texttt{load "mandelbrot}
+    \textbf{Example}: \texttt{LOAD "mandelbrot}
 
     % ======================================================================
-    \subsubsection{{\color{blue}save}}
+    \subsubsection{{\color{blue}SAVE}}
     % ======================================================================
     Saves current BASIC program from \textbf{MEMORY} into \textbf{DISK}.
 
-    \hspace{1.9cm}\textbf{save "\textit{$<$filename$>$}}
+    \hspace{1.9cm}\textbf{SAVE "\textit{$<$filename$>$}}
 
     \textbf{Parameters}:
 
     \hspace{1cm}\textbf{\textit{$<$filename$>$}}: the name of the file to be
     saved.
 
-    \textbf{Example}: \texttt{save "mandelbrot}
+    \textbf{Example}: \texttt{SAVE "mandelbrot}
+
+    % ======================================================================
+    \subsubsection{{\color{blue}SOUND}}
+    % ======================================================================
+    Writes a value in a specific \textbf{PSG} register.
+
+    \hspace{1.9cm}\textbf{SOUND \textit{$<$PSG\_register$>$,$<$value$>$}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{$<$PSG\_register$>$}}: \textbf{PSG} register
+    number (0-13).
+
+    \hspace{1cm}\textbf{\textit{$<$value$>$}}: value to set (0.255).
+
+    \textbf{Example}: \texttt{SOUND 0,255}
 
     \pagebreak
     % ==========================================================================
