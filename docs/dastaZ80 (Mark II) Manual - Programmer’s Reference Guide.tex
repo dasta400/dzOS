@@ -522,6 +522,39 @@
     of files is shown on the screen, dzOS asks \textbf{ASMDC} for the next 512
     bytes, and so on until the entire catalogue has been shown.
 
+    % ==========================================================================
+    \subsection{VDP}
+    % ==========================================================================
+
+    \begin{longtable}{ |m{2.9cm}|m{1.6cm}|m{1.8cm}|m{1.9cm}|m{1.9cm}| }
+        \hline
+        \rowcolor{lightgray}
+        & Text & Graphics I & Graphics II & Multicolour\\
+        \hline
+        \endfirsthead
+
+        \hline
+        \rowcolor{lightgray}
+        & Text & Graphics I & Graphics II & Multicolour\\
+        \hline
+        \endhead
+
+        \textbf{Name Table} & \texttt{0x0800} & \texttt{0x1400} & 
+        \texttt{0x3800} & \texttt{0x1400}\\
+        \hline
+        \textbf{Colour Table} & N/A & \texttt{0x2000} & \texttt{0x2000} & N/A\\
+        \hline
+        \textbf{Pattern Table} & \texttt{0x0000} & \texttt{0x0800} &
+        \texttt{0x0000} & \texttt{0x0800}\\
+        \hline
+        \textbf{Sprites Attrib. Table} & N/A & \texttt{0x1000} & \texttt{0x3B00}
+        & \texttt{0x1000}\\
+        \hline
+        \textbf{Sprites Patt. Table} & N/A & \texttt{0x0000} & \texttt{0x1800} &
+        \texttt{0x0000}\\
+        \hline
+    \end{longtable}
+
     \pagebreak
     % ==========================================================================
     \section{I/O Map}
@@ -2545,8 +2578,8 @@
             & Converts an ASCII string consisting of the length of the number
             (in bytes), a possible ASCII - or + sign, and a series of ASCII
             digits to two bytes of binary data. Note that the length is an
-            ordinary binary number, not an ASCII number. (e.g. 33 32 37 36 37 is
-            converted into 7FFF).\\
+            ordinary binary number, not an ASCII number. (e.g. 05 33 32 37 36 37
+            is converted into 7FFF).\\
             \hline\textbf{Entry} & \texttt{HL} = \textbf{MEMORY} address where
             the string to be converted is.\\
             \hline\textbf{Exit} & \texttt{HL} = converted bytes.\\
@@ -2921,7 +2954,6 @@
             \hline
         \end{longtable}
 
-
         % ==========================================================================
         \subsubsection{Block Allocation Table (BAT)}
         % ==========================================================================
@@ -3292,8 +3324,8 @@
         \item \hyperref[func:fkrnbintoascii]{F\_KRN\_BIN\_TO\_ASCII}: Converts
         HEX 2 bytes to ASCII string. (e.g. \texttt{0x7FFF} to 33 32 37 36 37)
         \item \hyperref[func:fkrndectobin]{F\_KRN\_DEC\_TO\_BIN}:
-        Converts HEX 2 bytes to ASCII string. (e.g. 33 32 37 36 37 to
-        \texttt{0x7FFF})
+        Converts HEX n bytes to ASCII string. First byte tells the number of
+        bytes to convert (e.g. 05 33 32 37 36 37 to \texttt{0x7FFF})
     \end{itemize}
 
     % ==========================================================================
@@ -3470,23 +3502,58 @@
     \includegraphics[scale=0.7]{TMS9918Apalette.png}
 
     \begin{itemize}
-        \item VDP\_COLR\_TRNSP  - Transparent
-        \item VDP\_COLR\_BLACK  - Black
-        \item VDP\_COLR\_M\_GRN - Medium Green
-        \item VDP\_COLR\_L\_GRN - Light Green
-        \item VDP\_COLR\_D\_BLU - Dark Blue
-        \item VDP\_COLR\_L\_BLU - Light Blue
-        \item VDP\_COLR\_D\_RED - Dark Red
-        \item VDP\_COLR\_CYAN   - Cyan
-        \item VDP\_COLR\_M\_RED - Medium Red
-        \item VDP\_COLR\_L\_RED - Light Red
-        \item VDP\_COLR\_D\_YLW - Dark Yellow
-        \item VDP\_COLR\_L\_YLW - Light Yellow
-        \item VDP\_COLR\_D\_GRN - Dark Green
-        \item VDP\_COLR\_MGNTA  - Magenta
-        \item VDP\_COLR\_GREY   - Grey
-        \item VDP\_COLR\_WHITE  - White
+        \item VDP\_COLR\_TRNSP  (Transparent)   = \$00
+        \item VDP\_COLR\_BLACK  (Black)         = \$01
+        \item VDP\_COLR\_M\_GRN (Medium Green)  = \$02
+        \item VDP\_COLR\_L\_GRN (Light Green)   = \$03
+        \item VDP\_COLR\_D\_BLU (Dark Blue)     = \$04
+        \item VDP\_COLR\_L\_BLU (Light Blue)    = \$05
+        \item VDP\_COLR\_D\_RED (Dark Red)      = \$06
+        \item VDP\_COLR\_CYAN   (Cyan)          = \$07
+        \item VDP\_COLR\_M\_RED (Medium Red)    = \$08
+        \item VDP\_COLR\_L\_RED (Light Red)     = \$09
+        \item VDP\_COLR\_D\_YLW (Dark Yellow)   = \$0A
+        \item VDP\_COLR\_L\_YLW (Light Yellow)  = \$0B
+        \item VDP\_COLR\_D\_GRN (Dark Green)    = \$0C
+        \item VDP\_COLR\_MGNTA  (Magenta)       = \$0D
+        \item VDP\_COLR\_GREY   (Grey)          = \$0E
+        \item VDP\_COLR\_WHITE  (White)         = \$0F
     \end{itemize}
+
+    % ==========================================================================
+    \subsection{VDP Limitations}
+    % ==========================================================================
+
+    The maximum resolutions are: 240x192 pixels in Text Mode, 256x192 pixels in
+    Graphics Modes (I, II, II Bit-mapped), and 512x384 in Multicolour Mode.
+
+    The maximum number of colours is 15.
+    
+    In Graphics II Bit-mapped Mode, individual pixels can be addressed but
+    individual colours cannot. Therefore it is not possible to assign different
+    colours for each pixel.
+
+    % ==========================================================================
+    \subsubsection{Sprites}
+    % ==========================================================================
+
+    A maximum of 32 sprites can be shown on the screen, of sizes either 8x8 or
+    16x16 pixels. Though sprites can be magnified, thus showing as 16x16 or
+    32x32 respectively.
+
+    The location of a sprite is defined by the top left-hand corner of the
+    sprite pattern.
+
+    When more than one sprite is located at the same screen coordinate, the
+    sprite on the higher priority plane will be shown.
+
+    A maximum of 4 sprites can be displayed on the same horizontal line. If this
+    rule is violated, the four highest priority sprites on the line are
+    displayed normally, but the fifth and subsequent sprites are not displayed.
+
+    The \textit{Coincidence Flag} (collision dectection) only indicates that
+    any two sprites have overlapping bits, but it does not tell which sprites
+    are. This must be calculated programatically.
 
     % ==========================================================================
     \subsection{Jiffy Counter}

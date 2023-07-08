@@ -257,6 +257,7 @@
     % ==========================================================================
     \section{Setting up the system}
     % ==========================================================================
+    \label{sec:setting_system}
     You will only need:
 
     \begin{itemize}
@@ -265,10 +266,10 @@
         connector (positive polarity).
         \item A Micro SD card.
         \item A monitor with VGA input.
-        \item A monitor with NTSC Composite input.
-        \item A 3.5mm jack to 3 RCA Audio/Video cable\footnote{This is the same
-        cable used on the Raspberry Pi for Composite output}.
         \item A LIR2032 Li-Ion Rechargeable 3.6V Battery Button Cell
+        \item Optionally, a monitor with NTSC Composite input, and a 3.5mm jack
+        to 3 RCA Audio/Video cable\footnote{This is the same cable used on the
+        Raspberry Pi for Composite output}.
     \end{itemize}
 
     Steps:
@@ -299,6 +300,57 @@
 
     That’s really it. Switch the computer on, with the power switch, and you
     should see text on your monitor. DZOS is ready to use.
+
+    Nevertheless, it's worth noting that by following this procedure the disk
+    image in the SD card will be empty, and therefore no software will be
+    available. See how to add software to your disk image in the following
+    subsection.
+
+    % ==========================================================================
+    \subsection{Transferring software to and from a disk image}
+    % ==========================================================================
+
+    % ==========================================================================
+    \subsubsection{Copy to a disk image}
+    % ==========================================================================
+
+    Software for the dastaZ80 can be created on a PC, or downloaded for example
+    from the \href{https://github.com/dasta400/dzSoftware}{DZOS Software repository}
+    on Github\footnote{DZOS Software repository: 
+    \url{https://github.com/dasta400/dzSoftware}}. But how do we transfer that
+    software into a disk image on our SD card?
+
+    Another DZOS related repository is the \href{https://github.com/dasta400/asmdc}
+    {Arduino Serial Multi-Device Controller for dastaZ80's dzOS}, or ASMDC for
+    short.
+
+    In this repository there is a tool, called \textit{imgmngr} (Image Manager)
+    which can be used to manipulate files inside disk images. It allows to add
+    files, extract files, rename files, delete files, change the file attributes,
+    and display the disk image contents.
+
+    Lets imagine we have a binary, called \textit{helloworld}, in our PC, and we
+    want to copy it to the disk image, called \textit{dastaZ80.img}, that we
+    created following the previous steps explained in the
+    \hyperref[sec:setting_system]{Setting up the system} section. Simply execute
+    \textit{imgmngr} like: \texttt{imgmngr dastaZ80.img -add helloworld}
+
+    Now, if we introduce the SD card into the SD Card slot of the dastaZ80,
+    switch it on and execute the DZOS command \hyperref[cmd:cat]{cat}, we will
+    see a file \textit{helloworld}.
+
+    % ==========================================================================
+    \subsubsection{Copy from a disk image}
+    % ==========================================================================
+
+    What if we created a file in DZOS and we want to make a backup or simply
+    share it with somebody else?
+
+    As we have seen, the same tool \textit{imgmngr} can also be used to extract
+    files from a disk image: \texttt{imgmngr dastaZ80.img -get helloworld}
+
+    Once finished, we will have a file \textit{helloworld} in our PC, with the
+    same contents as the file \textit{helloworld} in the disk image.
 
     % ==========================================================================
     \subsection{Dual Video Output}
@@ -705,7 +757,7 @@
     \subsection{Disk Commands}\label{dskcmds}
     % ==========================================================================
         % ======================================================================
-        \subsubsection{{\color{blue}cat}}
+        \subsubsection{{\color{blue}cat}}\label{cmd:cat}
         % ======================================================================
         Shows a catalogue of the files stored in the \textbf{DISK}.
 
@@ -1126,7 +1178,7 @@
     % ==========================================================================
 
     % ======================================================================
-    \subsubsection{Memory Dump (memdump)}
+    \subsection{Memory Dump (memdump)}
     % ======================================================================
     This program shows the contents (bytes) of a specified range of
     \textbf{MEMORY}.
@@ -1167,7 +1219,7 @@
     \hspace{1cm}\texttt{[SPACE] for more or another key to stop}
 
     % ======================================================================
-    \subsubsection{Video Memory Dump (vramdump)}
+    \subsection{Video Memory Dump (vramdump)}
     % ======================================================================
     This program shows the contents (bytes) of a specified range
     of \textbf{VRAM}.
@@ -1207,7 +1259,7 @@
     \hspace{1cm}\texttt{[SPACE] for more or another key to stop}
 
     % ======================================================================
-    \subsubsection{Load Screen dumps (loadscr)}
+    \subsection{Load Screen dumps (loadscr)}
     % ======================================================================
     This program loads screen dumps, saved as raw data, to the the VRAM. It is
     in essence a picture display program.
@@ -1225,7 +1277,7 @@
     \textit{SC3} (Multicolour Mode).
 
     % ======================================================================
-    \subsubsection{Load Font (loadfont)}
+    \subsection{Load Font (loadfont)}
     % ======================================================================
     This program loads font files, which contain pattern definitions for text
     characters to be used for text display.
@@ -1404,6 +1456,49 @@
     \end{itemize}
 
     % ==========================================================================
+    \subsubsection{How to call an ASM subroutine}
+    % ==========================================================================
+
+    This BASIC provides a way of executing external subroutines, via the
+    intrinsic function \textit{USR}.
+
+    The programmer needs to store the address of the subroutine to be called in
+    the the work space location reserved for \textit{USR}. In the case of the
+    version for dastaZ80, this is at \texttt{0x6148} for the LSB and
+    \texttt{0x6149} for the MSB.
+
+    This can be done from BASIC with the instruction \texttt{DPOKE 24904,<address>}
+
+    \textbf{Be aware} that at location \texttt{0x6147} there is stored a
+    \textit{jp} instruction, which is what is executed when the function
+    \textit{USR} is called from BASIC, and therefore it will jump to the
+    subroutine and never come back unless explicitily specified.
+
+    If instead your subroutine contains a \textit{ret}urn instruction, or if you
+    are calling dzOS functions, you \textbf{MUST} change the \textit{jp}
+    instruction to a \textit{call} instruction.
+
+    This can be done from BASIC with the instruction \texttt{POKE 24903,205}
+
+    Finally, to call the external subroutine, as the \textit{USR} is a function,
+    it returns a parameter and therefore it must be received. Either by assigning
+    the value to a variable (e.g. \texttt{A=USR(0)}) or by printing it or by
+    checking it with an \textit{IF}.
+
+    \begin{itemize}
+        \item Valid methods how to use \textit{USR}:
+        \begin{itemize}
+            \item \texttt{A=USR(0)}
+            \item \texttt{IF USR(0)<>0 THEN ...}
+            \item \texttt{PRINT USR(0)}
+        \end{itemize}
+        \item Invalid methods:
+        \begin{itemize}
+            \item \texttt{USR(0)}, will return \textit{?SN Error} (i.e. Syntax Error)
+        \end{itemize}
+    \end{itemize}
+
+    % ==========================================================================
     \subsection{MS BASIC 4.7 dastaZ80 version}
     % ==========================================================================
 
@@ -1438,6 +1533,7 @@
 
     \textbf{Example}: \texttt{SAVE "mandelbrot}
 
+
     % ======================================================================
     \subsubsection{{\color{blue}SOUND}}
     % ======================================================================
@@ -1452,7 +1548,58 @@
 
     \hspace{1cm}\textbf{\textit{$<$value$>$}}: value to set (0.255).
 
-    \textbf{Example}: \texttt{SOUND 0,255}
+    \textbf{Example}: \texttt{SOUND 7,62}
+
+    % % ==========================================================================
+    % \subsection{Logo}
+    % % ==========================================================================
+    % Logo is an educational programming language, designed in 1967 by Wally
+    % Feurzeig, Seymour Papert, and Cynthia Solomon, at Bolt, Beranek and Newman
+    % (BBN), a Cambridge, Massachusetts research firm.
+
+    % Logo's most-know feature is the turtle\footnote{Turtles are a class of
+    % educational robots designed originally in the late 1940s and used in
+    % computer science and mechanical engineering training.}, an on-screen
+    % cursor-like that shows output from commands for movement and a small
+    % retractable pen, together producing line graphics.
+
+    % Taking advantage of the dual video output capabilities of the dastaZ80, in
+    % this implementation of Logo commands are entered by the user in the
+    % \textbf{High Resolution Display}, while graphics are shown fullscreen in
+    % the \textbf{Low Resolution Display}, using Graphics Mode II (256x192 pixels).
+
+    % Due to a limitation of the \textbf{VDP}, individual colours cannot be
+    % assigned to the Pen. Therefore the screen is considered monochrome.
+
+    % % ======================================================================
+    % \subsubsection{Commands}
+    % % ======================================================================
+
+    % \begin{itemize}
+    %     \item \textbf{BK} \textit{$<$number$>$}: (\textbf{Backward}) Moves the
+    %     turtle backwards, a \textit{$<$number$>$} of pixels.
+    %     \item \textbf{CS}: (\textbf{Clear Screen}) Clears the screen.
+    %     \item \textbf{FD} \textit{$<$number$>$}: (\textbf{Forward}) Moves the
+    %     turtle forward, a \textit{$<$number$>$} of pixels.
+    %     \item \textbf{HM}: (\textbf{Home}) Moves (without drawing) the turtle
+    %     to the middle of the screen.
+    %     \item \textbf{HT}: (\textbf{Hide Turtle}) Hides the turtle.
+    %     \item \textbf{LT} \textit{$<$degrees$>$}: (\textbf{Rotate Left}) Rotates
+    %     the turtle left, by a number of \textit{$<$degrees$>$}.
+    %     \item \textbf{PD}: (\textbf{Pen Down}) Puts the pen down, therefore the
+    %     turtle draws while moving.
+    %     \item \textbf{PU}: (\textbf{Pen Up}) Puts the pen up, therefore the
+    %     turtle moves without drawing.
+    %     \item \textbf{QL}: (\textbf{Quit LOGO}) Quits Logo and returns to
+    %     DZOS's CLI.
+    %     \item \textbf{RT} \textit{$<$degrees$>$}: (\textbf{Rotate Right})
+    %     Rotates the turtle right, by a number of \textit{$<$degrees$>$}.
+    %     \item \textbf{ST}: (\textbf{Show Turtle}) Shows the turtle.
+    %     \item \textbf{SX} \textit{$<$X$>$}: (\textbf{Set Position X}) Puts the turtle to
+    %     the specified \textit{$<$X$>$} position.
+    %     \item \textbf{SY} \textit{$<$Y$>$}: (\textbf{Set Position Y}) Puts the turtle to
+    %     the specified \textit{$<$Y$>$} position.
+    % \end{itemize}
 
     \pagebreak
     % ==========================================================================
