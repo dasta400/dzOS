@@ -286,7 +286,7 @@ BIOS_VDP_INIT_TAB:
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_SET_MODE_TXT:
-; ToDo - Set VDP to Text Mode
+; Set VDP to Text Mode
 ;   Pattern Table           = 2048 bytes, arranged as 256 6x8 patterns
 ;   Name Table              = 960 bytes
 ;   Colour Table            = No colour table
@@ -394,7 +394,7 @@ BIOS_VDP_SET_MODE_G1:
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_SET_MODE_G2:
-; Set VDP to Graphics II Mode\
+; Set VDP to Graphics II Mode
 ;   Pattern Table           = 6144 bytes, arranged in three blocks of 2048 as 256 8x8 patterns each
 ;   Name Table              = 768 bytes
 ;   Colour Table            = 6144 bytes
@@ -514,7 +514,7 @@ _ini_name_tab:
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_SET_MODE_MULTICLR:
-; ToDo - Set VDP to Multicolour Mode
+; Set VDP to Multicolour Mode
 ;   Pattern Table           = 1536 bytes, arranged as 256 8x8 patterns
 ;   Name Table              = 768 bytes
 ;   Colour Table            = No colour table
