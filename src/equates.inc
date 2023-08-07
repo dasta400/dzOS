@@ -83,9 +83,9 @@ SYSVARS_START               .EQU    STACK_END + 1
 SYSVARS_END                 .EQU    SYSVARS_START + 348
 
 RESERVED_START              .EQU    SYSVARS_END + 1
-RESERVED_END                .EQU    RESERVED_START + 157
+RESERVED_END                .EQU    $4220 - 1
 
-DISK_BUFFER_START           .EQU    RESERVED_END + 1
+DISK_BUFFER_START           .EQU    $4220
 DISK_BUFFER_END             .EQU    DISK_BUFFER_START + 511
 
 FREERAM_START               .EQU    DISK_BUFFER_END + 1
