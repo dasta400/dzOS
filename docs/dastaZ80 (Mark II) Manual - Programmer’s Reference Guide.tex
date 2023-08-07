@@ -1278,12 +1278,80 @@
         \end{tabular}
 
         % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_TXT}
+        \label{func:fbiosvdpsetmodetxt}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set \textbf{VDP} to \textit{Text Mode} display.\\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
+            \texttt{HL} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
+            & \hyperref[func:fbiosvdpsetregister]{F\_BIOS\_VDP\_SET\_REGISTER}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_G1}
+        \label{func:fbiosvdpsetmodeg1}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set \textbf{VDP} to \textit{Graphics I Mode} display.\\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
+            \texttt{HL} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
+            & \hyperref[func:fbiosvdpsetregister]{F\_BIOS\_VDP\_SET\_REGISTER}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
         \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_G2}
         \label{func:fbiosvdpsetmodeg2}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
+            & Set \textbf{VDP} to \textit{Graphics II Mode} display.\\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
+            \texttt{HL} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
+            & \hyperref[func:fbiosvdpsetregister]{F\_BIOS\_VDP\_SET\_REGISTER}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_G2BM}
+        \label{func:fbiosvdpsetmodeg2bm}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Graphics II Bit-mapped Mode} display.\\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
+            \texttt{HL} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
+            & \hyperref[func:fbiosvdpsetregister]{F\_BIOS\_VDP\_SET\_REGISTER}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_MULTICLR}
+        \label{func:fbiosvdpsetmodemulticlr}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set \textbf{VDP} to \textit{Multicolour Mode} display.\\
             \hline\textbf{Entry} & None\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
@@ -1316,9 +1384,11 @@
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
-            & Writes a byte to currently pointed \textbf{VRAM} cell.\\
-            \hline\textbf{Entry} & \texttt{A} = byte to be written.\\
-            \hline\textbf{Exit} & None\\
+            & Writes a byte to currently pointed \textbf{VRAM} cell. The 
+            \textbf{VDP} autoincrements the \textbf{VRAM} address whenever a
+            Read or a Write to \textbf{VRAM} is performed.\\
+            \hline\textbf{Entry} & \texttt{A} = byte to be written\\
+            \hline\textbf{Exit} & \textbf{VRAM} address autoincremented\\
             \hline\textbf{Destroys} & \texttt{C} \\
             \hline\textbf{Calls} & None\\
             \hline
@@ -1330,9 +1400,12 @@
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
-            & Read a byte from \textbf{VRAM}.\\
+            & Read a byte from \textbf{VRAM}. The \textbf{VDP} autoincrements
+            the \textbf{VRAM} address whenever a Read or a Write to
+            \textbf{VRAM} is performed.\\
             \hline\textbf{Entry} & None\\
-            \hline\textbf{Exit} & \texttt{A} = read byte.\\
+            \hline\textbf{Exit} & \texttt{A} = read byte, \textbf{VRAM} address
+            autoincremented.\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{C} \\
             \hline\textbf{Calls} & None\\
             \hline
@@ -3518,6 +3591,46 @@
         \item VDP\_COLR\_MGNTA  (Magenta)       = \$0D
         \item VDP\_COLR\_GREY   (Grey)          = \$0E
         \item VDP\_COLR\_WHITE  (White)         = \$0F
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{VDP Screen resolutions}
+    % ==========================================================================
+    \label{sec:vdpscrmodes}
+
+    \begin{itemize}
+        \item Mode 0: \textbf{Text Mode}
+        \begin{itemize}
+            \item 40 columns by 24 lines.
+            \item 6x8 bytes characters.
+            \item 2 colours (Text and Background).
+            \item No Sprites.
+        \end{itemize}
+        \item Mode 1: \textbf{Graphics I Mode}
+        \begin{itemize}
+            \item 256 by 192 pixels.
+            \item 32 columns by 24 lines for text.
+            \item 8x8 bytes characters for text.
+            \item 15 colours.
+            \item Sprites.
+        \end{itemize}
+        \item Mode 2: \textbf{Graphics II Mode}
+        \begin{itemize}
+            \item 256 by 192 pixels.
+            \item 32 columns by 24 lines for text.
+            \item 8x8 bytes characters for text.
+            \item 15 colours.
+            \item Sprites.
+        \end{itemize}
+        \item Mode 3: \textbf{Multicolour Mode}
+        \begin{itemize}
+            \item 64 by 48 pixels.
+            \item No characters for text.
+            \item 15 colours.
+            \item Sprites.
+        \end{itemize}
+        \item Mode 4: \textbf{Graphics II Mode Bitmapped}: same as mode 2, but
+        screen is bitmapped for addressing every pixel individually.
     \end{itemize}
 
     % ==========================================================================
