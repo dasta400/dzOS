@@ -502,6 +502,10 @@
     Parameters can be separated either by a comma or a space. For clarity, in
     this document all parameters are separated by a comma.
 
+    Programs stored in \textbf{DISK} can be executed directly by simply entering
+    the filename as a command. But only those in the current \textbf{DISK} (see
+    command \hyperref[cmd:dsk]{dsk}) and with attribute \textit{EXE}.
+
     % ==========================================================================
     \subsection{General Commands}\label{gencmds}
     % ==========================================================================
@@ -615,13 +619,11 @@
         % ======================================================================
         \subsubsection{{\color{blue}run}}
         % ======================================================================
-        There are two formats of this command:
 
-        \textbf{run \textit{$<$address$>$}} and \textbf{run 
-        \textit{$<$filename$>$}}
-        
-        Here the former is described. See the section \textit{\ref{dskcmds}
-        DISK Commands} on page \pageref{dskcmds} for the other format.
+        Transfers the Program Counter (PC) of the Z80 to the specified address.
+        In other words, this command is used to directly run code that has been
+        already loaded in \textbf{RAM}, for example with the command 
+        \hyperref[cmd:load]{load}.
 
         \hspace{1.9cm}\textbf{$>$ run \textit{$<$address$>$}}
 
@@ -632,9 +634,8 @@
         
         \textbf{Example}: \texttt{$>$ run 4420}
 
-        Will transfer the Program Counter (PC) of the Z80 to the address
-        0x4420. Therefore, the CPU will start running whatever instructions
-        finds from 0x4420 and onwards. Programs run this way MUST end with a
+        The \textbf{CPU} will start running whatever instructions finds from
+        \texttt{0x4420} and onwards. Programs run this way MUST end with a
         jump instruction (JP) to CLI prompt address, as described in the
         \textit{dastaZ80 Programmer’s Reference Guide}\cite{dastaz80progref}.
         Otherwise the user will have to reset the computer to get back to CLI.
@@ -859,7 +860,7 @@
         computer case, having \textit{mainDisk} as disk label.
 
         % ======================================================================
-        \subsubsection{{\color{blue}load}}
+        \subsubsection{{\color{blue}load}}\label{cmd:load}
         % ======================================================================
         Loads a file from \textbf{DISK} to \textbf{RAM}.
         
@@ -878,34 +879,6 @@
 
         Will load the contents (bytes) of the file \textit{HelloWorld} and copy
         them into the \textbf{RAM} address from which it was originally saved.
-
-        % ======================================================================
-        \subsubsection{{\color{blue}run}}
-        % ======================================================================
-        There are two formats of this command:
-
-        \textbf{run \textit{$<$address$>$}} and \textbf{run 
-        \textit{$<$filename$>$}}
-        
-        Here the latter is described. See the section \textit{\ref{gencmds}
-        General Commands} on page \pageref{gencmds} for the other format.
-
-        \hspace{1.9cm}\textbf{$>$ run \textit{$<$filename$>$}}
-
-        \textbf{Parameters}:
-
-        \hspace{1cm}\textbf{\textit{filename}}: the name of the file to run.
-        
-        \textbf{Example}: \texttt{$>$ run HelloWorld}
-
-        Will load the contents of the file \textit{HelloWorld} into
-        \textbf{MEMORY}, and then transfer the Program Counter (PC) of the Z80
-        to the address stored in the BAT entry. Therefore, the CPU will start
-        running whatever instructions finds from the address and onwards.
-        Programs run this way MUST end with a jump instruction (JP) to CLI
-        prompt address, as described in the \textit{dastaZ80 Programmer’s
-        Reference Guide}\cite{dastaz80progref}. Otherwise the user will have to
-        reset the computer to get back to CLI.
 
         % ======================================================================
         \subsubsection{{\color{blue}rename}}
@@ -1012,7 +985,7 @@
         with 512 bytes of the contents of \textbf{MEMORY} from 0x4420 to 0x461F.
 
         % ======================================================================
-        \subsubsection{{\color{blue}dsk}}
+        \subsubsection{{\color{blue}dsk}}\label{cmd:dsk}
         % ======================================================================
         Changes current disk for all \textbf{DISK} operations.
 

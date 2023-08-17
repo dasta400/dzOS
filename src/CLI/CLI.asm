@@ -7,15 +7,16 @@
 ;
 ; Version 1.0.0
 ; Created on 03 Jan 2018
-; Last Modification 21 Jun 2022
+; Last Modification 17 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
-;   -
+;   - 17 Aug 2023 - Check if command is a file in the current disk and in case
+;                       it is, load and run it.
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2018-2022 David Asta
+; Copyright (c) 2018-2023 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -92,9 +93,25 @@ prompt_skip_lead_zero:
         jp      z, cli_promptloop
         ; Otherwise, parse it and call corresponding subroutine
         call    F_CLI_PARSECMD
-        jp      c, cli_command_unknown
+        jr      c, cli_command_unknown
         jp      cli_promptloop
 cli_command_unknown:
+        ; Added 17 Aug 2023 - Check if command is a file in the current disk
+        ;                       and in case it is, load and run it
+        ; filename found, load and run it
+        ld      A, $AB                  ; This is a flag to tell CLI_CMD_DISK_LOAD_DIRECT that the call
+        ld      (tmp_byte2), A          ;   didn't come from the jumptable, so that it can return here
+        ld      HL, CLI_buffer_cmd
+        call    CLI_CMD_DISK_LOAD_DIRECT
+        ld      A, (tmp_byte)           ; Was the file loaded correctly?
+        cp      $EF                     ; EF means there was an error
+        jp      z, cli_promptloop       ; exit subroutine if file didn't load
+        ; file was loaded, run it
+        ld      A, ANSI_COLR_WHT        ; Set text colour
+        call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
+        ld      HL, (DISK_cur_file_load_addr)
+        jp      (HL)                    ; jump execution to address in HL
+_cli_no_cmd_nor_file:
         ld      HL, error_9001
         ld      A, ANSI_COLR_RED
         call    F_KRN_SERIAL_WRSTRCLR
@@ -169,6 +186,7 @@ end_get_cmd:
 F_CLI_PARSECMD:
 ; Parse command
 ; Parses entered command and calls related subroutine.
+; If command is not known by CLI, sets Carry flag and returns
         ld      B, 0                    ; subroutine counter
 parse_loop:
         ld      HL, 0                   ; reset HL

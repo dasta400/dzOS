@@ -11,6 +11,8 @@
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - F_BIOS_VDP_SET_MODE_ functions now require extra parameters
+;                   'run' command for filenames deprecated. Files can be run
+;                       directly by simply entering the filename as command.
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -182,33 +184,14 @@ end_autopoke:
 ;    run - Starts running instructions from a specific memory address
 ;------------------------------------------------------------------------------
 CLI_CMD_RUN:
-; IN <=     CLI_buffer_parm1_val = address or filename
+; IN <=     CLI_buffer_parm1_val = address to start running from
         call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
-        ; Check if param1 is an address (i.e. starts with a number) or a filename
+        ; Check that param1 is an address (i.e. starts with a number)
         ld      A, (CLI_buffer_parm1_val) ; check if the 1st character of param1
         call    F_KRN_IS_NUMERIC        ;   is a number
         jr      c, runner_addr          ; is number? Yes, run from memory address
-runner_filename:                        ; No, load and run file
-        ; If FDD, then check that disk is in the drive and not protected
-        ld      A, (DISK_current)
-        cp      0
-        jp      nz, _runner
-        call    _CLI_CHECK_DISK_IN_DRIVE
-        cp      0
-        jp      nz, cli_promptloop      ; error, don't format and go back to CLI
-_runner:
-        ; filename is the first parameter, so can call load command directly
-        ld      A, $AB                  ; This is a flag to tell CLI_CMD_DISK_LOAD that the call
-        ld      (tmp_byte2), A          ;   didn't come from the jumptable, so that it can return here
-        call    CLI_CMD_DISK_LOAD_NOCHECK
-        ld      A, (tmp_byte)           ; Was the file loaded correctly?
-        cp      $EF                     ; EF means there was an error
-        jp      z, cli_promptloop       ; exit subroutine if param1 was not specified
-        ; file was loaded, run it
-        ld      A, ANSI_COLR_WHT        ; Set text colour
-        call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
-        ld      HL, (DISK_cur_file_load_addr)
-        jp      (HL)                    ; jump execution to address in HL
+        call    bad_params              ;            No, show error
+        jp      cli_promptloop          ;               and exit subroutine
 runner_addr:
         call    param1val_uppercase
         ; CLI_buffer_parm1_val has the value in hexadecimal
@@ -276,6 +259,8 @@ CLI_CMD_DISK_LOAD_NOCHECK:              ; When called from CLI_CMD_RUN, the
         ; Search filename in BAT
         ; Check that filename exists
         ld      HL, CLI_buffer_parm1_val
+CLI_CMD_DISK_LOAD_DIRECT:               ; load filename from whatever is in HL address
+                                        ;   instead of CLI_buffer_parm1_val
         call    F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      z, filename_notfound    ; filename not found, error and exit
         ; yes, continue

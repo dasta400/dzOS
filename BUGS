@@ -18,6 +18,7 @@
 * ✔ ~~_halt_ makes the computer to reset.~~
 * _clrram_ executed after loading MS BASIC, hangs the computer
 * ✔ ~~Backspace is not reflected in _CLI_buffer_full_cmd_~~
+* Files on disk can be run directly by simply entering the filename as a CLI command, but CLI is not checking if the file is an EXE or not.
 
 ## VDP
 

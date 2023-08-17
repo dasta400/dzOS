@@ -144,6 +144,7 @@ Same as Mark II, adding:
 * ✔ ~~Results of _cat_ command are longer than 80 columns.~~
 * _clrram_ executed after loading MS BASIC, hangs the computer.
 * ✔ ~~There are some artifacts on the Composite Video screen, due to some bad data in the VDP's Colour Table.~~
+* Files on disk can be run directly by simply entering the filename as a CLI command, but CLI is not checking if the file is an EXE or not.
 
 ---
 
