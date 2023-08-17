@@ -1177,8 +1177,9 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Set a value to a \textbf{VDP} register. \\
-            \hline\textbf{Entry} & \texttt{A} = register number, \texttt{B} =
-            value to set\\
+            \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+            & \texttt{A} = register number\\
+            & \texttt{B} = value to set\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{C} \\
             \hline\textbf{Calls} & None\\
@@ -1285,7 +1286,10 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Text Mode} display.\\
-            \hline\textbf{Entry} & None\\
+            \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+            & \texttt{B} = Sprite size (0=8×8, 1=16×16)\\
+            & \texttt{C} = Sprite magnification (0=no magnification,
+                1=magnification)\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
             \texttt{HL} \\
@@ -1302,7 +1306,10 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Graphics I Mode} display.\\
-            \hline\textbf{Entry} & None\\
+            \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+            & \texttt{B} = Sprite size (0=8×8, 1=16×16)\\
+            & \texttt{C} = Sprite magnification (0=no magnification,
+                1=magnification)\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
             \texttt{HL} \\
@@ -1319,7 +1326,10 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Graphics II Mode} display.\\
-            \hline\textbf{Entry} & None\\
+            \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+            & \texttt{B} = Sprite size (0=8×8, 1=16×16)\\
+            & \texttt{C} = Sprite magnification (0=no magnification,
+                1=magnification)\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
             \texttt{HL} \\
@@ -1336,7 +1346,10 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Graphics II Bit-mapped Mode} display.\\
-            \hline\textbf{Entry} & None\\
+            \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+            & \texttt{B} = Sprite size (0=8×8, 1=16×16)\\
+            & \texttt{C} = Sprite magnification (0=no magnification,
+                1=magnification)\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
             \texttt{HL} \\
@@ -1353,29 +1366,16 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Multicolour Mode} display.\\
-            \hline\textbf{Entry} & None\\
+            \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+            & \texttt{B} = Sprite size (0=8×8, 1=16×16)\\
+            & \texttt{C} = Sprite magnification (0=no magnification,
+                1=magnification)\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{D},
             \texttt{HL} \\
             \hline\multirow[t]{2}{4em}{\textbf{Calls}}
             & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
             & \hyperref[func:fbiosvdpsetregister]{F\_BIOS\_VDP\_SET\_REGISTER}\\
-            \hline
-        \end{tabular}
-
-        % ==========================================================================
-        \subsubsection{F\_BIOS\_VDP\_SHOW\_DZ\_LOGO}
-        \label{func:fbiosvdpshowdzlogo}
-        % ==========================================================================
-        \begin{tabular}{l p{9cm}}
-            \hline\textbf{Action}
-            & Show dastaZ80 logo on the \textbf{Low Resolution Display}.\\
-            \hline\textbf{Entry} & None\\
-            \hline\textbf{Exit} & None\\
-            \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
-            \texttt{HL}, \texttt{IX} \\
-            \hline\textbf{Calls} & \hyperref[func:fbiosvdpsetaddrwr]
-            {F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
             \hline
         \end{tabular}
 

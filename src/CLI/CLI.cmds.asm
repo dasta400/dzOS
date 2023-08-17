@@ -7,15 +7,15 @@
 ;
 ; Version 1.0.0
 ; Created on 06 Jul 2022
-; Last Modification 06 Jul 2022
+; Last Modification 17 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
-;   -
+;   - 17 Aug 2023 - F_BIOS_VDP_SET_MODE_ functions now require extra parameters
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2022 David Asta
+; Copyright (c) 2022-2023 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -863,6 +863,8 @@ CLI_CMD_VDP_SCREEN:
         ; call    F_KRN_IS_NUMERIC        ; and check  if it's a number (C Flag set)
         ; jp      nc, _vdp_mode_error     ; if no numeric, error
 
+        ld      B, 0                    ; Sprite Size will be 8x8
+        ld      C, 0                    ; Sprite Magnification disabled
         ld      A, (CLI_buffer_parm1_val)
         cp      $30
         jp      z, _set_mode0

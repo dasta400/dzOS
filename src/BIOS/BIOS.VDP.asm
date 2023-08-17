@@ -5,17 +5,18 @@
 ; for dastaZ80's dzOS
 ; by David Asta (December 2022)
 ;
-; Version 0.1.0
+; Version 1.0.0
 ; Created on 19 Dec 2022
-; Last Modification 19 Dec 2022
+; Last Modification 17 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
-; 	-
+; 	- 17 Aug 2023 - Added parameters Sprite Size and Sprite Magnification to
+;                       all F_BIOS_VDP_SET_MODE_ functions.
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2022 David Asta
+; Copyright (c) 2022-2023 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -292,6 +293,15 @@ BIOS_VDP_SET_MODE_TXT:
 ;   Colour Table            = No colour table
 ;   Sprite Patterns Table   = No sprites
 ;   Sprite Attributes Table = No sprites
+; IN <= B = Sprite size (0=8×8, 1=16×16)
+;       C = Sprite magnification (0=no magnification, 1=magnification)
+
+        ; Change Register 1 value in table according to input parameters
+        ld      A, (VDP_TXT_REG_1)      ; get value from table
+        rlc     B                       ; move B to be bit 6
+        or      B                       ; Register 1 bit 6 = B
+        or      C                       ; Register 1 bit 7 = C
+        ld      (VDP_TXT_REG_1), A      ; store value in table
 
         ; Initialise registers
         ld      IX, VDP_TXT_REG_TAB     ; register table of initialisation values
@@ -343,6 +353,16 @@ BIOS_VDP_SET_MODE_G1:
 ;   Colour Table            = 32 bytes
 ;   Sprite Patterns Table   = 2048 bytes
 ;   Sprite Attributes Table = 128 bytes
+; IN <= B = Sprite size (0=8×8, 1=16×16)
+;       C = Sprite magnification (0=no magnification, 1=magnification)
+
+        ; Change Register 1 value in table according to input parameters
+        ld      A, (VDP_G1_REG_1)       ; get value from table
+        rlc     B                       ; move B to be bit 6
+        or      B                       ; Register 1 bit 6 = B
+        or      C                       ; Register 1 bit 7 = C
+        ld      (VDP_G1_REG_1), A       ; store value in table
+
         ; Initialise registers
         ld      IX, VDP_G1_REG_TAB      ; register table of initialisation values
         call    BIOS_VDP_INIT_REGS
@@ -400,6 +420,16 @@ BIOS_VDP_SET_MODE_G2:
 ;   Colour Table            = 6144 bytes
 ;   Sprite Patterns Table   = 2048 bytes
 ;   Sprite Attributes Table = 256 bytes
+; IN <= B = Sprite size (0=8×8, 1=16×16)
+;       C = Sprite magnification (0=no magnification, 1=magnification)
+
+        ; Change Register 1 value in table according to input parameters
+        ld      A, (VDP_G2_REG_1)       ; get value from table
+        rlc     B                       ; move B to be bit 6
+        or      B                       ; Register 1 bit 6 = B
+        or      C                       ; Register 1 bit 7 = C
+        ld      (VDP_G2_REG_1), A       ; store value in table
+
         ; Initialise registers
         ld      IX, VDP_G2_REG_TAB      ; register table of initialisation values
         call    BIOS_VDP_INIT_REGS
@@ -463,6 +493,15 @@ BIOS_VDP_SET_MODE_G2BM:
 ;   Set all colours the same
 ;   Write consecutive numbers for each entry in the Name Table
 ;       (i.e. 0x00-0xFF three times)
+; IN <= B = Sprite size (0=8×8, 1=16×16)
+;       C = Sprite magnification (0=no magnification, 1=magnification)
+
+        ; Change Register 1 value in table according to input parameters
+        ld      A, (VDP_G2_REG_1)       ; get value from table
+        rlc     B                       ; move B to be bit 6
+        or      B                       ; Register 1 bit 6 = B
+        or      C                       ; Register 1 bit 7 = C
+        ld      (VDP_G2_REG_1), A       ; store value in table
 
         ; Initialise registers
         ld      IX, VDP_G2_REG_TAB      ; register table of initialisation values
@@ -519,7 +558,16 @@ BIOS_VDP_SET_MODE_MULTICLR:
 ;   Name Table              = 768 bytes
 ;   Colour Table            = No colour table
 ;   Sprite Patterns Table   = 2048 bytes
-;   Sprite Attributes Table = 128 
+;   Sprite Attributes Table = 128
+; IN <= B = Sprite size (0=8×8, 1=16×16)
+;       C = Sprite magnification (0=no magnification, 1=magnification)
+
+        ; Change Register 1 value in table according to input parameters
+        ld      A, (VDP_MM_REG_1)       ; get value from table
+        rlc     B                       ; move B to be bit 6
+        or      B                       ; Register 1 bit 6 = B
+        or      C                       ; Register 1 bit 7 = C
+        ld      (VDP_MM_REG_1), A       ; store value in table
 
         ; Initialise registers
         ld      IX, VDP_MM_REG_TAB      ; register table of initialisation values

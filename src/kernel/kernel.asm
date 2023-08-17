@@ -127,7 +127,9 @@ KRN_INIT_VDP:
         call    F_KRN_SERIAL_WRSTRCLR
 
         ; VDP VRAM test passed OK
-        call    F_BIOS_VDP_VRAM_CLEAR   ; CLear VRAM
+        call    F_BIOS_VDP_VRAM_CLEAR   ; Clear VRAM
+        ld      B, 0                    ; Sprite Size will be 8x8
+        ld      C, 0                    ; Sprite Magnification disabled
         call    F_BIOS_VDP_SET_MODE_TXT ; Set VDP to Text Mode
         call    F_BIOS_VDP_FNT_CHARSET  ; Copy Default Font Charset to VRAM
         ;   Display text in VDP screen
