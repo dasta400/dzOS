@@ -241,22 +241,17 @@
     The signal \textit{A15} is connected to \textit{+5V}, therefore is always
     high, meaning that the start address is \texttt{0x8000} and the ROM becomes
     a 32 KB ROM. This is not the start address that the CPU sees but rather the
-    address where the ROM starts. The CPU will see it as \texttt{0x0000}.
+    address where the ROM code starts. The CPU will see it as \texttt{0x0000}.
 
     As the dzOS is 16 KB in size, I have divided the ROM into two 16 KB ROMs, 
-    allowing to execute two different operating systems by selecting the start
-    address (\texttt{0x8000} or \texttt{0xC000}) via a switch connected to the
-    signal \textit{A14} of the ROM chip.
+    allowing to execute two different operating system versions by selecting the
+    start address (\texttt{0x8000} or \texttt{0xC000}) via a switch connected to
+    the signal \textit{A14} of the ROM chip.
 
     When the switch is in the lower position, \textit{A14} is connected to 
-    \textit{Ground}, thus start address \texttt{0x0000} starts at 
-    \texttt{0x8000} in the ROM. When the switch is in the upper position, 
-    \textit{A14} is connected to \textit{+5V}, thus start address is at 
-    \texttt{0xC000}.
-
-    The idea is to be able to use the computer with either dzOS or Digital 
-    Research, Inc. CP/M. Of course, the SD will need to be changed for the
-    specific operating system.
+    \textit{Ground}, thus ROM start address is \texttt{0x8000}. When the switch
+    is in the upper position, \textit{A14} is connected to \textit{+5V}, thus
+    start address is at \texttt{0xC000}.
 
     % ==========================================================================
     \subsubsection{RAM chip}
@@ -286,7 +281,7 @@
     \subsubsection{Floppy Disk Drive (FDD)}
     % ==========================================================================
 
-    This module is connected to original Acorn A3010 FDD (Citizen OSDA-20C).
+    This module is connected to the original Acorn A3010 FDD (Citizen OSDA-20C).
 
     The available commands (cmd) are:
  
@@ -543,13 +538,27 @@
     games.
 
     Therefore, as the focus for this output should be graphics rather than text,
-    the Operating System does not contain fonts (Patterns) for text. Also,
-    because the OS only uses this output in \textit{Graphics II Bit-mapped Mode},
-    this is the only mode that can be initialised via a BIOS function call. It
-    is up for each application to initialise the video controller to the desired
-    Mode\footnote{The TMS9918A has four documented modes: Mode 0 (Text), Mode 1
-    (Graphics I), Mode 2 (Graphics 2) and Mode 3 (Multicolour)} and to copy the
-    Patterns and Sprites to the TMS9918A's \textbf{VRAM}.
+    the Operating System does not contain fonts (Patterns) for text. It is up
+    for each application to load the desired fonts to be used.
+
+    The TMS9918A image displayed on the screen is made up of 35 different planes
+    stacked one on top of each other. These planes are numbered from 0 to 34
+    with plane 34 being at the bottom of the stack. Images on the lower planes
+    can only be seen if the upper planes are transparent at that particular
+    point.
+
+    Plane 34 is the external video input plane, but it is not enabled in dastaZ80.
+
+    Plane 33 is the backdrop plane which is a single color and provides the
+    border on the screen. This plane cannot display any images. Just the colour.
+
+    Plane 32 is the Pattern plane, for text characters.
+
+    Planes 31 to 0 are the sprites planes. Only one sprite can be displayed on
+    each plane making a total of 32 sprites displayed at one time\footnote{The 
+    TMS9918A has a limitation on sprites: a maximum of 4 sprites can be
+    displayed on the same horizontal line.}. Sprites on the upper planes (lower
+    plane numbers) will appear in front of sprites on the lower planes.
 
     For technical information on the TMS9918A, refer to the Texas Instruments'
     \textit{Video Display Processors Programmer's Guide}\cite{ti1}, or to the article
@@ -659,7 +668,8 @@
     bay at the right side.
 
     At the moment, only the ON/OFF switch, VGA connector, Composite video RCA
-    output, joystick 1, joystick 2 and reset button are used.
+    output, joystick 1, joystick 2, USB external keyboard and reset button are
+    used.
 
     \pagebreak
     % ==========================================================================
@@ -963,9 +973,15 @@
         \end{itemize}
         \item \textbf{July 2023}
         \begin{itemize}
-            \item After a few months of pause, I continue (sporadically though)
-            with development of software (e.g. text editor, testing PSG, adding
-            more commands to MS BASIC, and more).
+            \item After a few months of pause, I continue (sporadically) with
+            development of software (e.g. text editor, testing PSG, adding more
+            commands to MS BASIC, and more).
+        \end{itemize}
+        \item \textbf{August 2023}
+        \begin{itemize}
+            \item Started the Mark III by making modifications to the Main Board,
+            in preparation for building the Cartridge Port. After the
+            modifications, the computer continues working as before.
         \end{itemize}
     \end{itemize}
 
@@ -998,16 +1014,16 @@
         464, and for teaching me the basics of Z80 assembly language.
     \end{itemize}
 
-    % ==========================================================================
-    \subsection{Future Improvements}
-    % ==========================================================================
+    % % ==========================================================================
+    % \subsection{Future Improvements}
+    % % ==========================================================================
 
-    These are some ideas I have for improvements:
+    % These are some ideas I have for improvements:
 
-    \begin{itemize}
-        \item \textbf{Cartridge Port}: allowing almost instantaneously load and
-        access to programs stored in EEPROMs.
-    \end{itemize}
+    % \begin{itemize}
+    %     \item \textbf{Cartridge Port}: allowing almost instantaneously load and
+    %     access to programs stored in EEPROMs.
+    % \end{itemize}
 
     % ==========================================================================
     % Bibliography

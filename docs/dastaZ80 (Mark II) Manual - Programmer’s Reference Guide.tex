@@ -476,6 +476,7 @@
                 \item 1 = Graphics I Mode
                 \item 2 = Graphics II Mode
                 \item 3 = Multicolour Mode
+                \item 4 = Graphics II Mode Bitmapped
             \end{itemize}
             \item \texttt{0x4186} - \textbf{VDP\_cursor\_x} (1 byte): Current
             horizontal position of the cursor on the \textbf{VDP} screen.
@@ -3598,40 +3599,130 @@
     % ==========================================================================
     \label{sec:vdpscrmodes}
 
-    \begin{itemize}
-        \item Mode 0: \textbf{Text Mode}
+    
+        % ==========================================================================
+        \subsubsection{Mode 0: \textbf{Text Mode}}
+        % ==========================================================================
         \begin{itemize}
-            \item 40 columns by 24 lines.
-            \item 6x8 bytes characters.
-            \item 2 colours (Text and Background).
-            \item No Sprites.
+            \item Screen is divided into 960 pattern positions each of which is
+                capable of displaying a character. There are 40 characters in
+                each row and 24 rows on the screen.
+            \item Each character is 8x6 pixels.
+            \item Each character can have 2 colours (Foreground and Background).
+            \item Sprites cannot be used.
+            \item The Name Table starts at \textbf{VRAM} address \texttt{0x0800}.
+            \begin{itemize}
+                \item Each entry in the Name Table represents a pattern position
+                    on the screen. Position 0 is in the top left of the screen.
+                    Position 39 is in the top right of the screen. The second
+                    row ranges from 40 to 79, and so on.
+                \item There is a one to one correspondence between the screen
+                    character position and the character code position in the
+                    Name Table. For example, the character in screen position 80
+                    is contained in \textbf{VRAM} byte 80, which is the 79th
+                    entry in the Name Table.
+            \end{itemize}
+            \item The Pattern Table starts at \textbf{VRAM} address \texttt{0x0000}.
+            \begin{itemize}
+                \item This table contains the character set, for a maximum of
+                    256 characters.
+                \item Each character is defined in a 8 byte block, where the two
+                    least significant bits are always zero. Hence 8x6 pixels.
+                \item The \textbf{VDP} supports up to 7 different character sets
+                    held in \textbf{VRAM} at the same time. Each set MUST be
+                    located starting at an \texttt{0x800} boundary (i.e. 
+                    \texttt{0x0000}, \texttt{0x0800}, \texttt{0x1000},
+                    \texttt{0x1800}, \texttt{0x2000}, \texttt{0x2800},
+                    \texttt{0x3000} and \texttt{0x3800}).
+            \end{itemize}
         \end{itemize}
-        \item Mode 1: \textbf{Graphics I Mode}
+
+        % ==========================================================================
+        \subsubsection{Mode 1: \textbf{Graphics I Mode}}
+        % ==========================================================================
         \begin{itemize}
-            \item 256 by 192 pixels.
-            \item 32 columns by 24 lines for text.
-            \item 8x8 bytes characters for text.
-            \item 15 colours.
-            \item Sprites.
+            \item Screen is divided into 768 blocks of 8x8 pixels each. There
+                are 32 blocks in a row and 24 rows on the screen.
+            \item Sprites can be used.
+            \item The Name Table starts at \textbf{VRAM} address \texttt{0x1400}.
+            \begin{itemize}
+                \item This table has 768 entries, one for each block on the screen.
+                \item If the Pattern Table is loaded with with a full ASCII
+                    character set, the entry of any ASCII value in the Name
+                    Table will result in the corresponding character being
+                    displayed on the screen.
+            \end{itemize}
+            \item The Pattern Table starts at \textbf{VRAM} address \texttt{0x0800}.
+            \item The Colour Table starts at \textbf{VRAM} address \texttt{0x2000}.
+            \begin{itemize}
+                \item This table has 32 entries, each entry defining 2 colours
+                (Foreground and Background) out of 15 colours available, for a
+                block of 8 characters. In other words, colours cannot be
+                assigned independently to each character in the screen, but
+                instead to groups of 8 consecutive characters.
+            \end{itemize}
         \end{itemize}
-        \item Mode 2: \textbf{Graphics II Mode}
+
+        % ==========================================================================
+        \subsubsection{Mode 2: \textbf{Graphics II Mode}}
+        % ==========================================================================
         \begin{itemize}
-            \item 256 by 192 pixels.
-            \item 32 columns by 24 lines for text.
-            \item 8x8 bytes characters for text.
-            \item 15 colours.
-            \item Sprites.
+            \item Also known as \textbf{Bitmap Mode}.
+            \item Screen is divided into 768 blocks of 8x8 pixels each. There
+            are 32 blocks in a row and 24 rows on the screen.
+            \item Sprites can be used.
+            % \item Screen resolution is 256 by 192 pixels.
+            \item The Name Table starts at \textbf{VRAM} address \texttt{0x3800}.
+            \begin{itemize}
+                \item This table is divided into three subtables of 256 each.
+            \end{itemize}
+            \item The Pattern Table starts at \textbf{VRAM} address \texttt{0x0000}.
+            \item The Colour Table starts at \textbf{VRAM} address \texttt{0x2000}.
+            \begin{itemize}
+                \item Each entry in the Colour Table is 8 bytes and each byte
+                    defines the 2 colours (Foreground and Background) of each 
+                    of the 8 rows of the character, from a total of 15 colours
+                    plus transparent available.
+            \end{itemize}
         \end{itemize}
-        \item Mode 3: \textbf{Multicolour Mode}
+
+        % ==========================================================================
+        \subsubsection{Mode 3: \textbf{Multicolour Mode}}
+        % ==========================================================================
         \begin{itemize}
-            \item 64 by 48 pixels.
-            \item No characters for text.
-            \item 15 colours.
-            \item Sprites.
+            \item Screen is divided into 768 blocks of 2x2 squares. Each square
+                is 4 pixels. There are 32 blocks in each row and 4 rows in each
+                section. There are 6 sections, for a total of 24 rows on the
+                screen.
+            \item Blocks are arranged in columns with 4 blocks in each column.
+            \item Columns are arranged in sections, with 32 columns in each
+                section.
+            \item There are a total of 6 sections on the screen.
+            \item In summary:
+            \begin{itemize}
+                \item 32 columns * 6 sections = 192 columns
+                \item 192 columns * 4 blocks = 768 blocks
+            \end{itemize}
+            \item No characters for text can be used.
+            \item Sprites can be used.
+            \item The Name Table starts at \textbf{VRAM} address \texttt{0x1400}.
+            \item The Colour Table is not used. Instead, the colour of the boxes
+            are defined in the Pattern Table.
+            \item The Pattern Table starts at \textbf{VRAM} address \texttt{0x0800}.
+            \begin{itemize}
+                \item Each entry in the table is 8 bytes, but only 2 bytes are
+                        used to define the colours of the 4 boxes that make up
+                        a character.
+            \end{itemize}
         \end{itemize}
-        \item Mode 4: \textbf{Graphics II Mode Bitmapped}: same as mode 2, but
-        screen is bitmapped for addressing every pixel individually.
-    \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{Mode 4: \textbf{Graphics II Mode Bitmapped}}
+        % ==========================================================================
+        \begin{itemize}
+            \item Same as Mode 2, but screen is bitmapped for addressing every
+                pixel individually.
+        \end{itemize}
 
     % ==========================================================================
     \subsection{VDP Limitations}
@@ -3640,7 +3731,11 @@
     The maximum resolutions are: 240x192 pixels in Text Mode, 256x192 pixels in
     Graphics Modes (I, II, II Bit-mapped), and 512x384 in Multicolour Mode.
 
-    The maximum number of colours is 15.
+    The maximum number of colours is 15 plus a transparent colour.
+
+    In Graphics I Mode, each entry in the Colour Table defines the colour for
+    a group of eight patterns. Hence, individual character colouring is not
+    possible.
     
     In Graphics II Bit-mapped Mode, individual pixels can be addressed but
     individual colours cannot. Therefore it is not possible to assign different
