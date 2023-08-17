@@ -7,15 +7,15 @@
 ;
 ; Version 1.0.0
 ; Created on 25 Apr 2019
-; Last Modification 21 Jun 2022
+; Last Modification 17 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
-;   -
+;   - 17 Aug 2023 - Added F_KRN_VDP_WRSTR
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2019-2022 David Asta
+; Copyright (c) 2019-2023 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -190,6 +190,10 @@ F_KRN_RTC_SET_TIME:                 .EXPORT         F_KRN_RTC_SET_TIME
         jp      KRN_RTC_SET_TIME
 F_KRN_RTC_SET_DATE:                 .EXPORT         F_KRN_RTC_SET_DATE
         jp      KRN_RTC_SET_DATE
+
+        ; VDP subroutines
+F_KRN_VDP_WRSTR:                    .EXPORT         F_KRN_VDP_WRSTR
+        jp      KRN_VDP_WRSTR
 
         .ORG	KRN_JBLK_END
         .BYTE	0

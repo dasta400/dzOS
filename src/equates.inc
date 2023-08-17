@@ -7,7 +7,7 @@
 ;
 ; Version 1.0.0
 ; Created on 03 Jan 2018
-; Last Modification 24 Dec 2022
+; Last Modification 17 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   -
@@ -60,15 +60,14 @@ SIO_CH_B_DATA               .EQU    $83 ; ^
 ; ROM positions
 ;==============================================================================
 INITSIO2_END                .EQU    $0215
-KRN_START                   .EQU    $1340
+KRN_START                   .EQU    $1000
 KRN_DZOS_VERSION            .EQU    $26B7
 CLI_START                   .EQU    $26C8
 BOOTSTRAP_START             .EQU    $3A89
-VDP_LOGO_NAME_START         .EQU    $3AB7
-VDP_LOGO_PATT_START         .EQU    VDP_LOGO_NAME_START + 768
-BIOS_JBLK_START             .EQU    $3E4A
-BIOS_JBLK_END               .EQU    $3EFD
-KRN_JBLK_START              .EQU    $3EFE
+VDP_FNT_CHARSET             .EQU    $3AAC
+BIOS_JBLK_START             .EQU    $3E20
+BIOS_JBLK_END               .EQU    $3F0F
+KRN_JBLK_START              .EQU    $3F10
 KRN_JBLK_END                .EQU    $3FFF
 JBLKS_START_HRAM            .EQU    BIOS_JBLK_START + $8000
 JBLKS_SIZE_HRAM             .EQU    KRN_JBLK_END - BIOS_JBLK_START

@@ -2809,7 +2809,7 @@
             \hline\textbf{Entry} & None \\
             \hline\textbf{Exit} & \texttt{RTC\_year4}\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{HL} \\
-            \hline\textbf{Calls} & None \\
+            \hline\textbf{Calls}
             & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
             \hline
         \end{tabular}
@@ -2893,6 +2893,30 @@
             & \hyperref[func:fkrnasciitohex]{F\_KRN\_ASCII\_TO\_HEX}\\
             & \hyperref[func:fkrnbcdtobin]{F\_KRN\_BCD\_TO\_BIN}\\
             & \hyperref[func:fbiosrtcsetdate]{F\_BIOS\_RTC\_SET\_DATE}\\
+            \hline
+        \end{tabular}
+
+    % ==========================================================================
+    \subsection{VDP Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_VDP\_WRSTR}
+        \label{func:fkrnvdpwrstr}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Displays a text in the VDP screen, starting at a specified XY
+            position. The text MUST be a zero terminated string. \\
+            \hline\multirow[t]{3}{4em}{\textbf{Entry}}
+            & \texttt{B} = Cursor X (horizontal) start position.\\
+            & \texttt{C} = Cursor Y (vertical) start position.\\
+            & \texttt{HL} = Address of a zero terminated string.\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{VDP\_cursor\_x},
+                \texttt{VDP\_cursor\_y}, \texttt{HL} \\
+            \hline\textbf{Calls} & 
+            \hyperref[func:fbiosvdpcharoutatxy]{F\_BIOS\_VDP\_CHAROUT\_ATXY}\\
             \hline
         \end{tabular}
 

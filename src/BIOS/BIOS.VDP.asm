@@ -561,89 +561,49 @@ BIOS_VDP_SET_MODE_MULTICLR:
         ld      (VDP_SPRATAB_addr), HL
         ret
 ;------------------------------------------------------------------------------
-BIOS_VDP_SHOW_DZ_LOGO:  ; ToDo - Optimise this
-; Show dastaZ80 logo on the screen
-        ; Copy Logo patterns (88 bytes) to 
-        ;   Pattern Table (Repeated for each of the 3 blocks)
-        ld      HL, VDP_G2_PATT_TAB
+BIOS_VDP_FNT_CHARSET:
+; Copies the Default Font Charset from RAM to VRAM
+; The ASCII table goes from 0x00 to 0x7F (128 bytes)
+; Each character is made of 8 bytes
+        ld      HL, (VDP_PTRNTAB_addr)  ; HL = Pattern Table address
         call    F_BIOS_VDP_SET_ADDR_WR
-        ld      IX, VDP_LOGO_PATT_START ; DE = pointer to Logo patterns start
-        ld      B, 88
-_logo_fill_patt_tab1:
-        ld      A, (IX)
+        call    F_BIOS_VDP_DI
+        ;   From characters 0x0000 to 0x0020 (33*8=264 bytes) = Fill with 0x00
+        ld      B, 0                  ; byte counter for 256
+        ld      A, 0
+_fnt_fill_with_zeros1:
         call    F_BIOS_VDP_BYTE_TO_VRAM
-        inc     IX
-        djnz    _logo_fill_patt_tab1    ; outer loop
-
-        ld      HL, VDP_G2_PATT_TAB
-        ld      DE, 2048
-        xor     A
-        add     HL, DE
-        call    F_BIOS_VDP_SET_ADDR_WR
-        ld      IX, VDP_LOGO_PATT_START ; DE = pointer to Logo patterns start
-        ld      B, 88
-_logo_fill_patt_tab2:
-        ld      A, (IX)
+        djnz    _fnt_fill_with_zeros1
+        ;   Fill the remaining 264-256=8 bytes
+        ld      B, 8
+_fnt_fill_with_zeros2:
         call    F_BIOS_VDP_BYTE_TO_VRAM
-        inc     IX
-        djnz    _logo_fill_patt_tab2    ; outer loop
-
-        ld      HL, VDP_G2_PATT_TAB
-        ld      DE, 4096
-        xor     A
-        add     HL, DE
-        call    F_BIOS_VDP_SET_ADDR_WR
-        ld      IX, VDP_LOGO_PATT_START ; DE = pointer to Logo patterns start
-        ld      B, 88
-_logo_fill_patt_tab3:
-        ld      A, (IX)
+        djnz    _fnt_fill_with_zeros2
+        ;   From characters 0x0021 to 0x007E (94*8=752 bytes) = Fill with contents of BIOS.FNTcharset.asm
+        ld      DE, VDP_FNT_CHARSET
+        ld      B, 0                   ; byte counter for 256
+_fnt_fill_with_data1: ; fill a pair of bytes in each step (256) of the loop
+        ld      A, (DE)
         call    F_BIOS_VDP_BYTE_TO_VRAM
-        inc     IX
-        djnz    _logo_fill_patt_tab3    ; outer loop
-
-        ; Set background colour (3 bands of RGB, every 2048 bytes)
-        ld      HL, VDP_G2_COLR_TAB
-        call    F_BIOS_VDP_SET_ADDR_WR
-        ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
-        ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      A, $16                  ; Black pixels over Dark Red background
-_logo_fill_bck_clr1:
+        inc     DE
+        ld      A, (DE)
         call    F_BIOS_VDP_BYTE_TO_VRAM
-        inc     D
-        jr      nz, _logo_fill_bck_clr1 ; inner loop
-        djnz    _logo_fill_bck_clr1     ; outer loop
-
-        ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
-        ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      A, $1C                  ; Black pixels over Dark Green background
-_logo_fill_bck_clr2:
+        inc     DE
+        djnz    _fnt_fill_with_data1
+        ld      B, 240                  ; byte counter for 240 (752-512)
+_fnt_fill_with_data2: ; fill the remaining 240 bytes
+        ld      A, (DE)
         call    F_BIOS_VDP_BYTE_TO_VRAM
-        inc     D
-        jr      nz, _logo_fill_bck_clr2 ; inner loop
-        djnz    _logo_fill_bck_clr2     ; outer loop
-
-        ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
-        ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      A, $14                  ; Black pixels over Dark Blue background
-_logo_fill_bck_clr3:
+        inc     DE
+        djnz    _fnt_fill_with_data2
+        ;   Fill character 0x007F with zeros (8 bytes)
+        ld      A, 0
+        ld      B, 8
+_fnt_fill_with_zeros3:
         call    F_BIOS_VDP_BYTE_TO_VRAM
-        inc     D
-        jr      nz, _logo_fill_bck_clr3 ; inner loop
-        djnz    _logo_fill_bck_clr3     ; outer loop
-
-        ; Copy Logo names (768 bytes) to Name Table
-        ld      IX, VDP_LOGO_NAME_START ; DE = pointer to Logo patterns start
-        ld      HL, VDP_G2_NAME_TAB
-        call    F_BIOS_VDP_SET_ADDR_WR
-        ld      B, 3                   ; outer loop decrementing (768 / 256 = 3 times)
-        ld      D, 0                    ; inner loop incrementing (256 times)
-_logo_fill_name_tab:
-        ld      A, (IX)                 ; White pixels over Black background
-        call    F_BIOS_VDP_BYTE_TO_VRAM
-        inc     IX
-        inc     D
-        jr      nz, _logo_fill_name_tab ; inner loop
-        djnz    _logo_fill_name_tab     ; outer loop
+        djnz    _fnt_fill_with_zeros3
+;------------------------------------------------------------------------------
+        call    F_BIOS_VDP_EI
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_BYTE_TO_VRAM:

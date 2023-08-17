@@ -7,15 +7,16 @@
 ;
 ; Version 1.0.0
 ; Created on 25 Apr 2019
-; Last Modification 21 Jun 2022
+; Last Modification 17 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
-;   -
+;   - 17 Aug 2023 - Removed F_BIOS_VDP_SHOW_DZ_LOGO
+;                 - Added F_BIOS_VDP_FNT_CHARSET
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2019-2022 David Asta
+; Copyright (c) 2019-2023 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -134,8 +135,8 @@ F_BIOS_VDP_SET_MODE_MULTICLR:   .EXPORT         F_BIOS_VDP_SET_MODE_MULTICLR
         jp      BIOS_VDP_SET_MODE_MULTICLR
 F_BIOS_VDP_SET_MODE_TXT:        .EXPORT         F_BIOS_VDP_SET_MODE_TXT
         jp      BIOS_VDP_SET_MODE_TXT
-F_BIOS_VDP_SHOW_DZ_LOGO:        .EXPORT         F_BIOS_VDP_SHOW_DZ_LOGO
-        jp      BIOS_VDP_SHOW_DZ_LOGO
+F_BIOS_VDP_FNT_CHARSET:         .EXPORT         F_BIOS_VDP_FNT_CHARSET
+        jp      BIOS_VDP_FNT_CHARSET
 F_BIOS_VDP_BYTE_TO_VRAM:        .EXPORT         F_BIOS_VDP_BYTE_TO_VRAM
         jp      BIOS_VDP_BYTE_TO_VRAM
 F_BIOS_VDP_VRAM_TO_BYTE:        .EXPORT         F_BIOS_VDP_VRAM_TO_BYTE

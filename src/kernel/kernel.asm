@@ -7,15 +7,17 @@
 ;
 ; Version 1.0.0
 ; Created on 03 Jan 2018
-; Last Modification 13 Dec 2022
+; Last Modification 17 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
-;     -
+;     - 17 Aug 2023 - To save bytes in the ROM, instead of loading a logo into
+;                        the VDP screen, load a default font charset and display
+;                        a text.
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2018-2022 David Asta
+; Copyright (c) 2018-2023 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -126,9 +128,29 @@ KRN_INIT_VDP:
 
         ; VDP VRAM test passed OK
         call    F_BIOS_VDP_VRAM_CLEAR   ; CLear VRAM
-        call    BIOS_VDP_SET_MODE_G2BM  ; Set Graphics II Bitmapped Mode
-        call    F_BIOS_VDP_SHOW_DZ_LOGO ; Show dastaZ80 Logo
-        ; call    F_BIOS_VDP_EI           ; Enable Interrupts
+        call    F_BIOS_VDP_SET_MODE_TXT ; Set VDP to Text Mode
+        call    F_BIOS_VDP_FNT_CHARSET  ; Copy Default Font Charset to VRAM
+        ;   Display text in VDP screen
+        ld      B, 0
+        ld      C, 1
+        ld      HL, vdp_line_1
+        call    F_KRN_VDP_WRSTR
+        ld      B, 0
+        ld      C, 3
+        ld      HL, vdp_line_3
+        call    F_KRN_VDP_WRSTR
+        ld      B, 0
+        ld      C, 4
+        ld      HL, vdp_line_4
+        call    F_KRN_VDP_WRSTR
+        ld      B, 0
+        ld      C, 5
+        ld      HL, vdp_line_5
+        call    F_KRN_VDP_WRSTR
+        ld      B, 0
+        ld      C, 7
+        ld      HL, vdp_line_7
+        call    F_KRN_VDP_WRSTR
         ret
 _vdp_error: ; VDP VRAM test NOT passed
         ld      HL, msg_left_brkt
@@ -492,6 +514,7 @@ _chgdsk:
 #include "src/kernel/kernel.math.asm"
 #include "src/kernel/kernel.dzfs.asm"
 #include "src/kernel/kernel.rtc.asm"
+#include "src/kernel/kernel.vdp.asm"
 
 ;==============================================================================
 ; Constants
@@ -592,6 +615,19 @@ error_2101:
         .BYTE   "NVRAM not responding", 0
 error_3001:
         .BYTE   "VDP not detected", 0
+;------------------------------------------------------------------------------
+;             VDP Text
+;------------------------------------------------------------------------------
+vdp_line_1:
+        .BYTE   "                 dastaZ80", 0
+vdp_line_3:
+        .BYTE   "        A Z80 homebrew computer", 0
+vdp_line_4:
+        .BYTE   "          designed and built", 0
+vdp_line_5:
+        .BYTE   "            by David Asta", 0
+vdp_line_7:
+        .BYTE   "            (c) 2012-2023", 0
 
 ;==============================================================================
 ; DZOS Version
@@ -603,6 +639,3 @@ dzos_version:            .EXPORT        dzos_version
 ;==============================================================================
 ; END of CODE
 ;==============================================================================
-        ; .ORG    KRN_END
-        ; .BYTE    0
-        ; .END

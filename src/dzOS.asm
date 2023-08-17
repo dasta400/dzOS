@@ -7,15 +7,16 @@
 ;
 ; Version 1.0.0
 ; Created on 23 Dec 2022
-; Last Modification 23 Dec 2022
+; Last Modification 17 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
-; 	-
+; 	- 17 Aug 2023 - Removed include BIOS.VDPlogo.asm
+;                 - Added include BIOS.FNTcharset.asm
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2022 David Asta
+; Copyright (c) 2022-2023 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -69,6 +70,6 @@
 #include "src/BIOS/BIOS.bootstrap.asm"
 
 ;-----------------------------------------------------------------------------
-; dastaZ80 logo's Name and Pattern Table for VDP
+; dastaZ80 Default Font Charset
 ;-----------------------------------------------------------------------------
-#include "src/BIOS/BIOS.VDPlogo.asm"
+#include "src/BIOS/BIOS.FNTcharset.asm"
