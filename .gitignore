@@ -1,25 +1,21 @@
 bin/*
 lst/*
 
-# LateX
-docs/*.aux
-docs/*.bbl
-docs/*.bcf
-docs/*.blg
-docs/*.fdb_latexmk
-docs/*.fls
-docs/*.lof
-docs/*.log
-docs/*.out
-docs/*.run.xml
-docs/*.synctex.gz
-docs/*.tex~
-docs/*.toc
-docs/*.xcf
+# LateX Documentation
+docs/programmer_guide/*.*
+!docs/programmer_guide/*.pdf
+!docs/programmer_guide/*.tex
+
+docs/techref_manual/*.*
+!docs/techref_manual/*.pdf
+!docs/techref_manual/*.tex
+
+docs/user_manual/*.*
+!docs/user_manual/*.pdf
+!docs/user_manual/*.tex
 
 ToDo.txt
 
 # The Telemark Assembler (TASM)
 TASM.EXE
 TASM80.TAB
-*.synctex(busy)

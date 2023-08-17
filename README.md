@@ -2,8 +2,10 @@
 
 1. [Project Status](#project-status)
     * [Hardware](#project-status)
-      * [Mark I](#mark-i)
-      * [Mark II](#mark-ii)
+      * [Mark I](#mark-i) (obsolete)
+      * [Mark II](#mark-ii) (obsolete)
+      * [Mark III](#mark-iii) (current)
+      * [Block Diagram](#block-diagram)
     * [Software](#software)
     * [TODOs](#todos)
     * [Known BUGS](#known-bugs)
@@ -34,7 +36,7 @@ The Kernel and the CLI are hardware independent and should work on any Z80 based
 
 ![dzOS v2022.12.05.18.44](docs/dzOSv2022.12.05.18.44.png "dzOS v2022.12.05.18.44")
 
-![dastaZ80logoOnVDP](docs/dastaZ80logoOnVDP.png "dastaZ80 logo on VDP")
+![dastaZ80logoOnVDP](docs/user_manual/images/dastaZ80logoOnVDP.png "dastaZ80 logo on VDP")
 
 ---
 
@@ -42,7 +44,7 @@ The Kernel and the CLI are hardware independent and should work on any Z80 based
 
 I've decided to divide the project into progressive models (or **Mark**, as I call it).
 
-* Current model: [Mark II](#mark-ii)
+* Current model: [Mark III](#mark-iii)
 
 ### Mark I
 
@@ -96,7 +98,15 @@ Same as Mark I, adding:
     * Added 3.5mm jack to 3 RCA Audio/Video cable (same cable used on the Raspberry Pi for Composite output), with NTSC Composite from TMS9918A and stereo audio from AY-3-8912.
     * USB Type Mini-B female, for using keyboard as external keyboard of computers with USB.
 
-![dzOS v2022.07.19.13](docs/dastaZ80BlockDiagram.png "dastaZ80 Block Diagram")
+### Mark III
+
+Same as Mark II, adding:
+
+* ???
+
+### Block Diagram
+
+![dastaZ80 Block Diagram](docs/dastaZ80BlockDiagram.png "dastaZ80 Block Diagram")
 
 ### Software
 
@@ -107,6 +117,7 @@ Same as Mark I, adding:
     * Communicates with the Keyboard Controller to read the Keyboard.
     * Communicates with the Video Interface to generate VGA output.
     * Communicates with the VDP to generate Composite video output.
+    * Communicates with the PSG to generate stereo sound.
     * Communicates with [ASMDC](https://github.com/dasta400/ASMDC) to control RTC, NVRAM, Micro SD card and FDD.
   * **Command Line Interface (CLI)**:
     * Shows prompt
@@ -138,10 +149,10 @@ Same as Mark I, adding:
 
 ## Manuals and Guides
 
-* [User’s Manual](https://github.com/dasta400/dzOS/blob/master/docs/dastaZ80%20(Mark%20II)%20Manual%20-%20User%E2%80%99s%20Manual.pdf)
-* [Programmer’s Reference Guide](https://github.com/dasta400/dzOS/blob/master/docs/dastaZ80%20(Mark%20II)%20Manual%20-%20Programmer%E2%80%99s%20Reference%20Guide.pdf)
-* [Technical Reference Manual](https://github.com/dasta400/dzOS/blob/master/docs/dastaZ80%20(Mark%20II)%20Manual%20-%20Technical%20Reference%20Manual.pdf)
-* [Memory Map](https://github.com/dasta400/dzOS/blob/master/docs/dastaZ80%20Memory%20Map.ods)
+* [User’s Manual](https://github.com/dasta400/dzOS/blob/master/docs/user_manual/dastaZ80%20Manual%20-%20User%E2%80%99s%20Manual.pdf)
+* [Programmer’s Reference Guide](https://github.com/dasta400/dzOS/blob/master/docs/programmer_guide/dastaZ80%20Manual%20-%20Programmer%E2%80%99s%20Reference%20Guide.pdf)
+* [Technical Reference Manual](https://github.com/dasta400/dzOS/blob/master/docs/techref_manual/dastaZ80%20Manual%20-%20Technical%20Reference%20Manual.pdf)
+<!-- * [Memory Map](https://github.com/dasta400/dzOS/blob/master/docs/dastaZ80%20Memory%20Map.ods) -->
 
 ---
 
