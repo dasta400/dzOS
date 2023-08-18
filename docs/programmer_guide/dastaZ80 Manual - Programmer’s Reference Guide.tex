@@ -527,34 +527,93 @@
     \subsection{VDP}
     % ==========================================================================
 
-    \begin{longtable}{ |m{2.9cm}|m{1.6cm}|m{1.8cm}|m{1.9cm}|m{1.9cm}| }
-        \hline
-        \rowcolor{lightgray}
-        & Text & Graphics I & Graphics II & Multicolour\\
-        \hline
-        \endfirsthead
+        % ==========================================================================
+        \subsubsection{Text Mode}
+        % ==========================================================================
+        \begin{center}
+            \begin{tabular}{c r}
+                \hline
+                Pattern Table           & \texttt{0x0000}\\
+                \hline
+                Name Table              & \texttt{0x0800}\\
+                \hline
+                \multirow{2}{*}{UNUSED} & \texttt{0x0BC0}\\
+                                        & \texttt{0x3FFF}\\
+                \hline
+            \end{tabular}
+        \end{center}
 
-        \hline
-        \rowcolor{lightgray}
-        & Text & Graphics I & Graphics II & Multicolour\\
-        \hline
-        \endhead
+        % ==========================================================================
+        \subsubsection{Graphics I Mode}
+        % ==========================================================================
+        \begin{center}
+            \begin{tabular}{c r}
+                \hline
+                Sprites Patterns         & \texttt{0x0000}\\
+                \hline
+                Pattern Table           & \texttt{0x0800}\\
+                \hline
+                SPRITE ATTRIBUTTES      & \texttt{0x1000}\\
+                \hline
+                UNUSED                  & \texttt{0x1080}\\
+                \hline
+                Name Table              & \texttt{0x1400}\\
+                \hline
+                UNUSED                  & \texttt{0x1800}\\
+                \hline
+                COLOUR TABLE            & \texttt{0x2000}\\
+                \hline
+                \multirow{2}{*}{UNUSED} & \texttt{0x2020}\\
+                                        & \texttt{0x3FFF}\\
+                \hline
+            \end{tabular}
+        \end{center}
 
-        \textbf{Name Table} & \texttt{0x0800} & \texttt{0x1400} & 
-        \texttt{0x3800} & \texttt{0x1400}\\
-        \hline
-        \textbf{Colour Table} & N/A & \texttt{0x2000} & \texttt{0x2000} & N/A\\
-        \hline
-        \textbf{Pattern Table} & \texttt{0x0000} & \texttt{0x0800} &
-        \texttt{0x0000} & \texttt{0x0800}\\
-        \hline
-        \textbf{Sprites Attrib. Table} & N/A & \texttt{0x1000} & \texttt{0x3B00}
-        & \texttt{0x1000}\\
-        \hline
-        \textbf{Sprites Patt. Table} & N/A & \texttt{0x0000} & \texttt{0x1800} &
-        \texttt{0x0000}\\
-        \hline
-    \end{longtable}
+        % ==========================================================================
+        \subsubsection{Graphics II Mode}
+        % ==========================================================================
+        \begin{center}
+            \begin{tabular}{c r}
+                \hline
+                Pattern Table           & \texttt{0x0000}\\
+                \hline
+                Sprites Patterns         & \texttt{0x1800}\\
+                \hline
+                COLOUR TABLE            & \texttt{0x2000}\\
+                \hline
+                Name Table              & \texttt{0x3800}\\
+                \hline
+                SPRITE ATTRIBUTTES      & \texttt{0x3B00}\\
+                \hline
+                \multirow{2}{*}{UNUSED} & \texttt{0x3C00}\\
+                                        & \texttt{0x3FFF}\\
+                \hline
+            \end{tabular}
+        \end{center}
+
+        % ==========================================================================
+        \subsubsection{Multicolour Mode}
+        % ==========================================================================
+        \begin{center}
+            \begin{tabular}{c r}
+                \hline
+                Sprites Patterns         & \texttt{0x0000}\\
+                \hline
+                Pattern Table           & \texttt{0x0800}\\
+                \hline
+                UNUSED                  & \texttt{0x0E00}\\
+                \hline
+                SPRITE ATTRIBUTTES      & \texttt{0x1000}\\
+                \hline
+                UNUSED                  & \texttt{0x1080}\\
+                \hline
+                Name Table              & \texttt{0x1400}\\
+                \hline
+                \multirow{2}{*}{UNUSED} & \texttt{0x1700}\\
+                                        & \texttt{0x3FFF}\\
+                \hline
+            \end{tabular}
+        \end{center}
 
     \pagebreak
     % ==========================================================================
@@ -2911,12 +2970,67 @@
             \hline\multirow[t]{3}{4em}{\textbf{Entry}}
             & \texttt{B} = Cursor X (horizontal) start position.\\
             & \texttt{C} = Cursor Y (vertical) start position.\\
-            & \texttt{HL} = Address of a zero terminated string.\\
+            & \texttt{HL} = \textbf{RAM} address of a zero terminated string.\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{VDP\_cursor\_x},
                 \texttt{VDP\_cursor\_y}, \texttt{HL} \\
             \hline\textbf{Calls} & 
             \hyperref[func:fbiosvdpcharoutatxy]{F\_BIOS\_VDP\_CHAROUT\_ATXY}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_VDP\_GET\_CURSOR\_ADDR}
+        \label{func:fkrnvdpgetcursoraddr}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Returns the \textbf{VRAM} address of a specific XY position on the
+            screen. \\
+            \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+            & \texttt{B} = Cursor X (horizontal) position.\\
+            & \texttt{C} = Cursor Y (vertical) position.\\
+            \hline\textbf{Exit} & \texttt{HL} = \textbf{VRAM} address.\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{DE},
+                \texttt{HL},\texttt{IX} \\
+            \hline\textbf{Calls} & 
+            \hyperref[func:fbiosvdpcharoutatxy]{F\_BIOS\_VDP\_CHAROUT\_ATXY}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_VDP\_CLEARSCREEN}
+        \label{func:fkrnvdpclearscreen}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Clears the \textbf{VDP} screen. \\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{DE},
+                \texttt{HL} \\
+            \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+            & \hyperref[func:fkrnserialwrstrclr]{F\_KRN\_SERIAL\_WRSTRCLR}\\
+            & \hyperref[func:fbiosvdpsetaddrwr]{F\_BIOS\_VDP\_SET\_ADDR\_WR}\\
+            & \hyperref[func:fbiosvdpbytetovram]{F\_BIOS\_VDP\_BYTE\_TO\_VRAM}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_VDP\_CHG\_COLOUR\_FGBG}
+        \label{func:fkrnvdpchgcolourfgbg}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Changes the Foreground and Background colours of the \textbf{VDP}
+            screen. \\
+            \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+            & \texttt{A} = Foreground colour.\\
+            & \texttt{B} = Background colour.\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}\\
+            \hline\textbf{Calls}
+            & \hyperref[func:fbiosvdpsetregister]{F\_BIOS\_VDP\_SET\_REGISTER}\\
             \hline
         \end{tabular}
 
@@ -3634,30 +3748,36 @@
             \item Each character is 8x6 pixels.
             \item Each character can have 2 colours (Foreground and Background).
             \item Sprites cannot be used.
-            \item The Name Table starts at \textbf{VRAM} address \texttt{0x0800}.
+            \item The Pattern Table starts at \textbf{VRAM} address
+                \texttt{0x0000}, for a lenght of 2048 bytes (from
+                \texttt{0x0000} to \texttt{0x07FFF}).
             \begin{itemize}
-                \item Each entry in the Name Table represents a pattern position
-                    on the screen. Position 0 is in the top left of the screen.
-                    Position 39 is in the top right of the screen. The second
-                    row ranges from 40 to 79, and so on.
-                \item There is a one to one correspondence between the screen
-                    character position and the character code position in the
-                    Name Table. For example, the character in screen position 80
-                    is contained in \textbf{VRAM} byte 80, which is the 79th
-                    entry in the Name Table.
+                \item This table contains the character sets, for a maximum of
+                    256 characters per set.
+                \item Up to 7 different character sets can be held in the
+                    \textbf{VRAM} at the same time. Each set MUST be located
+                    starting at an \texttt{0x0800} boundary (i.e. 
+                    \texttt{0x0000}, \texttt{0x1000}, \texttt{0x1800},
+                    \texttt{0x2000}, \texttt{0x2800}, \texttt{0x3000} and
+                    \texttt{0x3800}). Note that \texttt{0x0800} is not listed
+                    because that address is used by the Name Table.
+                \item Ideally, the patterns follow the ASCII table definitions
+                    and order, so that the Name Table can be easily used to
+                    display text by for example assigning the value \texttt{0x41}
+                    to a byte in the Name Table to display the character
+                    \textit{A}.
             \end{itemize}
-            \item The Pattern Table starts at \textbf{VRAM} address \texttt{0x0000}.
+            \item The Name Table starts at \textbf{VRAM} address \texttt{0x0800}.
+                for a lenght of 960 bytes (from \texttt{0x0800} to
+                \texttt{0x0BBF}).
             \begin{itemize}
-                \item This table contains the character set, for a maximum of
-                    256 characters.
-                \item Each character is defined in a 8 byte block, where the two
-                    least significant bits are always zero. Hence 8x6 pixels.
-                \item The \textbf{VDP} supports up to 7 different character sets
-                    held in \textbf{VRAM} at the same time. Each set MUST be
-                    located starting at an \texttt{0x800} boundary (i.e. 
-                    \texttt{0x0000}, \texttt{0x0800}, \texttt{0x1000},
-                    \texttt{0x1800}, \texttt{0x2000}, \texttt{0x2800},
-                    \texttt{0x3000} and \texttt{0x3800}).
+                \item Each entry in the table is 1 byte long and therefore can
+                    specify one of 256 patterns (from \texttt{0x00} to
+                    \texttt{0xFF}).
+                \item Each entry represents a pattern position on the screen.
+                    Position 0 is in the top left of the screen. Position 39 is
+                    in the top right of the screen. The second row ranges from
+                    40 to 79, and so on.
             \end{itemize}
         \end{itemize}
 

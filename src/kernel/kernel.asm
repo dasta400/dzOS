@@ -132,6 +132,10 @@ KRN_INIT_VDP:
         ld      C, 0                    ; Sprite Magnification disabled
         call    F_BIOS_VDP_SET_MODE_TXT ; Set VDP to Text Mode
         call    F_BIOS_VDP_FNT_CHARSET  ; Copy Default Font Charset to VRAM
+        ; Change Foreground and Background colours
+        ld      A, VDP_COLR_WHITE
+        ld      B, VDP_COLR_BLACK
+        call    F_KRN_VDP_CHG_COLOUR_FGBG
         ;   Display text in VDP screen
         ld      B, 0
         ld      C, 1
@@ -617,19 +621,21 @@ error_2101:
         .BYTE   "NVRAM not responding", 0
 error_3001:
         .BYTE   "VDP not detected", 0
+error_3002:
+        .BYTE   "Unknown VDP mode", 0
 ;------------------------------------------------------------------------------
 ;             VDP Text
 ;------------------------------------------------------------------------------
 vdp_line_1:
-        .BYTE   "                 dastaZ80", 0
+        .BYTE   "                dastaZ80", 0
 vdp_line_3:
         .BYTE   "        A Z80 homebrew computer", 0
 vdp_line_4:
-        .BYTE   "          designed and built", 0
+        .BYTE   "           designed and built", 0
 vdp_line_5:
-        .BYTE   "            by David Asta", 0
+        .BYTE   "              by David Asta", 0
 vdp_line_7:
-        .BYTE   "            (c) 2012-2023", 0
+        .BYTE   "             (c) 2012-2023", 0
 
 ;==============================================================================
 ; DZOS Version

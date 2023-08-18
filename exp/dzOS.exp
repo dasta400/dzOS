@@ -123,6 +123,9 @@ F_KRN_RTC_SHOW_DATE .EQU  $3fd6
 F_KRN_RTC_SET_TIME .EQU  $3fd9
 F_KRN_RTC_SET_DATE .EQU  $3fdc
 F_KRN_VDP_WRSTR  .EQU  $3fdf
+F_KRN_VDP_GET_CURSOR_ADDR .EQU  $3fe2
+F_KRN_VDP_CLEARSCREEN .EQU  $3fe5
+F_KRN_VDP_CHG_COLOUR_FGBG .EQU  $3fe8
 cli_promptloop   .EQU  $26e2
 dzos_version     .EQU  $26b7
 msg_bios_version .EQU  $0241

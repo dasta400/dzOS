@@ -615,6 +615,59 @@
             \hline
         \end{tabular}
 
+    % ==========================================================================
+    \subsection{Cartridge Port}
+    % ==========================================================================
+
+    The Cartridge Port allows the connection of ROM cartridges that replace the
+    internal ROM, offering almost instantaneous load and access to programs.
+
+    The port is made of a 30 pins (2×15) Standard Card Edge Connector 2.54 mm
+    pitch, exposing only the memory-related signals from the CPU and the ROM
+    select signal from the Control Bus, plus a special signal (EXTROM) to
+    indicate that a cartridge is inserted:
+
+    The port is made of a 30 pins (2×15) Standard Card Edge Connector 2.54 mm
+    pitch, exposing only the memory-related signals (\textit{A0}..\textit{A15},
+    \textit{D0}..\textit{D7}, \textit{/MEMRD}) from the CPU, power supply (+5V,
+    GND), the ROM select signal (\textit{/ROM\_CE}) from the Control Bus, and a
+    special signal (\textit{EXTROM}) to indicate that a cartridge is inserted.
+
+    The address (\textit{A0}..\textit{A15}) and data (\textit{D0}..\textit{D7})
+    signals are buffered via 74HCT244 Octal Buffers and Line Drivers.
+
+        % ==========================================================================
+        \subsubsection{Pinout}
+        % ==========================================================================
+
+        Pin 1 is located, looking from the back of the computer case, at the top
+        left corner of the connector.
+
+        \includegraphics[scale=0.6]{images/cartridgeportpinout.png}
+
+        % ==========================================================================
+        \subsubsection{Cartridges}
+        % ==========================================================================
+
+        The cartridges must have an edge connector with 15 contacts on each side
+        of the PCB, spaced to 2.54mm (center of the contact), and a depth of
+        0.51mm.
+
+        \includegraphics[scale=0.6]{images/cartridgeedge.png}
+
+        When a cartridge is inserted the internal \textbf{ROM} should be
+        disabled, so that the computer executes code from the ROM in the
+        cartridge instead of the internal \textbf{ROM}. To enable this feature,
+        the \textit{EXTROM} signal MUST be connected to +5V by any ROM cartridge.
+
+        The insertion/extraction of any cartridge SHOULD be done with the
+        computer switched off, to avoid possible damages, or at least weird
+        behaviour.
+
+        As the internal \textbf{ROM} is disabled when a cartridge is inserted,
+        the software on the cartridge ROM won't have access to the BIOS and
+        Kernel functions, therefore initialisation of the hardware (SIO/2, PSG,
+        VDP, etc.) must be added to the cartridge ROM code.
 
     % ==========================================================================
     \subsection{Backplane}
@@ -979,9 +1032,14 @@
         \end{itemize}
         \item \textbf{August 2023}
         \begin{itemize}
-            \item Started the Mark III by making modifications to the Main Board,
-            in preparation for building the Cartridge Port. After the
-            modifications, the computer continues working as before.
+            \item Mark III started
+            \begin{itemize}
+                \item Made modifications to the Main Board for the Cartridge
+                Port. After the modifications, the computer continues working as
+                before.
+                \item Added the Cartridge Port board and tested it with a
+                cartridge that contains a version of DZOS.
+            \end{itemize}
         \end{itemize}
     \end{itemize}
 

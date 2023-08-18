@@ -7,12 +7,13 @@
 ;
 ; Version 1.0.0
 ; Created on 06 Jul 2022
-; Last Modification 17 Aug 2023
+; Last Modification 18 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - F_BIOS_VDP_SET_MODE_ functions now require extra parameters
 ;                   'run' command for filenames deprecated. Files can be run
 ;                       directly by simply entering the filename as command.
+;   - 18 Aug 2023 - Added CLI_CMD_VDP_CLS
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -889,6 +890,12 @@ _vdp_mode_error:
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 
+;------------------------------------------------------------------------------
+;    clsvdp - Clears the VDP screen
+;------------------------------------------------------------------------------
+CLI_CMD_VDP_CLS:
+        call    F_KRN_VDP_CLEARSCREEN
+        jp      cli_promptloop
 ;==============================================================================
 ; Subroutines
 ;==============================================================================

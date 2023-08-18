@@ -15,7 +15,7 @@
 1. [dzOS available commands](#dzos-available-commands)
     * [General commands](#general-commands)
     * [Disk commands](#disk-commands)
-    * [Memory commands](#memmory-commands)
+    * [Memory commands](#memory-commands)
     * [Real-Time Clock (RTC) commands](#real-time-clock-rtc-commands)
 1. [How to use the SD Card module](#how-to-use-the-sd-card-module)
 1. [Versioning System](#versioning-system)
@@ -36,15 +36,13 @@ The Kernel and the CLI are hardware independent and should work on any Z80 based
 
 ![dzOS v2022.12.05.18.44](docs/dzOSv2022.12.05.18.44.png "dzOS v2022.12.05.18.44")
 
-![dastaZ80logoOnVDP](docs/user_manual/images/dastaZ80logoOnVDP.png "dastaZ80 logo on VDP")
-
 ---
 
 ## Project Status
 
 I've decided to divide the project into progressive models (or **Mark**, as I call it).
 
-* Current model: [Mark III](#mark-iii)
+* **Current model: [Mark III](#mark-iii)**
 
 ### Mark I
 
@@ -88,7 +86,7 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
 
 ### Mark II
 
-Same as Mark I, adding:
+Same as [Mark I](#mark-i), adding:
 
 * **Power Supply**: 5V/4A External Power Supply. Removed the 12V to 5V DC-DC converter.
 * **Video output**: Added NTSC Composite 15 Colours video output, via TMS9918A VDP. dastaZ80 has now become a [Dual video output (VGA & Composite) system](#dual-video-output-vga--composite).
@@ -100,9 +98,13 @@ Same as Mark I, adding:
 
 ### Mark III
 
-Same as Mark II, adding:
+Same as [Mark II](#mark-ii), adding:
 
-* ???
+* **Cartridge Port**: allow to almost instantaneously load and access programs from a ROM cartridge plugged into the port. The cartridge port exposes only the memory-related signals (A0..A15, D0..D7, /MEMRD) from the CPU, power supply (+5V, GND), the ROM select signal (/ROM_CE) from the Control Bus, and a special signal (EXTROM) to indicate that a cartridge is inserted and the internal ROM shouldn't be used.
+  * The Cartridge Connector is a 30 pins (2×15) Standard Card Edge Connector 2.54 mm pitch, located at the back of the computer case.
+  * ROM Cartridges have an edge connector with 15 contacts on each side of the PCB, spaced to 2.54mm, that connects to the Cartridge Connector.
+  * When a ROM Cartridge is inserted the internal ROM should be disabled, so that the computer executes code from the ROM cartridge instead of the OS. To enable this feature, the EXTROM signal MUST be connected to +5V.
+* **Auto load&run files from disk**: When the user types a command, if the command entered is not a DZOS command, CLI checks in the current disk if a file with the name of the command exists. If it does and has attribute EXE (i.e. Attribute Bit 3 is set), it loads it into RAM and executes it. No need anymore for _run \<filename>_. Simply type the filename to execute it.
 
 ### Block Diagram
 
@@ -153,7 +155,6 @@ Same as Mark II, adding:
 * [User’s Manual](https://github.com/dasta400/dzOS/blob/master/docs/user_manual/dastaZ80%20Manual%20-%20User%E2%80%99s%20Manual.pdf)
 * [Programmer’s Reference Guide](https://github.com/dasta400/dzOS/blob/master/docs/programmer_guide/dastaZ80%20Manual%20-%20Programmer%E2%80%99s%20Reference%20Guide.pdf)
 * [Technical Reference Manual](https://github.com/dasta400/dzOS/blob/master/docs/techref_manual/dastaZ80%20Manual%20-%20Technical%20Reference%20Manual.pdf)
-<!-- * [Memory Map](https://github.com/dasta400/dzOS/blob/master/docs/dastaZ80%20Memory%20Map.ods) -->
 
 ---
 
@@ -205,7 +206,7 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 
 * **cat**: shows disk (Floppy or SD Card Disk Image File) catalogue (i.e. the contents of the disk).
 * **load _[filename]_**: loads specified filename from disk to RAM.
-* **run _[filename]_**: loads specified filename from disk to RAM and starts running it.
+* ~~**run _[filename]_**: loads specified filename from disk to RAM and starts running it.~~ Files can now be run by simply typing the filename as if it was an OS command.
 * **formatdsk _[label]_**: formats a Floppy Disk or a Disk Image File with DZFS (my own design file system).
 * **rename _[old_filename]_,_[new_filename]_**: changes the name of file old_filename to new_filename.
 * **delete _[filename]_**: deletes filename. Data isn't deleted, just the first character of the filename in the BAT is set to 7E (~), so it can be undeleted. Be aware, that it's planned that in future versions the _save_ command will search for an empty entry in the BAT, but if it finds none, then it will re-use the first entry of a deleted file. Therefore, undelete of a file will only be guaranteed if no file was created since the delete command was issued.
@@ -240,6 +241,7 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
     * 2 = Graphics II Mode (256x192 pixels. 32 columns by 24 lines. Graphics and Sprites)
     * 3 = Multicolour Mode (256x192 pixels. 32 columns by 24 lines. Graphics and Sprites)
     * 4 = Graphics II Mode Bitmapped (256x192 pixels. 64 by 48 blocks of 4x4 pixels. Graphics and Sprites)
+* **clsvdp**: clears (CLS) the VDP screen.
 
 ---
 

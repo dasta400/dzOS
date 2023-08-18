@@ -7,10 +7,13 @@
 ;
 ; Version 1.0.0
 ; Created on 25 Apr 2019
-; Last Modification 17 Aug 2023
+; Last Modification 18 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - Added F_KRN_VDP_WRSTR
+;   - 18 Aug 2023 - Added F_KRN_VDP_GET_CURSOR_ADDR
+;                   Added F_KRN_VDP_CLEARSCREEN
+;                   Added F_KRN_VDP_CHG_COLOUR_FGBG
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -194,6 +197,12 @@ F_KRN_RTC_SET_DATE:                 .EXPORT         F_KRN_RTC_SET_DATE
         ; VDP subroutines
 F_KRN_VDP_WRSTR:                    .EXPORT         F_KRN_VDP_WRSTR
         jp      KRN_VDP_WRSTR
+F_KRN_VDP_GET_CURSOR_ADDR:          .EXPORT         F_KRN_VDP_GET_CURSOR_ADDR
+        jp      KRN_VDP_GET_CURSOR_ADDR
+F_KRN_VDP_CLEARSCREEN:              .EXPORT         F_KRN_VDP_CLEARSCREEN
+        jp      KRN_VDP_CLEARSCREEN
+F_KRN_VDP_CHG_COLOUR_FGBG:          .EXPORT         F_KRN_VDP_CHG_COLOUR_FGBG
+        jp      KRN_VDP_CHG_COLOUR_FGBG
 
         .ORG	KRN_JBLK_END
         .BYTE	0

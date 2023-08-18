@@ -7,7 +7,7 @@
 ;
 ; Version 1.0.0
 ; Created on 17 Aug 2023
-; Last Modification 17 Aug 2023
+; Last Modification 18 Aug 2023
 ;******************************************************************************
 ; CHANGELOG
 ;     - 
@@ -61,4 +61,123 @@ _vdp_wrstr_loop:
         inc     HL                      ; next character in the string
         jr      _vdp_wrstr_loop
 _vdp_wrstr_end:
+        ret
+;-----------------------------------------------------------------------------
+KRN_VDP_GET_CURSOR_ADDR:
+; Returns the VRAM address of a specific XY position on the VDP screen
+; IN <= B = screen X position
+;       C = screen Y position
+; OUT => HL = address
+        push    BC                      ; backup input parameters
+        ld      IX, KRN_LKT_MULT_BY_32  ; To speed up, do multiplication
+        ld      A, C                    ;   by using a pre-calculated table
+        cp      0                       ; except when is 0,
+        jr      z, _cursor_at_0         ;   that we don't need to multiply
+        ; y_position * 32
+        ld      B, A                    ; counter = Y position
+        ld      D, 0                    ; We don't use D, so initialise to 0
+        ld      E, 2                    ; the table is 2 bytes for each entry
+_mult_loop:
+        add     IX, DE                  ; IX = pointer to entry in table
+        djnz    _mult_loop              ; repeat until IX equals entry number
+
+        ld      L, (IX)                 ; L = entry MSB
+        ld      H, (IX + 1)             ; H = entry LSB
+        ld      D, 0                    ; We don't use D, so initialise to 0
+        pop     BC                      ; restore input parameters
+        ld      A, B
+        ld      E, A
+        add     HL, DE
+        ex      DE, HL                  ; DE  = (y_position * 32) + x_position
+        ; Do VDP_NAMETAB_addr + (y_position * 32) + x_position
+        ld      HL, (VDP_NAMETAB_addr)
+        add     HL, DE
+        ret                             ; end of get_cursor_addr
+_cursor_at_0:
+        ld      HL, (VDP_NAMETAB_addr)  ; When cursor at 0, return the address
+        ret                             ;   of the Name Table start
+;-----------------------------------------------------------------------------
+KRN_VDP_CLEARSCREEN:
+; Clears the VDP screen, by filling the Name Table with zeros
+;   Name Table sizes:
+;       0 - Text Mode                   = 960 bytes
+;       1 - Graphics I Mode             = 1024 bytes
+;       2 - Graphics II Mode            = 768 bytes
+;       3 - Multicolour Mode            = 768 bytes
+;       4 - Graphics II Bitmapped Mode  = 768 bytes
+
+        ; Check which is the current mode
+        ld      A, (VDP_cur_mode)
+        cp      $00
+        jr      z, _cls_mode_0
+        cp      $01
+        jr      z, _cls_mode_1
+        cp      $02
+        jr      z, _cls_mode_others
+        cp      $03
+        jr      z, _cls_mode_others
+        cp      $04
+        jr      z, _cls_mode_others
+
+        ; Unknown mode. Show error and exit
+        ld      HL, error_3002
+        ld      A, ANSI_COLR_RED
+        call    F_KRN_SERIAL_WRSTRCLR
+        ret
+
+_cls_mode_0:
+        ; Fill 960 bytes of the Name Table with zeros
+        ; 256 * 3 = 768 + 192 = 960
+        ld      HL, (VDP_NAMETAB_addr)
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ; fill frist 768 bytes
+        ld      D, 3                    ; outer loop is 3
+        ld      B, 0                    ; inner loop is 256
+        ld      A, 0                    ; fill with zeros
+        call    _cls_loop
+        ; fill remaining 192 bytes
+        ld      D, 0
+        ld      B, 192
+        ld      A, 0
+        jr      _cls_loop
+        ret
+_cls_mode_1:
+        ; Fill 1024 bytes of the Name Table with zeros
+        ; 256 * 4 = 768
+        ld      HL, (VDP_NAMETAB_addr)
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ld      D, 4                    ; outer loop is 4
+        ld      B, 0                    ; inner loop is 256
+        ld      A, 0                    ; fill with zeros
+        jr      _cls_loop
+_cls_mode_others:
+        ; Fill 768 bytes of the Name Table with zeros
+        ; 256 * 3 = 768
+        ld      HL, (VDP_NAMETAB_addr)
+        call    F_BIOS_VDP_SET_ADDR_WR
+        ld      D, 3                    ; outer loop is 3
+        ld      B, 0                    ; inner loop is 256
+        ld      A, 0                    ; fill with zeros
+
+_cls_loop:
+        call    F_BIOS_VDP_BYTE_TO_VRAM ; fill VRAM address
+        djnz    _cls_loop               ; until 256 times
+        dec     D                       ; decrement outer loop counter
+        jr      nz, _cls_loop           ; and repeat until 0
+        ret
+;-----------------------------------------------------------------------------
+KRN_VDP_CHG_COLOUR_FGBG:
+; Changes the Foreground and Background colours
+; IN <= A = Foreground
+;       B = Background
+        rlc     A                       ; move the
+        rlc     A                       ;   4 LSB
+        rlc     A                       ;   to be
+        rlc     A                       ;   the MSB
+        add     A, B                    ; add B as LSB
+
+        ld      B, A                    ; put result in B
+
+        ld      A, $07                  ; send the result
+        call    F_BIOS_VDP_SET_REGISTER ;   to VDP register $07
         ret

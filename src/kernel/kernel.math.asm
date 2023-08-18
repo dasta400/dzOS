@@ -169,3 +169,38 @@ _CRCLP1:
                                         ;   JUMP IF NOT THROUGH 8 BITS
         ld      (MATH_CRC), HL         ; SAVE UPDATED CRC
         ret
+;------------------------------------------------------------------------------
+KRN_LKT_MULT_BY_32:
+; Lookup Table with pre-calculated multiplication by 32
+        .WORD   $0000                   ; x 0
+        .WORD   $0020                   ; x 1
+        .WORD   $0040                   ; x 2
+        .WORD   $0060                   ; x 3
+        .WORD   $0080                   ; x 4
+        .WORD   $00A0                   ; x 5
+        .WORD   $00C0                   ; x 6
+        .WORD   $00E0                   ; x 7
+        .WORD   $0100                   ; x 8
+        .WORD   $0120                   ; x 9
+        .WORD   $0140                   ; x 10
+        .WORD   $0160                   ; x 11
+        .WORD   $0180                   ; x 12
+        .WORD   $01A0                   ; x 13
+        .WORD   $01C0                   ; x 14
+        .WORD   $01E0                   ; x 15
+        .WORD   $0200                   ; x 16
+        .WORD   $0220                   ; x 17
+        .WORD   $0240                   ; x 18
+        .WORD   $0260                   ; x 19
+        .WORD   $0280                   ; x 20
+        .WORD   $02A0                   ; x 21
+        .WORD   $02C0                   ; x 22
+        .WORD   $02E0                   ; x 23
+        .WORD   $0300                   ; x 24
+        .WORD   $0320                   ; x 25
+        .WORD   $0340                   ; x 26
+        .WORD   $0360                   ; x 27
+        .WORD   $0380                   ; x 28
+        .WORD   $03A0                   ; x 29
+        .WORD   $03C0                   ; x 30
+        .WORD   $03E0                   ; x 31
