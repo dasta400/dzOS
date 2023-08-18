@@ -266,6 +266,7 @@
     % ==========================================================================
     \subsection{ Arduino Serial Multi-Device Controller (ASMDC)}
     % ==========================================================================
+    \label{asmdc}
 
     An Arduino board acting as a \textit{man-in-the-middle} to dastaZ80 to
     communicate with different devices like Real-Time Clock, NVRAM, SD card,
@@ -455,27 +456,28 @@
     % ==========================================================================
 
     The serial board consists of a Zilog SIO/2 (Z84C4208PEG) CMOS 40-pin plastic
-    DIP, rated at 8 MHz, that offers two independent full-duplex channels for
-    data serial communication.
+    DIP, rated at 8 MHz, that offers two independent full-duplex channels (A, B)
+    for data serial communication.
 
-    Channel A is used for communication with the Keyboard Interface and the VGA
-    Interface. The Transmit signal (\textit{TX}) of the Keyboard Interface is
-    connected to the Receive signal (\textit{RX}) of the Channel A, and the 
-    Transmit signal (\textit{TX}) of the Channel A is connected to the Receive
-    signal (\textit{RX}) of the VGA Interface.
+    Channel A is used for communication with the \hyperref[kbd]{Keyboard
+    Interface} and the \hyperref[vga]{VGA Interface}. The Transmit signal
+    (\textit{TX}) of the Keyboard Interface is connected to the Receive signal
+    (\textit{RX}) of the Channel A, and the Transmit signal (\textit{TX}) of the
+    Channel A is connected to the Receive signal (\textit{RX}) of the VGA
+    Interface.
 
-    The type of implementation allows for easy replacement of the keyboard and
-    the screen output with any other serial terminal.
+    This implementation allows for easy replacement of the keyboard and the
+    screen output with any other serial terminal.
 
-    Channel B is not used at the moment, but the aim is to add a MAX232 and a 
-    RS-232 9-pin male connector to offer serial communication with other
-    devices.
+    Channel B is connected to the \hyperref[asmdc]{Arduino Serial Multi-Device
+    Controller (ASMDC)}.
 
     Both channels are initialised for: 115,200 bps, 8N1
 
     % ==========================================================================
     \subsection{Keyboard Interface}
     % ==========================================================================
+    \label{kbd}
 
     The keyboard is an Acorn Archimedes A3010. The keyboard matrix is connected
     via its ribbon cable to a Teensy++ 2.0, which reads the status of the keys
@@ -513,6 +515,7 @@
     % ==========================================================================
     \subsubsection{VGA Output}
     % ==========================================================================
+    \label{vga}
 
     The VGA output is achieved in a rather simple manner; the SIO/2 Channel A
     sends its output to a LILYGO TTGO VGA32 V1.4, which runs a very simple ANSI
@@ -536,10 +539,6 @@
     This output is referred in the dastaZ80 manuals as \textit{Low Resolution}
     and it is meant to be used as a display for applications' graphics and video
     games.
-
-    Therefore, as the focus for this output should be graphics rather than text,
-    the Operating System does not contain fonts (Patterns) for text. It is up
-    for each application to load the desired fonts to be used.
 
     The TMS9918A image displayed on the screen is made up of 35 different planes
     stacked one on top of each other. These planes are numbered from 0 to 34
@@ -575,6 +574,8 @@
     Spectrum and others.}, which is the same as the original AY-3-8910 but with
     only one parallel port instead of two. This fact does not affect the
     sound generation.
+
+    The parallel port oif the PSG is currently not used in the dastaZ80.
 
     % ==========================================================================
     \subsection{Dual Digital Joystick Port}
@@ -625,13 +626,13 @@
     The port is made of a 30 pins (2×15) Standard Card Edge Connector 2.54 mm
     pitch, exposing only the memory-related signals from the CPU and the ROM
     select signal from the Control Bus, plus a special signal (EXTROM) to
-    indicate that a cartridge is inserted:
+    indicate that a cartridge is inserted.
 
-    The port is made of a 30 pins (2×15) Standard Card Edge Connector 2.54 mm
+    The port connector is a 30 pins (2×15) Standard Card Edge Connector 2.54 mm
     pitch, exposing only the memory-related signals (\textit{A0}..\textit{A15},
     \textit{D0}..\textit{D7}, \textit{/MEMRD}) from the CPU, power supply (+5V,
-    GND), the ROM select signal (\textit{/ROM\_CE}) from the Control Bus, and a
-    special signal (\textit{EXTROM}) to indicate that a cartridge is inserted.
+    GND), the ROM select signal (\textit{/ROM\_CE}) from the Control Bus, and
+    the special signal (\textit{EXTROM}).
 
     The address (\textit{A0}..\textit{A15}) and data (\textit{D0}..\textit{D7})
     signals are buffered via 74HCT244 Octal Buffers and Line Drivers.
@@ -660,14 +661,13 @@
         cartridge instead of the internal \textbf{ROM}. To enable this feature,
         the \textit{EXTROM} signal MUST be connected to +5V by any ROM cartridge.
 
-        The insertion/extraction of any cartridge SHOULD be done with the
-        computer switched off, to avoid possible damages, or at least weird
-        behaviour.
+        The insertion/extraction of any cartridge MUST be done with the
+        computer switched off, to avoid possible damages.
 
         As the internal \textbf{ROM} is disabled when a cartridge is inserted,
-        the software on the cartridge ROM won't have access to the BIOS and
+        the software on the cartridge ROM will not have access to the BIOS and
         Kernel functions, therefore initialisation of the hardware (SIO/2, PSG,
-        VDP, etc.) must be added to the cartridge ROM code.
+        VDP, etc.) MUST be added to the cartridge ROM code.
 
     % ==========================================================================
     \subsection{Backplane}
@@ -729,8 +729,8 @@
     \section{I/O Decoding}
     % ==========================================================================
 
-    The Z80 communicates with devices via the Address and Data buses. And then
-    the signals \textit{/MREQ} (for memory devices) and \textit(/IORQ) (for I/O
+    The Z80 communicates with devices via the Address and Data buses, and the
+    signals \textit{/MREQ} (for memory devices) and \textit{/IORQ} (for I/O
     devices).
 
     To avoid bus contention\footnote{Bus contention occurs when all devices
@@ -741,8 +741,9 @@
 
     dastaZ80 uses a 74HCT138 (3-to-8 Line Decoder) to allow the CPU to enable
     I/O devices (non-memory devices). The outputs are enabled (low) when /MREQ
-    is high, /IORQ is low and A7 is low (i.e. addresses below 0x80). This
-    configuration gives 16 addresses for each device (e.g. \texttt{0x00} to
+    is high, /IORQ is low and A7 is low (i.e. addresses below 0x80).
+    
+    This configuration gives 16 addresses for each device (e.g. \texttt{0x00} to
     \texttt{0x0F} for a device attached to output /Y0), for a total of 8 devices.
 
     \begin{tabular}{| c | c | c | c | c | m{4.5cm} | }
@@ -782,7 +783,7 @@
     Also, dzOS\footnote{dzOS is the Operating System of dastaZ80.} resides in
     the ROM chip, but at boot the entire OS is copied into RAM so that it can be
     modified by the user. Hence, dastaZ80 needs a way to disable the ROM chip
-    after the copy has finished.
+    after the copy has finished. This is known as \textit{ROM Paging}.
 
     % ==========================================================================
     \subsection{Extra signals}
@@ -792,15 +793,16 @@
     Gates) to create three new signals from signals comming from the Z80 CPU:
 
     \begin{itemize}
-        \item \textit{/WR} or \textit{/MREQ} = \textit{/MEMWR}
-        \item \textit{/RD} or \textit{/MREQ} = \textit{/MEMRD}
-        \item \textit{/WR} or \textit{/MEMREG\_SEL}\footnote{Output /Y3 from the
+        \item \textit{/WR} + \textit{/MREQ} = \textit{/MEMWR}
+        \item \textit{/RD} + \textit{/MREQ} = \textit{/MEMRD}
+        \item \textit{/WR} + \textit{/MEMREG\_SEL}\footnote{Output /Y3 from the
         I/O Decoder 74HCT138} = \textit{/MEMREG}
     \end{itemize}
 
     % ==========================================================================
     \subsection{ROM Paging}
     % ==========================================================================
+    \label{rom_paging}
 
     The ROM paging (disable the ROM chip and enable the RAM chip for all memory
     related operations) is done with a 74HCT273 (Octal D-type Flip-Flop with
@@ -858,7 +860,7 @@
             \item I decided to go ahead with my idea of programming an operating
             system, and decided to do it for a computer that I'll build and call
             \textit{DastaZ80}.
-            \item I start first designs (in paper) on how to connect CPU to ROM
+            \item I start first designs (on paper) on how to connect CPU to ROM
             and RAM.
         \end{itemize}
         \item \textbf{June 2012}

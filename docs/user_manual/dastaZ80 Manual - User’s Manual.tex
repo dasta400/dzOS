@@ -182,24 +182,21 @@
     % ==========================================================================
     The dastaZ80 is a homebrew computer designed and built following the style
     of the 8-bit computers of the 80s that I used on those days: Amstrad CPC,
-    Commodore 64 and MSX). The name comes from “d”avid “asta” (my name) and 
+    Commodore 64 and MSX. The name comes from “d”avid “asta” (my name) and 
     “Z80” (the CPU used).
 
     The idea behind the making of this computer came from an initial wish of
     writing an operating system (OS) for an 8-bit machine. Not comfortable with
     writing an OS for an already existing computer like an Amstrad CPC, C64,
-    MSX, etc., due to the complexity of its hardware, I decided to built my own
-    8-bit computer from scratch, so that I could fully understand the hardware
-    and also influence the design.
+    MSX, etc., due to the complexity of its hardware (or rather my lack of
+    knowledge), I decided to built my own 8-bit computer from scratch, so that
+    I could fully understand the hardware and also influence the design.
 
     The OS written by me for this computer is called \textit{DZOS}, from 
     dastaZ80 OS. Sometimes I spell it as \textit{dzOS}. Haven’t made my mind 
     yet.
 
-    This manual describes the usage of DZOS running on a dastaZ80 computer.
-    Nevertheless, due to its design principles DZOS is portable to other 8-bit
-    machines and hence mostly everything described here is applicable to DZOS
-    running on other computers.
+    This manual describes the usage of DZOS running on the dastaZ80 computer.
     
     \pagebreak
     % ==========================================================================
@@ -250,6 +247,7 @@
         \item Expansion ports
         \begin{itemize}
             \item 2x20 pin male header. Exposes all CPU signals
+            \item 2x15 pin connector for ROM Cartridges.
         \end{itemize}
     \end{itemize}
 
@@ -1056,9 +1054,9 @@
 
         \textbf{IMPORTANT}: When the list (210 bytes in total, for a maximum of
         15 Disk Image Files) is retrieved from the \textbf{ASMDC}, dzOS stores
-        it at the very bottom of the RAM (\texttt{0xFF2D}). In the unlikely case
-        that you may have a program loaded that uses those low bytes, after
-        executing the \textit{disklist} command the program will be corrupted.
+        it at the very bottom of the RAM (\texttt{0xFF2D}). In case that you may
+        have a program loaded that uses those low bytes, after executing the
+        \textit{disklist} command the program will be corrupted.
 
         % % ======================================================================
         % \subsubsection{{\color{blue}crc16}}

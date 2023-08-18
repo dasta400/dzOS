@@ -22,7 +22,7 @@
 
 ---
 
-dzOS is a single-user single-task ROM-based operating system (OS) for my 8-bit homebrew computer **dastaZ80**, which runs on a Zilog Z80 processor.
+**dzOS** is a single-user single-task ROM-based operating system (OS) for my 8-bit homebrew computer **dastaZ80**, which runs on a Zilog Z80 processor.
 
 It is influenced by ideas and paradigms coming from Digital Research’s CP/M, but also from 8-bit computers of the 80s era. So some concepts may sound familiar to those who had the privilege of using those systems.
 
@@ -31,8 +31,6 @@ The OS consists of three parts:
 * The **BIOS**, that provides functions for controlling the hardware.
 * The **Kernel**, that provides general functions for everything that is not hardware dependent.
 * The **Command-Line Interface (CLI)**, that provides commands for the user to talk to the Kernel and BIOS.
-
-The Kernel and the CLI are hardware independent and should work on any Z80 based computer. Therefore, by adapting the BIOS code, **dzOS can potentially be ported to other Z80 systems**.
 
 ![dzOS v2022.12.05.18.44](docs/dzOSv2022.12.05.18.44.png "dzOS v2022.12.05.18.44")
 
@@ -49,7 +47,7 @@ I've decided to divide the project into progressive models (or **Mark**, as I ca
 * **CPU**: Z80 @ 7.3728 Mhz
 * **ROM**: 16 KB with DZOS ([User Modifiable Operating System](#user-modifiable-operating-system-paged-rom-and-jumpblocks))
 * **RAM**: 64 KB (~48 KB free). Lower 16 KB used by DZOS. Then approx. 1 KB for Stack, variables and Buffers. Free RAM starts at address 0x4420
-* **Video output**: 80 columns by 25 rows 16 Colour ANSI Terminal, via [LILYGO TTGO VGA32 V1.4](http://www.lilygo.cn/prod_view.aspx?TypeId=50033&Id=1083&FId=t3:50033:3) connected to the TX signal of the SIO/2 Channel A
+* **Video output**: 80 columns by 25 rows 16 Colour ANSI Terminal, via [LILYGO TTGO VGA32 V1.4](https://www.lilygo.cc/products/fabgl-vga32) connected to the TX signal of the SIO/2 Channel A
 * **Keyboard**: Acorn Archimedes A3010 keyboard connected to the RX signal of the SIO/2 Channel A
   * Implemented:
     * Alphabetic: A to Z
@@ -100,11 +98,11 @@ Same as [Mark I](#mark-i), adding:
 
 Same as [Mark II](#mark-ii), adding:
 
-* **Cartridge Port**: allow to almost instantaneously load and access programs from a ROM cartridge plugged into the port. The cartridge port exposes only the memory-related signals (A0..A15, D0..D7, /MEMRD) from the CPU, power supply (+5V, GND), the ROM select signal (/ROM_CE) from the Control Bus, and a special signal (EXTROM) to indicate that a cartridge is inserted and the internal ROM shouldn't be used.
+* **Cartridge Port**: allows to almost instantaneously load and access programs from a ROM cartridge plugged into the port. The port exposes only the memory-related signals (A0..A15, D0..D7, /MEMRD) from the CPU, power supply (+5V, GND), the ROM select signal (/ROM_CE) from the Control Bus, and a special signal (EXTROM) to indicate that a cartridge is inserted and the internal ROM shouldn't be used.
   * The Cartridge Connector is a 30 pins (2×15) Standard Card Edge Connector 2.54 mm pitch, located at the back of the computer case.
   * ROM Cartridges have an edge connector with 15 contacts on each side of the PCB, spaced to 2.54mm, that connects to the Cartridge Connector.
-  * When a ROM Cartridge is inserted the internal ROM should be disabled, so that the computer executes code from the ROM cartridge instead of the OS. To enable this feature, the EXTROM signal MUST be connected to +5V.
-* **Auto load&run files from disk**: When the user types a command, if the command entered is not a DZOS command, CLI checks in the current disk if a file with the name of the command exists. If it does and has attribute EXE (i.e. Attribute Bit 3 is set), it loads it into RAM and executes it. No need anymore for _run \<filename>_. Simply type the filename to execute it.
+  * When a ROM Cartridge is inserted the internal ROM should be disabled, so that the computer executes code from the ROM cartridge instead of the OS. To enable this feature, the EXTROM signal is connected to +5V.
+* **Auto load&run files from disk**: When the user types a command, if the command entered is not a DZOS command, CLI checks in the current disk if a file with the name of the command exists. If it does and has attribute _EXE_, it loads it into RAM and executes it. No need anymore for _run \<filename>_. Simply type the filename to execute it.
 
 ### Block Diagram
 
@@ -116,13 +114,9 @@ Same as [Mark II](#mark-ii), adding:
 * [FabGL Library](http://www.fabglib.org/) Arduino code for VGA32 ([folder src/VGA32](https://github.com/dasta400/dzOS/tree/master/src/VGA32))
 * **OS**:
   * **BIOS** & **Kernel**:
-    * Communicates with the Keyboard Controller to read the Keyboard.
-    * Communicates with the Video Interface to generate VGA output.
-    * Communicates with the VDP to generate Composite video output.
-    * Communicates with the PSG to generate stereo sound.
-    * Communicates with [ASMDC](https://github.com/dasta400/ASMDC) to control RTC, NVRAM, Micro SD card and FDD.
+    * Communicates with the different hardware modules (memory, keyboard controller, video interfaces, sound generator, joysticks, [ASMDC](https://github.com/dasta400/ASMDC)).
   * **Command Line Interface (CLI)**:
-    * Shows prompt
+    * Shows prompt.
     * Reads input from keyboard and calls subroutines to the corresponding commands entered by the user.
     * Displays information back to the user.
   * **DZFS** (dastaZ80 File System) **This file system is still in experimental phase. Lost of data may occur due to unknown bugs or changes in specifications.**
@@ -285,7 +279,7 @@ A release of DZOS contains all three parts (referred as _Components_), and is na
 
 ### Components
 
-As components we understand the **BIOS**, the **Kernel** and the **Command-Line Interface (CLI)**. These components are versioned as _component_name v_ and then _maj.min.patch_ (e.g. Kernel v0.1.0), where:
+Components are the **BIOS**, the **Kernel** and the **Command-Line Interface (CLI)**. These components are versioned as _component_name v_ and then _maj.min.patch_ (e.g. Kernel v0.1.0), where:
 
 * **_maj_** indicates a **major change** in functionality. Some features may be incompatible with previous major version.
 * **_min_** indicates adding of **new features** to a major version.

@@ -115,7 +115,7 @@
             letters, and refer to hardware devices.\\
             \hline
             \texttt{Courier} & Text appearing in the \texttt{Courier} font 
-            represents either an OS System Variable a Z80 CPU Register
+            represents either an OS System Variable, a Z80 CPU Register,
             or a Z80 Flag. OS System Variables are identifiers for specific
             \textbf{MEMORY} addresses that can be used to read statuses and to
             pass information between routines or programs.\\
@@ -141,7 +141,7 @@
     \textbf{High Resolution Display}.
 
     The 40 column graphics Composite Video output is referred as \textbf{Low
-    Resolution Display} or \textbf{VDP screen}.
+    Resolution Display} or \textbf{VDP screen} or simply \textbf{VDP}.
 
     The Operating System may be referred as DZOS, dzOS or simply OS.
 
@@ -153,14 +153,10 @@
     The sound chip may be referred as \textbf{Sound Chip} or \textbf{PSG}
     (Programmable Sound Generator).
 
-    In the list of subroutines, the \textbf{Destroys} lists the \textbf{CPU}
-    registers and OS System Variables that are destroyed by the subroutine.
-    Nevertheless, a subroutine may call other subroutines that may have other
-    \textbf{Destroys}. Refer to the \textbf{Calls} list to check the entire
-    flow. 
-    
-    By \textbf{Destroys} is understood that the listed register or variable
-    value is overwritten within the subroutine.
+    In the list of subroutines, the \textbf{Destroys} row lists the \textbf{CPU}
+    registers and OS System Variables that are destroyed by the subroutine. And 
+    it is understood that the listed register or variable value is overwritten
+    within the subroutine.
 
     \pagebreak
     % ==========================================================================
@@ -206,19 +202,19 @@
         \hline
         \texttt{0x0000} & \texttt{0x0007} & Cold Boot & \textbf{\multirow{3}{4em}{BIOS}} & 8 \\
         \texttt{0x0008} & \texttt{0x0215} & init SIO/2 & & 526 \\
-        \texttt{0x0216} & \texttt{0x133F} & BIOS code & & 4,394 \\
+        \texttt{0x0216} & \texttt{0x0FFF} & BIOS code & & 3,562 \\
         \hline
-        \texttt{0x1340} & \texttt{0x26C7} & Kernel code & \textbf{\multirow{2}{4em}{Kernel}} & 5,000 \\
+        \texttt{0x1000} & \texttt{0x26C7} & Kernel code & \textbf{\multirow{2}{4em}{Kernel}} & 5,832 \\
         \texttt{0x26B7} & \texttt{0x26C7} & dzOS version build & & 17 \\
         \hline
         \texttt{0x26C8} & \texttt{0x3A88} & CLI code & \textbf{CLI} & 5,057 \\
         \hline
-        \texttt{0x3A89} & \texttt{0x3AB6} & Bootstrap & \textbf{BOOTSTRAP} & 46 \\
+        \texttt{0x3A89} & \texttt{0x3AAB} & Bootstrap & \textbf{BOOTSTRAP} & 35 \\
         \hline
-        \texttt{0x3AB7} & \texttt{0x3E0E} & VDP dastaZ80 Logo & & 856 \\
+        \texttt{0x3AAC} & \texttt{0x3D9B} & 8x6 Font Pattern set (alphanumeric only 0-Z) & & 752 \\
         \hline
-        \texttt{0x3E4A} & \texttt{0x3EFD} & BIOS Jumpblock & \textbf{\multirow{2}{4em}{Jumpblocks}} & 180 \\
-        \texttt{0x3EFE} & \texttt{0x3FFF} & Kernel Jumpblock & & 258 \\
+        \texttt{0x3E20} & \texttt{0x3F0F} & BIOS Jumpblock & \textbf{\multirow{2}{4em}{Jumpblocks}} & 240 \\
+        \texttt{0x3F10} & \texttt{0x3FFF} & Kernel Jumpblock & & 240 \\
         \hline
     \end{tabular}
 
@@ -3278,11 +3274,11 @@
             \texttt{0x02} & \textbf{BIN} & Binary (non-executable) data\\
             \texttt{0x03} & \textbf{BAS} & BASIC code\\
             \texttt{0x04} & \textbf{TXT} & Plain ASCII Text file\\
-            \texttt{0x05} & & Not used\\
-            \texttt{0x06} & & Not used\\
-            \texttt{0x07} & & Not used\\
-            \texttt{0x08} & & Not used\\
-            \texttt{0x09} & & Not used\\
+            \texttt{0x05} & \textbf{SC1} & Screen 1 (Graphics I Mode) Picture\\
+            \texttt{0x06} & \textbf{FN6} & Font (8x6) for Text Mode\\
+            \texttt{0x07} & \textbf{SC2} & Screen 2 (Graphics II Mode) Picture\\
+            \texttt{0x08} & \textbf{FN8} & Font (8×8) for Graphics Modes\\
+            \texttt{0x09} & \textbf{SC3} & Screen 3 (Multicolour Mode) Picture\\
             \texttt{0x0A} & & Not used\\
             \texttt{0x0B} & & Not used\\
             \texttt{0x0C} & & Not used\\
