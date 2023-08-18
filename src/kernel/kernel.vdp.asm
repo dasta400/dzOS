@@ -168,8 +168,8 @@ _cls_loop:
 ;-----------------------------------------------------------------------------
 KRN_VDP_CHG_COLOUR_FGBG:
 ; Changes the Foreground and Background colours
-; IN <= A = Foreground
-;       B = Background
+; IN <= A = Foreground colour
+;       B = Background colour
         rlc     A                       ; move the
         rlc     A                       ;   4 LSB
         rlc     A                       ;   to be
@@ -177,7 +177,12 @@ KRN_VDP_CHG_COLOUR_FGBG:
         add     A, B                    ; add B as LSB
 
         ld      B, A                    ; put result in B
-
+; This subroutine continues with same code as KRN_VDP_CHG_COLOUR_BORDER
+;   because it does the same.
+; DO NOT WRITE ANY CODE BETWEEN THESE 2 SUBROUTINES
+;-----------------------------------------------------------------------------
+KRN_VDP_CHG_COLOUR_BORDER:
+; IN <= B = Border colour
         ld      A, $07                  ; send the result
         call    F_BIOS_VDP_SET_REGISTER ;   to VDP register $07
         ret

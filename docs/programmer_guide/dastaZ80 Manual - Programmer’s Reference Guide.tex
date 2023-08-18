@@ -2354,10 +2354,7 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Initialises the CRC to 0 and the polynomial to the appropriate bit
-            pattern, to generate a CRC-16/BUYPASS1\footnote{A 16-bit cyclic redundancy
-            check (CRC) based on the IBM Binary Synchronous Communications
-            protocol (BSC or Bisync). It uses the polynomial
-            $X^{16} + X^{15} +X^2 + 1$}.\\
+            pattern, to generate a CRC-16/BUYPASS1\\
             \hline\textbf{Entry} & None \\
             \hline\multirow[t]{2}{4em}{\textbf{Exit}}
             & \texttt{MATH\_CRC} = 0 (initial CRC value)\\
@@ -2367,6 +2364,10 @@
             \hline
         \end{tabular}
 
+        CRC-16/BUYPASS1: A 16-bit cyclic redundancy check (CRC) based on the IBM
+        Binary Synchronous Communications protocol (BSC or Bisync). It uses the
+        polynomial $X^{16} + X^{15} +X^2 + 1$.
+
         % ==========================================================================
         \subsubsection{F\_KRN\_CRC16\_GEN}
         \label{func:fkrncrc16gen}
@@ -2374,10 +2375,7 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Combines the previous CRC with the CRC generated from the current
-            data byte, to generate a CRC-16/BUYPASS1\footnote{A 16-bit cyclic
-            redundancy check (CRC) based on the IBM Binary Synchronous 
-            Communications protocol (BSC or Bisync). It uses the polynomial
-            $X^{16} + X^{15} +X^2 + 1$}.\\
+            data byte, to generate a CRC-16/BUYPASS1.\\
             \hline\multirow[t]{3}{4em}{\textbf{Entry}}
             & \texttt{A} = current data byte.\\
             & \texttt{MATH\_CRC} = previous CRC\\
@@ -3023,12 +3021,30 @@
         \begin{tabular}{l p{9cm}}
             \hline\textbf{Action}
             & Changes the Foreground and Background colours of the \textbf{VDP}
-            screen. \\
+            screen. For \textit{Text Mode} also sets the border colour to the
+            same as the Background colour.\\
             \hline\multirow[t]{2}{4em}{\textbf{Entry}}
             & \texttt{A} = Foreground colour.\\
             & \texttt{B} = Background colour.\\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{B}\\
+            \hline\textbf{Calls}
+            & \hyperref[func:fbiosvdpsetregister]{F\_BIOS\_VDP\_SET\_REGISTER}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_KRN\_VDP\_CHG\_COLOUR\_BORDER}
+        \label{func:fkrnvdpchgcolourborder}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Changes the Border colour of the \textbf{VDP} screen, for screen
+            modes other than \textit{Text Mode}. In \textit{Text Mode} the
+            Border (backdrop) colour is the same as the Background colour.\\
+            \hline\textbf{Entry} & \texttt{B} = Border colour.\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}\\
             \hline\textbf{Calls}
             & \hyperref[func:fbiosvdpsetregister]{F\_BIOS\_VDP\_SET\_REGISTER}\\
             \hline

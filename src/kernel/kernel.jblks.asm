@@ -14,6 +14,7 @@
 ;   - 18 Aug 2023 - Added F_KRN_VDP_GET_CURSOR_ADDR
 ;                   Added F_KRN_VDP_CLEARSCREEN
 ;                   Added F_KRN_VDP_CHG_COLOUR_FGBG
+;                   Added F_KRN_VDP_CHG_COLOUR_BORDER
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -203,6 +204,8 @@ F_KRN_VDP_CLEARSCREEN:              .EXPORT         F_KRN_VDP_CLEARSCREEN
         jp      KRN_VDP_CLEARSCREEN
 F_KRN_VDP_CHG_COLOUR_FGBG:          .EXPORT         F_KRN_VDP_CHG_COLOUR_FGBG
         jp      KRN_VDP_CHG_COLOUR_FGBG
+F_KRN_VDP_CHG_COLOUR_BORDER:        .EXPORT         F_KRN_VDP_CHG_COLOUR_BORDER
+        jp      KRN_VDP_CHG_COLOUR_BORDER
 
         .ORG	KRN_JBLK_END
         .BYTE	0
