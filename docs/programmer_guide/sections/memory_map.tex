@@ -1,0 +1,429 @@
+% ==========================================================================
+\section{Memory Map}
+% ==========================================================================
+
+    % ==========================================================================
+    \subsection{ROM}
+    % ==========================================================================
+
+    The \textbf{ROM} is a 16KB EEPROM, and is divided as follows:
+
+    \begin{tabular}{ |m{1.3cm}|m{1.3cm}|m{3.3cm}|m{2.7cm}|>{\raggedleft\arraybackslash}m{2cm}| }
+        \hline
+        \rowcolor{lightgray}
+        \multicolumn{2}{|c|}{Address} &
+        \multicolumn{2}{|c|}{Description} &
+        Size (bytes) \\
+        \hline
+        \hline
+        \texttt{0x0000} & \texttt{0x0007} & Cold Boot & \textbf{\multirow{3}{4em}{BIOS}} & 8 \\
+        \texttt{0x0008} & \texttt{0x0215} & init SIO/2 & & 526 \\
+        \texttt{0x0216} & \texttt{0x0FFF} & BIOS code & & 3,562 \\
+        \hline
+        \texttt{0x1000} & \texttt{0x26C7} & Kernel code & \textbf{\multirow{2}{4em}{Kernel}} & 5,832 \\
+        \texttt{0x26B7} & \texttt{0x26C7} & dzOS version build & & 17 \\
+        \hline
+        \texttt{0x26C8} & \texttt{0x3A88} & CLI code & \textbf{CLI} & 5,057 \\
+        \hline
+        \texttt{0x3A89} & \texttt{0x3AAB} & Bootstrap & \textbf{BOOTSTRAP} & 35 \\
+        \hline
+        \texttt{0x3AAC} & \texttt{0x3D9B} & 8x6 Font Pattern set (alphanumeric only 0-Z) & & 752 \\
+        \hline
+        \texttt{0x3E20} & \texttt{0x3F0F} & BIOS Jumpblock & \textbf{\multirow{2}{4em}{Jumpblocks}} & 240 \\
+        \texttt{0x3F10} & \texttt{0x3FFF} & Kernel Jumpblock & & 240 \\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsection{RAM}
+    % ==========================================================================
+    \label{subsec:memmap:ram}
+
+    The \textbf{RAM} is a 64KB SRAM, and is divided as follows:
+
+    \begin{longtable}{ |l|l|l|l|l| }\hline
+        \hline
+        \rowcolor{lightgray}
+        \multicolumn{2}{|c|}{Address} &
+        \multicolumn{2}{|c|}{Description} &
+        Size (bytes) \\
+        \hline
+        \hline
+        \endfirsthead
+
+        \hline
+        \rowcolor{lightgray}
+        \multicolumn{2}{|c|}{Address} &
+        \multicolumn{2}{|c|}{Description} &
+        Size (bytes) \\
+        \hline
+        \hline
+        \endhead
+
+        \texttt{0x4000} & \texttt{0x401F} 
+        & \multicolumn{2}{|l|}{\textbf{Stack}} & 32\\
+        \hline
+        \texttt{0x4020} & \texttt{0x4174} 
+        & \multicolumn{2}{|l|}{\textbf{System Variables}} & 373\\
+        \hline
+        \texttt{0x4188} & \texttt{0x421F} 
+        & \multicolumn{2}{|l|}{\textbf{Reserved for future use}} & 139\\
+        \hline
+        \texttt{0x4220} & \texttt{0x441F} 
+        & \multicolumn{2}{|l|}{\textbf{DISK Buffer}} & 512\\
+        \hline
+        \texttt{0x4420} & \texttt{0xFFFF} 
+        & \multicolumn{2}{|l|}{\textbf{Free RAM}} & 48,096\\
+        \hline
+    \end{longtable}
+
+        % ==========================================================================
+        \subsubsection{Stack}
+        % ==========================================================================
+
+        A \textit{Stack} is a list of words (2 bytes) that uses Last In First Out 
+        (LIFO) access method. It is used by the \textbf{CPU} to keep track of
+        \textbf{MEMORY} addresses when executing a \textit{call} instruction.
+
+        The programmer can also store (\textit{PUSH}) or retrieve (\textit{POP})
+        values on/from the top of the stack.
+
+        Usage of the Stack requires very careful attention. doing (\textit{PUSH})
+        without the corresponding (\textit{POP}) or vice versa, will set the CPU on
+        the wrong path of execution. Most of the time just hanging the computer, but
+        also potentially destroying information if an access to disk is triggered by
+        the wrong call.
+
+        % ==========================================================================
+        \subsubsection{System Variables (SYSVARS)}
+        % ==========================================================================
+        \label{sec:ram_memmap}
+
+        The area of \textbf{RAM} called \textit{System Variables (SYSVARS)} is an 
+        area heavily used by the OS, but it can also be used by a program to
+        communicate with the OS.
+
+        The area has been \textit{split} as follows:
+
+        \begin{itemize}
+            \item \textbf{SIO}
+            \begin{itemize}
+                \item \texttt{0x4020} - \textbf{SIO\_CH\_A\_BUFFER} (64 bytes):
+                Buffer for SIO Channel A.
+                \item \texttt{0x4060} - \textbf{SIO\_CH\_A\_IN\_PTR} (2 bytes)
+                \item \texttt{0x4062} - \textbf{SIO\_CH\_A\_RD\_PTR} (2 bytes)
+                \item \texttt{0x4064} - \textbf{SIO\_CH\_A\_BUFFER\_USED} (1 byte)
+                \item \texttt{0x4065} - \textbf{SIO\_CH\_A\_LASTCHAR} (1 bytes)
+                \item \texttt{0x4066} - \textbf{SIO\_CH\_B\_BUFFER} (64 bytes):
+                Buffer for SIO Channel B.
+                \item \texttt{0x40A6} - \textbf{SIO\_CH\_B\_IN\_PTR} (2 bytes)
+                \item \texttt{0x40A6} - \textbf{SIO\_CH\_B\_RD\_PTR} (2 bytes)
+                \item \texttt{0x40AA} - \textbf{SIO\_CH\_B\_BUFFER\_USED} (1 byte)
+            \end{itemize}
+            \item \textbf{DISK Superblock}
+            \begin{itemize}
+                \item \texttt{0x40AB} - \textbf{DISK\_is\_formatted} (1 byte): tells
+                to the OS if the \textbf{DISK} can be used.
+                \begin{itemize}
+                    \item \texttt{0xFF} = formatted with \textit{DZFS}.
+                    \item \texttt{0x00} = not formatted.
+                \end{itemize}
+                \item \texttt{0x40AC} - \textbf{DISK\_show\_deleted} (1 byte)
+                \begin{itemize}
+                    \item \texttt{0x00} = do not show deleted files in \textit{cat}
+                    command results.
+                    \item \texttt{0x01} = show also deleted files in \textit{cat}
+                    command results.
+                \end{itemize}
+                \item \texttt{0x40AD} - \textbf{DISK\_cur\_sector} (2 bytes): current
+                Sector being used by the OS.
+            \end{itemize}
+            \item \textbf{DISK BAT}
+            \begin{itemize}
+                \item \texttt{0x40AF} - \textbf{DISK\_cur\_file\_name} (14 bytes): 
+                Filename of file currently being load or saved.
+                \item \texttt{0x40BD} - \textbf{DISK\_cur\_file\_attribs} (1 byte):
+                Attributes of file currently being load or saved.
+                \begin{itemize}
+                    \item Bit 0: if set, file is Read Only.
+                    \item Bit 1: if set, file is Hidden (it does not display in
+                    \textit{cat} command results).
+                    \item Bit 2: if set, file is System (it does not display in
+                    \textit{cat} command results).
+                    \item Bit 3: if set, file is Executable.
+                    \item Bits 4-7: not used.
+                \end{itemize}
+                \item \texttt{0x40BE} - \textbf{DISK\_cur\_file\_time\_created} (2
+                bytes): time when currently being load or saved file was created.
+                \item \texttt{0x40C0} - \textbf{DISK\_cur\_file\_date\_created} (2
+                bytes): date when currently being load or saved file was created.
+                \item \texttt{0x40C2} - \textbf{DISK\_cur\_file\_time\_modified} (2
+                bytes): time when currently being load or saved file was last modified.
+                \item \texttt{0x40C4} - \textbf{DISK\_cur\_file\_date\_modified} (2
+                bytes): date when currently being load or saved file was last modified.
+                \item \texttt{0x40C6} - \textbf{DISK\_cur\_file\_size\_bytes} (2
+                bytes): size in bytes of file currently being load or saved.
+                \item \texttt{0x40C8} - \textbf{DISK\_cur\_file\_size\_sectors} (1
+                byte): size in sectors of file currently being load or saved.
+                \item \texttt{0x40C9} - \textbf{DISK\_cur\_file\_entry\_number} (2
+                bytes): entry number in the BAT, of file currently being load or
+                saved.
+                \item \texttt{0x40CB} - \textbf{DISK\_cur\_file\_1st\_sector} (2
+                bytes): sector number, of the first sector, where the bytes of file
+                currently being load or saved are stored in the \textbf{DISK}.
+                \item \texttt{0x40CD} - \textbf{DISK\_cur\_file\_load\_addr} (2
+                bytes): address where the bytes of file currently being load will be
+                stored in \textbf{RAM}.
+            \end{itemize}
+            \item \textbf{CLI}: buffers used by CLI to store temporary data.
+            \begin{itemize}
+                \item \texttt{0x40CF} - \textbf{CLI\_prompt\_addr} (2 bytes): The
+                address of the CLI Prompt subroutine. Programs that need to return
+                control to CLI on exit, MUST jump to the address stored here.
+                \item \texttt{0x40D1} - \textbf{CLI\_buffer} (6 bytes): generic
+                buffer.
+                \item \texttt{0x40D7} - \textbf{CLI\_buffer\_cmd} (16 bytes): when a
+                user enters a command and its parameters, the command alone is
+                stored here.
+                \item \texttt{0x40E7} - \textbf{CLI\_buffer\_parm1\_val} (16 bytes):
+                when a user enters a command and its parameters, the first parameter
+                is stored here.
+                \item \texttt{0x40F7} - \textbf{CLI\_buffer\_parm2\_val} (16 bytes):
+                when a user enters a command and its parameters, the second parameter
+                is stored here.
+                \item \texttt{0x4107} - \textbf{CLI\_buffer\_pgm} (32 bytes): generic
+                buffer.
+                \item \texttt{0x4127} - \textbf{CLI\_buffer\_full\_cmd} (64 bytes):
+                when a user enters a command and its parameters, the entire line
+                entered by the user is stored here. This is useful for passing
+                parameters to programs called with \textit{run} command.
+            \end{itemize}
+            \item \textbf{RTC}
+            \begin{itemize}
+                \item \texttt{0x4167} - \textbf{RTC\_hour} (1 byte): 24h format,
+                in hexadecimal (\texttt{0x00}-\texttt{0x17}).
+                \item \texttt{0x4168} - \textbf{RTC\_minutes} (1 byte): in
+                hexadecimal (\texttt{0x00}-\texttt{0x3B}).
+                \item \texttt{0x4169} - \textbf{RTC\_seconds} (1 byte): in
+                hexadecimal (\texttt{0x00}-\texttt{0x3B}).
+                \item \texttt{0x416A} - \textbf{RTC\_century} (1 byte): 20 part of
+                year 20xx, in hexadecimal (\texttt{0x14} = 20).
+                \item \texttt{0x416B} - \textbf{RTC\_year} (1 byte): xx part of
+                year 20xx, in hexadecimal (e.g. \texttt{0x16} = 22). The \textbf{RTC}
+                supports until 2079, therefore maximum value is \texttt{0x4F}.
+                \item \texttt{0x416C} - \textbf{RTC\_year4} (2 bytes): four digit
+                year, in hexadecimal (e.g. \texttt{0x07E6} = 2022). The \textbf{RTC}
+                supports until 2079, therefore maximum value is \texttt{0x081F}.
+                \item \texttt{0x416E} - \textbf{RTC\_month} (1 byte): in
+                hexadecimal (\texttt{0x00}-\texttt{0x0C}).
+                \item \texttt{0x416F} - \textbf{RTC\_day} (1 byte): in hexadecimal
+                (\texttt{0x00}-\texttt{0x1F}).
+                \item \texttt{0x4170} - \textbf{RTC\_day\_of\_the\_week} (1 byte):
+                \texttt{0x00}=Sunday, \texttt{0x01}=Monday, \texttt{0x02}=Tuesday,
+                \texttt{0x03}=Wednesday, \texttt{0x04}=Thursday, \texttt{0x05}=
+                Friday, \texttt{0x06}=Saturday
+            \end{itemize}
+            \item \textbf{Math}
+            \begin{itemize}
+                \item \texttt{0x4171} - \texttt{MATH\_CRC} (2 bytes): CRC-16 CRC.
+                \item \texttt{0x4173} - \texttt{MATH\_polynomial} (2 bytes): CRC-16
+                Polynomial.
+            \end{itemize}
+            \item \textbf{Generic}
+            \begin{itemize}
+                \item \texttt{0x4175} - \textbf{SD\_images\_num} (1 byte): number
+                of Disk Image Files found by \textbf{ASMDC}.
+                \item \texttt{0x4175} - \textbf{DISK\_current} (1 byte): current 
+                \textbf{DISK} unit active. All disk operations will be on this
+                \textbf{DISK}.
+                \item \texttt{0x4177} - \textbf{DISK\_status} (1 byte): status of
+                the \textbf{FDD}.
+                \begin{itemize}
+                    \item Low Nibble (\texttt{0x00} if all OK)
+                    \begin{itemize}
+                        \item bit 0 = not used.
+                        \item bit 1 = not used.
+                        \item bit 2 = set if last command resulted in error.
+                        \item bit 3 = not used.
+                    \end{itemize}
+                    \item High Nibble: error code of last operation.
+                \end{itemize}
+                \item \texttt{0x4177} - \textbf{DISK\_status} (1 byte): status of
+                the \textbf{SD card}.
+                \begin{itemize}
+                    \item Low Nibble (\texttt{0x00} if all OK)
+                    \begin{itemize}
+                        \item bit 0 = set if \textbf{SD card} was not found.
+                        \item bit 1 = set if Disk Image File was not found.
+                        \item bit 2 = set if last command resulted in error.
+                        \item bit 3 = not used.
+                    \end{itemize}
+                    \item High Nibble: number of Disk Image Files found.
+                \end{itemize}
+                \item \texttt{0x4178} - \textbf{DISK\_file\_type} (1 byte): File
+                Type when creating (\textit{save}) next file.
+                \item \texttt{0x4179} - \textbf{DISK\_loadsave\_addr} (2 bytes): see
+                \hyperref[sec:howto_readdata]{Read data from DISK} and 
+                \hyperref[sec:howto_writedata]{Write data to DISK}.
+                \item \texttt{0x417B} - \textbf{tmp\_addr1} (2 bytes): temporary
+                storage for an address.
+                \item \texttt{0x417D} - \textbf{tmp\_addr2} (2 bytes): temporary
+                storage for an address.
+                \item \texttt{0x417F} - \textbf{tmp\_addr3} (2 bytes): temporary
+                storage for an address.
+                \item \texttt{0x4181} - \textbf{tmp\_byte} (1 byte): temporary
+                storage for a byte.
+                \item \texttt{0x4182} - \textbf{tmp\_byte2} (1 byte): temporary
+                storage for a byte.
+            \end{itemize}
+            \item \textbf{VDP}
+            \begin{itemize}
+                \item \texttt{0x4183} - \textbf{NMI\_enable}: Enable (1) / Disable
+                (0) the execution of the \hyperref[sec:nmi]{NMI subroutine}.
+                \item \texttt{0x4184} - \textbf{NMI\_usr\_jump}: Enable (1) / Disable
+                (0) the user configurable \textit{BIOS\_NMI\_JP} jump of the 
+                \hyperref[sec:nmi]{NMI subroutine}.
+                \item \texttt{0x4185} - \textbf{VDP\_cur\_mode}:
+                \begin{itemize}
+                    \item 0 = Text Mode
+                    \item 1 = Graphics I Mode
+                    \item 2 = Graphics II Mode
+                    \item 3 = Multicolour Mode
+                    \item 4 = Graphics II Mode Bitmapped
+                \end{itemize}
+                \item \texttt{0x4186} - \textbf{VDP\_cursor\_x} (1 byte): Current
+                horizontal position of the cursor on the \textbf{VDP} screen.
+                \item \texttt{0x4187} - \textbf{VDP\_cursor\_y} (1 byte): Current
+                vertical position of the cursor on the \textbf{VDP} screen.
+                \item \texttt{0x4188} - \textbf{VDP\_PTRNTAB\_addr} (2 bytes):
+                Address of current Mode’s Pattern Table.
+                \item \texttt{0x418A} - \textbf{VDP\_NAMETAB\_addr} (2 bytes):
+                Address of current Mode’s Name Table.
+                \item \texttt{0x418C} - \textbf{VDP\_COLRTAB\_addr} (2 bytes):
+                Address of current Mode’s Colour Table.
+                \item \texttt{0x418E} - \textbf{VDP\_SPRPTAB\_addr} (2 bytes):
+                Address of current Mode’s Sprite Pattern Table.
+                \item \texttt{0x4190} - \textbf{VDP\_SPRATAB\_addr} (2 bytes):
+                Address of current Mode’s Sprite Attribute Table.
+                \item \texttt{0x4192} - \textbf{VDP\_jiffy\_byte1} (1 byte):
+                \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 1.
+                \item \texttt{0x4193} - \textbf{VDP\_jiffy\_byte2} (1 byte):
+                \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 2.
+                \item \texttt{0x4194} - \textbf{VDP\_jiffy\_byte3} (1 byte):
+                \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 3.
+            \end{itemize}
+        \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{DISK Buffer}
+        % ==========================================================================
+
+        Read and Write operations on \textbf{DISK} are done Sector by Sector (i.e 
+        512 Bytes).
+
+        When loading a file, dzOS asks \textbf{ASMDC} for the first 512 bytes of the
+        file, and stores it in this buffer. After the bytes are moved to
+        \textbf{RAM}, dzOS asks \textbf{ASMDC} for the next 512 bytes, and so on
+        until the file is read entirely.
+
+        When saving a file, dzOS copies the first 512 bytes of the file from
+        \textbf{RAM} to this buffer. After sending the bytes to \textbf{ASMDC}, dzOS
+        copies the next 512 bytes of the file, and so on until the file is saved
+        entirely.
+
+        When doing a \textit{cat} of a \textbf{DISK}, dzOS asks \textbf{ASMDC} for
+        the first 512 bytes of the BAT, and stores it in this buffer. After the list
+        of files is shown on the screen, dzOS asks \textbf{ASMDC} for the next 512
+        bytes, and so on until the entire catalogue has been shown.
+
+    % ==========================================================================
+    \subsection{VDP}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{Text Mode}
+        % ==========================================================================
+        \begin{center}
+            \begin{tabular}{c r}
+                \hline
+                Pattern Table           & \texttt{0x0000}\\
+                \hline
+                Name Table              & \texttt{0x0800}\\
+                \hline
+                \multirow{2}{*}{UNUSED} & \texttt{0x0BC0}\\
+                                        & \texttt{0x3FFF}\\
+                \hline
+            \end{tabular}
+        \end{center}
+
+        % ==========================================================================
+        \subsubsection{Graphics I Mode}
+        % ==========================================================================
+        \begin{center}
+            \begin{tabular}{c r}
+                \hline
+                Sprites Patterns         & \texttt{0x0000}\\
+                \hline
+                Pattern Table           & \texttt{0x0800}\\
+                \hline
+                SPRITE ATTRIBUTTES      & \texttt{0x1000}\\
+                \hline
+                UNUSED                  & \texttt{0x1080}\\
+                \hline
+                Name Table              & \texttt{0x1400}\\
+                \hline
+                UNUSED                  & \texttt{0x1800}\\
+                \hline
+                COLOUR TABLE            & \texttt{0x2000}\\
+                \hline
+                \multirow{2}{*}{UNUSED} & \texttt{0x2020}\\
+                                        & \texttt{0x3FFF}\\
+                \hline
+            \end{tabular}
+        \end{center}
+
+        % ==========================================================================
+        \subsubsection{Graphics II Mode}
+        % ==========================================================================
+        \begin{center}
+            \begin{tabular}{c r}
+                \hline
+                Pattern Table           & \texttt{0x0000}\\
+                \hline
+                Sprites Patterns         & \texttt{0x1800}\\
+                \hline
+                COLOUR TABLE            & \texttt{0x2000}\\
+                \hline
+                Name Table              & \texttt{0x3800}\\
+                \hline
+                SPRITE ATTRIBUTTES      & \texttt{0x3B00}\\
+                \hline
+                \multirow{2}{*}{UNUSED} & \texttt{0x3C00}\\
+                                        & \texttt{0x3FFF}\\
+                \hline
+            \end{tabular}
+        \end{center}
+
+        % ==========================================================================
+        \subsubsection{Multicolour Mode}
+        % ==========================================================================
+        \begin{center}
+            \begin{tabular}{c r}
+                \hline
+                Sprites Patterns         & \texttt{0x0000}\\
+                \hline
+                Pattern Table           & \texttt{0x0800}\\
+                \hline
+                UNUSED                  & \texttt{0x0E00}\\
+                \hline
+                SPRITE ATTRIBUTTES      & \texttt{0x1000}\\
+                \hline
+                UNUSED                  & \texttt{0x1080}\\
+                \hline
+                Name Table              & \texttt{0x1400}\\
+                \hline
+                \multirow{2}{*}{UNUSED} & \texttt{0x1700}\\
+                                        & \texttt{0x3FFF}\\
+                \hline
+            \end{tabular}
+        \end{center}

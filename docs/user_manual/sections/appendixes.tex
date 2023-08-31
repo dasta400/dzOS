@@ -1,0 +1,96 @@
+% ==========================================================================
+\section{Appendixes}
+% ==========================================================================
+\label{sec:appendixes}
+
+    % ==========================================================================
+    \subsection{Floppy Disk Drive Error Codes}
+    % ==========================================================================
+
+    Extracted from: \url{https://github.com/dhansel/ArduinoFDC#troubleshooting}
+
+    \begin{itemize}
+        \item \textbf{0}: No error, the operation succeeded.
+        \item \textbf{1}: Internal \textbf{ASMDC} error.
+        \item \textbf{2}: No disk in drive or drive does not have power.
+        \item \textbf{3}: Disk not formatted or not formatted for the correct
+        density.
+        \item \textbf{4}: Bad disk or unknown format or misaligned disk drive.
+        \item \textbf{5}: Bad disk or unknown format.
+        \item \textbf{6}: Bad disk or unknown format.
+        \item \textbf{7}: Drive does not have power.
+        \item \textbf{8}: Disk is write protected or bad disk.
+        \item \textbf{9}: Disk is write protected.
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{MS BASIC  Error Codes}
+    % ==========================================================================
+
+    Error codes are displayed with the message: \texttt{?$<$error\_code$>$ Error}.
+    For example, \texttt{?SN Error} for a syntax error.
+
+    \begin{itemize}
+        \item \textbf{NF}: NEXT without FOR
+        \item \textbf{SN}: Syntax error
+        \item \textbf{RG}: RETURN without GOSUB
+        \item \textbf{OD}: Out of DATA
+        \item \textbf{FC}: Function call error
+        \item \textbf{OV}: Overflow
+        \item \textbf{OM}: Out of memory
+        \item \textbf{UL}: Undefined line number
+        \item \textbf{BS}: Bad subscript
+        \item \textbf{DD}: Re-DIMensioned array
+        \item \textbf{DZ}: Division by zero (/0)
+        \item \textbf{ID}: Illegal direct
+        \item \textbf{TM}: Type miss-match
+        \item \textbf{OS}: Out of string space
+        \item \textbf{LS}: String too long
+        \item \textbf{ST}: String formula too complex
+        \item \textbf{CN}: Can't CONTinue
+        \item \textbf{UF}: UnDEFined FN function
+        \item \textbf{MO}: Missing operand
+        \item \textbf{HX}: HEX error
+        \item \textbf{BN}: BIN error
+        \item \textbf{LE}: File not found while LOADing
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Low Resolution Screen Modes}
+    % ==========================================================================
+    \label{sec:vdpscrmodes}
+
+    \begin{itemize}
+        \item Mode 0: \textbf{Text Mode}
+        \begin{itemize}
+            \item 40 columns by 24 lines.
+            \item 6x8 bytes characters.
+            \item 2 colours (Text and Background).
+            \item No Sprites.
+        \end{itemize}
+        \item Mode 1: \textbf{Graphics I Mode}
+        \begin{itemize}
+            \item 256 by 192 pixels.
+            \item 32 columns by 24 lines for text.
+            \item 8x8 bytes characters for text.
+            \item 15 colours.
+            \item Sprites.
+        \end{itemize}
+        \item Mode 2: \textbf{Graphics II Mode}
+        \begin{itemize}
+            \item 256 by 192 pixels.
+            \item 32 columns by 24 lines for text.
+            \item 8x8 bytes characters for text.
+            \item 15 colours.
+            \item Sprites.
+        \end{itemize}
+        \item Mode 3: \textbf{Multicolour Mode}
+        \begin{itemize}
+            \item 64 by 48 pixels.
+            \item No characters for text.
+            \item 15 colours.
+            \item Sprites.
+        \end{itemize}
+        \item Mode 4: \textbf{Graphics II Mode Bitmapped}: same as mode 2, but
+        screen is bitmapped for addressing every pixel individually.
+    \end{itemize}

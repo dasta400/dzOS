@@ -1,0 +1,213 @@
+% ==========================================================================
+\subsection{Serial Routines}
+% ==========================================================================
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_SETFGCOLR}
+    \label{func:fkrnserialsetfgcolr}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\multirow[t]{4}{4em}{\textbf{Action}}
+        & Set the colour that will be used for the foreground (text). \\
+        & The colour will remain until a different one is set. \\
+        \hline\textbf{Entry} & \texttt{A} = Colour number (as listed in 
+        \hyperref[sec:appendixes]{Appendixes} section) \\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{B}, \texttt{DE} \\
+        \hline\multirow[t]{2}{4em}{\textbf{Calls}} 
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        & \textit{jp} \hyperref[func:fkrnserialsendansicode]{F\_KRN\_SERIAL\_SEND\_ANSI\_CODE}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_WRSTR}
+    \label{func:fkrnserialwrstr}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\multirow[t]{4}{4em}{\textbf{Action}}
+        & Outputs a string, terminated with Carriage Return to the 
+        \textbf{CONSOLE}.\\
+        \hline\textbf{Entry} 
+        & \texttt{HL} = address in \textbf{MEMORY} where the first character
+        of the string to be output is.\\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{HL} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_WRSTRCLR}
+    \label{func:fkrnserialwrstrclr}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Outputs a string, terminated with Carriage Return to the 
+        \textbf{CONSOLE}, with a specific foreground colour. \\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{A} = Colour number (as listed in 
+        \hyperref[sec:appendixes]{Appendixes} section) \\
+        & \texttt{HL} = address in \textbf{MEMORY} where the first character
+        of the string to be output is.\\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{B}, \texttt{DE} \\
+        \hline\multirow[t]{2}{4em}{\textbf{Calls}} 
+        & \hyperref[func:fkrnserialsetfgcolr]{F\_KRN\_SERIAL\_SETFGCOLR}\\
+        & \textit{jp} \hyperref[func:fkrnserialwrstr]{F\_KRN\_SERIAL\_WRSTR}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_WR6DIG\_NOLZEROS}
+    \label{func:fkrnserialwr6dignolzeros}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\multirow[t]{2}{4em}{\textbf{Action}}
+        & Outputs to the \textbf{CONSOLE} a string of ASCII characters 
+        representing a number, without outputing the leading zeros.\\
+        & (.e.g. 30 30 31 32 30 34 is 001204, but the output wil be 1024)\\
+        \hline\textbf{Entry} 
+        & \texttt{IX} = address in \textbf{MEMORY} where the ASCII 
+        characters are stored.\\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{DE}, \texttt{IX} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_RDCHARECHO}
+    \label{func:fkrnserialrdcharecho}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Reads with echo. Reads a character from the \textbf{SIO/2} Channel
+        A, and outputs it to the \textbf{CONSOLE}.\\
+        \hline\textbf{Entry} & None \\
+        \hline\textbf{Exit} & \texttt{A} = read character. \\
+        \hline\textbf{Destroys} & None \\
+        \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+        & \hyperref[func:fbiosserialconina]{F\_BIOS\_SERIAL\_CONIN\_A}\\
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_EMPTYLINES}
+    \label{func:fkrnserialemptylines}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Outputs \textit{n} number of empty lines to the \textbf{CONSOLE}.\\
+        \hline\textbf{Entry} & \texttt{B} = number (\textit{n}) of empty
+        lines to output. \\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_PRN\_NIBBLE}
+    \label{func:fkrnserialprnnibble}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Outputs a single hexadecimal nibble in hexadecimal notation.\\
+        \hline\textbf{Entry}
+        & \texttt{A} = nibble to output. Nibble will be the less significant 
+        4 bits of the byte.\\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_PRN\_BYTE}
+    \label{func:fkrnserialprnbyte}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Outputs a single hexadecimal byte in hexadecimal notation.\\
+        \hline\textbf{Entry}
+        & \texttt{A} = byte to output.\\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_PRN\_BYTES}
+    \label{func:fkrnserialprnbytes}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Outputs \textit{n} number of bytes as ASCII characters.\\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{B} = number (\textit{n}) of bytes to output.\\
+        & \texttt{HL} = address in \textbf{MEMORY} where the first byte to
+        output is. \\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{HL} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_PRN\_WORD}
+    \label{func:fkrnserialprnword}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Outputs the 4 hexadecimal digits of a word in hexadecimal notation.\\
+        \hline\textbf{Entry}
+        & \texttt{HL} = word to be output.\\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fkrnserialprnbyte]{F\_KRN\_SERIAL\_PRN\_BYTE}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_SEND\_ANSI\_CODE}
+    \label{func:fkrnserialsendansicode}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Writes an ANSI code to the \textbf{SIO/2} Channel A. \\
+        \hline\textbf{Entry}
+        & \texttt{DE} = address in \textbf{MEMORY} where the first byte of
+        ANSI escape code is.\\
+        & \texttt{B} = number of bytes in the ANSI escape code.\\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{DE} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_SERIAL\_CLR\_SIOCHA\_BUFFER}
+    \label{func:fkrnserialclrsiochabuffer}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Clear (sets to zeros) the SIO Channel A Buffer. \\
+        \hline\textbf{Entry} & None\\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL},
+        \texttt{SIO\_CH\_A\_BUFFER\_USED}, \texttt{SIO\_CH\_A\_IN\_PTR},
+        \texttt{SIO\_CH\_A\_RD\_PTR}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}

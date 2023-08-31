@@ -1,0 +1,84 @@
+    % ==========================================================================
+    \subsection{Non-Maskable Interrupt (NMI)}
+    % ==========================================================================
+    \label{sec:nmi}
+
+    When the chip used for the generation of the Composite Video (the \textit{Texas
+    Instruments TMS9918A VDP}) is done drawing the screen, it enters the so
+    called \textit{vertical refresh mode} and issues an interrupt that gives the
+    \textbf{CPU} a window of 4.3 miliseconds (4300 \si{\micro\second}). This
+    interrupt occurs about every 1/60th second.
+
+    But this chip doesn't have the \textit{priority daisy-chain} feature of
+    other Zilog chips, and when raising an interrupt to the \textbf{CPU} pin
+    \textit{/INT} could create bus contention\footnote{Bus contention occurs
+    when all devices communicate directly with each other through a single
+    shared channel (Address and Data buses), and more than one device attempts
+    to place values on the channel at the same time.}. Therefore, the interrupt
+    pin \textit{/INT} of the TMS9918A is connected to the \textit{/NMI} pin of
+    the \textbf{CPU}.
+
+    This means that 1) there is no standard way\footnote{By design the
+    \textbf{CPU} doesn't offer an instruction to enable/disable this type of
+    interrupts, hence are called \textit{non-maskable}. But this has been
+    implemented programatically within dzOS, and therefore NMI can be
+    enabled/disabled via the funtions \hyperref[func:fbiosvdpei]
+    {F\_BIOS\_VDP\_EI} and \hyperref[func:fbiosvdpdi]{F\_BIOS\_VDP\_DI}} to
+    programatically disable these interrupts, and 2) that every 1/60th second
+    the \textbf{CPU} will receive a Non-Maskable Interrupt and therefore, store
+    the current Program Counter (PC) in the stack and jump to the location
+    \texttt{0x0066}.
+
+    At this address, dzOS contains a small piece of code that allows programs to
+    enable and disable a jump to their own subroutine. For example, a video game
+    playing a tune will need to update the \textbf{PSG} in an interrupt basis.
+
+    This code works as follows:
+
+    \begin{itemize}
+        \item All \textbf{CPU} registers are saved (with \textit{PUSH}).
+        \item The \hyperref[subsec:jiffy_counter]{Jiffy Counter} is incremented.
+        \item If the flag \textit{NMI\_usr\_jump} is enabled (1), the subroutine
+        jumps to whatever address is in bytes 2 and 3 of \textit{BIOS\_NMI\_JP}
+        \item If the flag is disabled (0), \textbf{CPU} registers are restored,
+        and the subroutine ends.
+    \end{itemize}
+
+    The end of your subroutine MUST be a \textit{jp F\_BIOS\_NMI\_END}. This is
+    the part that restores the previously saved \textbf{CPU} registers and ends
+    the subrutine with \textit{RETN}. Otherwise the system will certainly crash.
+
+    When writing a subroutine that will be called at each interrupt, remember
+    that the window given for \textbf{CPU} time is 4.3 miliseconds (4300
+    \si{\micro\second}). The current NMI routine takes 35.81 \si{\micro\second}.
+    After this window, the \textbf{VDP} will start drawing again in the screen.
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_NMI\_END}
+        \label{func:fbiosnmiend}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Performs \textit{POP} instructions for all \textbf{CPU} registers.
+            Reads the \textbf{VDP} \textit{Status Register}, to acknowledge the
+            interrupt and allow more to happen, and  performs a return from non
+            maskable interrupt (\textit{RETN}).\\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & Restores \textbf{CPU} registers \texttt{AF},
+            \texttt{BC},\texttt{DE}, \texttt{HL}, \texttt{IX} and \texttt{IY} to the
+            values they had before the NMI was triggered.\\
+            \hline\textbf{Calls} & \hyperref[func:fbiosvdpreadstatreg]
+            {F\_BIOS\_VDP\_READ\_STATREG}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{BIOS\_NMI\_JP}
+        \label{func:fbiosnmijp}
+        % ==========================================================================
+
+        This is the start address of three bytes corresponding to the instruction
+        \textit{jp BIOS\_NMI\_END}. The first byte (\textit{C3}) MUST not be changed.
+        The next two bytes are the ones a program can change to make the interrupt
+        jump to a desired subroutine.

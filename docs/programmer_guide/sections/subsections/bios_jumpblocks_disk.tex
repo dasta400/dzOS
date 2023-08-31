@@ -1,0 +1,241 @@
+    % ==========================================================================
+    \subsection{DISK Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SD\_BUSY\_WAIT}
+        \label{func:fbiossdbusywait}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Calls \textbf{ASMDC} to check if the \textbf{DISK} is busy, and
+            loops until it is not busy. \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SD\_GET\_STATUS}
+        \label{func:fbiossdgetstatus}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Calls \textbf{ASMDC} to check the status of the SD Card module.\\
+            \hline\textbf{Entry} & None \\
+            \hline\multirow[t]{4}{4em}{\textbf{Exit}}
+            & \textit{SD\_status} \\
+            & bit 0 = set if SD card was not found \\
+            & bit 1 = set if image file was not found \\
+            & bit 2 = set if last command resulted in error \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SD\_PARK\_DISKS}
+        \label{func:fbiossdparkdisks}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells \textbf{ASMDC} to close the Image File\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}} 
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SD\_MOUNT\_DISKS}
+        \label{func:fbiossdmountdisks}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells \textbf{ASMDC} to open the Image File\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}} 
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_DISK\_READ\_SEC}
+        \label{func:fbiosdiskreadsec}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Reads a Sector (512 bytes), from the \textbf{DISK} and places the bytes into the \texttt{CF\_BUFFER\_START} \\
+            \hline\multirow[t]{5}{4em}{\textbf{Entry}}
+            & \texttt{E} = sector address LBA 0 (bits 0-7) \\
+            & \texttt{D} = sector address LBA 1 (bits 8-15) \\
+            & \texttt{C} = sector address LBA 2 (bits 16-23) \\
+            & \texttt{B} = sector address LBA 3 (bits 24-27) \\
+            & BC are not used (set to zero), because max sector is 65,535\\
+            \hline\textbf{Exit} & \texttt{CF\_BUFFER\_START} contains the 512 bytes read \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL}, \texttt{DISK\_BUFFER\_START} \\
+            \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_DISK\_WRITE\_SEC}
+        \label{func:fbiosdiskwritesec}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Writes a Sector (512 bytes), from the \texttt{DISK\_BUFFER\_START}
+            into the \textbf{DISK}\\
+            \hline\multirow[t]{5}{4em}{\textbf{Entry}}
+            & \texttt{E} = sector address LBA 0 (bits 0-7) \\
+            & \texttt{D} = sector address LBA 1 (bits 8-15) \\
+            & \texttt{C} = sector address LBA 2 (bits 16-23) \\
+            & \texttt{B} = sector address LBA 3 (bits 24-27) \\
+            & BC are not used (set to zero), because max sector is 65,535\\
+            \hline\textbf{Exit} & \texttt{DISK\_BUFFER\_START} contains the 512 bytes written \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{HL}, \texttt{DISK\_BUFFER\_START} \\
+            \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY}\\
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_FDD\_BUSY\_WAIT}
+        \label{func:fbiosfddbusywait}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Calls \textbf{ASMDC} to check if the \textbf{FDD} is busy, and
+            loops until it is not busy. \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_FDD\_CHANGE}
+        \label{func:fbiosfddchange}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells the \textbf{ASMDC} that the current \textbf{DISK} for
+            operations is now the \textbf{FDD}. \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{DISK\_status} is updated\\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\textbf{Calls}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_FDD\_LOWLVL\_FORMAT}
+        \label{func:fbiosfddlowlvlformat}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells the \textbf{ASMDC} to low-level format a \textbf{DISK} in
+            the \textbf{FDD}. This function does not set up any file system. It
+            just fills with \texttt{0xF6} all bytes of all sectors.\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{A} = \texttt{0x00} if everything OK. 
+            Bit 2 set if command resulted in error.\\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_FDD\_MOTOR\_ON}
+        \label{func:fbiosfddmotoron}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells the \textbf{ASMDC} to switch the \textbf{FDD} motor on. It
+            is a recommended practice to switch the motor on and off manually
+            if multiple sectors are to read or written.\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\textbf{Calls}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_FDD\_MOTOR\_OFF}
+        \label{func:fbiosfddmotoroff}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells the \textbf{ASMDC} to switch the \textbf{FDD} motor off. It
+            is a recommended practice to switch the motor on and off manually
+            if multiple sectors are to read or written.\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\textbf{Calls}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_FDD\_CHECK\_DISKIN}
+        \label{func:fbiosfddcheckdiskin}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Asks the \textbf{ASMDC} to check if a Floppy Disk is inside the
+            \textbf{FDD}.\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{A} = \texttt{0x00} yes / \texttt{0xFF}
+            no \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_FDD\_CHECK\_WPROTECT}
+        \label{func:fbiosfddcheckwprotect}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Asks the \textbf{ASMDC} to check if the Floppy Disk is write
+            protected.\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{A} = \texttt{0x00} yes / \texttt{0xFF}
+            no \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+        

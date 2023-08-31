@@ -1,0 +1,389 @@
+% ==========================================================================
+\section{dastaZ80 File System (DZFS)}
+% ==========================================================================
+In summary, a file system is a layer of abstraction to store, retrieve and
+update a set of files.
+
+A file system manages access to the data and the metadata of the files, and
+manages the available space of the device, dividing the storage area into
+units of storage and keeping a map of every storage unit of the device.
+
+DZFS main goal is to be very simple to implement. As the free
+\textbf{MEMORY} (i.e. \textbf{RAM} - OS - System variables and buffers) of
+the dastaZ80 is about 55,952 bytes, it makes no sense to have files bigger
+than that, as will not fit. Therefore, DZFS defines that \textit{a Block can
+store only a single file}.
+
+dastaZ80 access the \textbf{DISK} via Logical Block Addressing (LBA), which
+is a particularly simple linear addressing schema, in which each sector is
+assigned a unique number rather than referring to a cylinder, head, and
+sector (CHS) to access the disk.
+
+A typical LBA scheme uses a 28-bit value that allows up to 8.4 GB of data
+storage capacity. DZFS schema is as follows:
+
+\begin{tabular}{ c c c c }
+    \hline
+    LBA 3 & LBA 2 & LBA 1 & LBA 0\\
+    \hline
+    XXXX & XXXX XXXX & BBBB BBBB & BBSS SSSS\\
+    \hline
+\end{tabular}
+
+Where:
+
+\begin{itemize}
+    \item S is Sector (6 bits)
+    \item B is Block (10 bits)
+    \item X not used (12 bits)
+\end{itemize}
+
+    % ==========================================================================
+    \subsection{DZFS characteristics}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{Bytes per Sector}: 512
+        \item \textbf{Sectors per Block}: 64
+        \item \textbf{Bytes per Block}: 32,768 (64 * 512). This also defines the
+        maximum size of a file and the BAT maximum size.
+        \item \textbf{Bytes per BAT entry}: 32
+        \item \textbf{BAT entries}: 1024 (32,768 / 32). This also defines the 
+        maximum number of files per \textbf{DISK}.
+        \item \textbf{Maximum bytes per File}: 1 Block (32,768 bytes)
+        \item \textbf{Maximum bytes per DISK}: 1024 Blocks (1 Block = 1 File)
+        * 32,768 bytes per Block = 33,554,432 bytes (33.5 MB)
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{DISK anatomy}
+    % ==========================================================================
+
+    A \textbf{DISK} is divided into areas:
+
+    \begin{itemize}
+        \item \textbf{Superblock} = 512 bytes (1 Sector)
+        \item \textbf{Block Allocation Table (BAT)} = 1 Block (64 Sectors = 32,768 bytes)
+        \item \textbf{Data Area} = 1023 Blocks (65,472 Sectors = 33,521,664 bytes)
+    \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{Superblock}
+        % ==========================================================================
+        The first 512 bytes on the \textbf{DISK} contain fundamental information
+        about the geometry, and is used by the OS to know how to access every
+        other information on the \textbf{DISK}. On IBM PC-compatibles, this is
+        known as the \textit{Master Boot Record} or \textit{MBR} for short. In
+        DZFS, it is called \textit{Superblock}, as it is an orphan sector that
+        doesn't belong to any block.
+
+        \begin{longtable}{ |m{2.2cm}|m{1.3cm}|m{6cm}|m{2.7cm}| }
+            \hline
+            \rowcolor{lightgray}
+            Offset & Length (bytes) & Description & Example\\
+            \hline
+            \endfirsthead
+
+            \hline
+            \rowcolor{lightgray}
+            Offset & Length (bytes) & Description & Example\\
+            \hline
+            \endhead
+
+            \texttt{0x00} & 2 & \textbf{Signature}. Used to check that this is a
+            Superblock. Set to \texttt{0xABBA} & \texttt{AB BA}\\
+            \hline
+            \texttt{0x02} & 1 & \textbf{Not used} & \texttt{00}\\
+            \hline
+            \texttt{0x03} & 8 & \textbf{File System Identifier}. ASCII values
+            for human-readable. Padded with spaces. & \texttt{DZFSV1}\\
+            \hline
+            \texttt{0x0B} & 4 & \textbf{Volume Serial Number} &
+            \texttt{35 2A 15 F2}\\
+            \hline
+            \texttt{0x0F} & 1 & \textbf{Not used}. & \texttt{00}\\
+            \hline
+            \texttt{0x10} & 16 & \textbf{Volume Label}. ASCII values. Padded
+            with spaces. & \texttt{dastaZ80 Main}\\
+            \hline
+            \texttt{0x20} & 8 & \textbf{Volume Date Creation}. ASCII values
+            (ddmmyyyy). & \texttt{03102022}\\
+            \hline
+            \texttt{0x28} & 6 & \textbf{Volume Time Creation}. ASCII values
+            (hhmmss). & \texttt{142232}\\
+            \hline
+            \texttt{0x2E} & 2 & \textbf{Bytes per Sector} (in Hexadecimal
+            little-endian) & \texttt{00 02}\\
+            \hline
+            \texttt{0x30} & 1 & \textbf{Sectors per Block} (in Hexadecimal) &
+            \texttt{40}\\
+            \hline
+            \texttt{0x31} & 1 & \textbf{Not used}. & \texttt{00}\\
+            \hline
+            \texttt{0x32} - \texttt{0x64} & 51 & \textbf{Copyright notice}
+            (ASCII value) & \texttt{Copyright 2022David Asta The MIT License
+            (MIT)}\\
+            \hline
+            \texttt{0x65} - 0x1FF & 411 & \textbf{Not used} (filled with
+            \texttt{0x00}) & \texttt{00 00 00 00 00 00 00 .........}\\
+            \hline
+        \end{longtable}
+
+        % ==========================================================================
+        \subsubsection{Block Allocation Table (BAT)}
+        % ==========================================================================
+        The BAT is an area of 32 bytes on the \textbf{DISK} used to store the 
+        details about the files saved in the Data Area, and is comprised of file
+        descriptors called \textit{entry}. Each entry holds information about a
+        single file.
+
+        For simplicity, each entry works also as index. The first entry 
+        describes the first file on the \textbf{DISK}, the second entry 
+        describes the second file, and so on. 
+
+        \begin{longtable}{ |m{1cm}|m{1.3cm}|m{6.8cm}|m{2.7cm}| }
+            \hline
+            \rowcolor{lightgray}
+            Offset & Length (bytes) & Description & Example\\
+            \hline
+            \endfirsthead
+
+            \hline
+            \rowcolor{lightgray}
+            Offset & Length (bytes) & Description & Example\\
+            \hline
+            \endhead
+
+            \multirow{4}{4em}{0x00} & \multirow{4}{4em}{14} & \textbf{Filename}
+            & \texttt{46 49 4C 45 30 30 30 30 31 20 20 20 20 20}\\
+            & & Padded with spaces at the end. &\\
+            & & (only allowed A to Z and 0 to 9. No spaces allowed. Cannot start
+            with a number.) &\\
+            & & First character also indicates 00=available, 7E=deleted (will
+            appear as \textasciitilde) &\\
+            \hline
+            \multirow{6}{4em}{0x0E} & \multirow{6}{4em}{14} & \textbf{Attributes} (0=Inactive / 1=Active) 
+            & Read Only, System file, Executable = 1101 = \texttt{0D}\\
+            & & Bit 0 = Read Only &\\
+            & & Bit 1 = Hidden &\\
+            & & Bit 2 = System &\\
+            & & Bit 3 = Executable &\\
+            & & Bit 4-7 = File Type (see below) &\\
+            \hline
+            \multirow{4}{4em}{0x0F} & \multirow{4}{4em}{2} & \textbf{Time created}
+            & \texttt{F5 9A}\\
+            & & 5 bits for hour (binary number 0-23) &\\
+            & & 6 bits for minutes (binary number 0-59) &\\
+            & & 5 bits for seconds (binary number seconds / 2) &\\
+            \hline
+            \multirow{4}{4em}{0x11} & \multirow{4}{4em}{2} & \textbf{Date created}
+            & \texttt{69 1B}\\
+            & & 7 bits for year since 2000 (max. is year 2127) &\\
+            & & 4 bits for month (binary number 0-12) &\\
+            & & 5 bits for day (binary number 0-31) &\\
+            \hline
+            \texttt{0x13} & 2 & \textbf{Time last modified} (same formula as
+            Time created) & \texttt{F5 9A}\\
+            \hline
+            \texttt{0x15} & 2 & \textbf{Date last modified} (same formula as
+            Date created) & \texttt{69 1B}\\
+            \hline
+            \texttt{0x17} & 2 & \textbf{File size in bytes} (little-endian) &
+            \texttt{26 00}\\
+            \hline
+            \texttt{0x19} & 1 & \textbf{File size in sectors} (little-endian) &
+            \texttt{01}\\
+            \hline
+            \texttt{0x1A} & 2 & \textbf{Entry number} (little-endian) &
+            \texttt{00 00}\\
+            \hline
+            \multirow{2}{4em}{0x1C} & \multirow{2}{4em}{2} & \textbf{1st Sector}
+            (where the file data starts) & \texttt{41 00}\\
+            & & It is calculated when the file is created. The formula is: 65 + 
+            64 * entry\_number &\\
+            \hline
+            \texttt{0x1E} & 2 & \textbf{Load address} (The start address
+            little-endian where it will be loaded in RAM) & \texttt{68 25}\\
+            \hline
+        \end{longtable}
+
+        \begin{longtable}{ |m{1.4cm}|m{1.7cm}|m{6.8cm}| }
+            \hline
+            \rowcolor{lightgray}
+            Bits 4-7 & File Type & Description\\
+            \hline
+            \endfirsthead
+
+            \hline
+            \rowcolor{lightgray}
+            Bits 4-7 & File Type ID & Description\\
+            \hline
+            \endhead
+
+            \texttt{0x00} & \textbf{USR} & User defined\\
+            \texttt{0x01} & \textbf{EXE} & Executable binary\\
+            \texttt{0x02} & \textbf{BIN} & Binary (non-executable) data\\
+            \texttt{0x03} & \textbf{BAS} & BASIC code\\
+            \texttt{0x04} & \textbf{TXT} & Plain ASCII Text file\\
+            \texttt{0x05} & \textbf{SC1} & Screen 1 (Graphics I Mode) Picture\\
+            \texttt{0x06} & \textbf{FN6} & Font (8x6) for Text Mode\\
+            \texttt{0x07} & \textbf{SC2} & Screen 2 (Graphics II Mode) Picture\\
+            \texttt{0x08} & \textbf{FN8} & Font (8×8) for Graphics Modes\\
+            \texttt{0x09} & \textbf{SC3} & Screen 3 (Multicolour Mode) Picture\\
+            \texttt{0x0A} & & Not used\\
+            \texttt{0x0B} & & Not used\\
+            \texttt{0x0C} & & Not used\\
+            \texttt{0x0D} & & Not used\\
+            \texttt{0x0E} & & Not used\\
+            \texttt{0x0F} & & Not used\\
+            \hline
+        \end{longtable}
+
+        % ==========================================================================
+        \subsubsection{Data Area}
+        % ==========================================================================
+        The Data Area is the area of the \textbf{DISK} used to store file data 
+        (e.g. programs, documents).
+        
+        It is divided into Blocks of 64 Sectors each.
+
+    % ==========================================================================
+    \subsection{How Volume Serial Number is calculated}
+    % ==========================================================================
+    Calculated by combining the date and time at the point of format:
+
+    \begin{itemize}
+        \item first byte is calculated as follows:
+        \begin{itemize}
+            \item day + miliseconds (converted to hexadecimal)
+            \item e.g. 3 + 50 = 53 (0x35)
+        \end{itemize}
+        \item second byte is calculated as follows:
+        \begin{itemize}
+            \item month + seconds (converted to hexadecimal)
+            \item e.g. 10 + 32 = 42 (0x2A)
+        \end{itemize}
+        \item last two bytes are calculated as follows:
+        \begin{itemize}
+            \item (hours [if pm + 12] * 256) + minutes + year (converted to
+            hexadecimal)
+            \item e.g. (2 + 12 = 14 * 256 = 3584) + 22 + 2012 = 5618
+            (\texttt{0x15} \texttt{0xF2})
+        \end{itemize}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{How Dates (creation/last modified) are calculated}
+    % ==========================================================================
+
+    Dates (day, month, 4-digit year) are converted into two bytes as follows:
+
+    \begin{itemize}
+        \item Remove century from year (e.g. $2013 - 2000 = 13$)
+        \item Convert resulting number to hexadecimal (e.g. 13 = \texttt{0x0D})
+        \item Bitwise Shift Left 9 positions (e.g. \texttt{0x0D} \(\ll\) 9 = 
+        \texttt{0x1A00})
+        \item Convert month to hexadecimal (e.g. 11 = \texttt{0x0B})
+        \item Bitwise Shift Left 5 positions (e.g. \texttt{0x0B} \(\ll\) 5 = 
+        \texttt{0x0160})
+        \item Add converted month to converted year (e.g. \texttt{0x1A00} + 
+        \texttt{0x0160} = \texttt{0x1B60}
+        \item Convert day to hexadecimal (e.g. 9 = \texttt{0x09})
+        \item Add converted day to the sum of converted month and converted year
+        (e.g. \texttt{0x1B60} + \texttt{0x09} = \texttt{0x1B69}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{How Times (creation/last modified) are calculated}
+    % ==========================================================================
+
+    Times (hours, minutes, seconds) are converted into two bytes as follows:
+
+    \begin{itemize}
+        \item Convert hours to hexadecimal (e.g. 19 = \texttt{0x13})
+        \item \item Bitwise Shift Left 3 positions (e.g. \texttt{0x13} \(\ll\) 3 = 
+        \texttt{0x98})
+        \item Convert minutes to hexadecimal (e.g. 23 = \texttt{0x17})
+        \item Bitwise Shift Left 5 positions (e.g. \texttt{0x17} \(\ll\) 5 = 
+        \texttt{0x02E0})
+        \item Logical OR most significant byte (MSB) of converted minutes with
+        less significant byte (LSB) of converted hours (e.g. \texttt{0x02}
+        \(\lor\) \texttt{0x98} = \texttt{0x9A})
+        \item Logical OR LSB of converted minutes with MSB of converted hours
+        (e.g. \texttt{0xE0} \(\lor\) \texttt{0x00} = \texttt{0xE0})
+        \item Convert seconds to hexadecimal (e.g. 42 = \texttt{0x2A})
+        \item Divide the converted seconds by 2 (e.g. \texttt{0x2A} / 2 = 
+        \texttt{0x15})
+        \item Add converted seconds to ORed converted hours and minutes
+        (e.g. \texttt{0x9AE0} + \texttt{0x15} = \texttt{0x9AF5})
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Block Number, Sector Number and Addresses}
+    % ==========================================================================
+
+    To locate files in a Disk Image File it is useful to know how Blocks and
+    Sector Numbers relate to the Address in the disk.
+
+    Given a Sector Number (\textit{SecNum}), multiply it by the number of Bytes
+    per Sector (512) to obtain the address where the data will start.
+
+    Below is provided a table for quick reference:
+
+    % \begin{tabular}{ |m{1.3cm}m{1.3cm}m{2.2cm}|l|m{1.3cm}m{1.3cm}m{2.2cm}|>{\raggedleft\arraybackslash}m{2cm}| }
+    %     \hline
+    %     \rowcolor{lightgray}
+    %     Block & SecNum & Address & & Block & SecNum & Address\\
+    %     \hline
+    %     \hline
+    %     0 (\texttt{0x0000}) & 1     & \texttt{0x00000200} & & 1     & 65  (\texttt{0x0041}) & \texttt{0x00008200} \\
+    %     2     & 129   & \texttt{0x00010200} & & 3     & 193 (\texttt{0x00C1}) & \texttt{0x00018200} \\
+    %     4     & 257   & \texttt{0x00020200} & & 5     & 321 (\texttt{0x0141}) & \texttt{0x00028200} \\
+    %     6     & 385   & \texttt{0x00030200} & & 7     & 449 (\texttt{0x01C1}) & \texttt{0x00038200} \\
+    %     8     & 513   & \texttt{0x00040200} & & 9     & 577   & \texttt{0x00048200} \\
+    %     10    & 641   & \texttt{0x00050200} & & 11    & 705   & \texttt{0x00058200} \\
+    %     12    & 705   & \texttt{0x00060200} & & 13    & 833   & \texttt{0x00068200} \\
+    %     14    & 897   & \texttt{0x00070200} & & 15    & 961   & \texttt{0x00078200} \\
+    %     16    & 1025  & \texttt{0x00080200} & & 17    & 1089  & \texttt{0x00088200} \\
+    %     18    & 1153  & \texttt{0x00090200} & & 19    & 1217  & \texttt{0x00098200} \\
+    %     20    & 1281  & \texttt{0x000A0200} & & 21    & 1345  & \texttt{0x000A8200} \\
+    %     22    & 1409  & \texttt{0x000B0200} & & 23    & 1473  & \texttt{0x000B8200} \\
+    %     ...   & ...   & ...                 & & ...   & ...   & ... \\
+    %     1022  & 65409 & \texttt{0x01FF0200} & & 1023  & 65473 & \texttt{0x01FF8200} \\
+    %     \hline
+    % \end{tabular}
+
+    \begin{tabular}{ |m{1.3cm}m{3.3cm}m{2.2cm}|>{\raggedleft\arraybackslash}m{2cm}| }
+        \hline
+        \rowcolor{lightgray}
+        Block & SecNum & Address \\
+        \hline
+        \hline
+        0    & 1     (\texttt{0x0000}) & \texttt{0x00000200} \\
+        1    & 65    (\texttt{0x0041}) & \texttt{0x00008200} \\
+        2    & 129   (\texttt{0x0081}) & \texttt{0x00010200} \\
+        3    & 193   (\texttt{0x00C1}) & \texttt{0x00018200} \\
+        4    & 257   (\texttt{0x0101}) & \texttt{0x00020200} \\
+        5    & 321   (\texttt{0x0141}) & \texttt{0x00028200} \\
+        6    & 385   (\texttt{0x0181}) & \texttt{0x00030200} \\
+        7    & 449   (\texttt{0x01C1}) & \texttt{0x00038200} \\
+        8    & 513   (\texttt{0x0201}) & \texttt{0x00040200} \\
+        9    & 577   (\texttt{0x0241}) & \texttt{0x00048200} \\
+        10   & 641   (\texttt{0x0281}) & \texttt{0x00050200} \\
+        11   & 705   (\texttt{0x02C1}) & \texttt{0x00058200} \\
+        12   & 705   (\texttt{0x0301}) & \texttt{0x00060200} \\
+        13   & 833   (\texttt{0x0341}) & \texttt{0x00068200} \\
+        14   & 897   (\texttt{0x0381}) & \texttt{0x00070200} \\
+        15   & 961   (\texttt{0x03C1}) & \texttt{0x00078200} \\
+        16   & 1025  (\texttt{0x0401}) & \texttt{0x00080200} \\
+        17   & 1089  (\texttt{0x0441}) & \texttt{0x00088200} \\
+        18   & 1153  (\texttt{0x0481}) & \texttt{0x00090200} \\
+        19   & 1217  (\texttt{0x04C1}) & \texttt{0x00098200} \\
+        20   & 1281  (\texttt{0x0501}) & \texttt{0x000A0200} \\
+        21   & 1345  (\texttt{0x0541}) & \texttt{0x000A8200} \\
+        22   & 1409  (\texttt{0x0581}) & \texttt{0x000B0200} \\
+        23   & 1473  (\texttt{0x05C1}) & \texttt{0x000B8200} \\
+        ...  & ...                     & ...                 \\
+        1023 & 65473 (\texttt{0xFFC1}) & \texttt{0x01FF8200} \\
+        \hline
+    \end{tabular}

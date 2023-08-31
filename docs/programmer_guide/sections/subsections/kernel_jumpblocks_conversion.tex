@@ -1,0 +1,222 @@
+% ==========================================================================
+\subsection{Conversion Routines}
+% ==========================================================================
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_ASCIIADR\_TO\_HEX}
+    \label{func:fkrnasciiadrtohex}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Convert an address (or any 2 bytes) from hex ASCII to its 
+        hexadecimal value (e.g. 32 35 37 30 are converted into 2570).\\
+        \hline\textbf{Entry} & \texttt{IX} = \textbf{MEMORY} address where
+        the first byte is located.\\
+        \hline\textbf{Exit} & \texttt{HL} = hexadecimal converted value.\\
+        \hline\textbf{Destroys} & \texttt{HL}\\
+        \hline\textbf{Calls}
+        & \hyperref[func:fkrnasciitohex]{F\_KRN\_ASCII\_TO\_HEX}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_ASCII\_TO\_HEX}
+    \label{func:fkrnasciitohex}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts two ASCII characters (representing two hexadecimal digits)
+        ; to one byte in hexadecimal (e.g. \texttt{0x33} and \texttt{0x45}
+        are converted into \texttt{3E}).\\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{H} = Most significant ASCII digit.\\
+        & \texttt{L} = Less significant ASCII digit.\\
+        \hline\textbf{Exit} & \texttt{A} = Converted value.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_HEX\_TO\_ASCII}
+    \label{func:fkrnhextoascii}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts one byte in hexadecimal to two ASCII printable characters
+        (e.g. \texttt{0x3E} is converted into 33 and 45, which are the ASCII
+        values of \texttt{3} and \texttt{E}).\\
+        \hline\textbf{Entry} & \texttt{A} = Byte to convert.\\
+        \hline\multirow[t]{2}{4em}{\textbf{Exit}}
+        & \texttt{H} = Most significant ASCII digit.\\
+        & \texttt{L} = Less significant ASCII digit.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{HL}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_BCD\_TO\_BIN}
+    \label{func:fkrnbcdtobin}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts a byte of BCD to a byte of hexadecimal
+        (e.g. 12 is converted into \texttt{0x0C}).\\
+        \hline\textbf{Entry} & \texttt{A} = BCD.\\
+        \hline\textbf{Exit} & \texttt{A} = Hexadecimal.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_BIN\_TO\_BCD4}
+    \label{func:fkrnbintobcd4}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts a byte of unsigned integer hexadecimal to 4-digit BCD
+        (e.g. \texttt{0x80} is converted into 0128).\\
+        \hline\textbf{Entry} & \texttt{A} = Unsigned integer to convert.\\
+        \hline\multirow[t]{2}{4em}{\textbf{Exit}}
+        & \texttt{H} = Hundreds digits.\\
+        & \texttt{L} = Tens digits.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{HL}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_BIN\_TO\_BCD6}
+    \label{func:fkrnbintobcd6}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts two bytes of unsigned integer hexadecimal to 6-digit BCD
+        (e.g. \texttt{0xFFFF} is converted into 065535).\\
+        \hline\textbf{Entry} & \texttt{HL} = Unsigned integer to convert.\\
+        \hline\multirow[t]{3}{4em}{\textbf{Exit}}
+        & \texttt{C} = Thousands digits.\\
+        & \texttt{D} = Hundreds digits.\\
+        & \texttt{E} = Tens digits.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, \texttt{HL}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_BCD\_TO\_ASCII}
+    \label{func:fkrnbcdtoascii}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts 6-digit BCD to hexadecimal ASCII string
+        (e.g. 512 is converted into 30 30 30 35 31 32).\\
+        \hline\multirow[t]{4}{4em}{\textbf{Entry}}
+        & \texttt{DE} = \textbf{MEMORY} address where the converted string
+        will be stored.\\
+        & \texttt{C} = first two digits of the 6-digit BCD to convert.\\
+        & \texttt{H} = next two digits of the 6-digit BCD to convert.\\
+        & \texttt{L} = last two digits of the 6-digit BCD to convert.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_BITEXTRACT}
+    \label{func:fkrnbitextract}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Extracts a group of bits from a byte and returns the group in the
+        LSB position.\\
+        \hline\multirow[t]{3}{4em}{\textbf{Entry}}
+        & \texttt{E} = byte from where to extract bits.\\
+        & \texttt{D} = number of bits to extract.\\
+        & \texttt{A} = start extraction at bit number.\\
+        \hline\textbf{Exit} & \texttt{A} = extracted group of bits\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
+        \texttt{HL}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_BIN\_TO\_ASCII}
+    \label{func:fkrnbintoascii}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts a 16-bit signed binary number (-32768 to 32767) to ASCII
+        data (e.g. 32767 is converted into 33 32 37 36 37).\\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{D} = High byte of value to convert.\\
+        & \texttt{E} = Low byte of value to convert.\\
+        \hline\textbf{Exit} & \texttt{CLI\_buffer\_pgm} = converted ASCII data.
+        First byte us the length.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
+        \texttt{HL}, \texttt{CLI\_buffer\_pgm}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DEC\_TO\_BIN}
+    \label{func:fkrndectobin}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts an ASCII string consisting of the length of the number
+        (in bytes), a possible ASCII - or + sign, and a series of ASCII
+        digits to two bytes of binary data. Note that the length is an
+        ordinary binary number, not an ASCII number. (e.g. 05 33 32 37 36 37
+        is converted into 7FFF).\\
+        \hline\textbf{Entry} & \texttt{HL} = \textbf{MEMORY} address where
+        the string to be converted is.\\
+        \hline\textbf{Exit} & \texttt{HL} = converted bytes.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
+        \texttt{HL}, \texttt{tmp\_byte}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_PKEDDATE\_TO\_DMY}
+    \label{func:fkrnpkeddatetodmy}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Extracts day, month and year from a packed date (used by DZFS to
+        store dates).\\
+        \hline\textbf{Entry} & \texttt{HL} = packed date.\\
+        \hline\multirow[t]{3}{4em}{\textbf{Exit}}
+        & \texttt{A} = day.\\
+        & \texttt{B} = month.\\
+        & \texttt{C} = year.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{HL},
+        \texttt{tmp\_addr1}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_PKEDTIME\_TO\_HMS}
+    \label{func:fkrnpkedtimetohms}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Extracts hour, minutes and seconds from a packed time (used by
+        DZFS to store times).\\
+        \hline\textbf{Entry} & \texttt{HL} = packed time.\\
+        \hline\multirow[t]{3}{4em}{\textbf{Exit}}
+        & \texttt{A} = hour.\\
+        & \texttt{B} = minutes.\\
+        & \texttt{C} = seconds.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{HL},
+        \texttt{tmp\_addr1}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}

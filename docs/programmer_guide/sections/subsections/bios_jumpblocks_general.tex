@@ -1,0 +1,33 @@
+    % ==========================================================================
+    \subsection{General Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_WBOOT}
+        \label{func:fbioswboot}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Warm Boot. Executed after \textbf{SIO/2} initialisation, or after a
+            \textit{reset} command \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & None \\
+            \hline\textbf{Calls} & \textit{jp} F\_KRN\_START \\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SYSHALT}
+        \label{func:fbiossyshalt}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Halts the computer.\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & Disables both Maskable and Non-Maskable
+            interrupts, and then executes a \textit{halt} command.\\
+            \hline\textbf{Destroys} & None \\
+            \hline\textbf{Calls} & None \\
+            \hline
+        \end{tabular}

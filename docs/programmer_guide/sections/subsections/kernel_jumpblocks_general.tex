@@ -1,0 +1,19 @@
+% ==========================================================================
+\subsection{General Routines}
+% ==========================================================================
+
+% ==========================================================================
+\subsubsection{F\_KRN\_SYSHALT}
+\label{func:fkrnsyshalt}
+% ==========================================================================
+\begin{tabular}{l p{9cm}}
+    \hline\multirow[t]{4}{4em}{\textbf{Action}}
+    & Prepares the computer for a \textit{HALT}.\\
+    \hline\textbf{Entry} None.\\
+    \hline\textbf{Exit} & None \\
+    \hline\textbf{Destroys} & \texttt{A}, \texttt{HL} \\
+    \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+    & \hyperref[func:fbiossdparkdisks]{F\_BIOS\_SD\_PARK\_DISKS}\\
+    & \hyperref[func:fkrnserialwrstrclr]{F\_KRN\_SERIAL\_WRSTRCLR}\\
+    \hline
+\end{tabular}

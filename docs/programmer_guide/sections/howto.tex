@@ -1,0 +1,258 @@
+% ==========================================================================
+\section{How To}
+% ==========================================================================
+
+    % ==========================================================================
+    \subsection{Read data from DISK}
+    % ==========================================================================
+    \label{sec:howto_readdata}
+    Given \texttt{DISK\_is\_formatted} is equal to \texttt{0xFF} (i.e.
+    \textbf{DISK} is formatted with DZFS file system), call
+    \hyperref[func:fkrndzfsloadfiletoram]{F\_KRN\_DZFS\_LOAD\_FILE\_TO\_RAM}
+    with \texttt{DE} equal to first sector (512 bytes) to read and \texttt{IX}
+    equal to how many sectors to read.
+
+    Read bytes will be copied into \textbf{MEMORY}, following these rules:
+
+    \begin{itemize}
+        \item if \textit{\hyperref[sec:ram_memmap]{DISK\_loadsave\_addr}} $<>$
+        0, load bytes to this address.
+        \item if \textit{\hyperref[sec:ram_memmap]{DISK\_loadsave\_addr}} = 0,
+        \begin{itemize}
+            \item if \textit{\hyperref[sec:ram_memmap]{DISK\_cur\_file\_load\_addr}}
+            $<>$ 0, load bytes to this address.
+            \item if \textit{\hyperref[sec:ram_memmap]{DISK\_cur\_file\_load\_addr}}
+            = 0, load bytes to start of \hyperref[subsec:memmap:ram]{Free RAM}
+            (\texttt{0x4420}).
+        \end{itemize}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Write data to DISK}
+    % ==========================================================================
+    \label{sec:howto_writedata}
+    Given \texttt{DISK\_is\_formatted} is equal to \texttt{0xFF} (i.e.
+    \textbf{DISK} is formatted with DZFS file system):
+
+    \begin{itemize}
+        \item Store the filename (in ASCII) somewhere in \textbf{MEMORY}.
+        \item call \hyperref[func:fkrndzfsgetfilebatentry]{F\_KRN\_DZFS\_GET\_FILE\_BATENTRY},
+            with \texttt{HL} equal to the \texttt{MEMORY} address where the
+            filename is stored. If a file with the specified filename does not
+            exist, flag \texttt{z} will be set to indicate that it is OK to save
+            the file.
+        \item call \hyperref[func:fkrndzfscreatenewfile]{F\_KRN\_DZFS\_CREATE\_NEW\_FILE},
+            with:
+            \begin{itemize}
+                \item \texttt{HL} equal to the address in \textbf{MEMORY} of
+                first byte to be stored.
+                \item \texttt{BC} equal to the total number of bytes to
+                be stored.
+                \item \texttt{IX} equal to the address in \textbf{MEMORY}
+                where the filename is stored.
+                \item \textit{\hyperref[sec:ram_memmap]{DISK\_loadsave\_addr}}
+                equal to:
+                \begin{itemize}
+                    \item zero, will use the address in \textbf{MEMORY} of first
+                    byte as the load address when loading the file (i.e. 
+                    \textit{\hyperref[sec:ram_memmap]{DISK\_loadsave\_addr}}).
+                    \item non zero, will use this number as the load address
+                    when loading the file (i.e. 
+                    \textit{\hyperref[sec:ram_memmap]{DISK\_loadsave\_addr}}).
+                \end{itemize}
+            \end{itemize}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Convert between HEX and DEC and ASCII}
+    % ==========================================================================
+    In many situations your programs will need to convert between different
+    number notations (hexadecimal, decimal, ASCII). For example, all characters
+    typed by the user are read by the function
+    \hyperref[func:fbiosserialconina]{F\_BIOS\_SERIAL\_CONIN\_A}, which stores
+    the ASCII value of the pressed key in the \texttt{A} register. In order to
+    do manipulations of data, our program will need to convert this ASCII data
+    into either hexadecimal or decimal notation.
+
+    Take as an example the CLI command for saving files to disk (\textit{save}).
+    As shown in the \textit{dastaZ80 User's Manual} section \textit{5.3 Disk
+    Commands}, this command takes two parameters: \textit{$<$start\_address$>$},
+    which is expressed in hexadecimal, and \textit{$<$number\_of\_bytes$>$}, which
+    is expressed in decimal. But in both cases,
+    \hyperref[func:fbiosserialconina]{F\_BIOS\_SERIAL\_CONIN\_A } will give
+    us (in the \texttt{A} register) the ASCII representation of the numbers typed
+    by the user.
+
+    Before we can set a pointer to the memory address specified by 
+    \textit{$<$start\_address$>$}, and set our counter to 
+    \textit{$<$number\_of\_bytes$>$}, we need to convert those ASCII numbers
+    into hexadecimal and decimal respectively.
+
+    The Kernel, offers a series of functions to help the programmer with the
+    conversions:
+
+    \begin{itemize}
+        \item \hyperref[func:fkrnasciiadrtohex]{F\_KRN\_ASCIIADR\_TO\_HEX}:
+        Converts ASCII 4 chars to HEX 2 bytes. (e.g. 32 35 37 30 to \texttt{0x2570})
+        \item \hyperref[func:fkrnasciitohex]{F\_KRN\_ASCII\_TO\_HEX}: Converts
+        ASCII 2 chars to HEX 1 byte. (e.g. 33 45 to \texttt{0x3E})
+        \item \hyperref[func:fkrnhextoascii]{KRN\_HEX\_TO\_ASCII}: Converts
+        HEX 1 byte to ASCII 2 chars. (e.g. \texttt{0x3E} to 33 45)
+        \item \hyperref[func:fkrnbcdtobin]{F\_KRN\_BCD\_TO\_BIN}: Converts a
+        byte of BCD to a byte of hexadecimal. (e.g. 12 is converted into \texttt{0x0C}).
+        \item \hyperref[func:fkrnbintobcd4]{F\_KRN\_BIN\_TO\_BCD4}: Converts HEX
+        1 byte to DEC 4 digits. (e.g. \texttt{0x80} to 0128)
+        \item \hyperref[func:fkrnbintobcd6]{F\_KRN\_BIN\_TO\_BCD6}: Converts HEX
+        2 bytes to DEC 6 digits. (e.g. \texttt{0xFFF} to 065535)
+        \item \hyperref[func:fkrnbcdtoascii]{F\_KRN\_BCD\_TO\_ASCII}: Converts
+        DEC 6 digits to ASCII 6 chars. (e.g. 512 to 30 30 30 35 31 32)
+        \item \hyperref[func:fkrnbintoascii]{F\_KRN\_BIN\_TO\_ASCII}: Converts
+        HEX 2 bytes to ASCII string. (e.g. \texttt{0x7FFF} to 33 32 37 36 37)
+        \item \hyperref[func:fkrndectobin]{F\_KRN\_DEC\_TO\_BIN}:
+        Converts HEX n bytes to ASCII string. First byte tells the number of
+        bytes to convert (e.g. 05 33 32 37 36 37 to \texttt{0x7FFF})
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Develop software for dzOS}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{Available RAM}
+        % ==========================================================================
+        Programs can be loaded from disk to any area of \textbf{RAM}. Nevertheless,
+        addresses below \texttt{0x4420} SHOULD not be used, at these contain the
+        Operating System's variables. Modifying these without the proper care will
+        result in undesired behaviour, system crash or even lost of data on the disk.
+        Therefore, taking in consideration that the free RAM area starts at
+        \texttt{0x4420} and ends at \texttt{0xFFFF}, the programmer can load
+        programs of maximum 48,095 bytes (48 KB).
+
+        % ==========================================================================
+        \subsubsection{Storing your variables}
+        % ==========================================================================
+        Variables for programs can be store anywhere in the free \textbf{RAM} space.
+
+        The OS is having its own internal variables that can be accessed by the user.
+        Also, some variables are used only by CLI and therefore could be re-used
+        during the execution of a program.\\
+
+        Refer to the section \hyperref[sec:ram_memmap]{System Variables (SYSVARS)}
+        on this guide to know the exact locations.
+
+        \begin{itemize}
+            \item The \textbf{DISK Superblock} and \textbf{DISK BAT} areas can be
+            re-used if you are not using \textbf{DISK} routines.
+            \item The \textbf{CLI} area can safely be re-used in your program, as
+            the CLI is not running meanwhile your program is.
+            \item The \textbf{RTC} area can be re-used if you are not calling any
+            \textbf{RTC} routines.
+            \item The \textbf{Math} area can be re-used if you are not calling any
+            \textbf{Math} routines.
+            \item The \textbf{SIO}, \textbf{Generic} and \textbf{VDP} areas MUST not
+            be touched.
+        \end{itemize}
+
+        All in all, you may end up having some extra 700 bytes here.
+
+        % ==========================================================================
+        \subsubsection{Receiving parameters from CLI}
+        % ==========================================================================
+        When a user types a command in CLI, the entered command is stored in an area
+        of 64 bytes in the \hyperref[sec:ram_memmap]{System Variables (SYSVARS)} 
+        called \textit{CLI\_buffer\_full\_cmd}. From there, you can read the full
+        command, which will be the name of your binary program, and the parameter or
+        parameters.
+
+        % ==========================================================================
+        \subsubsection{Returning to CLI}
+        % ==========================================================================
+
+        If your program allows the user to return to CLI, it must then jump to the
+        loop subroutine known as \textit(CLI Prompt). The address of this subroutine
+        is stored in the \hyperref[sec:ram_memmap]{System Variables (SYSVARS)}
+        \textit{CLI\_prompt\_addr}.
+
+        Simply make your program to load the value stored at that location and jump
+        (\textit{jp}) to it.
+
+        % ==========================================================================
+        \subsubsection{Developing with Z80 Assembler}
+        % ==========================================================================
+        In order for dzOS to know where to load the program in \textbf{RAM}, the
+        executable code must provide the load address. For compatibility with SDCC
+        \footnote{Small Device C Compiler (SDCC) is a retargettable, optimizing
+        Standard C (ANSI C89, ISO C99, ISO C11) compiler suite that targets (amongst
+        others) the Zilog Z80 based MCUs. (http://sdcc.sourceforge.net/)}, we will
+        store it in the bytes 3 and 4 of the executable.
+
+        For programs developed in Z80 Assembler, add the following at the top of the
+        source code:
+
+        % \lstset{language={[z80]Assembler}}
+        \begin{lstlisting}
+        .ORG    $4420           ; start of code at
+                                ;   start of free RAM
+        jp      $4425           ; first instruction
+                                ;   must jump to the
+                                ;   executable code
+        .BYTE   $20, $44        ; load address
+                                ;   (values must be
+                                ;   same as .org above)
+
+        .ORG    $4425           ; start of program
+                                ;   (must be same as jp above)
+        ; your program here
+        \end{lstlisting}
+
+        The first .ORG (\textit{.ORG \$4420}) indicates the start address used for
+        creating the binary file after compilation.
+
+        \texttt{0x4420} is where the \hyperref[subsec:memmap:ram]{Free RAM}
+        starts, giving you 48 KB for your program. Programs SHOULD not be loaded
+        at a lower address, for the reason explained before.
+
+        The first instruction MUST be a jump (\textit{jp}) instruction to the actual
+        executable code (i.e. your program code) The \textit{.BYTE} instruction just
+        inserts the two bytes after the jump instruction. The values MUST be in
+        hexadecimal little-endian format.
+
+        Because the jp instruction in Z80 is translated as \textit{C3 nn nn} (where
+        \textit{nn} are the bytes where to jump), this will use the first three
+        bytes (\texttt{0x00}, \texttt{0x01}, \texttt{0x02}) in the binary, therefore
+        we store the load address at bytes 3 and 4 and your program can start just
+        after, at byte \texttt{0x05}.
+
+        Once assembled, the binary will be loaded by dzOS at the load address, and
+        when executed, the first thing that will happen is a \textit{jp} instruction
+        and then the execution will continue from the executable code of your
+        program.
+
+        If your program allows the user to return to CLI, add the following on your
+        source code:
+
+        % \lstset{language={[z80]Assembler}}
+        \begin{lstlisting}
+        ld      HL, (CLI_prompt_addr)   ; return control
+        jp      (HL)                    ;   to CLI
+        \end{lstlisting}
+
+        For convenience, two files are provided in the Github repository
+        \footnote{https://github.com/dasta400/dzSoftware}:
+        \textit{\_header.inc} and \textit{\_template.asm}
+
+        % ==========================================================================
+        \subsubsection{Developing with SDCC}
+        % ==========================================================================
+
+        In the Github repository, there is a file (\textit{crt0.s} that sets:
+        \begin{itemize}
+            \item the start address for the binary at \texttt{0x4420}
+            \item the values \texttt{0x20} and \texttt{0x44} in the binary at bytes
+            5 and 6.
+            \item first instruction of your program to be started located at
+            \texttt{0x4425}
+        \end{itemize}
+
+        Therefore, by using this file all programs will be loaded at the correct
+        address.

@@ -1,0 +1,95 @@
+% ==========================================================================
+\subsection{Math Routines}
+% ==========================================================================
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_MULTIPLY816\_SLOW}
+    \label{func:fkrnmultiply816slow}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\multirow[t]{2}{4em}{\textbf{Action}}
+        & Multiplies an 8-bit number by a 16-bit number (HL = A * DE).\\
+        & It does a slow multiplication by adding the multiplier to itself
+        as many times as multiplicand (e.g. 8 * 4 = 8+8+8+8).\\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{A} = Multiplicand\\
+        & \texttt{DE} = Multiplier\\
+        \hline\textbf{Exit} & \texttt{HL} = Product \\
+        \hline\textbf{Destroys} & \texttt{B}, \texttt{HL} \\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_MULTIPLY1616}
+    \label{func:fkrnmultiply1616}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Multiplies two 16-bit numbers (HL = HL * DE)\\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{HL} = Multiplicand\\
+        & \texttt{DE} = Multiplier\\
+        \hline\textbf{Exit} & \texttt{HL} = Product \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, \texttt{HL} \\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DIV1616}
+    \label{func:fkrndiv1616}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Divides two 16-bit numbers (BC = BC / DE, HL = remainder)\\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{BC} = Dividend\\
+        & \texttt{DE} = Divisor\\
+        \hline\multirow[t]{2}{4em}{\textbf{Exit}}
+        & \texttt{BC} = Quotient\\
+        & \texttt{HL} = Remainder\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{HL} \\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_CRC16\_INI}
+    \label{func:fkrncrc16ini}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Initialises the CRC to 0 and the polynomial to the appropriate bit
+        pattern, to generate a CRC-16/BUYPASS1\\
+        \hline\textbf{Entry} & None \\
+        \hline\multirow[t]{2}{4em}{\textbf{Exit}}
+        & \texttt{MATH\_CRC} = 0 (initial CRC value)\\
+        & \texttt{MATH\_polynomial} = CRC polynomial\\
+        \hline\textbf{Destroys} & \texttt{HL} \\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    CRC-16/BUYPASS1: A 16-bit cyclic redundancy check (CRC) based on the IBM
+    Binary Synchronous Communications protocol (BSC or Bisync). It uses the
+    polynomial $X^{16} + X^{15} +X^2 + 1$.
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_CRC16\_GEN}
+    \label{func:fkrncrc16gen}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Combines the previous CRC with the CRC generated from the current
+        data byte, to generate a CRC-16/BUYPASS1.\\
+        \hline\multirow[t]{3}{4em}{\textbf{Entry}}
+        & \texttt{A} = current data byte.\\
+        & \texttt{MATH\_CRC} = previous CRC\\
+        & \texttt{MATH\_polynomial} = CRC polynomial\\
+        \hline\textbf{Exit}
+        & \texttt{MATH\_CRC} = CRC with current data byte included\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, \texttt{HL} \\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}

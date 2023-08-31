@@ -1,0 +1,78 @@
+    % ==========================================================================
+    \subsection{Serial Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SERIAL\_INIT}
+        \label{func:fbiosserialinit}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\multirow[t]{4}{4em}{\textbf{Action}}
+            & Initialises \textbf{SIO/2}: sets Channels A and B as 115,000 bps, 
+            8N1, Interrupt in all characters \\
+            & Configures the interrupt vector to \texttt{0x60} \\
+            & Sets the CPU to Interrupt Mode 2 \\
+            & Enables Interrupts \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{HL} \\
+            \hline\textbf{Calls} 
+            & \textit{jp} \hyperref[func:fbioswboot]{F\_BIOS\_WBOOT} \\
+            \hline
+        \end{tabular}
+        
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SERIAL\_CONIN\_A}
+        \label{func:fbiosserialconina}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Reads a character from the \textbf{SIO/2} Channel A \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{A} = character read \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\textbf{Calls} & None \\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SERIAL\_CONIN\_B}
+        \label{func:fbiosserialconinb}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Reads a character from the \textbf{SIO/2} Channel B \\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{A} = character read \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\textbf{Calls} & None \\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SERIAL\_CONOUT\_A}
+        \label{func:fbiosserialconouta}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Sends a character to the \textbf{SIO/2} Channel A \\
+            \hline\textbf{Entry} & \texttt{A} = character to be send \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & None \\
+            \hline\textbf{Calls} & None \\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_SERIAL\_CONOUT\_B}
+        \label{func:fbiosserialconoutb}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Sends a character to the \textbf{SIO/2} Channel B \\
+            \hline\textbf{Entry} & \texttt{A} = character to be send \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & None \\
+            \hline\textbf{Calls} & None \\
+            \hline
+        \end{tabular}

@@ -1,0 +1,24 @@
+% ==========================================================================
+\section{I/O Map}
+% ==========================================================================
+
+\begin{tabular}{l l l }
+    \hline
+    \multirow{2}{*}{\textbf{VDP}} & \texttt{0x10} & Mode 0 (VRAM)\\
+    & \texttt{0x11} & Mode 1 (Register)\\
+    \hline
+    \multirow{2}{*}{\textbf{PSG}} & \texttt{0x20} & PSG Register\\
+    & \texttt{0x21} & PSG Data\\
+    \hline
+    \textbf{ROM / RAM} & \texttt{0x38} & ROM Paging\\
+    \hline
+    \multirow{2}{*}{\textbf{Joystick Ports}} & \texttt{0x40} 
+    & Joystick 1\\
+    & \texttt{0x41} & Joystick 2\\
+    \hline
+    \multirow{4}{*}{\textbf{SIO}} & \texttt{0x80} & Channel A Control\\
+    & \texttt{0x81} & Channel A Data\\
+    & \texttt{0x82} & Channel B Control\\
+    & \texttt{0x83} & Channel B Data\\
+    \hline
+\end{tabular}

@@ -1,0 +1,101 @@
+% ==========================================================================
+\subsection{Real-Time Clock Routines}
+% ==========================================================================
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_RTC\_GET\_DATE}
+    \label{func:fkrnrtcgetdate}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Calls the BIOS function to get date from the RTC, and then
+        calculates the year in four digits. \\
+        \hline\textbf{Entry} & None \\
+        \hline\textbf{Exit} & \texttt{RTC\_year4}\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{HL} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_RTC\_SHOW\_TIME}
+    \label{func:fkrnrtcshowtime}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Sends to the \textbf{Serial Channel} A the values of hour, minutes
+        and seconds from \hyperref[sec:ram_memmap]{SYSVARS}, as hh:mm:ss\\
+        \hline\textbf{Entry} & None \\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
+        \texttt{tmp\_addr1}\\
+        \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrnbintobcd4]{F\_KRN\_BIN\_TO\_BCD4}\\
+        & \hyperref[func:fkrnbcdtoascii]{F\_KRN\_BCD\_TO\_ASCII}\\
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_RTC\_SHOW\_DATE}
+    \label{func:fkrnrtcshowdate}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Sends to the \textbf{Serial Channel A} the values of day, month,
+        year (4 digits) and day of the week (3 letters) from
+        \hyperref[sec:ram_memmap]{SYSVARS}, as dd/mm/yyyy www\\
+        \hline\textbf{Entry} & None \\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
+        \texttt{tmp\_addr1}\\
+        \hline\multirow[t]{4}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrnbintobcd4]{F\_KRN\_BIN\_TO\_BCD4}\\
+        & \hyperref[func:fkrnbintobcd6]{F\_KRN\_BIN\_TO\_BCD6}\\
+        & \hyperref[func:fkrnbcdtoascii]{F\_KRN\_BCD\_TO\_ASCII}\\
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_RTC\_SET\_TIME}
+    \label{func:fkrnrtcsettime}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts ASCII values to Hexadecimal, \texttt{RTC\_hour},
+        \texttt{RTC\_minutes}, \texttt{RTC\_seconds} and calls the BIOS
+        function to change time via \textbf{ASMDC}.\\
+        \hline\textbf{Entry} & \texttt{IX} = \textbf{MEMORY} address where
+        the new time is stored in ASCII format.\\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{HL}, \texttt{RTC\_hour},
+        \texttt{RTC\_minutes}, \texttt{RTC\_seconds}\\
+        \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrnasciitohex]{F\_KRN\_ASCII\_TO\_HEX}\\
+        & \hyperref[func:fkrnbcdtobin]{F\_KRN\_BCD\_TO\_BIN}\\
+        & \hyperref[func:fbiosrtcsettime]{F\_BIOS\_RTC\_SET\_TIME}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_RTC\_SET\_DATE}
+    \label{func:fkrnrtcsetdate}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts ASCII values to Hexadecimal, \texttt{RTC\_year},
+        \texttt{RTC\_month}, \texttt{RTC\_day}, \texttt{RTC\_day\_of\_the\_week},
+        and calls the BIOS function to change date via \textbf{ASMDC}.\\
+        \hline\textbf{Entry} & \texttt{IX} = \textbf{MEMORY} address where
+        the new date is stored in ASCII format.\\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{HL}, \texttt{RTC\_year},
+        \texttt{RTC\_month}, \texttt{RTC\_day}, \texttt{RTC\_day\_of\_the\_week}\\
+        \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrnasciitohex]{F\_KRN\_ASCII\_TO\_HEX}\\
+        & \hyperref[func:fkrnbcdtobin]{F\_KRN\_BCD\_TO\_BIN}\\
+        & \hyperref[func:fbiosrtcsetdate]{F\_BIOS\_RTC\_SET\_DATE}\\
+        \hline
+    \end{tabular}

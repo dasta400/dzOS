@@ -1,0 +1,674 @@
+% ==========================================================================
+\section{OS Commands}
+% ==========================================================================
+There are a number of commands included in the operating system. These
+commands are stored in \textbf{MEMORY} at boot time, and therefore can be
+called at any time from the command prompt.
+
+Some commands may have mandatory and/or optional parameters. These
+parameters MUST be entered in the order listed. Interchanging the order of
+parameters will result on undesired behaviour.
+
+Parameters can be separated either by a comma or a space. For clarity, in
+this document all parameters are separated by a comma.
+
+Programs stored in \textbf{DISK} can be executed directly by simply entering
+the filename as a command. But only those in the current \textbf{DISK} (see
+command \hyperref[cmd:dsk]{dsk}) and with attribute \textit{EXE}.
+
+    % ==========================================================================
+    \subsection{General Commands}\label{gencmds}
+    % ==========================================================================
+        
+        % ======================================================================
+        \subsubsection{{\color{blue}help}}
+        % ======================================================================
+        Shows a list of the most important commands available for the user.
+        For a complete list of commands, refer always to this manual.
+
+        \hspace{1.9cm}\textbf{$>$ help}
+
+        \textbf{Parameters}: None
+
+        % ======================================================================
+        \subsubsection{{\color{blue}peek}}
+        % ======================================================================
+        \label{cmd:peek}
+
+        Prints the value of the byte stored at a specified \textbf{MEMORY}
+        address.
+
+        \hspace{1.9cm}\textbf{$>$ peek \textit{$<$address$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{address}}: address where the user wants
+        to get the value from.
+
+        \textbf{Example}: \texttt{$>$ peek 41A0}
+
+        Will print (in hexadecimal) whatever byte is at location 0x41A0.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}poke}}
+        % ======================================================================
+        \label{cmd:poke}
+
+        Changes the value of the byte stored at a specified \textbf{MEMORY}
+        address.
+
+        \hspace{1.9cm}\textbf{$>$ poke \textit{$<$address$>$,$<$value$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{address}}: address where the user wants
+        to change a value.
+        
+        \hspace{1cm}\textbf{\textit{value}}: new value (in Hexadecimal notation)
+        to be stored at \textit{address}.
+
+        \textbf{Example}: \texttt{$>$ poke 41A0,2D}
+
+        Will overwrite the contents of the address 0x41A0 with the value
+        0x2D.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}autopoke}}
+        % ======================================================================
+        Allows the user to enter a series of values to be stored at the
+        starting address and its consecutive addresses. Think of it like a
+        way to do poke but without having to enter the \textbf{MEMORY}
+        address each time.
+
+        After entering the command, a different command prompt, denoted by
+        the symbol \$, will be displayed.
+
+        Values are entered one by one after the symbol \$. Pressing 
+        \textit{Return} with no value will end the command.
+
+        \hspace{1.9cm}\textbf{$>$ autopoke \textit{$<$address$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{address}}: address where the user wants
+        to start changing values.
+
+        \textbf{Example}: \texttt{$>$ autopoke 41A0}
+
+        Will overwrite the contents of the address 0x41A0 with the first
+        value entered by the user at the \$ prompt. Next value entered will
+        overwrite the contents of the address 0x41A1, next 0x41A2, and so on
+        until the end of the command.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}reset}}
+        % ======================================================================
+        Performs a reset. It has the same effect as pressing the
+        \textbf{RESET} button at the side of the computer.
+
+        \hspace{1.9cm}\textbf{$>$ reset}
+
+        \textbf{Parameters}: None
+
+        % ======================================================================
+        \subsubsection{{\color{blue}halt}}
+        % ======================================================================
+        \label{cmd:halt}
+        
+        Tells the \textbf{DISK} controller to close all files, disables
+        interrupts and puts the CPU in halted state, effectively making the
+        computer unusable until next power cycle (\textit{Have you tried turning
+        it off and on again?}).
+
+        SHOULD be used before switching the computer off, to ensure all
+        \textbf{DISK} data has been correctly saved. MUST not be used while the
+        busy light of the \textbf{DISK} is on.
+
+        IMPORTANT: \textbf{to use the computer again, you MUST turn it off and
+        on again. Do NOT just press the reset button}. Otherwise corruption of
+        data will occur, because the \textbf{DISK} controller is only reset at
+        power on, and not when the \textbf{RESET} button is pressed.
+
+        \hspace{1.9cm}\textbf{$>$ halt}
+
+        \textbf{Parameters}: None
+
+        % ======================================================================
+        \subsubsection{{\color{blue}run}}
+        % ======================================================================
+        \label{cmd:run}
+
+        Transfers the Program Counter (PC) of the Z80 to the specified address.
+        In other words, this command is used to directly run code that has been
+        already loaded in \textbf{RAM}, for example with the command 
+        \hyperref[cmd:load]{load}.
+
+        \hspace{1.9cm}\textbf{$>$ run \textit{$<$address$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{address}}: address from where to start
+        running.
+        
+        \textbf{Example}: \texttt{$>$ run 4420}
+
+        The \textbf{CPU} will start running whatever instructions finds from
+        \texttt{0x4420} and onwards. Programs run this way MUST end with a
+        jump instruction (JP) to CLI prompt address, as described in the
+        \textit{dastaZ80 Programmer’s Reference Guide}\cite{dastaz80progref}.
+        Otherwise the user will have to reset the computer to get back to CLI.
+        Not harmful but cumbersome.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}crc16}}
+        % ======================================================================
+        Generates a CRC-16/BUYPASS1\footnote{A 16-bit cyclic redundancy
+        check (CRC) based on the IBM Binary Synchronous Communications
+        protocol\cite{ibmbsc} (BSC or Bisync). It uses the polynomial
+        $X^{16} + X^{15} +X^2 + 1$}
+
+        There are two formats of this command: 
+        
+        \textbf{crc16 \textit{$<$start\_address$>$ $<$end\_address$>$}}
+        and \textbf{crc16 \textit{$<$filename$>$}} 
+        
+        Here the former is described. See the section \textit{\ref{dskcmds} 
+        DISK Commands} on page \pageref{dskcmds} for the other format.
+
+        \hspace{1.9cm}\textbf{$>$ crc16 \textit{$<$start\_address$>$
+        $<$end\_address$>$}}
+        
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{start\_address}}: first address from
+        where the bytes to calculate the CRC will be read.
+
+        \hspace{1cm}\textbf{\textit{end\_address}}: last address from where
+        the bytes to calculate the CRC will be read.
+
+        \textbf{Example}: \texttt{$>$ crc16 0000,0100}
+
+        Will calculate the CRC of all bytes in MEMORY between the two
+        specified address and show it on the screen:
+        
+        \hspace{1cm}\texttt{CRC16:\ 0x2F25}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}clrram}}
+        % ======================================================================
+        Fills with zeros the entire Free RAM area (i.e. from 0x4420 to
+        0xFFFF).
+
+        \hspace{1.9cm}\textbf{$>$ clrram}
+
+        \textbf{Parameters}: None
+
+    % ======================================================================
+    \subsection{Real-Time Clock (RTC) Commands}
+    % ======================================================================
+        % ======================================================================
+        \subsubsection{{\color{blue}date}}
+        % ======================================================================
+        Shows the current date and day of the week from the Real-Time Clock
+        (\textbf{RTC}).
+
+        \hspace{1.9cm}\textbf{$>$ date}
+
+        \textbf{Parameters}: None
+
+        Will show (will differe depending on the date on the \textbf{RTC}):
+
+        \hspace{1cm}\texttt{Today:\ 22/11/2022 Tue}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}time}}
+        % ======================================================================
+        Shows the current time from the Real-Time Clock (\textbf{RTC}).
+
+        \hspace{1.9cm}\textbf{$>$ time}
+
+        \textbf{Parameters}: None
+
+        Will show (will differe depending on the time on the \textbf{RTC}):
+
+        \hspace{1cm}\texttt{Now:\ 16:24:36}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}setdate}}
+        % ======================================================================
+        Changes the current date stored in the Real-Time Clock (\textbf{RTC}).
+
+        \hspace{1.9cm}\textbf{$>$ setdate \textit{$<$yyyy$>$$<$mm$>$$<$dd$>$$<$dow$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{yyyy}}: year (2 digits).
+
+        \hspace{1cm}\textbf{\textit{mm}}: month.
+
+        \hspace{1cm}\textbf{\textit{dd}}: day.
+
+        \hspace{1cm}\textbf{\textit{yyyy}}: dow (Day of the Week. 1=Sunday).
+
+        \textbf{Example}: \texttt{$>$ setdate 2211032}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}settime}}
+        % ======================================================================
+        Changes the current time stored in the Real-Time Clock (\textbf{RTC}).
+
+        \hspace{1.9cm}\textbf{$>$ settime \textit{$<$hh$>$$<$mm$>$$<$ss$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{hh}}: hour.
+
+        \hspace{1cm}\textbf{\textit{mm}}: minutes.
+
+        \hspace{1cm}\textbf{\textit{ss}}: seconds.
+
+        \textbf{Example}: \texttt{$>$ settime 185700}
+
+    % ==========================================================================
+    \subsection{Disk Commands}\label{dskcmds}
+    % ==========================================================================
+        % ======================================================================
+        \subsubsection{{\color{blue}cat}}
+        % ======================================================================
+        \label{cmd:cat}
+
+        Shows a catalogue of the files stored in the \textbf{DISK}.
+
+        \hspace{1.9cm}\textbf{$>$ cat}
+
+        \textbf{Parameters}: None
+
+        \textbf{Example}: \texttt{$>$ cat}
+
+        Will show (will differ depending on the contents of your \textbf{DISK}):
+
+        \texttt{
+        \resizebox{12cm}{!}{
+            \begin{tabular}{l l l l l l}
+                \multicolumn{6}{l}{Disk Catalogue}\\
+                \multicolumn{6}{l}{----------------------------------------------------------------------}\\
+                File & Type & Last Modified & Load Address & Attributes & Size\\
+                \multicolumn{6}{l}{----------------------------------------------------------------------}\\
+                HelloWorld & EXE & 12-03-2022 13:21:44 & 4420 & R SE & 38\\
+                file2 & TXT & 11-05-2022 17:12:45 & 0000 & SE & 241
+            \end{tabular}
+        }}
+
+        By default, deleted files are not shown in the catalogue. To show also
+        deleted files do a \textit{poke 40ac, 01}. And a \textit{poke 40ac, 00}
+        to hide them again.
+
+        Deleted files are identified by a \textasciitilde symbol in the first
+        character of the filename.
+
+        \texttt{
+        \resizebox{12cm}{!}{
+            \begin{tabular}{l l l l l l}
+                \multicolumn{6}{l}{Disk Catalogue}\\
+                \multicolumn{6}{l}{----------------------------------------------------------------------}\\
+                File & Type & Last Modified & Load Address & Attributes & Size\\
+                \multicolumn{6}{l}{----------------------------------------------------------------------}\\
+                \textasciitilde elloWorld & EXE & 12-03-2022 13:21:44 & 4420 & R SE & 38\\
+                file2 & TXT & 11-05-2022 17:12:45 & 0000 & SE & 241
+            \end{tabular}
+        }}
+
+        The File Types are:
+
+        \begin{itemize}
+            \item \textbf{USR}: User defined.
+            \item \textbf{EXE}: Executable binary.
+            \item \textbf{BIN}: Binary (non-executable) data.
+            \item \textbf{BAS}: BASIC code.
+            \item \textbf{TXT}: Plain ASCII Text file.
+            \item \textbf{FN6}: Font (6×8) for Text Mode.
+            \item \textbf{FN8}: Font (8×8) for Graphics Modes.
+            \item \textbf{SC1}: Screen 1 (Graphics I Mode) Picture.
+            \item \textbf{SC2}: Screen 2 (Graphics II Mode) Picture.
+            \item \textbf{SC3}: Screen 3 (Multicolour Mode) Picture.
+        \end{itemize}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}erasedsk}}
+        % ======================================================================
+        Overwrittes all bytes of all sectors in a \textbf{DISK} in the
+        \textbf{FDD}, with \texttt{0xF6} \\
+
+        \underline{This is a destructive action} and it makes the \textbf{DISK}
+        unusable to any (included dzOS) computer, as there is no file system in
+        the disk after the command is completed.
+        
+        Before it can be used by dzOS, the command \textit{formatdsk} MUST be
+        executed.
+
+        It is recommended to only use this command in the case of wanting to
+        destroy all data in a \textbf{DISK}, because \textit{formatdsk} doesn't
+        actually delete any data, or to check if a Floppy Disk is faulty.
+        Otherwise, the command \textit{formatdsk} SHOULD be the right command
+        for normal usage of the computer.
+
+        \hspace{1.9cm}\textbf{$>$ erasedsk}
+
+        \textbf{Parameters}: None
+
+        \textbf{Example}: \texttt{$>$ erasedsk}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}formatdsk}}
+        % ======================================================================
+        Formats a \textbf{DISK} with DZFS format. \underline{This is a
+        destructive action} and makes the \textbf{DISK} unsuable by any
+        computers not using DZFS as their file system. It overwrites the DZFS
+        \textit{Superblock} and \textit{BAT}.
+
+        \hspace{1.9cm}\textbf{$>$ formatdsk \textit{$<$label$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{label}}: a name given to the \textbf{DISK}.
+        Useful for identifying different disks. It can contain any characters,
+        with a maximum of 16.
+
+        \textbf{Example}: \texttt{$>$ formatdsk mainDisk}
+
+        Will format the SD card inserted in the SD card slot at the back of the
+        computer case, having \textit{mainDisk} as disk label.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}load}}
+        % ======================================================================
+        \label{cmd:load}
+
+        Loads a file from \textbf{DISK} to \textbf{RAM}.
+        
+        The file will be loaded in \textbf{RAM} at the address from which it was
+        originally saved. This address is stored in the DZFS BAT and cannot be
+        changed. 
+
+        \hspace{1.9cm}\textbf{$>$ load \textit{$<$filename$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{filename}}: the name of the file that is to
+        be loaded.
+
+        \textbf{Example}: \texttt{$>$ load HelloWorld}
+
+        Will load the contents (bytes) of the file \textit{HelloWorld} and copy
+        them into the \textbf{RAM} address from which it was originally saved.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}rename}}
+        % ======================================================================
+        Changes the name of a file.
+
+        \hspace{1.9cm}\textbf{$>$ rename \textit{$<$current\_filename$>$,
+        $<$new\_filename$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{current\_filename}}: the name of the file as
+        existing in the \textbf{DISK} at the moment of executing this command.
+        
+        \hspace{1cm}\textbf{\textit{new\_filename}}: the name that the file will
+        have after the command is executed.
+
+        \textbf{Example}: \texttt{$>$ rename HelloWorld,Hello}
+
+        Will change the name of the file \textit{HelloWorld} to \textit{Hello}.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}delete}}
+        % ======================================================================
+        Deletes a file from the \textbf{DISK}.
+
+        Technically is not deleting anything but just changing the first
+        character of the filename to a \textasciitilde symbol, which makes it to
+        not show up with the command \textit{cat}. Hence, it can be undeleted by
+        simply renaming the file. But be aware, when saving new files DZFS looks
+        for a free space \footnote{By free space on the \textbf{DISK} we
+        understand a Block in the DZFS BAT that was never used before by a
+        file.} on the \textbf{DISK}, but if it does not find any it starts
+        re-using space from files marked as deleted and hence overwriting data
+        on the \textbf{DISK}.
+
+        \hspace{1.9cm}\textbf{$>$ delete \textit{$<$filename$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{filename}}: the name of the file that is to
+        be deleted.
+        
+        \textbf{Example}: \texttt{$>$ delete HelloWorld}
+
+        Will delete the file \textit{HelloWorld}.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}chgattr}}
+        % ======================================================================
+        Files in DZFS can have any of the following attributes:
+        
+        \begin{itemize}
+            \item \textbf{Read Only} (R): it cannot be overwritten, renamed or
+            deleted.
+            \item \textbf{Hidden} (H): it does not show up in the results
+            produced by the command \textit{cat}.
+            \item \textbf{System} (S): this is a file used by DZOS and it MUST
+            not be altered.
+            \item \textbf{Executable} (E): this is an executable file and can be
+            run directly with the command \textit{run $<$filename$>$}.
+        \end{itemize}
+
+        \hspace{1.9cm}\textbf{$>$ chgattr \textit{$<$filename$>$,$<$RHSE$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{filename}}: the name of the file to change
+        the attributes.
+
+        \hspace{1cm}\textbf{\textit{RHSE}}: the new attributes (see list above)
+        that are to be set to the specified file. Attributes are actually not
+        changed but re-assigned. For example, if you have a file with attribute
+        \textit{R} and specified only \textit{E}, it will change from Read Only
+        to Executable. In order to keep both, you MUST specify both values,
+        \textit{RE}.
+        
+        \textbf{Example}: \texttt{$>$ chgattr HelloWorld,RE}
+
+        Will set the attributes of the the file \textit{HelloWorld} to Read Only
+        and Executable.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}save}}
+        % ======================================================================
+        Saves the bytes of specified \textbf{MEMORY} addresses to a new file in
+        the \textbf{DISK}.
+
+        \hspace{1.9cm}\textbf{$>$ save \textit{$<$start\_address$>$,
+        $<$number\_of\_bytes$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$start\_address$>$}}: first address where
+        the bytes that the user wants to save are located in \textbf{MEMORY}.
+
+        \hspace{1cm}\textbf{\textit{$<$number\_of\_bytes$>$}}: total number of
+        bytes, starting at \textit{start\_address} that will be saved to
+        \textbf{DISK}.
+        
+        \textbf{Example}: \texttt{$>$ save 4420,512}
+
+        Will create a new file, with the name entered by the user when prompted,
+        with 512 bytes of the contents of \textbf{MEMORY} from 0x4420 to 0x461F.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}dsk}}
+        % ======================================================================
+        \label{cmd:dsk}
+
+        Changes current disk for all \textbf{DISK} operations.
+
+        \hspace{1.9cm}\textbf{$>$ dsk \textit{$<$n$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$n$>$}}: \textbf{DISK} number.
+
+        \textbf{Example}: \texttt{$>$ dsk 0}
+
+        Will change to \textbf{FDD}, and all the \textbf{DISK} operations will
+        be performed in the \textbf{FDD} until the next boot or a new \textit{dsk}
+        command.
+
+        The CLI prompt changes to indicate which disk is in use.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}diskinfo}}
+        % ======================================================================
+        Shows some information about the \textbf{DISK}.
+
+        \hspace{1.9cm}\textbf{$>$ diskinfo}
+
+        \textbf{Parameters}: None
+
+        \textbf{Example}: \texttt{$>$ diskinfo}
+
+        Will show (will differ depending on the contents of your \textbf{DISK}):
+
+        \texttt{
+        \resizebox{12cm}{!}{
+            \begin{tabular}{l r l l}
+                \multicolumn{4}{l}{Disk Information}\\
+                & Volume .\ .\ : & dastaZ80 Main & (S/N: 352A15F2)\\
+                & File System: & DZFSV1 &\\
+                & Created on : & 03/10/2022 14:22:32 &\\
+                & Partitions : & 01 &\\
+                & Bytes per Sector: & 512 &\\
+                & Sectors per Block: & 64 &
+            \end{tabular}
+        }}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}disklist}}
+        % ======================================================================
+        Shows a list of all available \textbf{DISK} (\textbf{FDD} and Disk Image
+        Files on the \textbf{SD}).
+
+        \hspace{1.9cm}\textbf{$>$ disklist}
+
+        \textbf{Parameters}: None
+
+        \textbf{Example}: \texttt{$>$ disklist}
+
+        Will show (will differ depending on the Disk Image Files on your
+        \textbf{DISK}):
+
+        \texttt{
+        \resizebox{6cm}{!}{
+            \begin{tabular}{l l l r}\\
+                & DISK0 & FDD & \\
+                & DISK1 & dastaZ80.img & 128 MB \\
+                & DISK2 & msbasic.img   & 32 MB \\
+                & DISK3 & empty.img     & 16 MB
+            \end{tabular}
+        }}
+
+        \textbf{IMPORTANT}: When the list (210 bytes in total, for a maximum of
+        15 Disk Image Files) is retrieved from the \textbf{ASMDC}, dzOS stores
+        it at the very bottom of the RAM (\texttt{0xFF2D}). In case that you may
+        have a program loaded that uses those low bytes, after executing the
+        \textit{disklist} command the program will be corrupted.
+
+        % % ======================================================================
+        % \subsubsection{{\color{blue}crc16}}
+        % % ======================================================================
+        % Generates a CRC-16/BUYPASS1\footnote{A 16-bit cyclic redundancy
+        % check (CRC) based on the IBM Binary Synchronous Communications
+        % protocol (BSC or Bisync). It uses the polynomial
+        % $X^{16} + X^{15} +X^2 + 1$}
+
+        % There are two formats of this command: 
+        
+        % \textbf{crc16 \textit{$<$start\_address$>$ $<$end\_address$>$}}
+        % and \textbf{crc16 \textit{$<$filename$>$}} 
+        
+        % Here the latter is described. See the section \textit{\ref{gencmds} 
+        % General Commands} on page \pageref{gencmds} for the other format.
+
+        % \hspace{1.9cm}\textbf{$>$ crc16 \textit{$<$filename$>$}}
+        
+        % \textbf{Parameters}:
+
+        % \hspace{1cm}\textbf{\textit{filename}}: the name of the file for which
+        % the CRC will be calculated.
+
+        % \textbf{Example}: \texttt{$>$ crc16 HelloWorld}
+
+        % Will calculate the CRC of all bytes on the file and show it on the
+        % screen:
+        
+        % \hspace{1cm}\texttt{CRC16:\ 0x3ABC}
+
+    % ==========================================================================
+    \subsection{VDP (\textit{Low Resolution Screen}) Commands}\label{vdpcmds}
+    % ==========================================================================
+        % ======================================================================
+        \subsubsection{{\color{blue}vpoke}}
+        % ======================================================================
+        \label{cmd:vpoke}
+
+        Changes the value of the byte stored at a specified \textbf{VRAM}
+        address.
+
+        \hspace{1.9cm}\textbf{$>$ vpoke \textit{$<$address$>$,$<$value$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{address}}: address where the user wants
+        to change a value.
+        
+        \hspace{1cm}\textbf{\textit{value}}: new value (in Hexadecimal notation)
+        to be stored at \textit{address}.
+
+        \textbf{Example}: \texttt{$>$ vpoke 3800,00}
+
+        Will overwrite the contents of the address 0x3800 of the \textbf{VRAM}
+        with the value 0x00.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}screen}}
+        % ======================================================================
+        Changes the \textbf{Low Resolution Screen} display mode.
+
+        \hspace{1.9cm}\textbf{$>$ screen \textit{$<$mode$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{mode}}: one of the valid
+        \hyperref[sec:vdpscrmodes]{\textbf{Low Resolution} Screen Modes}:
+
+        \begin{itemize}
+            \item \textbf{0}: \textbf{Text Mode}.
+            \item \textbf{1}: \textbf{Graphics I Mode}.
+            \item \textbf{2}: \textbf{Graphics II Mode}.
+            \item \textbf{3}: \textbf{Multicolour Mode}.
+            \item \textbf{4}: \textbf{Graphics II Mode Bitmapped}.
+        \end{itemize}
+        
+        \textbf{Example}: \texttt{$>$ screen 0}
+
+        Will put the \textbf{Low Resolution Screen} in Text Mode.
+
+        % ======================================================================
+        \subsubsection{{\color{blue}clsvdp}}
+        % ======================================================================
+        Clears the contents of the \textbf{Low Resolution Screen}.
+
+        \hspace{1.9cm}\textbf{$>$ clsvdp}
+
+        \textbf{Parameters}: None

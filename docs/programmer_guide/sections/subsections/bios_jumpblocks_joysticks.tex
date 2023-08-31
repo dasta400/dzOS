@@ -1,0 +1,24 @@
+    % ==========================================================================
+    \subsection{Dual Joystick Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_JOYS\_GET\_STAT}
+        \label{func:fbiosjoysgetstat}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Get status of Joysticks. \\
+            \hline\textbf{Entry} & \texttt{A} = \textbf{Joystick Port} to get
+            status from (1=JOY1, 2=JOY2).\\
+            \hline\textbf{Exit} & \texttt{A}\\
+            & \texttt{0x00} = None\\
+            & \texttt{0x01} = Up\\
+            & \texttt{0x02} = Down\\
+            & \texttt{0x04} = Left\\
+            & \texttt{0x08} = Right\\
+            & \texttt{0x10} = Fire\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{C} \\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}

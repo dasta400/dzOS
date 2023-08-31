@@ -1,0 +1,124 @@
+% ==========================================================================
+\section{Setting up the system}
+% ==========================================================================
+\label{sec:setting_system}
+You will only need:
+
+\begin{itemize}
+    \item the dastaZ80 computer.
+    \item A 5 Volts (4 Amp) power supply with a female 2.1mm barrel-style DC
+    connector (positive polarity).
+    \item A Micro SD card.
+    \item A monitor with VGA input.
+    \item A LIR2032 Li-Ion Rechargeable 3.6V Battery Button Cell
+    \item Optionally, a monitor with NTSC Composite input, and a 3.5mm jack
+    to 3 RCA Audio/Video cable\footnote{This is the same cable used on the
+    Raspberry Pi for Composite output}.
+\end{itemize}
+
+Steps:
+
+\begin{enumerate}
+    \item Insert the battery LIR2032 in the battery holder. Positive goes up.
+    \item On a modern PC, format the SD card with FAT32.
+    \item Create a file of 33 MB on the SD card. For example using Linux 
+    terminal:  \texttt{fallocate -l \$((33*1024*1024)) dastaZ80.img}
+    \item Create a file named \textit{\_disks.cfg} in the root of the SD card,
+    and add two lines to it:
+    \begin{itemize}
+        \item dastaZ80.img
+        \item \#
+    \end{itemize}
+    \item Introduce the SD card in the SD card slot at the back of the
+    computer case. This procedure MUST be performed with the computer
+    switched off.
+    \item Connect the VGA cable from the monitor to the VGA connector at the
+    back of the computer case. This procedure SHOULD be performed with the
+    computer unplugged.
+    \item Connect the jack of the Audio/Video cable to the A/V connector at
+    the back of the computer case. This procedure SHOULD be performed with
+    the computer unplugged.
+    \item Connect the female power supply connector to the male connector at
+    the back of the case.
+\end{enumerate}
+
+That’s really it. Switch the computer on, with the power switch, and you
+should see text on your monitor. DZOS is ready to use.
+
+Nevertheless, it's worth noting that by following this procedure the disk
+image in the SD card will be empty, and therefore no software will be
+available. See how to add software to your disk image in the following
+subsection.
+
+    % ==========================================================================
+    \subsection{Transferring software to and from a disk image}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{Copy to a disk image}
+        % ==========================================================================
+
+        Software for the dastaZ80 can be created on a PC, or downloaded for example
+        from the \href{https://github.com/dasta400/dzSoftware}{DZOS Software repository}
+        on Github\footnote{DZOS Software repository: 
+        \url{https://github.com/dasta400/dzSoftware}}. But how do we transfer that
+        software into a disk image on our SD card?
+
+        Another DZOS related repository is the \href{https://github.com/dasta400/asmdc}
+        {Arduino Serial Multi-Device Controller for dastaZ80's dzOS}, or ASMDC for
+        short.
+
+        In this repository there is a tool, called \textit{imgmngr} (Image Manager)
+        which can be used to manipulate files inside disk images. It allows to add
+        files, extract files, rename files, delete files, change the file attributes,
+        and display the disk image contents.
+
+        Lets imagine we have a binary, called \textit{helloworld}, in our PC, and we
+        want to copy it to the disk image, called \textit{dastaZ80.img}, that we
+        created following the previous steps explained in the
+        \hyperref[sec:setting_system]{Setting up the system} section. Simply execute
+        \textit{imgmngr} like: \texttt{imgmngr dastaZ80.img -add helloworld}
+
+        Now, if we introduce the SD card into the SD Card slot of the dastaZ80,
+        switch it on and execute the DZOS command \hyperref[cmd:cat]{cat}, we will
+        see a file \textit{helloworld}.
+
+        % ==========================================================================
+        \subsubsection{Copy from a disk image}
+        % ==========================================================================
+
+        What if we created a file in DZOS and we want to make a backup or simply
+        share it with somebody else?
+
+        As we have seen, the same tool \textit{imgmngr} can also be used to extract
+        files from a disk image: \texttt{imgmngr dastaZ80.img -get helloworld}
+
+        Once finished, we will have a file \textit{helloworld} in our PC, with the
+        same contents as the file \textit{helloworld} in the disk image.
+
+    % ==========================================================================
+    \subsection{Dual Video Output}
+    % ==========================================================================
+
+    The dastaZ80 has two simultaneous video outputs: VGA and Composite.
+
+    The VGA output, called \textit{High Resolution}, is the default output for
+    the Operating System. As it provides 80 columns, it is ideal for
+    applications.
+
+    The Composite output, called \textit{Low Resolution}, can only provide 40
+    columns in Text Mode and 32 in Graphics Modes\footnote{This is a limitation
+    imposed by the Video Display Controller used, a Texas Instruments TMS9918A.},
+    making it less ideal for applications. But in contrast to the VGA output, it
+    offers graphics and hardware sprites, so it makes it more suitable for video
+    games and graphics output from applications.
+
+    % ==========================================================================
+    \subsection{Dual Joystick Port}
+    % ==========================================================================
+    The \textbf{Dual Digital Joystick Port} consist of two DE-9 Male connectors
+    for connection of one or two Atari joystick ports.
+
+    Compatible joysticks are those used on Atari 800, Atari VCS, Atari ST,
+    VIC-20, C64, Amiga and ZX Spectrum. Other joysticks, like the ones for the
+    Amstrad CPC and MSX, changed the +5V and GND pins, so it MUST not be used.

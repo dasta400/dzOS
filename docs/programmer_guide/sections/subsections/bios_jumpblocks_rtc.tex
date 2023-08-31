@@ -1,0 +1,92 @@
+    % ==========================================================================
+    \subsection{Real-Time Clock Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_RTC\_GET\_TIME}
+        \label{func:fbiosrtcgettime}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Gets the current time from the \textbf{ASMDC}, and stores hour,
+            minutes and seconds as hexadecimal values in
+            \hyperref[sec:ram_memmap]{SYSVARS}.\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{RTC\_hour}, \texttt{RTC\_minutes},
+            \texttt{RTC\_seconds} \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_RTC\_GET\_DATE}
+        \label{func:fbiosrtcgetdate}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Gets the current date from the \textbf{ASMDC}, and stores day,
+            month, year and day of the week as hexadecimal values in
+            \hyperref[sec:ram_memmap]{SYSVARS}.\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & \texttt{RTC\_day}, \texttt{RTC\_month},
+            \texttt{RTC\_year}, \texttt{RTC\_day\_of\_the\_week} \\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{HL} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_RTC\_SET\_TIME}
+        \label{func:fbiosrtcsettime}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells \textbf{ASMDC} to store a new hour, minutes and seconds. \\
+            \hline\textbf{Entry} & \texttt{RTC\_hour}, \texttt{RTC\_minutes},
+            \texttt{RTC\_seconds} \\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\textbf{Calls}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_RTC\_SET\_DATE}
+        \label{func:fbiosrtcsetdate}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Tells \textbf{ASMDC} to store a new day, month, year and day of
+            the week. \\
+            \hline\textbf{Entry} & \texttt{RTC\_day}, \texttt{RTC\_month},
+            \texttt{RTC\_year}, \texttt{RTC\_day\_of\_the\_week} \\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\textbf{Calls}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_CHECK\_BATTERY}
+        \label{func:fbiosrtccheckbattery}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Asks the \textbf{ASMDC} if the battery is healthy or has to be
+            replaced. \\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & A = \texttt{0x0A} (Healthy) / \texttt{0x00}
+            (Dead)\\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}

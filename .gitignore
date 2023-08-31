@@ -5,6 +5,10 @@ lst/*
 docs/programmer_guide/*.*
 !docs/programmer_guide/*.pdf
 !docs/programmer_guide/*.tex
+docs/programmer_guide/sections/*.*
+!docs/programmer_guide/sections/*.tex
+docs/programmer_guide/sections/subsections/*.*
+!docs/programmer_guide/sections/subsections/*.tex
 
 docs/techref_manual/*.*
 !docs/techref_manual/*.pdf
@@ -13,6 +17,8 @@ docs/techref_manual/*.*
 docs/user_manual/*.*
 !docs/user_manual/*.pdf
 !docs/user_manual/*.tex
+docs/user_manual/sections/*.*
+!docs/user_manual/sections/*.tex
 
 ToDo.txt
 

@@ -1,0 +1,64 @@
+    % ==========================================================================
+    \subsection{PSG Routines}
+    % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_PSG\_SET\_REGISTER}
+        \label{func:fbiospsgsetregister}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Set a value to a PSG Register. \\
+            \hline\textbf{Entry} & \texttt{A} = register number to set, \texttt{E}
+            = value to set.\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{C} \\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_PSG\_READ\_REGISTER}
+        \label{func:fbiospsgreadregister}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Read the value of a PSG Register. \\
+            \hline\textbf{Entry} & \texttt{A} = register number to read.\\
+            \hline\textbf{Exit} & \texttt{A} = value of the register.\\
+            \hline\textbf{Destroys} & \texttt{C} \\
+            \hline\textbf{Calls} & None\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_PSG\_INIT}
+        \label{func:fbiospsginit}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action}
+            & Initialises the PSG to: Noise OFF, Audio OFF, I/O Port as Output. \\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL},
+            \texttt{DE} \\
+            \hline\textbf{Calls} & \hyperref[func:fbiospsgsetregister]
+            {F\_BIOS\_PSG\_SET\_REGISTER}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
+        \subsubsection{F\_BIOS\_PSG\_BEEP}
+        \label{func:fbiospsgbeep}
+        % ==========================================================================
+        \begin{tabular}{l p{9cm}}
+            \hline\textbf{Action} & Makes a short beep-like sound. \\
+            \hline\textbf{Entry} & None\\
+            \hline\textbf{Exit} & None\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL},
+            \texttt{E} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosvdpvblankwait]{F\_BIOS\_VDP\_VBLANK\_WAIT}\\
+            & \hyperref[func:fbiospsgsetregister]{F\_BIOS\_PSG\_SET\_REGISTER}\\
+            \hline
+        \end{tabular}

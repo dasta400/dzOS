@@ -1,0 +1,421 @@
+% ==========================================================================
+\subsection{DZFS (file system) Routines}
+% ==========================================================================
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_READ\_SUPERBLOCK}
+    \label{func:fkrndzfsreadsuperblock}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\multirow[t]{2}{4em}{\textbf{Action}}
+        & Reads 512 bytes from Sector 0 (corresponding to the DZFS 
+        \textit{Superblock}) into the disk buffer in \textbf{MEMORY}.\\
+        & If the \textit{Superblock} does not containe the correct DZFS
+        signature, \texttt{DISK\_is\_formatted} is set to \texttt{0x00}. Otherwise, is
+        set to \texttt{0x01}.\\
+        \hline\textbf{Entry} & None \\
+        \hline\textbf{Exit} & None \\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{DE},
+        \texttt{DISK\_is\_formatted} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosdiskreadsec]{F\_BIOS\_SD\_READ\_SEC}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_READ\_BAT\_SECTOR}
+    \label{func:fkrndzfsreadbatsector}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Reads a BAT Sector from \textbf{DISK} into \textbf{MEMORY}.\\
+        \hline\textbf{Entry} & \texttt{DISK\_cur\_sector} holds the sector 
+        number for the BAT.\\
+        \hline\textbf{Exit} & \texttt{DISK Buffer} contains the BAT sector.\\
+        \hline\textbf{Destroys} & \texttt{HL} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fkrndzfssectobuffer]{F\_KRN\_DZFS\_SEC\_TO\_BUFFER}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_BATENTRY\_TO\_BUFFER}
+    \label{func:fkrndzfsbatentrytobuffer}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Extracts the data of a BAT entry from the \texttt{DISK Buffer}
+        in \textbf{MEMORY} and populates the values into System variables.\\
+        \hline\textbf{Entry} & \texttt{A} = BAT entry number to extract data
+        from.\\
+        \hline\textbf{Exit} & DISK BAT System Variables are populated. See
+        \hyperref[sec:ram_memmap]{RAM Memory Map} for for details.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
+        \texttt{HL}, \texttt{IX}, \texttt{tmp\_addr1} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_SEC\_TO\_BUFFER}
+    \label{func:fkrndzfssectobuffer}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Loads a Sector (512 bytes) from the \textbf{DISK} and copies the
+        bytes into the \texttt{DISK Buffer} in \textbf{MEMORY}.\\
+        \hline\textbf{Entry} & \texttt{HL} = Sector number to load.\\
+        \hline\textbf{Exit} & \texttt{DISK Buffer} contains the bytes 
+        of Sector loaded.\\
+        \hline\textbf{Destroys} & \texttt{DE}, \texttt{HL} \\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosdiskreadsec]{F\_BIOS\_SD\_READ\_SEC}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_GET\_FILE\_BATENTRY}
+    \label{func:fkrndzfsgetfilebatentry}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Gets the BAT's entry number of a specified filename.\\
+        \hline\textbf{Entry} & \texttt{HL} = Address where the filename to 
+        check is stored\\
+        \hline\multirow[t]{2}{4em}{\textbf{Exit}}
+        & BAT Entry values are stored in the \hyperref[sec:ram_memmap]{SYSVARS}.\\
+        & \texttt{DE} = \$0000 if filename found. Otherwise, whatever value
+        had at start.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{DE}, \texttt{HL},
+        \texttt{tmp\_byte}, \texttt{tmp\_addr2}, \texttt{tmp\_addr3} \\
+        \hline\multirow[t]{4}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrndzfssectobuffer]{F\_KRN\_DZFS\_SEC\_TO\_BUFFER}\\
+        & \hyperref[func:fkrndzfsbatentrytobuffer]{F\_KRN\_DZFS\_BATENTRY\_TO\_BUFFER}\\
+        & \hyperref[func:fkrnstrlenmax]{F\_KRN\_STRLENMAX}\\
+        & \hyperref[func:fkrnstrcmp]{F\_KRN\_STRCMP}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_LOAD\_FILE\_TO\_RAM}
+    \label{func:fkrndzfsloadfiletoram}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Load a file from \textbf{DISK}. Copies the bytes stored in the
+        \textbf{DISK} into \textbf{MEMORY}. If \hyperref[sec:ram_memmap]{SYSVARS}
+        \textit{DISK\_loadsave\_addr} is not zero, then loads file to this
+        address. If zero, then if \hyperref[sec:ram_memmap]{SYSVARS}
+        \textit{DISK\_cur\_file\_load\_addr} is not zero, then loads file to
+        this address. If also zero, then loads file to start of
+        \hyperref[subsec:memmap:ram]{Free RAM}.\\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{DE} = 1st sector number in the \textbf{DISK}.\\
+        & \texttt{IX} = file length in sectors.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{BC}, \texttt{DE}, \texttt{HL},
+        \texttt{IX}, \texttt{tmp\_addr1}\\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosdiskreadsec]{F\_BIOS\_SD\_READ\_SEC}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_DELETE\_FILE}
+    \label{func:fkrndzfsdeletefile}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Marks a file as deleted. The mark is done by changing the first
+        character of the filename to \texttt{0x7E} (\textasciitilde~)\\
+        \hline\textbf{Entry}
+        & \texttt{DE} = BAT Entry number.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{HL},\\
+        \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
+        & \hyperref[func:fkrndzfssectortodisk]{F\_KRN\_DZFS\_SECTOR\_TO\_SD}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_CHGATTR\_FILE}
+    \label{func:fkrndzfschgattrfile}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Changes the attributes (RHSE) of a file.\\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{DE} = BAT Entry number.\\
+        & \texttt{A} = attributes mask byte.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{DE}, \texttt{HL},\\
+        \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
+        & \hyperref[func:fkrndzfssectortodisk]{F\_KRN\_DZFS\_SECTOR\_TO\_SD}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_RENAME\_FILE}
+    \label{func:fkrndzfsrenamefile}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Changes the name of a file.\\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{IY} = \textbf{MEMORY} address where the new filename is
+        stored.\\
+        & \texttt{DE} = BAT Entry number.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
+        \texttt{HL}, \texttt{IY}\\
+        \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
+        & \hyperref[func:fkrndzfssectortodisk]{F\_KRN\_DZFS\_SECTOR\_TO\_SD}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_FORMAT\_DISK}
+    \label{func:fkrndzfsformatdisk}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Formats a \textbf{DISK} with DZFS.\\
+        \hline\textbf{Entry}
+        & \texttt{HL} = \textbf{MEMORY} address where the disk label is
+        stored.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
+        \texttt{HL}, \texttt{IX}, \texttt{IY}, \texttt{tmp\_addr1},
+        \texttt{tmp\_byte}\\
+        \hline\multirow[t]{12}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrnserialwrstr]{F\_KRN\_SERIAL\_WRSTR}\\
+        & \hyperref[func:fkrndzfscalcsn]{F\_KRN\_DZFS\_CALC\_SN}\\
+        & \hyperref[func:fkrnrtcgetdate]{F\_KRN\_RTC\_GET\_DATE}\\
+        & \hyperref[func:fbiosrtcgettime]{F\_BIOS\_RTC\_GET\_TIME}\\
+        & \hyperref[func:fkrnbcdtoascii]{F\_KRN\_BCD\_TO\_ASCII}\\
+        & \hyperref[func:fkrnbintobcd4]{F\_KRN\_BIN\_TO\_BCD4}\\
+        & \hyperref[func:fkrnbintobcd6]{F\_KRN\_BIN\_TO\_BCD6}\\
+        & \hyperref[func:fkrndzfssectortodisk]{F\_KRN\_DZFS\_SECTOR\_TO\_SD}\\
+        & \hyperref[func:fkrnsetmemrng]{F\_KRN\_SETMEMRNG}\\
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        & \hyperref[func:fbiossdparkdisks]{F\_BIOS\_SD\_PARK\_DISKS}\\
+        & \hyperref[func:fbiossdmountdisks]{F\_BIOS\_SD\_MOUNT\_DISKS}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_CALC\_SN}
+    \label{func:fkrndzfscalcsn}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Calculates the Serial Number (4 bytes) for a \textbf{DISK}.\\
+        \hline\textbf{Entry}
+        & \texttt{IX} = \textbf{MEMORY} address where the serial number will
+        be stored.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},
+        \texttt{HL}, \texttt{IX} \\
+        \hline\multirow[t]{3}{4em}{\textbf{Calls}}
+        & \hyperref[func:fbiosrtcgetdate]{F\_BIOS\_RTC\_GET\_DATE}\\
+        & \hyperref[func:fbiosrtcgettime]{F\_BIOS\_RTC\_GET\_TIME}\\
+        & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_SECTOR\_TO\_DISK}
+    \label{func:fkrndzfssectortodisk}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Calls the \textbf{BIOS} subroutine that will store the data 
+        (512 bytes) currently in \texttt{DISK Buffer} in \textbf{MEMORY},
+        to the \textbf{DISK}.\\
+        \hline\textbf{Entry}
+        & \texttt{DISK\_cur\_sector} = the sector number in the \textbf{DISK}
+        that will be written.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{BC}, \texttt{DE}\\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosdiskwritesec]{F\_BIOS\_SD\_WRITE\_SEC}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_GET\_BAT\_FREE\_ENTRY}
+    \label{func:fkrndzfsgetbatfreeentry}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Get number of available BAT entry.\\
+        \hline\textbf{Entry} & None\\
+        \hline\textbf{Exit} & \texttt{DISK\_cur\_file\_entry\_number} =
+        entry number.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{IY},
+        \texttt{CF\_cur\_sector}, \texttt{CF\_cur\_file\_entry\_number}\\
+        \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrndzfsreadbatsector]{F\_KRN\_DZFS\_READ\_BAT\_SECTOR}\\
+        & \hyperref[func:fkrndzfsbatentrytobuffer]{F\_KRN\_DZFS\_BATENTRY\_TO\_BUFFER}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_ADD\_BAT\_ENTRY}
+    \label{func:fkrndzfsaddbatentry}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Adds a BAT entry into the \textbf{DISK}.\\
+        \hline\multirow[t]{4}{4em}{\textbf{Entry}}
+        & \texttt{DE} = BAT entry number.\\
+        & \texttt{DISK\_cur\_sector} = Sector number where the BAT Entry is
+        in the \textbf{DISK}.\\
+        & \texttt{DISK\_BUFFER\_START} = Sector (512 bytes) containing the
+        BAT where the entry is.\\
+        & \texttt{DISK BAT} = BAT Entry data that will be saved to 
+        \textbf{DISK}.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
+        \texttt{HL}\\
+        \hline\textbf{Calls}
+        & \hyperref[func:fkrnmultiply816slow]{F\_KRN\_MULTIPLY816\_SLOW}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_CREATE\_NEW\_FILE}
+    \label{func:fkrndzfscreatenewfile}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Creates a new file (and its corresponding BAT Entry) in the 
+        \textbf{DISK}, from bytes stored in \textbf{MEMORY}.\\
+        \hline\multirow[t]{3}{4em}{\textbf{Entry}}
+        & \texttt{HL} = \textbf{MEMORY} address of the first byte to be
+        stored.\\
+        & \texttt{BC} = number of bytes to be stored in the \textbf{DISK}.\\
+        & \texttt{IX} = \textbf{MEMORY} address where the filename is
+        stored.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
+        \texttt{HL}, \texttt{IX}, \texttt{tmp\_addr1}, \texttt{tmp\_addr2},
+        \texttt{tmp\_addr3}, \texttt{tmp\_byte}\\
+        \hline\multirow[t]{13}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrndzfsgetbatfreeentry]{F\_KRN\_DZFS\_GET\_BAT\_FREE\_ENTRY}\\
+        & \hyperref[func:fkrndiv1616]{F\_KRN\_DIV1616}\\
+        & \hyperref[func:fkrnmultiply1616]{F\_KRN\_MULTIPLY1616}\\
+        & \hyperref[func:fkrncopymem512]{F\_KRN\_COPYMEM512}\\
+        & \hyperref[func:fkrnclearmemarea]{F\_KRN\_CLEAR\_MEMAREA}\\
+        & \hyperref[func:fkrncleardiskbuffer]{F\_KRN\_CLEAR\_DISKBUFFER}\\
+        & \hyperref[func:fkrndzfssectortodisk]{F\_KRN\_DZFS\_SECTOR\_TO\_SD}\\
+        & \hyperref[func:fbiossdbusywait]{F\_BIOS\_SD\_BUSY\_WAIT}\\
+        & \hyperref[func:fkrnserialwrstrclr]{F\_KRN\_SERIAL\_WRSTRCLR}\\
+        & \hyperref[func:fkrndzfscalcfiletime]{F\_KRN\_DZFS\_CALC\_FILETIME}\\
+        & \hyperref[func:fkrndzfscalcfiledate]{F\_KRN\_DZFS\_CALC\_FILEDATE}\\
+        & \hyperref[func:fkrndzfssectobuffer]{F\_KRN\_DZFS\_SEC\_TO\_BUFFER}\\
+        & \hyperref[func:fkrndzfssectobuffer]{F\_KRN\_DZFS\_ADD\_BAT\_ENTRY}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_CALC\_FILETIME}
+    \label{func:fkrndzfscalcfiletime}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\multirow[t]{2}{4em}{\textbf{Action}}
+        & Packs current Real-Time Clock time into two bytes, which is the
+        format used to store times (created/modified) for files in the 
+        \textbf{DISK}.\\
+        & The formula used is: $2048 * hours + 32 * minutes + seconds / 2$\\
+        \hline\textbf{Entry} & None\\
+        \hline\textbf{Exit} & \texttt{HL} = RTC time\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{HL}\\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosrtcgettime]{F\_BIOS\_RTC\_GET\_TIME}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_CALC\_FILEDATE}
+    \label{func:fkrndzfscalcfiledate}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\multirow[t]{2}{4em}{\textbf{Action}}
+        & Packs current Real-Time Clock date into two bytes, which is the
+        format used to store dates (created/modified) for files in the 
+        \textbf{DISK}.\\
+        & The formula used is: $512 * (year - 2000) + month * 32 + day$\\
+        \hline\textbf{Entry} & None\\
+        \hline\textbf{Exit} & \texttt{HL} = RTC date\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{HL}\\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosrtcgetdate]{F\_BIOS\_RTC\_GET\_DATE}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_SHOW\_DISKINFO\_SHORT}
+    \label{func:fkrndzfsshowdiskinfoshort}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Outputs to the \textbf{CONSOLE} some information of the 
+        \textbf{DISK}: volume label, serial number, date/time creation.\\
+        \hline\textbf{Entry} & None\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
+        \texttt{HL}\\
+        \hline\multirow[t]{5}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrnserialwrstrclr]{F\_KRN\_SERIAL\_WRSTRCLR}\\
+        & \hyperref[func:fkrnserialprnbyte]{F\_KRN\_SERIAL\_PRN\_BYTE}\\
+        & \hyperref[func:fkrnserialprnbytes]{F\_KRN\_SERIAL\_PRN\_BYTES}\\
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        & \hyperref[func:fkrnserialemptylines]{F\_KRN\_SERIAL\_EMPTYLINES}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_SHOW\_DISKINFO}
+    \label{func:fkrndzfsshowdiskinfo}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Outputs to the \textbf{CONSOLE} all information of the 
+        \textbf{DISK}: volume label, serial number, date/time creation,
+        file system ID, number of partitions, number of bytes per sector,
+        number of sectors per block.\\
+        \hline\textbf{Entry} & None\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE}, 
+        \texttt{HL}, \texttt{tmp\_addr1}\\
+        \hline\multirow[t]{5}{4em}{\textbf{Calls}}
+        & \hyperref[func:fkrndzfsshowdiskinfoshort]{F\_KRN\_DZFS\_SHOW\_DISKINFO\_SHORT}\\
+        & \hyperref[func:fkrnserialwrstrclr]{F\_KRN\_SERIAL\_WRSTRCLR}\\
+        & \hyperref[func:fkrnserialprnbyte]{F\_KRN\_SERIAL\_PRN\_BYTE}\\
+        & \hyperref[func:fkrnserialprnbytes]{F\_KRN\_SERIAL\_PRN\_BYTES}\\
+        & \hyperref[func:fbiosserialconouta]{F\_BIOS\_SERIAL\_CONOUT\_A}\\
+        & \hyperref[func:fkrnserialemptylines]{F\_KRN\_SERIAL\_EMPTYLINES}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_DZFS\_CHECK\_FILE\_EXISTS}
+    \label{func:fkrndzfscheckfileexists}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Checks if a specified filename exists in the \textbf{DISK}. The
+        filename MUST be terminated by a zero.\\
+        \hline\textbf{Entry} & \texttt{HL} = \textbf{MEMORY} address where
+        the filename to check is stored.\\
+        \hline\textbf{Exit} & \texttt{Z Flag} set if filename is not found.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{tmp\_addr3}\\
+        \hline\textbf{Calls}
+        & \hyperref[func:fkrndzfsgetfilebatentry]{F\_KRN\_DZFS\_GET\_FILE\_BATENTRY}\\
+        \hline
+    \end{tabular}

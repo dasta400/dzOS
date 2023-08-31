@@ -1,0 +1,147 @@
+% ==========================================================================
+\subsection{String manipulation Routines}
+% ==========================================================================
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_IS\_PRINTABLE}
+    \label{func:fkrnisprintable}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Checks if a character is a printable ASCII character.\\
+        \hline\textbf{Entry} & \texttt{A} = character to check.\\
+        \hline\textbf{Exit} & \texttt{C Flag} is set if character is printable.\\
+        \hline\textbf{Destroys} & None\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_IS\_NUMERIC}
+    \label{func:fkrnisnumeric}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Checks if a character is numeric (0, 1, 2, 3, 4, 5, 6, 7, 8 or 9).\\
+        \hline\textbf{Entry} & \texttt{A} = character to check.\\
+        \hline\textbf{Exit} & \texttt{C Flag} is set if character is numeric.\\
+        \hline\textbf{Destroys} & None\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_TOUPPER}
+    \label{func:fkrntoupper}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Converts a charcater to uppercase (e.g. \textit{a} is converted to
+        \texttt{A}).\\
+        \hline\textbf{Entry} & \texttt{A} = character to convert.\\
+        \hline\textbf{Exit} & \texttt{A} = uppercased character.\\
+        \hline\textbf{Destroys} & None\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_STRCMP}
+    \label{func:fkrnstrcmp}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Compares two strings.\\
+        \hline\multirow[t]{4}{4em}{\textbf{Entry}}
+        & \texttt{A} = length of string 1.\\
+        & \texttt{HL} = \textbf{MEMORY} address where the first byte of
+        string 1 is located.\\
+        & \texttt{B} = length of string 2.\\
+        & \texttt{DE} = \textbf{MEMORY} address where the first byte of
+        string 2 is located.\\
+        \hline\multirow[t]{4}{4em}{\textbf{Exit}}
+        & if str1 = str 2, \texttt{Z Flag} set and \texttt{C Flag} not set.\\
+        & if str1 != str 2 and str1 longer than str2, \texttt{Z Flag} not 
+        set and \texttt{C Flag} not set.\\
+        & if str1 != str 2 and str1 shorter than str2, \texttt{Z Flag} not 
+        set and \texttt{C Flag} set.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{BC}, \texttt{DE},\texttt{HL} \\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_STRCPY}
+    \label{func:fkrnstrcpy}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Copies \textit{n} characters from string 1 to string 2.\\
+        \hline\multirow[t]{3}{4em}{\textbf{Entry}}
+        & \texttt{HL} = \textbf{MEMORY} address where the first byte of
+        string 1 is located.\\
+        & \texttt{DE} = \textbf{MEMORY} address where the first byte of
+        string 2 is located.\\
+        & \texttt{B} = number of characters to copy.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{DE}, \texttt{HL}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_STRLEN}
+    \label{func:fkrnstrlen}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Gets the length of a string that is terminated with a specified
+        character.\\
+        \hline\multirow[t]{2}{4em}{\textbf{Entry}}
+        & \texttt{HL} = \textbf{MEMORY} address where the first byte of the
+        string is located.\\
+        & \texttt{A} = terminating character.\\
+        \hline\textbf{Exit} & \texttt{B} = lenght of the string.\\
+        \hline\textbf{Destroys} & \texttt{BC}, \texttt{HL}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_STRLENMAX}
+    \label{func:fkrnstrlenmax}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Gets the length of a string that is terminated with a specified
+        character, but only check up to a maximum of characters.\\
+        \hline\multirow[t]{3}{4em}{\textbf{Entry}}
+        & \texttt{HL} = \textbf{MEMORY} address where the first byte of the
+        string is located.\\
+        & \texttt{A} = terminating character.\\
+        & \texttt{B} = maximum length to be checked.\\
+        \hline\textbf{Exit} & \texttt{B} = lenght of the string.\\
+        \hline\textbf{Destroys} & \texttt{BC}, \texttt{DE}, \texttt{HL}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_INSTR}
+    \label{func:fkrninstr}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Locates the first occurrence of a character within a string.\\
+        \hline\multirow[t]{3}{4em}{\textbf{Entry}}
+        & \texttt{HL} = \textbf{MEMORY} address where the first byte of the
+        string is located.\\
+        & \texttt{B} = character to search in string.\\
+        & \texttt{D} = terminating character.\\
+        \hline\multirow[t]{2}{4em}{\textbf{Exit}}
+        & \texttt{E} = position of character in string.\\
+        & \texttt{Carry Flag} = Set if character was found.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{C}, \texttt{E}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}

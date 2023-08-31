@@ -1,0 +1,771 @@
+% ==========================================================================
+\section{Other Software}
+% ==========================================================================
+
+    % ======================================================================
+    \subsection{Memory Dump (memdump)}
+    % ======================================================================
+    \label{software:memdump}
+
+    This program shows the contents (bytes) of a specified range of
+    \textbf{MEMORY}.
+
+    The contents are printed as hexadecimal bytes, in groups of 16 per each line
+    and with the printable ASCII value (if printable) or just a dot (if not
+    printable).
+
+    At the start of the program, the user will be asked to enter the
+    \textit{Start Address} and the \textit{End Address}. In the case of leaving
+    blank (i.e. just press the \textit{Return} key without entering any value),
+    the program will terminate.
+
+    Example for \textit{Start Address} = 0B40 and \textit{End Address} = 0BEF:
+
+    \texttt{
+    \resizebox{12cm}{!}{
+        \begin{tabular}{l l l l l l l l l l l l l l l l l l}
+                    & 00 & 01 & 02 & 03 & 04 & 05 & 06 & 07 & 08 & 09 & 0A & 0B & 0C & 0D & 0E & 0F   & \\
+            \cline{2-17}
+            0B40: & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & FF & 00   & ................\\
+            0B50: & 21 & 3A & 0F & CD & BE & 03 & 06 & 01 & CD & 20 & 04 & CD & 4D & 0C & 21 & 56   & !:.......\ ..M.!V\\
+            0B60: & 0F & CD & BE & 03 & 21 & C4 & 22 & 3E & 00 & 32 & C4 & 22 & CD & 75 & 0B & CD   & ....!.">.2.".u..\\
+            0B70: & B1 & 0B & C3 & 5B & 0B & CD & C8 & 03 & FE & 20 & CA & 91 & 0B & FE & 2C & CA   & ...$[$.....\ ....,.\\
+            0B80: & 91 & 0B & FE & 0D & CA & B0 & 0B & 77 & 23 & C3 & 75 & 0B & C9 & 2B & C3 & 75   & .......w\#.u..+.u\\
+            0B90: & 0B & 3A & E4 & 22 & FE & 00 & CA & A4 & 0B & 3A & 04 & 23 & FE & 00 & CA & AA   & .:.".....:.\#....\\
+            0BA0: & 0B & C3 & 75 & 0B & 21 & E4 & 22 & C3 & 75 & 0B & 21 & 04 & 23 & C3 & 75 & 0B   & ..u.!.".u.!.\#.u.\\
+            0BB0: & C9 & 21 & C4 & 22 & 7E & FE & 00 & CA & 5B & 0B & 11 & 29 & 14 & CD & 02 & 0C   & .!."~...$[$..$)$....\\
+            0BC0: & CA & 89 & 0E & 11 & 10 & 14 & CD & 02 & 0C & CA & 93 & 0E & 11 & 2C & 14 & CD   & .............,..\\
+            0BD0: & 02 & 0C & CA & 55 & 0E & 11 & 25 & 14 & CD & 02 & 0C & CA & 15 & 0F & 11 & 15   & ...U..\%.........\\
+            0BE0: & 14 & CD & 02 & 0C & CA & 9A & 0E & 11 & 1A & 14 & CD & 02 & 0C & CA & C7 & 0E   & ................
+        \end{tabular}
+    }}
+
+    If the information reaches the bottom of the screen, a message will be shown
+    to let the user decide what to do next:
+
+    \hspace{1cm}\texttt{[SPACE] for more or another key to stop}
+
+    % ======================================================================
+    \subsection{Video Memory Dump (vramdump)}
+    % ======================================================================
+    \label{software:vramdump}
+
+    This program shows the contents (bytes) of a specified range
+    of \textbf{VRAM}.
+
+    The contents are printed as hexadecimal bytes, in groups of 16 per each
+    line.
+
+    At the start of the program, the user will be asked to enter the
+    \textit{Start Address} and the \textit{End Address}. In the case of leaving
+    blank (i.e. just press the \textit{Return} key without entering any value),
+    the program will terminate.
+
+    Example for \textit{Start Address} = 0000 and \textit{End Address} = 00AF:
+
+    \texttt{
+    \resizebox{12cm}{!}{
+        \begin{tabular}{l l l l l l l l l l l l l l l l l l}
+                    & 00 & 01 & 02 & 03 & 04 & 05 & 06 & 07 & 08 & 09 & 0A & 0B & 0C & 0D & 0E & 0F   & \\
+            \cline{2-17}
+            0000: & 00 & 00 & 00 & 00 & 00 & 00 & 00 & 00 & FF & FF & FF & FF & FF & FF & FF & FF\\
+            0010: & 00 & 00 & 00 & 00 & 00 & 01 & 03 & 07 & 00 & 00 & 00 & 00 & 00 & 80 & C0 & E0\\
+            0020: & 07 & 03 & 01 & 00 & 00 & 00 & 00 & 00 & E0 & C0 & 80 & 00 & 00 & 00 & 00 & 00\\
+            0030: & F0 & F0 & F0 & F0 & 00 & 00 & 00 & 00 & F0 & F8 & FC & FE & FF & FF & FF & FF\\
+            0040: & 0F & 1F & 3F & 7F & FF & FF & FF & FF & FF & FF & FF & FF & FE & FC & F8 & F0\\
+            0050: & FF & FF & FF & FF & 7F & 3F & 1F & 0F & 00 & 00 & 00 & 00 & 00 & 00 & 00 & 00\\
+            0060: & 0B & C3 & 75 & 0B & 21 & E4 & 22 & C3 & 75 & 0B & 21 & 04 & 23 & C3 & 75 & 0B\\
+            0070: & C9 & 21 & C4 & 22 & 7E & FE & 00 & CA & 5B & 0B & 11 & 29 & 14 & CD & 02 & 0C\\
+            0080: & CA & 89 & 0E & 11 & 10 & 14 & CD & 02 & 0C & CA & 93 & 0E & 11 & 2C & 14 & CD\\
+            0090: & 02 & 0C & CA & 55 & 0E & 11 & 25 & 14 & CD & 02 & 0C & CA & 15 & 0F & 11 & 15\\
+            00A0: & 14 & CD & 02 & 0C & CA & 9A & 0E & 11 & 1A & 14 & CD & 02 & 0C & CA & C7 & 0E
+        \end{tabular}
+    }}
+
+    If the information reaches the bottom of the screen, a message will be shown
+    to let the user decide what to do next:
+
+    \hspace{1cm}\texttt{[SPACE] for more or another key to stop}
+
+    % ======================================================================
+    \subsection{Load Screen dumps (loadscr)}
+    % ======================================================================
+    This program loads screen dumps, saved as raw data, to the the VRAM. It is
+    in essence a picture display program.
+
+    In Mode 2 (Graphics II Mode bitmapped), screen data dumps are files of
+    14,336 bytes in length, composed by:
+    \begin{itemize}
+        \item Dump of the Pattern Table (6,144 bytes)
+        \item Dump of the Sprite Pattern Table (2,048 bytes) filled with zeros
+        \item Dump of the Colour Table (6,144 bytes)
+    \end{itemize}
+
+    In dzOS, these files are identified as File Type \textit{SC1}
+    (Graphics I Mode), \textit{SC2} (Graphics II Bitmapped Mode) and
+    \textit{SC3} (Multicolour Mode).
+
+    % ======================================================================
+    \subsection{Load Font (loadfont)}
+    % ======================================================================
+    This program loads font files, which contain pattern definitions for text
+    characters to be used for text display.
+
+    Mode 0 (Text Mode) uses 6x8 bytes characters. The rest of the modes use 8x8
+    bytes characters.
+
+    In dzOS, these files are identified as File Type \textit{FN6} and
+    \textit{FN8} respectively.
+
+    % ==========================================================================
+    \subsection{MS BASIC 4.7b}
+    % ==========================================================================
+
+    The Nascom 2 computer\footnote{The Nascom 2 was a single-board computer kit
+    issued in the United Kingdom in December 1979.} came with MS BASIC 7.4
+    installed in ROM, and the disassembled code was published in the
+    \textit{80-BUS NEWS} magazine \cite{80busnews23}, \cite{80busnews24},
+    \cite{80busnews25}, \cite{80busnews26}, \cite{80busnews31},
+    \cite{80busnews32}, \cite{80busnews33}.
+
+    Grant Searle published a modification in his Grant's \textit{7-chip Z80
+    computer} webpage\cite{searle2}.
+
+    Grant's version was then modified to run on dastaZ80 under dzOS, adding
+    commands like \textit{LOAD}, \textit{SAVE}, \textit{VPOKE}, \textit{VPEEK},
+    and more.
+
+        % ==========================================================================
+        \subsubsection{MS BASIC characteristics}
+        % ==========================================================================
+
+        \begin{itemize}
+            \item Commands
+            \begin{itemize}
+                \item There is no support for \textit{ELSE} in \textit{IF}...
+                \textit{THEN}. Instead, it MUST be done with another \textit{IF}...
+                \textit{THEN}.
+            \end{itemize}
+            \item Variables
+            \begin{itemize}
+                \item The first character of a variable name MUST be a letter.
+                \item No reserved words may appear as as variable names.
+                \item Can be of any length,, but any alphanumeric characters after
+                the first two are ignored. Therefore \textit{COURSE},
+                \textit{COLOUR} and\textit{COMIC} are the same variable.
+                \item Integer numbers are signed (i.e. from -32,768 to +32,767). To
+                refer to a location \textit{n} above 32,767, you must provide the
+                2's complement number (i.e \textit{n}-65536)
+                \item Flotaing point is in the range 1.70141E38 to 2.9387E-38
+            \end{itemize}
+        \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{Speeding up programs}
+        % ==========================================================================
+
+        \begin{itemize}
+            \item Delete \textit{REM} statements.
+            \item Delete spaces. For example, \textit{10FORA=0TO10} is faster than
+            \textit{10 FOR A=0 TO 10}
+            \item Use \textit{NEXT} without the index variable.
+            \item Use variables instead of constants, especially in \textit{FOR}
+            loop and other code that is executed repeatedly.
+            \item Reuse variable names and keep the list of variables as short as
+            possible. Variables are set up in a table in the order of their first
+            appearance in the program. Later in the program, BASIC searches the
+            table for the variable at each reference. Variables at the head of the
+            table take less time to search.
+            \item MS BASIC uses a \textit{garbage collector} to clear out unwanted 
+            space. The frequency of grabage collection is inversely proportional to
+            the amount of string space. The time garbage collection takes is
+            proportional to the square of the number of string variables. To
+            minimise the time, make string space as large as possible and use as few
+            string variables as possible.
+        \end{itemize}
+
+    % ==========================================================================
+    \subsection{MS BASIC 4.7b Standard version}
+    % ==========================================================================
+
+    Standard version is referring to the version (\textit{b}) adapted by Grant
+    Searle \cite{searle1} of the original NASCOM 2 version (4.7).
+
+    For more detailed information on commands, statements, functions, etc.,
+    refer to the Nascom 2 Microcomputer BASIC Programming Manuals\cite{nascombasic}.
+
+        % ==========================================================================
+        \subsubsection{Intrinsic Functions}
+        % ==========================================================================
+
+        \begin{itemize}
+            \item \textbf{ABS}: Returns absolute value of a number
+            \item \textbf{ASC}: Returns the ASCII code of the first character of a string
+            \item \textbf{ATN}: Returns arctangent in radians
+            \item \textbf{CHR\$}: Returns a string whose one element has its ASCII code
+            \item \textbf{COS}: Returns cosine in radians
+            \item \textbf{EXP}: Returns a number to the power of another number
+            \item \textbf{FRE}: Returns number of bytes in memory not being used by BASIC.
+            \item \textbf{INP}: Reads a byte from a port
+            \item \textbf{INT}: Returns the largest integer of a floating number
+            \item \textbf{LEFT\$}: Returns x leftmost characters of a string
+            \item \textbf{LEN}: Returns length of a string
+            \item \textbf{LOG}: Returns natural log of a number
+            \item \textbf{MID\$}: Returns x characters of a string
+            \item \textbf{POS}: Returns present column position of terminal's print head.
+            \item \textbf{RIGHT\$}: Returns x rightmost characters of a string
+            \item \textbf{RND}: Returns a random number between 0 and 1.
+            \item \textbf{SGN}: Returns 0 or 1 depending on the sign of a number
+            \item \textbf{SIN}: Returns the sine in radians
+            \item \textbf{SPC}: Prints x number of blanks
+            \item \textbf{SQR}: Returns square root of a number
+            \item \textbf{STR\$}: Returns string representation of value of a number
+            \item \textbf{TAB}: Spaces to x position on the terminal
+            \item \textbf{TAN}: Returns tangent in radians
+            \item \textbf{USR}: Calls a user's machine language subroutine
+            \item \textbf{VAL}: Returns numerical value of a string
+        \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{Statements}
+        % ==========================================================================
+
+        \begin{itemize}
+            \item \textbf{DATA}, \textbf{DEEK}, \textbf{DEF}, \textbf{DIM},
+            \textbf{DOKE}, \textbf{END}, \textbf{FN}, \textbf{FOR...NEXT...STEP},
+            \textbf{GOTO}, \textbf{GOSUB}, \textbf{IF...THEN}, \textbf{INPUT},
+            \textbf{LET}, \textbf{LINES}, \textbf{ON...GOTO}, \textbf{ON...GOSUB},
+            \textbf{OUT}, \textbf{PEEK}, \textbf{POKE}, \textbf{PRINT},
+            \textbf{READ}, \textbf{REM}, \textbf{RESTORE}, \textbf{RETURN},
+            \textbf{STOP}, \textbf{WAIT}, \textbf{WIDTH}
+        \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{Commands}
+        % ==========================================================================
+
+        \begin{itemize}
+            \item \textbf{CLEAR}: Sets all program variables to zero
+            \item \textbf{CLS}: Clears the screen
+            \item \textbf{CONT}: Continues program execution after \textit{Escape}
+            key was pressed, or a \textit{STOP} or \textit{END} statement has
+            been executed
+            \item \textbf{LIST}: List the contents of the BASIC program in memory
+            \item \textbf{MONITOR}: Transfer command to dzOS Command-Line
+            Interface (CLI)
+            \item \textbf{NEW}: Deletes the current program and clears all
+            variables
+            \item \textbf{NULL}: Sets the number of nulls to be printed at the
+            end of each line
+            \item \textbf{RUN}: Starts execution of the current program
+        \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{Operators}
+        % ==========================================================================
+
+        \begin{itemize}
+            \item \textbf{+}, \textbf{-}, \textbf{*}, \textbf{/},
+            \textbf{\textasciicircum}
+        \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{Relational Operators}
+        % ==========================================================================
+
+        \begin{itemize}
+            \item \textbf{$>$}, \textbf{$<$}, \textbf{$<>$}, \textbf{=},
+            \textbf{$<=$}, \textbf{$>=$}
+        \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{Logical Operators}
+        % ==========================================================================
+
+        \begin{itemize}
+            \item \textbf{AND}, \textbf{NOT}, \textbf{OR}
+        \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{How to call an ASM subroutine}
+        % ==========================================================================
+
+        This BASIC provides a way of executing external subroutines, via the
+        intrinsic function \textit{USR}.
+
+        The programmer needs to store the address of the subroutine to be called in
+        the the work space location reserved for \textit{USR}. In the case of the
+        version for dastaZ80, this is at \texttt{0x6148} for the LSB and
+        \texttt{0x6149} for the MSB.
+
+        This can be done from BASIC with the instruction \texttt{DPOKE 24904,<address>}
+
+        \textbf{Be aware} that at location \texttt{0x6147} there is stored a
+        \textit{jp} instruction, which is what is executed when the function
+        \textit{USR} is called from BASIC, and therefore it will jump to the
+        subroutine and never come back unless explicitily specified.
+
+        If instead your subroutine contains a \textit{ret}urn instruction, or if you
+        are calling dzOS functions, you \textbf{MUST} change the \textit{jp}
+        instruction to a \textit{call} instruction.
+
+        This can be done from BASIC with the instruction \texttt{POKE 24903,205}
+
+        Finally, to call the external subroutine, as the \textit{USR} is a function,
+        it returns a parameter and therefore it must be received. Either by assigning
+        the value to a variable (e.g. \texttt{A=USR(0)}) or by printing it or by
+        checking it with an \textit{IF}.
+
+        \begin{itemize}
+            \item Valid methods how to use \textit{USR}:
+            \begin{itemize}
+                \item \texttt{A=USR(0)}
+                \item \texttt{IF USR(0)<>0 THEN ...}
+                \item \texttt{PRINT USR(0)}
+            \end{itemize}
+            \item Invalid methods:
+            \begin{itemize}
+                \item \texttt{USR(0)}, will return \textit{?SN Error} (i.e. Syntax Error)
+            \end{itemize}
+        \end{itemize}
+
+    % ==========================================================================
+    \subsection{MS BASIC 4.7b dastaZ80 version}
+    % ==========================================================================
+
+    In addition to adapting Grant Searle's version to the dastaZ80 computer,
+    the following has been added:
+
+        % ======================================================================
+        \subsubsection{{\color{blue}LOAD}}
+        % ======================================================================
+        Loads a BASIC program from \textbf{DISK} into \textbf{MEMORY}.
+
+        \hspace{1.9cm}\textbf{LOAD "\textit{$<$filename$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$filename$>$}}: the name of the file to be
+        loaded.
+
+        \textbf{Example}: \texttt{LOAD "mandelbrot}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}SAVE}}
+        % ======================================================================
+        Saves current BASIC program from \textbf{MEMORY} into \textbf{DISK}.
+
+        \hspace{1.9cm}\textbf{SAVE "\textit{$<$filename$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$filename$>$}}: the name of the file to be
+        saved.
+
+        \textbf{Example}: \texttt{SAVE "mandelbrot}
+
+
+        % ======================================================================
+        \subsubsection{{\color{blue}SOUND}}
+        % ======================================================================
+        Writes a value in a specific \textbf{PSG} register.
+
+        \hspace{1.9cm}\textbf{SOUND \textit{$<$PSG\_register$>$,$<$value$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$PSG\_register$>$}}: \textbf{PSG} register
+        number (0-13).
+
+        \hspace{1cm}\textbf{\textit{$<$value$>$}}: value to set (0..255).
+
+        \textbf{Example}: \texttt{SOUND 7,62}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}VPOKE}}
+        % ======================================================================
+        Writes a value at a specific \textbf{VRAM} address.
+
+        \hspace{1.9cm}\textbf{VPOKE \textit{$<$VRAM\_address$>$,$<$value$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$VRAM\_address$>$}}: \textbf{VRAM} address.
+
+        \hspace{1cm}\textbf{\textit{$<$value$>$}}: value to set (0..255).
+
+        \textbf{Example}: \texttt{VPOKE 6144,171}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}VPEEK}}
+        % ======================================================================
+        Gets the value at a specific \textbf{VRAM} address.
+
+        \hspace{1.9cm}\textbf{VPEEK \textit{$<$VRAM\_address$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$VRAM\_address$>$}}: \textbf{VRAM} address.
+
+        \textbf{Examples}:
+        \begin{itemize}
+            \item \texttt{PRINT VPEEK(6144)}
+            \item \texttt{A=VPEEK(6144)}
+        \end{itemize}
+
+        % ======================================================================
+        \subsubsection{{\color{blue}SCREEN}}
+        % ======================================================================
+        Changes the \textbf{Low Resolution Display} screen mode.
+
+        \hspace{1.9cm}\textbf{SCREEN \textit{$<$screen\_mode$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$screen\_mode$>$}}: one of the valid
+        \hyperref[sec:vdpscrmodes]{\textbf{Low Resolution} Screen Modes}:
+
+        \begin{itemize}
+            \item 0 = Text Mode
+            \item 1 = Graphics I Mode
+            \item 2 = Graphics II Mode
+            \item 3 = Multicolour Mode
+            \item 4 = Graphics II Mode Bitmapped
+        \end{itemize}
+
+        \textbf{Example}: \texttt{SCREEN 2}
+
+    % ==========================================================================
+    \subsection{Machine Language Monitor (mlmonitor)}
+    % ==========================================================================
+    \label{software:mlmonitor}
+
+    The Machine Language Monitor contains many features that will enable you to
+    create, modfy and test machine language program and subroutines.
+
+    It allows to assemble code into memory, disassemble memory, inspect memory,
+    save memory into disk, and more.
+
+    Once loaded, the monitor program will display a prompt in the form of a
+    single dot.
+
+    At this prompt, the user can enter any of the available commands presented
+    below. Just bear in mind that all commands, addresses and bytes MUST be
+    entered using capital letters. It is highly recommended to activate the
+    \textit{Caps Lock} key during the usage of the monitor program.
+
+    Also, all addresses and bytes MUST be entered in hexadecimal notation.
+
+        % ==========================================================================
+        \subsubsection{A - Assemble}
+        % ==========================================================================
+
+        Purpose: Assemble a line of assembly code.
+
+        Syntax: A \textit{$<$address$>$ $<$mnemonic$>$ $<$operand$>$}
+
+        Example: \texttt{A 2000 LD A,(HL)}
+
+        \hspace{1cm}\textit{$<$address$>$}: a four-digit hexadecimal number indicating
+        the location in memory where to place the generated opcode.
+
+        \hspace{1cm}\textit{$<$mnemonic$>$}: a valid Z80 assembly language
+        mnemonic (e.g. LD, ADD, CALL, LDIR).
+
+        \hspace{1cm}\textit{$<$operand$>$}: the operand of the mnemonic.
+
+        For a complete list of valid Z80 mnemonics and its operands check the
+        \textit{Z80 Family CPU User Manual}\cite{z80manual}, publiched by ZiLOG.
+
+        % ==========================================================================
+        \subsubsection{C - Call}
+        % ==========================================================================
+
+        Purpose: Transfers the Program Counter (PC) of the Z80 to the specified
+        address. Hence, the \textbf{CPU} starts executing the code it finds at
+        the specified address. Works same as the \hyperref[cmd:run]{run} command.
+
+        Syntax: C \textit{$<$address$>$}
+
+        Example: \texttt{C 4000}
+
+        \hspace{1cm}\textit{$<$address$>$}: a four-digit hexadecimal number
+        indicating the location in \textbf{RAM} memory of the byte that will be
+        displayed.
+
+        \textbf{IMPORTANT}: In order for the \hyperref[software:mlmonitor]
+        {Machine Language Monitor} to continue to work after the called
+        subroutine ends, the subroutine MUST end with a return (\textit{RET})
+        instruction. mlmonitor already takes care of putting in the Stack the
+        current address before changing the Program Counter (PC).
+
+        % ==========================================================================
+        \subsubsection{D - Disassemble}
+        % ==========================================================================
+
+        Purpose: Disassemble machine code into assembly language mnemonics and
+        operands.
+
+        Syntax: D \textit{$<$start\_address$>$ $<$end\_address$>$}
+
+        Example: \texttt{D 2000 210A}
+
+        \hspace{1cm}\textit{$<$start\_address$>$}: a four-digit hexadecimal
+        number indicating the location in memory of the first byte to
+        disassemble.
+
+        \hspace{1cm}\textit{$<$end\_address$>$}: a four-digit hexadecimal
+        number indicating the location in memory of the last byte to
+        disassemble.
+
+        % ==========================================================================
+        \subsubsection{F - Fill memory}
+        % ==========================================================================
+
+        Purpose: Fill a range of locations with a specified byte.
+
+        Syntax: F \textit{$<$start\_address$>$ $<$end\_address$>$ $<$byte$>$}
+
+        Example: \texttt{F 2000 2100 FF}
+
+        \hspace{1cm}\textit{$<$start\_address$>$}: a four-digit hexadecimal
+        number indicating the location in memory of the first byte to
+        disassemble.
+
+        \hspace{1cm}\textit{$<$end\_address$>$}: a four-digit hexadecimal
+        number indicating the location in memory of the last byte to
+        disassemble.
+
+        \hspace{1cm}\textit{$<$byte$>$}: the byte value that will be used to
+        fill the locations in memory.
+
+        % ==========================================================================
+        \subsubsection{L - Load from disk}
+        % ==========================================================================
+
+        Purpose: Load a filename from \textbf{DISK} into \textbf{RAM} memory.
+        Works similar to the \hyperref[cmd:load]{load} command, with the
+        difference that here a load address MUST be specified.
+
+        Syntax: L \textit{$<$load\_address$>$ $<$filename$>$}
+
+        Example: \texttt{L 2000 testfile}
+
+        \hspace{1cm}\textit{$<$load\_address$>$}: a four-digit hexadecimal
+        number indicating the location in memory where the bytes from the
+        filename will start to be stored.
+
+        \hspace{1cm}\textit{$<$filename$>$}: an existing filename stored in the
+        current \textbf{DISK}.
+
+        % ==========================================================================
+        \subsubsection{M - Display RAM memory}
+        % ==========================================================================
+
+        Purpose: Display \textbf{RAM} memory as a hexadecimal dump. Works same
+        as the \hyperref[software:memdump]{memdump} program.
+
+        Syntax: M \textit{$<$start\_address$>$ $<$end\_address$>$}
+
+        Example: \texttt{M 2000 2100}
+
+        \hspace{1cm}\textit{$<$start\_address$>$}: a four-digit hexadecimal
+        number indicating the location in \textbf{RAM} memory of the first byte
+        to display.
+
+        \hspace{1cm}\textit{$<$end\_address$>$}: a four-digit hexadecimal
+        number indicating the location in \textbf{RAM} memory of the last byte
+        to display.
+
+        % ==========================================================================
+        \subsubsection{P - poke}
+        % ==========================================================================
+
+        Purpose: Modify a single \textbf{RAM} memory address with a specified
+        value. Works same as the \hyperref[cmd:poke]{poke} command.
+
+        Syntax: P \textit{$<$address$>$ $<$byte$>$}
+
+        Example: \texttt{P 8000 AB}
+
+        \hspace{1cm}\textit{$<$address$>$}: a four-digit hexadecimal number
+        indicating the location in \textbf{RAM} memory of the byte that will be
+        modified.
+
+        \hspace{1cm}\textit{$<$byte$>$}: the byte value that will be used to
+        modify the location in \textbf{RAM} memory.
+
+        % ==========================================================================
+        \subsubsection{Q - vpoke}
+        % ==========================================================================
+
+        Purpose: Modify a single video \textbf{VDP} memory address with a
+        specified value. Works same as the \hyperref[cmd:vpoke]{vpoke} command.
+
+        Syntax: Q \textit{$<$address$>$ $<$byte$>$}
+
+        Example: \texttt{Q 0800 AB}
+
+        \hspace{1cm}\textit{$<$address$>$}: a four-digit hexadecimal number
+        indicating the location in video \textbf{VDP} memory of the byte that
+        will be modified.
+
+        \hspace{1cm}\textit{$<$byte$>$}: the byte value that will be used to
+        modify the location in video \textbf{VDP} memory.
+
+        % ==========================================================================
+        \subsubsection{S - Save to disk}
+        % ==========================================================================
+
+        Purpose: Save the contents of memory to a filename in \textbf{DISK}.
+
+        Syntax: S \textit{$<$start\_address$>$ $<$end\_address$>$ $<$filename$>$}
+
+        Example: \texttt{S 2000 2100 testfile}
+
+        \hspace{1cm}\textit{$<$start\_address$>$}: a four-digit hexadecimal
+        number indicating the location in \textbf{RAM} memory of the first byte
+        that will be saved to \textbf{DISK}.
+
+        \hspace{1cm}\textit{$<$end\_address$>$}: a four-digit hexadecimal
+        number indicating the location in \textbf{RAM} memory of the last byte
+        that will be saved to \textbf{DISK}.
+
+        \hspace{1cm}\textit{$<$filename$>$}: a non-existing filename in the
+        current \textbf{DISK}.
+
+        % ==========================================================================
+        \subsubsection{T - Transfer memory area}
+        % ==========================================================================
+
+        Purpose: Transfer segments of \textbf{RAM} memory from one memory area
+        to another.
+
+        Syntax: T \textit{$<$start\_address$>$ $<$end\_address$>$
+        $<$start\_destination\_address$>$}
+
+        Example: \texttt{T 2000 2100 8000}
+
+        \hspace{1cm}\textit{$<$start\_address$>$}: a four-digit hexadecimal
+        number indicating the location in \textbf{RAM} memory of the first byte
+        that will be transferred.
+
+        \hspace{1cm}\textit{$<$start\_address$>$}: a four-digit hexadecimal
+        number indicating the location in \textbf{RAM} memory of the last byte
+        that will be transferred.
+
+        \hspace{1cm}\textit{$<$start\_destination\_address$>$}: a four-digit
+        hexadecimal number indicating the location in \textbf{RAM} memory of the
+        first byte that will receive the transferred bytes.
+
+        % ==========================================================================
+        \subsubsection{V - Display Video RAM memory}
+        % ==========================================================================
+
+        Purpose: Display video \textbf{VDP} memory as a hexadecimal dump. Works
+        same as the \hyperref[software:vramdump]{vramdump} program.
+
+        Syntax: V \textit{$<$start\_address$>$ $<$end\_address$>$}
+
+        Example: \texttt{V 2000 2100}
+
+        \hspace{1cm}\textit{$<$start\_address$>$}: a four-digit hexadecimal
+        number indicating the location in video \textbf{VDP} memory of the first
+        byte to display.
+
+        \hspace{1cm}\textit{$<$end\_address$>$}: a four-digit hexadecimal
+        number indicating the location in video \textbf{VDP} memory of the last
+        byte to display.
+
+        % ==========================================================================
+        \subsubsection{X - Exit to OS}
+        % ==========================================================================
+
+        Purpose: Terminates the \hyperref[software:mlmonitor]
+        {Machine Language Monitor} and goes back to the Operating System's
+        Command-Line Interface (\textbf{CLI}).
+
+        Syntax: X
+
+        Example: \texttt{X}
+
+        % ==========================================================================
+        \subsubsection{Y - peek}
+        % ==========================================================================
+
+        Purpose: Display the value from a \textbf{RAM} memory address. Works
+        same as the \hyperref[cmd:peek]{peek} command.
+
+        Syntax: Y \textit{$<$address$>$}
+
+        Example: \texttt{Y 4000}
+
+        \hspace{1cm}\textit{$<$address$>$}: a four-digit hexadecimal number
+        indicating the location in \textbf{RAM} memory of the byte that will be
+        displayed.
+
+        % ==========================================================================
+        \subsubsection{Z - vpeek}
+        % ==========================================================================
+
+        Purpose: Display the value from a video \textbf{VDP} memory address.
+        % Works same as the \hyperref[cmd:vpeek]{vpeek} command.
+
+        Syntax: Z \textit{$<$address$>$}
+
+        Example: \texttt{Z 0800}
+
+        \hspace{1cm}\textit{$<$address$>$}: a four-digit hexadecimal number
+        indicating the location in video \textbf{VDP} memory of the byte that
+        will be displayed.
+
+    % % ==========================================================================
+    % \subsection{Logo}
+    % % ==========================================================================
+    % Logo is an educational programming language, designed in 1967 by Wally
+    % Feurzeig, Seymour Papert, and Cynthia Solomon, at Bolt, Beranek and Newman
+    % (BBN), a Cambridge, Massachusetts research firm.
+
+    % Logo's most-know feature is the turtle\footnote{Turtles are a class of
+    % educational robots designed originally in the late 1940s and used in
+    % computer science and mechanical engineering training.}, an on-screen
+    % cursor-like that shows output from commands for movement and a small
+    % retractable pen, together producing line graphics.
+
+    % Taking advantage of the dual video output capabilities of the dastaZ80, in
+    % this implementation of Logo commands are entered by the user in the
+    % \textbf{High Resolution Display}, while graphics are shown fullscreen in
+    % the \textbf{Low Resolution Display}, using Graphics Mode II (256x192 pixels).
+
+    % Due to a limitation of the \textbf{VDP}, individual colours cannot be
+    % assigned to the Pen. Therefore the screen is considered monochrome.
+
+    % % ======================================================================
+    % \subsubsection{Commands}
+    % % ======================================================================
+
+    % \begin{itemize}
+    %     \item \textbf{BK} \textit{$<$number$>$}: (\textbf{Backward}) Moves the
+    %     turtle backwards, a \textit{$<$number$>$} of pixels.
+    %     \item \textbf{CS}: (\textbf{Clear Screen}) Clears the screen.
+    %     \item \textbf{FD} \textit{$<$number$>$}: (\textbf{Forward}) Moves the
+    %     turtle forward, a \textit{$<$number$>$} of pixels.
+    %     \item \textbf{HM}: (\textbf{Home}) Moves (without drawing) the turtle
+    %     to the middle of the screen.
+    %     \item \textbf{HT}: (\textbf{Hide Turtle}) Hides the turtle.
+    %     \item \textbf{LT} \textit{$<$degrees$>$}: (\textbf{Rotate Left}) Rotates
+    %     the turtle left, by a number of \textit{$<$degrees$>$}.
+    %     \item \textbf{PD}: (\textbf{Pen Down}) Puts the pen down, therefore the
+    %     turtle draws while moving.
+    %     \item \textbf{PU}: (\textbf{Pen Up}) Puts the pen up, therefore the
+    %     turtle moves without drawing.
+    %     \item \textbf{QL}: (\textbf{Quit LOGO}) Quits Logo and returns to
+    %     DZOS's CLI.
+    %     \item \textbf{RT} \textit{$<$degrees$>$}: (\textbf{Rotate Right})
+    %     Rotates the turtle right, by a number of \textit{$<$degrees$>$}.
+    %     \item \textbf{ST}: (\textbf{Show Turtle}) Shows the turtle.
+    %     \item \textbf{SX} \textit{$<$X$>$}: (\textbf{Set Position X}) Puts the turtle to
+    %     the specified \textit{$<$X$>$} position.
+    %     \item \textbf{SY} \textit{$<$Y$>$}: (\textbf{Set Position Y}) Puts the turtle to
+    %     the specified \textit{$<$Y$>$} position.
+    % \end{itemize}
