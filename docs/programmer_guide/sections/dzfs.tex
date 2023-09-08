@@ -9,10 +9,11 @@ manages the available space of the device, dividing the storage area into
 units of storage and keeping a map of every storage unit of the device.
 
 DZFS main goal is to be very simple to implement. As the free
-\textbf{MEMORY} (i.e. \textbf{RAM} - OS - System variables and buffers) of
-the dastaZ80 is about 55,952 bytes, it makes no sense to have files bigger
-than that, as will not fit. Therefore, DZFS defines that \textit{a Block can
-store only a single file}.
+\textbf{MEMORY}\footnote{Free \textbf{MEMORY} is the \textbf{RAM} that is not
+used by the OS, the System variables and the buffers, and hence available to use
+for the user and programs.} of the dastaZ80 is about 48,096 bytes, it makes no
+sense to have files bigger than that, as will not fit. Therefore, DZFS defines
+that \textit{a Block can store only a single file}.
 
 dastaZ80 access the \textbf{DISK} via Logical Block Addressing (LBA), which
 is a particularly simple linear addressing schema, in which each sector is
@@ -132,10 +133,10 @@ Where:
         % ==========================================================================
         \subsubsection{Block Allocation Table (BAT)}
         % ==========================================================================
-        The BAT is an area of 32 bytes on the \textbf{DISK} used to store the 
-        details about the files saved in the Data Area, and is comprised of file
-        descriptors called \textit{entry}. Each entry holds information about a
-        single file.
+        The BAT is an area of 32,768 bytes (i.e. 1 Block) on the \textbf{DISK}
+        used to store the  details about the files saved in the \textit{Data
+        Area}, and is comprised of file descriptors called \textit{entry}. Each
+        entry holds information about a single file, and is 32 bytes in length.
 
         For simplicity, each entry works also as index. The first entry 
         describes the first file on the \textbf{DISK}, the second entry 
@@ -162,7 +163,8 @@ Where:
             & & First character also indicates 00=available, 7E=deleted (will
             appear as \textasciitilde) &\\
             \hline
-            \multirow{6}{4em}{0x0E} & \multirow{6}{4em}{14} & \textbf{Attributes} (0=Inactive / 1=Active) 
+            \multirow{6}{4em}{0x0E} & \multirow{6}{4em}{1} & \textbf{Attributes}
+            (0=Inactive / 1=Active)
             & Read Only, System file, Executable = 1101 = \texttt{0D}\\
             & & Bit 0 = Read Only &\\
             & & Bit 1 = Hidden &\\
@@ -206,6 +208,9 @@ Where:
             little-endian where it will be loaded in RAM) & \texttt{68 25}\\
             \hline
         \end{longtable}
+
+        The value of the bits 4 to 7 of the \textit{Attributes} field define the
+        \textit{File Type}:
 
         \begin{longtable}{ |m{1.4cm}|m{1.7cm}|m{6.8cm}| }
             \hline
