@@ -5,13 +5,16 @@
 ; for dastaZ80's dzOS
 ; by David Asta (Jan 2018)
 ;
-; Version 1.0.0
+; Version 1.1.0
 ; Created on 03 Jan 2018
-; Last Modification 17 Aug 2023
+; Last Modification 08 Sep 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - Check if command is a file in the current disk and in case
 ;                       it is, load and run it.
+;   - 08 Sep 2023 - Added a push/pop to preserve the subrotuine counter in
+;                       parse_get_command. This saves 354 clock cycles, because
+;                       parse_get_command is not called twice when B=0 anymore.
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -80,7 +83,7 @@ prompt_skip_lead_zero:
         ld      A, ANSI_COLR_BLU
         call    F_KRN_SERIAL_SETFGCOLR
         ld      A, '>'
-        call    F_BIOS_SERIAL_CONOUT_A  ; print separator
+        call    F_BIOS_SERIAL_CONOUT_A  ; print prompt
         ld      A, SPACE
         call    F_BIOS_SERIAL_CONOUT_A  ; print separator
 
@@ -204,7 +207,9 @@ parse_get_command:
         call    parse_get_from_jtable   ; get command address from jump table
         ld      HL, CLI_buffer_cmd      ; Compare command
         ld      A, (HL)                 ;    in jump table
+        push    BC                      ; backup subrotuine counter
         call    search_cmd              ;    with command entered by user
+        pop    BC                       ; restore subrotuine counter
         jp      z, parse_do_jmptable    ; is the same? Yes, jump to subroutine
         inc     B                       ; No, increment subroutine counter
         jp      parse_loop              ;     and check next command in jump table
