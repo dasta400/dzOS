@@ -778,7 +778,7 @@ savef_savelastbytes:                        ; no, save last bytes
         call    F_BIOS_SD_BUSY_WAIT
 
         ld      HL, msg_sd_data_saved
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_kernel_notice)
         call    F_KRN_SERIAL_WRSTRCLR
 
 savef_batentry:
@@ -834,7 +834,7 @@ loop_copy_fname_padded:
         call    F_KRN_DZFS_SET_FILE_DEFAULTS
 
         ld      HL, msg_sd_bat_saved
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_kernel_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 ;------------------------------------------------------------------------------
@@ -926,14 +926,14 @@ F_KRN_DZFS_CALC_FILEDATE:
 KRN_DZFS_SHOW_DISKINFO_SHORT:
         ; Volume Label
         ld      HL, msg_sd_vol_label
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      B, 16                   ; counter
         ld      HL, DZFS_SBLOCK_LABEL   ; point HL to offset in the buffer
         call    F_KRN_SERIAL_PRN_BYTES
         ; Volume Serial Number
         ld      HL, msg_sd_volsn
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, (DZFS_SBLOCK_SERNUM)
         call    F_KRN_SERIAL_PRN_BYTE
@@ -949,7 +949,7 @@ KRN_DZFS_SHOW_DISKINFO_SHORT:
         call    F_KRN_SERIAL_EMPTYLINES
         ; Volume Date/Time Creation
         ld      HL, msg_sd_vol_creation
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      B, 2                            ; counter = 2 bytes
         ld      HL, DZFS_SBLOCK_DATECREA        ; day
@@ -988,7 +988,7 @@ KRN_DZFS_SHOW_DISKINFO:
 
         ; File System id
         ld      HL, msg_sd_filesys
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      B, 8                            ; counter = 4 bytes
         ld      HL, DZFS_SBLOCK_FSID            ; point HL to offset in the buffer
@@ -997,7 +997,7 @@ KRN_DZFS_SHOW_DISKINFO:
         call    F_KRN_SERIAL_EMPTYLINES
         ; Bytes per Sector
         ld      HL, msg_sd_bytes_sector
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, (DZFS_SBLOCK_BYTESSEC)
         call    F_KRN_BIN_TO_BCD6               ; convert from hex to decimal
@@ -1014,7 +1014,7 @@ KRN_DZFS_SHOW_DISKINFO:
         call    F_KRN_SERIAL_EMPTYLINES
         ; Sectors per Block
         ld      HL, msg_sd_sectors_block
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, (DZFS_SBLOCK_SECBLOCK)
         call    F_KRN_BIN_TO_BCD4

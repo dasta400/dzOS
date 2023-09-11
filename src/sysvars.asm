@@ -203,6 +203,39 @@ VDP_jiffy_byte2:                .EXPORT         VDP_jiffy_byte2
                 .BYTE   0                       ; Jiffy counter
 VDP_jiffy_byte3:                .EXPORT         VDP_jiffy_byte3
                 .BYTE   0                       ; Jiffy counter
+;==============================================================================
+; System Colour Scheme
+;==============================================================================
+col_kernel_debug:               .EXPORT         col_kernel_debug
+                .BYTE   0
+col_kernel_disk:                .EXPORT         col_kernel_disk
+                .BYTE   0
+col_kernel_error:               .EXPORT         col_kernel_error
+                .BYTE   0
+col_kernel_info:                .EXPORT         col_kernel_info
+                .BYTE   0
+col_kernel_notice:              .EXPORT         col_kernel_notice
+                .BYTE   0
+col_kernel_warning:             .EXPORT         col_kernel_warning
+                .BYTE   0
+col_kernel_welcome:             .EXPORT         col_kernel_welcome
+                .BYTE   0
+col_CLI_debug:                  .EXPORT         col_CLI_debug
+                .BYTE   0
+col_CLI_disk:                   .EXPORT         col_CLI_disk
+                .BYTE   0
+col_CLI_error:                  .EXPORT         col_CLI_error
+                .BYTE   0
+col_CLI_info:                   .EXPORT         col_CLI_info
+                .BYTE   0
+col_CLI_input:                  .EXPORT         col_CLI_input
+                .BYTE   0
+col_CLI_notice:                 .EXPORT         col_CLI_notice
+                .BYTE   0
+col_CLI_prompt:                 .EXPORT         col_CLI_prompt
+                .BYTE   0
+col_CLI_warning:                .EXPORT         col_CLI_warning
+                .BYTE   0
 
 ;==============================================================================
 ; END of CODE

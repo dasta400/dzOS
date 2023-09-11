@@ -42,20 +42,51 @@
 
         .ORG    KRN_START
 
+        ; Set default message colours in SYSVARS
+        ld      A, ANSI_COLR_CYA
+        ld      (col_kernel_debug), A
+        ld      A, ANSI_COLR_MGT
+        ld      (col_kernel_disk), A
+        ld      A, ANSI_COLR_RED
+        ld      (col_kernel_error), A
+        ld      A, ANSI_COLR_GRN
+        ld      (col_kernel_info), A
+        ld      A, ANSI_COLR_YLW
+        ld      (col_kernel_notice), A
+        ld      A, ANSI_COLR_MGT
+        ld      (col_kernel_warning), A
+        ld      A, ANSI_COLR_BLU
+        ld      (col_kernel_welcome), A
+        ld      A, ANSI_COLR_CYA
+        ld      (col_CLI_debug), A
+        ld      A, ANSI_COLR_MGT
+        ld      (col_CLI_disk), A
+        ld      A, ANSI_COLR_RED
+        ld      (col_CLI_error), A
+        ld      A, ANSI_COLR_GRN
+        ld      (col_CLI_info), A
+        ld      A, ANSI_COLR_WHT
+        ld      (col_CLI_input), A
+        ld      A, ANSI_COLR_YLW
+        ld      (col_CLI_notice), A
+        ld      A, ANSI_COLR_BLU
+        ld      (col_CLI_prompt), A
+        ld      A, ANSI_COLR_MGT
+        ld      (col_CLI_warning), A
         ; Kernel start up messages
         ld      HL, msg_dzos            ; dzOS welcome message
-        ld      A, ANSI_COLR_BLU
+        ld      A, (col_kernel_welcome)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, dzos_version        ; dzOS version
-        ld      A, ANSI_COLR_BLU
+        ld      A, (col_kernel_welcome)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
         ld      HL, msg_bios_version    ; BIOS version
-        ld      A, ANSI_COLR_CYA
+        ld      A, (col_kernel_debug)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_krn_version     ; Kernel version
-        ld      A, ANSI_COLR_CYA
+        ld      A, (col_kernel_debug)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      B, 1
         call    F_KRN_SERIAL_EMPTYLINES
@@ -83,7 +114,7 @@
 KRN_SYSHALT:
         call    F_BIOS_SD_PARK_DISKS    ; Tell ASMDC to close all Image files
         ld      HL, msg_halt
-        ld      A, ANSI_COLR_MGT
+        ld      A, (col_kernel_warning)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      F_BIOS_SYSHALT          ; Disable interrupts and halt
 
@@ -91,10 +122,10 @@ KRN_SYSHALT:
 KRN_INIT_RAM:
 ; Detect RAM
         ld      HL, msg_ram_detect
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_kernel_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_left_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ; Show Free available RAM
         ld      HL, FREERAM_TOTAL
@@ -105,25 +136,25 @@ KRN_INIT_RAM:
         ld      IX, tmp_addr1
         call    F_KRN_SERIAL_WR6DIG_NOLZEROS
         ld      HL, msg_ram_trail
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 ;------------------------------------------------------------------------------
 KRN_INIT_VDP:
 ; Detect VDP
         ld      HL, msg_vdp_detect
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_kernel_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         call    F_BIOS_VDP_VRAM_TEST    ; Carry Flag set if an error ocurred
         jp      c, _vdp_error
         ld      HL, msg_left_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_OK
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
 
         ; VDP VRAM test passed OK
@@ -160,13 +191,13 @@ KRN_INIT_VDP:
         ret
 _vdp_error: ; VDP VRAM test NOT passed
         ld      HL, msg_left_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, error_3001
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_kernel_error)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
@@ -174,18 +205,18 @@ _vdp_error: ; VDP VRAM test NOT passed
 KRN_INIT_PSG:
 ; Detect PSG
         ld      HL, msg_psg_detect
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_kernel_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         call    F_BIOS_PSG_INIT         ; Initialise PSG chip
         call    F_BIOS_PSG_BEEP         ; Make a beep sound
         ld      HL, msg_left_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_OK
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
@@ -196,19 +227,19 @@ KRN_INIT_FDD:
         ; It's assumed ASMDC did the initialisation
         ; Just informing user of the disk number (0) for the FDD
         ld      HL, msg_fdd_init
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_kernel_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_left_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ;   print DISKn message
         ld      HL, msg_disk
-        ld      A, ANSI_COLR_MGT
+        ld      A, (col_kernel_disk)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, '0'                  ; FDD is always DISK0
         call    F_BIOS_SERIAL_CONOUT_A
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
@@ -216,10 +247,10 @@ KRN_INIT_FDD:
 KRN_INIT_SD:
 ; Detect SD Card
         ld      HL, msg_sd_init
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_kernel_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_left_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         call    F_BIOS_SD_GET_STATUS
         ld      HL, DISK_status         ; DISK_Status contains the number of images
@@ -228,12 +259,12 @@ KRN_INIT_SD:
         bit     0, (HL)                 ; Check if SD card was found
         jp      nz, sd_notfound
         ld      HL, msg_sd_found
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         bit     1, (HL)                 ; Check if an Image was found
         jp      nz, sd_image_notfound
         ld      HL, msg_sd_imgs_found
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
 
         ; Print number of images found
@@ -259,7 +290,7 @@ print_dskimages:
         djnz    print_dskimages
 
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
 
         ; Get images' info
@@ -296,7 +327,7 @@ info_loop:
         ld      HL, msg_sd_disk_sep
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_disk
-        ld      A, ANSI_COLR_MGT
+        ld      A, (col_kernel_disk)
         call    F_KRN_SERIAL_WRSTRCLR
 
         ;   print disk number
@@ -320,7 +351,7 @@ skip_leading_zero:
         pop     HL                          ; restore pointer to images' filename
         ;   print image file filename
         inc     HL                          ; skip images' filename terminator
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
 
         ;   print image file capacity
@@ -346,7 +377,7 @@ print_digit:
 
         ;   print MB message
         ld      HL, msg_sd_MB
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
 
         ;   print CR
@@ -366,28 +397,28 @@ print_digit:
 
 sd_notfound:
         ld      HL, error_1002
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_kernel_error)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
 sd_image_notfound:
         ld      HL, error_1003
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_kernel_error)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
 nonvram:
         ld      HL, error_2101
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_kernel_error)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
@@ -397,10 +428,10 @@ KRN_INIT_RTC:
         call    F_KRN_SERIAL_EMPTYLINES
         ; Detect RTC
         ld      HL, msg_rtc_detect
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_kernel_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_left_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ; Show battery status
         call    F_BIOS_RTC_CHECK_BATTERY    ; A = 0x0A (Healthy) / 0x00 (Dead)
@@ -408,7 +439,7 @@ KRN_INIT_RTC:
         jp      z, battery_failed
 battery_healthy:
         ld      HL, msg_rtc_batok
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
 rtc_show_datetime:
         ; Show current Date
@@ -427,16 +458,16 @@ rtc_show_datetime:
         call    F_BIOS_RTC_GET_TIME
         call    F_KRN_RTC_SHOW_TIME
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
 battery_failed:
         ld      HL, error_2001
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_kernel_error)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
@@ -446,9 +477,9 @@ KRN_INIT_NVRAM:
         call    F_KRN_SERIAL_EMPTYLINES
         ; Detect NVRAM
         ld      HL, msg_nvram_detect
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_kernel_notice)
         call    F_KRN_SERIAL_WRSTRCLR
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         ld      HL, msg_left_brkt
         call    F_KRN_SERIAL_WRSTRCLR
         call    F_BIOS_NVRAM_DETECT
@@ -457,10 +488,10 @@ KRN_INIT_NVRAM:
         call    F_KRN_BIN_TO_BCD4       ; convert NVRAM length to decimal ASCII
         call    F_KRN_SERIAL_PRN_BYTE
         ld      HL, msg_nvram_bytes
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 

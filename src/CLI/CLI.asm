@@ -45,7 +45,7 @@
         .ORG    CLI_START
 cli_welcome:
         ld      HL, msg_cli_version     ; CLI start up message
-        ld      A, ANSI_COLR_CYA
+        ld      A, (col_CLI_debug)
         call    F_KRN_SERIAL_WRSTRCLR
 
         ld      B, 1
@@ -60,11 +60,11 @@ cli_promptloop:         .EXPORT     cli_promptloop
 ; Prompt is "DSK" + DISK_current + "> "
         call    F_CLI_CLRCLIBUFFS       ; Clear buffers
         ld      HL, msg_prompt          ; Prompt
-        ld      A, ANSI_COLR_BLU
+        ld      A, (col_CLI_prompt)
         call    F_KRN_SERIAL_WRSTRCLR
 
         ; print disk number (DISK_current)
-        ld      A, ANSI_COLR_CYA
+        ld      A, (col_CLI_debug)
         call    F_KRN_SERIAL_SETFGCOLR
         ld      A, (DISK_current)
         call    F_KRN_BIN_TO_BCD4       ; HL = disk number in decimal
@@ -80,14 +80,14 @@ prompt_skip_lead_zero:
         ld      A, (CLI_buffer + 5)
         call    F_BIOS_SERIAL_CONOUT_A  ; print second digit
         ; print "> "
-        ld      A, ANSI_COLR_BLU
+        ld      A, (col_CLI_prompt)
         call    F_KRN_SERIAL_SETFGCOLR
         ld      A, '>'
         call    F_BIOS_SERIAL_CONOUT_A  ; print prompt
         ld      A, SPACE
         call    F_BIOS_SERIAL_CONOUT_A  ; print separator
 
-        ld      A, ANSI_COLR_WHT        ; Set text colour
+        ld      A, (col_CLI_input)      ; Set text colour
         call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
         call    F_CLI_READCMD
         ; If no command was entered (just ENTER pressed), go to cli_promptloop
@@ -110,13 +110,13 @@ cli_command_unknown:
         cp      $EF                     ; EF means there was an error
         jp      z, cli_promptloop       ; exit subroutine if file didn't load
         ; file was loaded, run it
-        ld      A, ANSI_COLR_WHT        ; Set text colour
+        ld      A, (col_CLI_input)      ; Set text colour
         call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
         ld      HL, (DISK_cur_file_load_addr)
         jp      (HL)                    ; jump execution to address in HL
 _cli_no_cmd_nor_file:
         ld      HL, error_9001
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
@@ -270,7 +270,7 @@ check_param:
         ret
 bad_params:
         ld      HL, error_9002
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 ;------------------------------------------------------------------------------

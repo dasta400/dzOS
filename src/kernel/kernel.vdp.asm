@@ -121,7 +121,7 @@ KRN_VDP_CLEARSCREEN:
 
         ; Unknown mode. Show error and exit
         ld      HL, error_3002
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_kernel_error)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 

@@ -312,6 +312,42 @@
                 \item \texttt{0x4194} - \textbf{VDP\_jiffy\_byte3} (1 byte):
                 \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 3.
             \end{itemize}
+            \item \textbf{System Colour Scheme}
+            \\These are the default colours used by messages displayed on the
+            \textbf{High Resolution Screen} (VGA), and can be re-defined by the
+            user by changing each byte value.
+            \begin{itemize}
+                \item \texttt{0x4195} - \textbf{col\_kernel\_debug} (1 byte):
+                    default is Cyan.
+                \item \texttt{0x4196} - \textbf{col\_kernel\_disk} (1 byte):
+                    default is Magenta.
+                \item \texttt{0x4197} - \textbf{col\_kernel\_error} (1 byte):
+                    default is Red.
+                \item \texttt{0x4198} - \textbf{col\_kernel\_info} (1 byte):
+                    default is Green.
+                \item \texttt{0x4199} - \textbf{col\_kernel\_notice} (1 byte):
+                    default is Yellow.
+                \item \texttt{0x419A} - \textbf{col\_kernel\_warning} (1 byte):
+                    default is Magenta.
+                \item \texttt{0x419B} - \textbf{col\_kernel\_welcome} (1 byte):
+                    default is Blue.
+                \item \texttt{0x419C} - \textbf{col\_CLI\_debug} (1 byte):
+                    default is Cyan.
+                \item \texttt{0x419D} - \textbf{col\_CLI\_disk} (1 byte):
+                    default is Magenta.
+                \item \texttt{0x419E} - \textbf{col\_CLI\_error} (1 byte):
+                    default is Red.
+                \item \texttt{0x419F} - \textbf{col\_CLI\_info} (1 byte):
+                    default is Green.
+                \item \texttt{0x41A0} - \textbf{col\_CLI\_input} (1 byte):
+                    default is White.
+                \item \texttt{0x41A1} - \textbf{col\_CLI\_notice} (1 byte):
+                    default is Yellow.
+                \item \texttt{0x41A2} - \textbf{col\_CLI\_prompt} (1 byte):
+                    default is Blue.
+                \item \texttt{0x41A3} - \textbf{col\_CLI\_warning} (1 byte):
+                    default is Magenta.
+            \end{itemize}
         \end{itemize}
 
         % ==========================================================================

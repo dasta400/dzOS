@@ -54,7 +54,7 @@ CLI_CMD_HALT:
 ;------------------------------------------------------------------------------
 ; CLI_CMD_HELP:
 ;         ld      HL, msg_help
-;         ld      A, ANSI_COLR_YLW
+;         ld      A, (col_CLI_notice)
 ;         call    F_KRN_SERIAL_WRSTRCLR
 ;         jp      cli_promptloop
 ;------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ CLI_CMD_POKE:
         ld      (HL), A                 ; Store value in address
         ; print OK, to let the user know that the command was successful
         ld      HL, msg_ok
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ CLI_CMD_VDP_VPOKE:
         call    F_BIOS_VDP_BYTE_TO_VRAM ;   the value stored in A
         ; print OK, to let the user know that the command was successful
         ld      HL, msg_ok
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ CLI_CMD_AUTOPOKE:
 autopoke_loop:
         ; show a dollar symbol to indicate the user that can enter an hexadecimal
         ld      HL, msg_prompt_hex      ; Prompt
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ; read 1st character
         call    F_KRN_SERIAL_RDCHARECHO ; read a character, with echo
@@ -219,16 +219,16 @@ _catdisk:
         jp      nz, _error_diskunformatted
         ; print header
         ld      HL, msg_disk_cat_title
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_disk_cat_sep
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_disk_cat_detail
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_disk_cat_sep
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ; print catalogue
         call    _CLI_DISK_PRINT_DISKCAT
@@ -270,7 +270,7 @@ CLI_CMD_DISK_LOAD_DIRECT:               ; load filename from whatever is in HL a
         call    F_KRN_DZFS_LOAD_FILE_TO_RAM
         ; show success message
         ld      HL, msg_disk_file_loaded
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ; Show SYSVARS.DISK_cur_file_load_addr
         ld      HL, (DISK_cur_file_load_addr)
@@ -307,7 +307,7 @@ _formatdisk:                            ; no FDD or no errors, format the disk
         call    F_KRN_DZFS_FORMAT_DISK
 
         ld      HL, msg_format_end
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
@@ -327,7 +327,7 @@ CLI_CMD_DISK_LOWLVLFORMAT:
         cp      0
         jp      nz, cli_promptloop          ; error, don't format and go back to CLI
         ld      HL, msg_sd_erase_start
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
 
         call    F_BIOS_FDD_LOWLVL_FORMAT
@@ -335,7 +335,7 @@ CLI_CMD_DISK_LOWLVLFORMAT:
         bit     2, A
         jp      nz, _lowlvlerror
         ld      HL, msg_lowlvlformat_end    ; no error
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ; set DISK_is_formatted to 0x00 to indicate unformatted
         ld      A, 0
@@ -347,7 +347,7 @@ _lowlvlerror:
 _nofdd:
         ld      HL, error_9010
 _errmsg:
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 
@@ -369,7 +369,7 @@ _diskinfo:
         jp      nz, _error_diskunformatted
         call    F_KRN_DZFS_READ_SUPERBLOCK  ; get DISK information from the Superblock
         ld      HL, msg_disk_diskinfo_hdr
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         call    F_KRN_DZFS_SHOW_DISKINFO
         jp      cli_promptloop
@@ -399,7 +399,7 @@ _rename:
         jp      z, check_old_filename   ; File not found, check that old filename exists
         ; New filename already exists, show error an exit
         ld      HL, error_9004
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 check_old_filename:
@@ -416,19 +416,19 @@ check_old_filename:
         call    F_KRN_DZFS_RENAME_FILE
         ; Show success message
         ld      HL, msg_disk_file_renamed
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 filename_notfound:
         ; File not found, show error an exit
         ld      HL, error_9003
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 action_notallowed:
         ; File is Read Only and/or System, show error and exit
         ld      HL, error_9007
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
@@ -463,7 +463,7 @@ _delete:
         call    F_KRN_DZFS_DELETE_FILE
         ; show success message
         ld      HL, msg_disk_file_deleted
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
@@ -550,7 +550,7 @@ make_done:
         jp      next_attr
 wrong_attr:
         ld      HL, error_9005
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 mask_done:
@@ -559,7 +559,7 @@ mask_done:
         call    F_KRN_DZFS_CHGATTR_FILE
         ; show success message
         ld      HL, msg_disk_file_attr_chged
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ; ;------------------------------------------------------------------------------
@@ -612,7 +612,7 @@ _save:
         call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
         ; Ask for filename
         ld      HL, msg_prompt_fname
-        ld      A, ANSI_COLR_BLU
+        ld      A, (col_CLI_prompt)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      IX, CLI_buffer_cmd      ; store filename entered by the user in SYSVARS
 get_filename:
@@ -635,7 +635,7 @@ end_get_fname:
         jp      nz, save_filename       ; doesn't exist, do the saving
         ; exists, error and exit
         ld      HL, error_9004
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 save_filename:
@@ -664,7 +664,7 @@ save_filename:
 
         ; print OK message, to let the user know that the command was successful
         ld      HL, msg_disk_file_saved
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
@@ -702,13 +702,13 @@ _is_equal:
         jp      cli_promptloop
 _is_bigger:
         ld      HL, error_9002
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 _chgdsk_error:
         push    AF                      ; backup error code
         ld      HL, error_9008
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 
@@ -718,10 +718,10 @@ _chgdsk_error:
 CLI_CMD_DISK_LIST:
         ; Add FDD info
         ld      HL, msg_disk0
-        ld      A, ANSI_COLR_MGT
+        ld      A, (col_CLI_warning)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_fdd
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_CLI_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ; Get SD info
         ld      A, (DISK_current)
@@ -739,7 +739,7 @@ CLI_CMD_DISK_LIST:
 ;------------------------------------------------------------------------------
 CLI_CMD_RTC_DATE:
         ld      HL, msg_todayis
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         call    F_KRN_RTC_GET_DATE
         call    F_KRN_RTC_SHOW_DATE
@@ -749,7 +749,7 @@ CLI_CMD_RTC_DATE:
 ;------------------------------------------------------------------------------
 CLI_CMD_RTC_TIME:
         ld      HL, msg_nowis
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         call    F_BIOS_RTC_GET_TIME
         call    F_KRN_RTC_SHOW_TIME
@@ -823,7 +823,7 @@ crc16_gen_loop:
 
         ; Show calculated CRC on screen
         ld      HL, msg_crcis
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, (MATH_CRC)
         call    F_KRN_SERIAL_PRN_WORD
@@ -864,7 +864,7 @@ CLI_CMD_VDP_SCREEN:
         jp      z, _set_mode4
         
         ld      HL, error_9012          ; wasn't any of the valid values
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 
@@ -886,7 +886,7 @@ _set_mode4:
 
 _vdp_mode_error:
         ld      HL, error_9002
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 
@@ -942,7 +942,7 @@ _CLI_ASK_CONFIRM_FORMAT:
         ; User MUST reply with the word 'yes' to proceed.
         ; Any other word/character will cancel the formatting
         ld      HL, msg_disk_format_confirm
-        ld      A, ANSI_COLR_YLW
+        ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      IX, CLI_buffer_pgm      ; answer will be stored in CLI_buffer_pgm
 _format_answer_loop:
@@ -1252,7 +1252,7 @@ _print_HMS:
 ;------------------------------------------------------------------------------
 _error_diskunformatted:
         ld      HL, error_9006
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
@@ -1264,7 +1264,7 @@ _CLI_CHECK_DISK_IN_DRIVE:
         ret     z                       ; no error, return
 
         ld      HL, error_9008
-        ld      A, ANSI_COLR_RED
+        ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, $FF                  ; Indicate error to calling subroutine
         ret
@@ -1283,7 +1283,7 @@ _CLI_CHECK_FDD_WR_READY: ; ToDo
         ret
 ; _writeprotected:
 ;         ld      HL, error_9009
-;         ld      A, ANSI_COLR_RED
+;         ld      A, (col_CLI_error)
 ;         call    F_KRN_SERIAL_WRSTRCLR
 ;         ld      A, $FF                  ; Indicate error to calling subroutine
         ret

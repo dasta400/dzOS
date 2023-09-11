@@ -177,7 +177,7 @@ is_saturday:
         ld      HL, weekdays + 24
 
 output_dow:
-        ld      A, ANSI_COLR_GRN
+        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
