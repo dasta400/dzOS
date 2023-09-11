@@ -7,13 +7,14 @@
 ;
 ; Version 1.0.0
 ; Created on 06 Jul 2022
-; Last Modification 18 Aug 2023
+; Last Modification 11 Sep 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - F_BIOS_VDP_SET_MODE_ functions now require extra parameters
 ;                   'run' command for filenames deprecated. Files can be run
 ;                       directly by simply entering the filename as command.
 ;   - 18 Aug 2023 - Added CLI_CMD_VDP_CLS
+;   - 11 Sep 2023 - Removed command 'reset'
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -42,8 +43,8 @@
 ;------------------------------------------------------------------------------
 ;   reset - Resets the computer, with a Warm Boot
 ;------------------------------------------------------------------------------
-CLI_CMD_RESET:
-        jp      F_BIOS_WBOOT
+; CLI_CMD_RESET:
+        ; jp      F_BIOS_WBOOT
 ;------------------------------------------------------------------------------
 ;   halt - Halts the computer
 ;------------------------------------------------------------------------------

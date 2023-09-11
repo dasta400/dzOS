@@ -7,15 +7,16 @@
 ;
 ; Version 1.0.0
 ; Created on 06 Jul 2022
-; Last Modification 20 Jul 2022
+; Last Modification 11 Sep 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 20 Jul 2022 - Added 'save' command
+;   - 11 Sep 2023 - Removed command 'reset'
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2022 David Asta
+; Copyright (c) 2022-2023 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -70,7 +71,7 @@ _CMD_NOCMD              .BYTE   0
 _CMD_PEEK               .BYTE   "peek", 0
 _CMD_POKE               .BYTE   "poke", 0
 _CMD_AUTOPOKE           .BYTE   "autopoke", 0
-_CMD_RESET              .BYTE   "reset", 0
+; _CMD_RESET              .BYTE   "reset", 0
 _CMD_RUN                .BYTE   "run", 0
 _CMD_HALT               .BYTE   "halt", 0
 _CMD_CRC16BSC           .BYTE   "crc16", 0
@@ -111,7 +112,7 @@ cmd_list_table:
         .WORD       _CMD_PEEK
         .WORD       _CMD_POKE
         .WORD       _CMD_AUTOPOKE
-        .WORD       _CMD_RESET
+        ; .WORD       _CMD_RESET
         .WORD       _CMD_RUN
         .WORD       _CMD_HALT
         .WORD       _CMD_DISK_CAT
@@ -142,7 +143,7 @@ cmd_jmptable:
         .WORD       CLI_CMD_PEEK
         .WORD       CLI_CMD_POKE
         .WORD       CLI_CMD_AUTOPOKE
-        .WORD       CLI_CMD_RESET
+        ; .WORD       CLI_CMD_RESET
         .WORD       CLI_CMD_RUN
         .WORD       CLI_CMD_HALT
         .WORD       CLI_CMD_DISK_CAT
@@ -169,7 +170,7 @@ cmd_jmptable:
 ;==============================================================================
 ; Local Equates
 ;==============================================================================
-JMPTABLE_LENGTH     .EQU        27      ; total number of available commands
+JMPTABLE_LENGTH     .EQU        26      ; total number of available commands
                                         ; in jump table above
 
 CLI_NOCMD:
