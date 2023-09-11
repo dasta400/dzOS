@@ -94,3 +94,27 @@
         \item Mode 4: \textbf{Graphics II Mode Bitmapped}: same as mode 2, but
         screen is bitmapped for addressing every pixel individually.
     \end{itemize}
+
+    % ==========================================================================
+    \subsection{Useful pokes}
+    % ==========================================================================
+
+    Some of the OS behaviour can be modified by simply changing values stored in
+    \textbf{RAM}.
+    
+    This can be done with the command \hyperref[cmd:poke]{poke}.
+
+    \begin{itemize}
+        \item \texttt{poke 40AC,01} - Show deleted files with the command
+            \hyperref[cmd:cat]{cat}.
+        \item \texttt{poke 40AC,00} - Hide deleted files with the command
+            \hyperref[cmd:cat]{cat}. This is default value when the computer is
+            turned ON or after a reset.
+        \item \texttt{poke 4176,nn} - \textbf{DISK} number (\textit{nn})
+            where the operations read and write will be performed.
+        \item \texttt{poke 4195,nn} to \texttt{poke 41A3,nn} - Change the 
+            colour in which messages will be displayed in the \textbf{High
+            Resolution Display}. See \textit{dastaZ80 Programmer's Reference
+            Guide}\cite{dastaz80progref} for a complete list of message types.
+    \end{itemize}
+
