@@ -7,7 +7,7 @@
 ;
 ; Version 1.0.0
 ; Created on 25 Apr 2019
-; Last Modification 18 Aug 2023
+; Last Modification 13 Sep 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - Added F_KRN_VDP_WRSTR
@@ -15,6 +15,8 @@
 ;                   Added F_KRN_VDP_CLEARSCREEN
 ;                   Added F_KRN_VDP_CHG_COLOUR_FGBG
 ;                   Added F_KRN_VDP_CHG_COLOUR_BORDER
+;   - 12 Sep 2023 - Added F_KRN_STRCHR
+;                   Added F_KRN_STRCHRNTH
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -94,6 +96,10 @@ F_KRN_STRLENMAX:                    .EXPORT         F_KRN_STRLENMAX
         jp      KRN_STRLENMAX
 F_KRN_INSTR:                        .EXPORT         F_KRN_INSTR
         jp      KRN_INSTR
+F_KRN_STRCHR:                       .EXPORT         F_KRN_STRCHR
+        jp      KRN_STRCHR
+F_KRN_STRCHRNTH:                    .EXPORT         F_KRN_STRCHRNTH
+        jp      KRN_STRCHRNTH
 
         ; Memory subroutines
 F_KRN_SETMEMRNG:                    .EXPORT         F_KRN_SETMEMRNG

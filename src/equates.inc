@@ -69,8 +69,8 @@ BIOS_JBLK_START             .EQU    $3E20
 BIOS_JBLK_END               .EQU    $3F0F
 KRN_JBLK_START              .EQU    $3F10
 KRN_JBLK_END                .EQU    $3FFF
-JBLKS_START_HRAM            .EQU    BIOS_JBLK_START + $8000
-JBLKS_SIZE_HRAM             .EQU    KRN_JBLK_END - BIOS_JBLK_START
+; JBLKS_START_HRAM            .EQU    BIOS_JBLK_START + $8000           DELETEME
+; JBLKS_SIZE_HRAM             .EQU    KRN_JBLK_END - BIOS_JBLK_START    DELETEME
 
 ;==============================================================================
 ; RAM positions

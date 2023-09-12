@@ -145,3 +145,46 @@
         \hline\textbf{Calls} & None\\
         \hline
     \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_STRCHR}
+    \label{func:fkrnstrchr}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Finds the first occurrence of a character in a string terminated by a
+            specified character.\\
+        \hline\multirow[t]{3}{4em}{\textbf{Entry}}
+        & \texttt{HL} = \textbf{MEMORY} address where the first byte of the
+        string is located.\\
+        & \texttt{D} = terminating character.\\
+        & \texttt{E} = character to search in string.\\
+        \hline\multirow[t]{2}{4em}{\textbf{Exit}}
+        & \texttt{HL} = \textbf{MEMORY} address to the character found.\\
+        & \texttt{Carry Flag} = Set if character was found.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{HL}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_STRCHRNTH}
+    \label{func:fkrnstrchr}
+    % ==========================================================================
+    \begin{tabular}{l p{9cm}}
+        \hline\textbf{Action}
+        & Finds the \textit{nth} occurrence of a character in a string terminated by a
+            specified character.\\
+        \hline\multirow[t]{4}{4em}{\textbf{Entry}}
+        & \texttt{HL} = \textbf{MEMORY} address where the first byte of the
+        string is located.\\
+        & \texttt{D} = terminating character.\\
+        & \texttt{E} = character to search in string.\\
+        & \texttt{B} = occurrence number (\textit{nth}).\\
+        \hline\multirow[t]{2}{4em}{\textbf{Exit}}
+        & \texttt{HL} = \textbf{MEMORY} address to the character found.\\
+        & \texttt{Carry Flag} = Set if character was found.\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{HL}\\
+        \hline\textbf{Calls} & None\\
+        \hline
+    \end{tabular}
