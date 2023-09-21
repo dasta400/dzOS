@@ -114,6 +114,114 @@
     \end{itemize}
 
     % ==========================================================================
+    \subsection{How to display Sprites}
+    % ==========================================================================
+    
+    A \textit{sprite} is a two-dimensional bitmap that can be made to move
+    and change shape in the screen with very little programming effort, thanks
+    to the \textbf{VDP} support for hardware sprites.
+
+    The \textbf{VDP} has 32 sprite planes each of which can contain a single
+    sprite.
+
+    Sprites can be of two sizes; 8x8 pixels (Size 0) or 16x16 (Size 1) pixels.
+    There is also the possibility to magnify a sprite, thus a 8x8 sprite becomes
+    16x16, and a 16x16 sprite becomes 32x32. Unfortunatelly, the sprite
+    resolution is cut in half.
+
+    Two tables are required in \textbf{VRAM} in order to display a sprite; the 
+    \textit{Sprite Attribute Table} and the \textit{Sprite Pattern Table}.
+
+    The address of these tables will change depending on which mode we are using.
+    Refer to the \hyperref[subsec:vdp_memmap]{VDP Memory Map} to know the addresses.
+
+    The \textit{Sprite Pattern Table} defines the shape of each sprite. It takes
+    8 bytes to define the pattern of Size 0 (8x8) sprite and 32 bytes for a Size
+    1 (16x16) sprite. The table has a maximum length of 2048 bytes, therefore a
+    maximum of 256 patterns can be defined for Size 0 and 64 for Size 1 sprites.
+
+    The \textit{Sprite Attribute Table} contains four bytes of information for
+    every sprite. The table is ordered sequentally, where the first four bytes
+    contain the information for sprite 0, the next 4 bytes contain the
+    information for sprite 1, and so on.
+
+    The information of the four bytes in the \textit{Sprite Attribute Table} is
+    as follows:
+
+    \begin{itemize}
+        \item Vertical coordinate: determines the distance (in pixels) the
+                sprite will be offset from the top of the screen. The position
+                is measured relative to the upper left hand corner of the sprite.
+                A value of \texttt{0xFF} will put the sprite at the top of the
+                screen. A value of \texttt{0xBF} will put the sprite at the
+                bottom of the screen. But because the position is meassured
+                relative to the upper left hand corner of the sprite, it will
+                not appear.
+        \item Horizontal coordinate: determines the distance (in pixels) the
+                sprite will be offset from the left hand side of the screen. A
+                value of \texttt{0x00} will put the sprite at the left hand side
+                of the screen. A value of \texttt{0xFF} will put the sprite at
+                the right hand side of the screen. But because the position is
+                meassured relative to the upper left hand corner of the sprite,
+                it will not appear.
+        \item Sprite Name Pointer: the value in this byte determines which
+                pattern from the \textit{Sprite Pattern Table} will be used as
+                the sprite's shape. This highly simplify the production of
+                sprite animations, as just the pointer needs to be changed.
+        \item Colour and Early Clock Bit:
+            \begin{itemize}
+                \item The lower nibble define the sprite
+                        colour, which can be any of the \hyperref[sec:vdp_colours]{
+                        VDP Composite colours}.
+                \item The MSB of the higher nibble is called the \textit{Early
+                        Clock Bit}, and when set as 1 it shifts the position of
+                        the sprite to the left by 32 pixels.
+            \end{itemize}
+    \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{Example}
+        % ==========================================================================
+
+        Lets assume we are working in mode 2 (Graphics II Mode). Following the
+        \hyperref[subsec:vdp_memmap]{VDP Memory Map}, we can see that the Sprite
+        Pattern Table is located at \texttt{0x1800} and the Sprite Attribute
+        Table at \texttt{0x3B00}.
+
+        First we will fill the patterns of Sprite 0 with the 8x8 sprite from the
+        \textit{Video Display Processors Programmer's Guide}\cite{ti1}. Hence we
+        need to assign the following values:
+
+        \begin{itemize}
+            \item \texttt{0x1800} = \texttt{0x10}
+            \item \texttt{0x1801} = \texttt{0x10}
+            \item \texttt{0x1802} = \texttt{0xFE}
+            \item \texttt{0x1803} = \texttt{0x7C}
+            \item \texttt{0x1804} = \texttt{0x38}
+            \item \texttt{0x1805} = \texttt{0x6C}
+            \item \texttt{0x1806} = \texttt{0x44}
+            \item \texttt{0x1807} = \texttt{0x00}
+        \end{itemize}
+
+        At this point, most probably (if just started the computer) we won't see
+        anything yet, beacuse the colour is set to \texttt{0x00} (Transparent).
+
+        Lets change the colour byte for sprite 0 in the Sprite Attribute Table
+        (\texttt{0x3B03}) to \texttt{0x03} (Light Green).
+
+        You should be seeing a litlle green star at the top left of the screen.
+
+        By changing the bytes corresponding to the Y position \texttt{0x3B00}
+        and X position \texttt{0x3B01}, we can move the sprite around the
+        screen. Lets try for example \texttt{0x3B00} = \texttt{0x5F} and
+        \texttt{0x3B01} = \texttt{0x7F} to display the sprite at the center of
+        the screen.
+
+        This can be easily tested from the command line, by using the command 
+        \textit{vpoke} to change the bytes. For example, \textit{vpoke 1800,10}.
+
+
+    % ==========================================================================
     \subsection{Develop software for dzOS}
     % ==========================================================================
 
