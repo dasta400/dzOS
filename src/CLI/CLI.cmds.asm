@@ -7,7 +7,7 @@
 ;
 ; Version 1.0.0
 ; Created on 06 Jul 2022
-; Last Modification 11 Sep 2023
+; Last Modification 21 Sep 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - F_BIOS_VDP_SET_MODE_ functions now require extra parameters
@@ -15,6 +15,8 @@
 ;                       directly by simply entering the filename as command.
 ;   - 18 Aug 2023 - Added CLI_CMD_VDP_CLS
 ;   - 11 Sep 2023 - Removed command 'reset'
+;   - 21 Sep 2023 - Solved bug: file Size was not printed in the same column
+;                   as others, when the file had no attributes
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
