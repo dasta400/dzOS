@@ -293,14 +293,17 @@
         \label{func:fbiosvdpvblankwait}
         % ==========================================================================
         \begin{tabular}{l p{9cm}}
-            \hline\textbf{Action}
-            & Test \textit{Status Register} for \textit{Interrupt Flag}
-            (\texttt{0x80}) and loop until flag is raised.\\
+            \hline\multirow[t]{2}{4em}{\textbf{Action}}
+            & Test if the \hyperref[sec:ram_memmap]{SYSVARS}
+            \textit{VDP\_jiffy\_byte1} has changed. If not, continues waiting
+            for the change in a loop. Otherwise, exits.\\
+            & See the \hyperref[subsec:vdp_limitations]{VDP Limitations} section
+            on the \textit{Appendixes} of this Guide for a possible bug on the
+            \textbf{VDP}'s Status Register.\\
             \hline\textbf{Entry} & None\\
             \hline\textbf{Exit} & None\\
-            \hline\textbf{Destroys} & \texttt{A}\\
-            \hline\textbf{Calls} & 
-            \hyperref[func:fbiosvdpreadstatreg]{F\_BIOS\_VDP\_READ\_STATREG}\\
+            \hline\textbf{Destroys} & \texttt{A}, \texttt{B}\\
+            \hline\textbf{Calls} & None\\
             \hline
         \end{tabular}
 

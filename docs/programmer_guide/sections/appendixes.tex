@@ -183,6 +183,7 @@
     % ==========================================================================
     \subsection{VDP Limitations}
     % ==========================================================================
+    \label{subsec:vdp_limitations}
 
     The maximum resolutions are: 240x192 pixels in Text Mode, 256x192 pixels in
     Graphics Modes (I, II, II Bit-mapped), and 512x384 in Multicolour Mode.
@@ -196,6 +197,17 @@
     In Graphics II Bit-mapped Mode, individual pixels can be addressed but
     individual colours cannot. Therefore it is not possible to assign different
     colours for each pixel.
+
+    Bug?: After some tests, and confirmed with some information found on the
+    Internet, reading continuously the Status Register can lead to miss the flag.
+    This happens when the register is read and the VDP is about to set it,
+    because as specified in the \textit{Video Display Processors Programmer's
+    Guide}\cite{ti1}, \textit{the Status Register is reset after it's read}.
+    Therefore, the subroutine implemented in dzOS for waiting for the VBLANK
+    (\textit{BIOS\_VDP\_VBLANK\_WAIT}) that initially was reading the
+    \textbf{VDP}'s Status Register and looping until the MSB changed to 1, has
+    been changed to instead check for a change on the
+    \hyperref[subsec:jiffy_counter]{Jiffy Counter}.
 
     % ==========================================================================
     \subsubsection{Sprites}

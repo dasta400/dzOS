@@ -7,11 +7,12 @@
 ;
 ; Version 1.0.0
 ; Created on 19 Dec 2022
-; Last Modification 17 Aug 2023
+; Last Modification 21 Sep 2023
 ;******************************************************************************
 ; CHANGELOG
-; 	- 17 Aug 2023 - Added parameters Sprite Size and Sprite Magnification to
+;   - 17 Aug 2023 - Added parameters Sprite Size and Sprite Magnification to
 ;                       all F_BIOS_VDP_SET_MODE_ functions.
+;   - 21 Sep 2023 - Changed BIOS_VDP_VBLANK_WAIT due to VDP bug
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -722,11 +723,23 @@ _jiffy_end:
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_VBLANK_WAIT:
-; Test Status Register for Interrupt Flag ($80)
-;   and loop here until flag is raised
-        call    F_BIOS_VDP_READ_STATREG
-        and     $80
-        jr      z, BIOS_VDP_VBLANK_WAIT
+; Test Status Register for Interrupt Flag ($80) and loop here until flag is raised
+; 21 Sep 2023 - After some tests, and confirmed with some information found on
+;               the Internet: reading continuously the Status Register can lead
+;               to miss the flag. This happens when the register is read and the
+;               VDP is about to set it, because as specified in the VDP manual
+;               "the Status Register is reset after it's read"
+;               Therefore I change this code:
+        ; call    F_BIOS_VDP_READ_STATREG
+        ; and     $80
+        ; jr      z, BIOS_VDP_VBLANK_WAIT
+;               For this one:
+        ld      A, (VDP_jiffy_byte1)        ; get current jiffy
+        ld      B, A                        ; store it in B
+_wait_for_jiffy_change:
+        ld      A, (VDP_jiffy_byte1)        ; get current jiffy
+        cp      B                           ; if it's same as the one we stored
+        jr      z, _wait_for_jiffy_change   ;   before, loop until changes
         ret
 ;------------------------------------------------------------------------------
 BIOS_VDP_LDIR_VRAM:
