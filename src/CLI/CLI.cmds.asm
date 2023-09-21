@@ -1119,43 +1119,51 @@ _CLI_DISK_PRINT_ATTRBS:
         ; Discard High Nibble
         and     $0F
 
+        cp      0
+        jr      nz, _it_has_attribs
+        ld      B, 4
+        call    print_n_spaces
+        ret
+
+_it_has_attribs:
         push    AF
         and     1                           ; Read Only?
-        jp      nz, disk_attrib_is_ro       ; No, print a space
-        call    print_a_space
+        jp      nz, disk_attrib_is_ro       ; yes, print letter R
+        call    print_a_space               ; no, print a space
         jp      disk_attrib_hidden
-disk_attrib_is_ro:                          ; Yes, print a dot
+disk_attrib_is_ro:
         ld      A, 'R'
         call    F_BIOS_SERIAL_CONOUT_A
 disk_attrib_hidden:
         pop     AF
         push    AF
         and     2                           ; Hidden?
-        jp      nz, disk_attrib_is_hidden   ; No, print a space
-        call    print_a_space
+        jp      nz, disk_attrib_is_hidden   ; yes, print letter H
+        call    print_a_space               ; no, print a space
         jp      disk_attrib_system
-disk_attrib_is_hidden:                      ; Yes, print a dot
+disk_attrib_is_hidden:
         ld      A, 'H'
         call    F_BIOS_SERIAL_CONOUT_A
 disk_attrib_system:
         pop     AF
         push    AF
         and     4                           ; System?
-        jp      nz, disk_attrib_is_system   ; No, print a space
-        call    print_a_space
+        jp      nz, disk_attrib_is_system   ; yes, print letter S
+        call    print_a_space               ; no, print a space
         jp      disk_attrib_executable
-disk_attrib_is_system:                      ; Yes, print a dot
+disk_attrib_is_system:
         ld      A, 'S'
         call    F_BIOS_SERIAL_CONOUT_A
 disk_attrib_executable:
         pop     AF
         and     8                           ; Executable?
-        jp      nz, disk_attrib_is_exec     ; No, print a space
-        call    print_a_space
+        jp      nz, disk_attrib_is_exec     ; yes, print letter E
+        call    print_a_space               ; no, print a space
         ret
-disk_attrib_is_exec:                        ; Yes, print a dot
+disk_attrib_is_exec:
         ld      A, 'E'
         call    F_BIOS_SERIAL_CONOUT_A
+        ret                                 ; all attribs. printed. Return
 
 print_a_space:
         ld      A, ' '
