@@ -288,7 +288,7 @@ KRN_BIN_TO_ASCII:
         ; SAVE PARAMETERS
         ld      (CLI_buffer_pgm + 6), HL    ; STORE THE BUFFER POINTER
         ex      DE, HL
-        ld      A, 0
+        xor     A
         ld      (CLI_buffer_pgm + 8), A     ; CURRENT BUFFER LENGTH IS 0
         ld      A, H
         ld      (CLI_buffer_pgm + 9), A     ; SAVE SIGN OF VALUE

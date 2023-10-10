@@ -223,7 +223,7 @@ parse_do_jmptable:
         ld      HL, cmd_jmptable        ; HL = pointer to jump table
         add     A, L                    ; A = points to subroutine in jump table
         ld      L, A                    ; Copy subroutine address
-        ld      A, 0                    ;   within jump table
+        xor     A                       ;   within jump table
         adc     A, H                    ;   to
         ld      H, A                    ;   HL
 
@@ -326,27 +326,27 @@ F_CLI_CLRCLIBUFFS:
 ; Clears the buffers used for F_CLI_READCMD, so they are ready for a new command
         ld      HL, CLI_buffer_cmd
         ld      BC, 15
-        ld      A, 0
+        xor     A
         call    F_KRN_SETMEMRNG
 
         ld      HL, CLI_buffer_parm1_val
         ld      BC, 15
-        ld      A, 0
+        xor     A
         call    F_KRN_SETMEMRNG
 
         ld      HL, CLI_buffer_parm2_val
         ld      BC, 15
-        ld      A, 0
+        xor     A
         call    F_KRN_SETMEMRNG
 
         ld      HL, CLI_buffer_pgm
         ld      BC, 31
-        ld      A, 0
+        xor     A
         call    F_KRN_SETMEMRNG
 
         ld      HL, CLI_buffer_full_cmd
         ld      BC, 63
-        ld      A, 0
+        xor     A
         call    F_KRN_SETMEMRNG
 
         ret

@@ -71,7 +71,7 @@ copy512rest:
         ld      A, B                    ; check if BC
         or      C                       ;   has reached zero
         jp      z, copy512end           ; yes, we copied all 512 bytes
-        ld      A, 0                    ; no,
+        xor     A                       ; no,
         ld      (DE), A                 ;   copy zeros
         inc     DE                      ;   to the reamining addresses
         dec     BC                      ;   until counter reaches zero
@@ -104,7 +104,7 @@ KRN_CLEAR_MEMAREA:
 ; Maximum 256 bytes can be cleared.
 ; IN <= IX = first byte to clear
 ;       B = number of bytes to clear
-        ld      A, 0
+        xor     A
 loop_clrmem:
         ld      (IX), A
         inc     IX

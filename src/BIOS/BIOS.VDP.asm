@@ -188,7 +188,7 @@ BIOS_VDP_DI:
 ; NOTE: this is independent of the value (bit 5) in VDP Register 1. What this
 ;       does is that the NMI subroutine doesn't read the VDP Status Register
 ;       anymore, and therefore doesn't allow more interrupts to happen.
-        ld      A, 0
+        xor     A
         ld      (NMI_enable), A
         ret
 ;------------------------------------------------------------------------------
@@ -266,7 +266,7 @@ _testram_error:
 ; Initialises VDP registers 0 to 6 according with values from table
 ; IN <= IX = table with initialisation values
 BIOS_VDP_INIT_REGS:
-        ld      A, 0                    ; initialise register counter
+        xor     A                       ; initialise register counter
 _ini_regs_loop:
         ld      B, (IX)
         call    BIOS_VDP_SET_REGISTER
@@ -311,7 +311,7 @@ BIOS_VDP_SET_MODE_TXT:
         ; Initialise the 2048 bytes of the Pattern Table, with all zeros
         ld      HL, VDP_TXT_PATT_TAB
         call    F_BIOS_VDP_SET_ADDR_WR
-        ld      A, 0                    ; write zeros
+        xor     A                       ; write zeros
         ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
         call    BIOS_VDP_INIT_TAB
@@ -319,11 +319,11 @@ BIOS_VDP_SET_MODE_TXT:
         ; Initialise the 960 bytes of the Name Table, with all zeros
         ; ld      HL, VDP_TXT_NAME_TAB      ; Name table is next to the Pattern Table
         ; call    F_BIOS_VDP_SET_ADDR_WR    ;   so no need to reposition VRAM pointer
-        ld      A, 0                    ; write zeros
+        xor     A                       ; write zeros
         ld      B, 3                    ; outer loop decrementing (960 / 256 = 3 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
         call    BIOS_VDP_INIT_TAB
-        ld      A, 0                    ; write zeros
+        xor     A                       ; write zeros
         ld      B, 0                    ; outer loop decrementing (0 times)
         ld      D, 192                  ; inner loop incrementing (960 mod 256 = 192 times)
         call    BIOS_VDP_INIT_TAB
@@ -373,7 +373,7 @@ BIOS_VDP_SET_MODE_G1:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      B, 8                    ; outer loop decrementing (2048 / 256 = 8 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      A, 0                    ; write zeros
+        xor     A                       ; write zeros
         call    BIOS_VDP_INIT_TAB
 
         ; Initialise the Color Table
@@ -388,7 +388,7 @@ BIOS_VDP_SET_MODE_G1:
         ld      HL, VDP_G1_NAME_TAB
         call    F_BIOS_VDP_SET_ADDR_WR
         ; ld      A, $05
-        ld      A, 0                    ; write zeros
+        xor     A                       ; write zeros
         ld      B, 3                    ; outer loop decrementing (768 / 256 = 3 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
         call    BIOS_VDP_INIT_TAB
@@ -438,7 +438,7 @@ BIOS_VDP_SET_MODE_G2:
         ; Initialise the 6144 bytes of the Pattern Table, with all zeros
         ld      HL, VDP_G2_PATT_TAB
         call    F_BIOS_VDP_SET_ADDR_WR
-        ld      A, 0                    ; write zeros
+        xor     A                       ; write zeros
         ld      B, 24                   ; outer loop decrementing (6144 / 256 = 24 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
         call    BIOS_VDP_INIT_TAB
@@ -462,7 +462,7 @@ BIOS_VDP_SET_MODE_G2:
         ; Initialise the Name Table with zeros
         ; ld      HL, VDP_G2_NAME_TAB     ; Name table is next to the Colour Table
         ; call    F_BIOS_VDP_SET_ADDR_WR  ;   so no need to reposition VRAM pointer
-        ld      A, 0
+        xor     A
         ld      B, 3                    ; outer loop decrementing (768 / 256 = 3 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
         call    BIOS_VDP_INIT_TAB
@@ -513,7 +513,7 @@ BIOS_VDP_SET_MODE_G2BM:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      B, 24                   ; outer loop decrementing (6144 / 256 = 24 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      A, 0                    ; write zeros
+        xor     A                       ; write zeros
         call    BIOS_VDP_INIT_TAB
 
         ; Initialise the Color Table with White pixels over Black background
@@ -579,7 +579,7 @@ BIOS_VDP_SET_MODE_MULTICLR:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      B, 6                    ; outer loop decrementing (1536 / 256 = 6 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      A, 0                    ; write zeros
+        xor     A                       ; write zeros
         call    BIOS_VDP_INIT_TAB
 
         ; Initialise the 768 bytes of the Name Table, with all zeros
@@ -587,7 +587,7 @@ BIOS_VDP_SET_MODE_MULTICLR:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      B, 3                    ; outer loop decrementing (768 / 256 = 3 times)
         ld      D, 0                    ; inner loop incrementing (256 times)
-        ld      A, 0                    ; write zeros
+        xor     A                       ; write zeros
         call    BIOS_VDP_INIT_TAB
 
         ; Set Backdrop colour
@@ -619,7 +619,7 @@ BIOS_VDP_FNT_CHARSET:
         call    F_BIOS_VDP_DI
         ;   From characters 0x0000 to 0x0020 (33*8=264 bytes) = Fill with 0x00
         ld      B, 0                  ; byte counter for 256
-        ld      A, 0
+        xor     A
 _fnt_fill_with_zeros1:
         call    F_BIOS_VDP_BYTE_TO_VRAM
         djnz    _fnt_fill_with_zeros1
@@ -646,7 +646,7 @@ _fnt_fill_with_data2: ; fill the remaining 240 bytes
         inc     DE
         djnz    _fnt_fill_with_data2
         ;   Fill character 0x007F with zeros (8 bytes)
-        ld      A, 0
+        xor     A
         ld      B, 8
 _fnt_fill_with_zeros3:
         call    F_BIOS_VDP_BYTE_TO_VRAM
@@ -853,7 +853,7 @@ _inc_xy_40:
         jr      z, _resetX
         ret
 _resetX:                                ; Set X to 0, and increment Y
-        ld      A, 0
+        xor     A
         ld      (VDP_cursor_x), A
         ld      HL, VDP_cursor_y
         inc     (HL)
@@ -863,7 +863,7 @@ _resetX:                                ; Set X to 0, and increment Y
         cp      24
         ret     nz
 _resetY:                                ; Set X and Y to 0
-        ld      A, 0
+        xor     A
         ld      (VDP_cursor_x), A
         ld      (VDP_cursor_y), A
         ret

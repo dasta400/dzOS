@@ -131,4 +131,4 @@ F_KRN_VDP_CHG_COLOUR_FGBG .EQU  $3fee
 F_KRN_VDP_CHG_COLOUR_BORDER .EQU  $3ff1
 cli_promptloop   .EQU  $26e3
 dzos_version     .EQU  $26b7
-msg_bios_version .EQU  $0241
+msg_bios_version .EQU  $023f

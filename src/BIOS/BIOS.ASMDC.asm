@@ -187,7 +187,7 @@ _rcv_name_loop:
         inc     IX
         djnz    _rcv_name_loop
         ; Add string terminator ($00)
-        ld      A, 0
+        xor     A
         ld      (IX), A
         inc     IX
         ; Receive image file capacity

@@ -341,7 +341,7 @@ CLI_CMD_DISK_LOWLVLFORMAT:
         ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ; set DISK_is_formatted to 0x00 to indicate unformatted
-        ld      A, 0
+        xor     A
         ld      (DISK_is_formatted), A
         jp      cli_promptloop
 _lowlvlerror:
@@ -510,7 +510,7 @@ _chgattr:
         ld      B, 1                    ; character counter
         ld      IX, CLI_buffer_parm2_val; pointer to characters in param2
         ld      HL, tmp_byte            ; pointer to final attribute mask byte
-        ld      A, 0                    ; clear the
+        xor     A                       ; clear the
         ld      (tmp_byte), A           ;    mask byte
 read_attr:
         ld      A, (IX)                 ; load attribute
@@ -838,7 +838,7 @@ crc16_gen_loop:
 CLI_CMD_CLRRAM:
         ld      HL, FREERAM_START
         ld      BC, FREERAM_END - FREERAM_START
-        ld      A, 0
+        xor     A
         call    F_KRN_SETMEMRNG
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
@@ -968,7 +968,7 @@ _format_answer_end:
         cp      's'
         jp      nz, _format_answer_no
 _format_answer_yes:
-        ld      A, 0
+        xor     A
         ret
 _format_answer_no:
         ld      A, 1
@@ -986,7 +986,7 @@ _CLI_DISK_PRINT_DISKCAT:
 ; know there are no more entries. The maximum number of entries is 1744
         ld      A, 1                    ; BAT starts at sector 1
         ld      (DISK_cur_sector), A
-        ld      A, 0
+        xor     A
         ld      (DISK_cur_sector + 1), A
 diskcat_nextsector:
         ld      HL, (DISK_cur_sector)
@@ -996,7 +996,7 @@ diskcat_nextsector:
         ; each read will put 16 entries in the buffer.
         ; We need to read a maxmimum of 1024 entries (i.e BAT max entries),
         ; therefore 64 sectors.
-        ld      A, 0                    ; entry counter
+        xor     A                       ; entry counter
 diskcat_print:
         push    AF
         call    F_KRN_DZFS_BATENTRY_TO_BUFFER
@@ -1285,16 +1285,16 @@ _CLI_CHECK_FDD_WR_READY: ; ToDo
 ; OUT => A = 0x00 All OK / 0xFF no disk or write protected
 ;         call    _CLI_CHECK_DISK_IN_DRIVE
 ;         cp      0
-;         ret     nz                      ; no disk in drive, return
+;         ret     nz                    ; no disk in drive, return
 
 ;         call    F_BIOS_FDD_CHECK_WPROTECT
 ;         cp      0
 ;         jp      z, _writeprotected
-        ld      A, 0                    ; Indicate no error to calling subroutine
+        xor     A                       ; Indicate no error to calling subroutine
         ret
 ; _writeprotected:
 ;         ld      HL, error_9009
 ;         ld      A, (col_CLI_error)
 ;         call    F_KRN_SERIAL_WRSTRCLR
-;         ld      A, $FF                  ; Indicate error to calling subroutine
+;         ld      A, $FF                ; Indicate error to calling subroutine
         ret

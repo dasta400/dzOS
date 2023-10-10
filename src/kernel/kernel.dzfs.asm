@@ -157,7 +157,7 @@ KRN_DZFS_GET_FILE_BATENTRY:
         ld      (tmp_addr2), HL                 ; Store address of filename to check
         ld      A, 1                            ; BAT starts at sector 1
         ld      (DISK_cur_sector), A
-        ld      A, 0
+        xor     A
         ld      (DISK_cur_sector + 1), A
 bat_nextsector:
         ld      HL, (DISK_cur_sector)
@@ -166,7 +166,7 @@ bat_nextsector:
         ; each read will put 16 entries in the buffer.
         ; We need to read a maxmimum of 1024 entries (i.e BAT max entries),
         ; therefore 64 sectors.
-        ld      A, 0                            ; entry counter (max. 16)
+        xor     A                               ; entry counter (max. 16)
 bat_entry:
         push    AF                              ; backup entry counter
         call    F_KRN_DZFS_BATENTRY_TO_BUFFER
@@ -617,7 +617,7 @@ KRN_DZFS_GET_BAT_FREE_ENTRY:
         ld      IY, 0                           ; temporary storage for file entry
         ld      A, 1                            ; BAT starts at sector 1
         ld      (DISK_cur_sector), A
-        ld      A, 0
+        xor     A
         ld      (DISK_cur_sector + 1), A
 getbat_nextsector:
         call    F_KRN_DZFS_READ_BAT_SECTOR
@@ -625,7 +625,7 @@ getbat_nextsector:
         ; each read will put 16 entries in the buffer.
         ; We need to read a maxmimum of 1024 entries (i.e BAT max entries),
         ; therefore 64 sectors.
-        ld      A, 0                            ; entry counter
+        xor     A                               ; entry counter
 getbat_entry:
         push    AF                              ; backup entry counter
         call    F_KRN_DZFS_BATENTRY_TO_BUFFER
@@ -1046,7 +1046,7 @@ KRN_DZFS_CHECK_FILE_EXISTS:
 ;------------------------------------------------------------------------------
 KRN_DZFS_SET_FILE_DEFAULTS:
         ; Set File Type back to default (0=USR)
-        ld      A, 0
+        xor     A
         ld      (DISK_file_type), A
         ; Set loadsave address back to default ($0000)
         ld      HL, $0000

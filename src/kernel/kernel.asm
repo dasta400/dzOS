@@ -314,7 +314,7 @@ get_imgs_info:
         jp      nz, get_imgs_info           ; if not, get more images
 
         ; Print images' information (name and capacity in MB)
-        ld      A, 0
+        xor     A
         ld      (tmp_byte), A               ; images counter
         ld      HL, FREERAM_END - 211       ; start of images' info - 1
         push    HL                          ; HL = at the end of images' filename
@@ -498,7 +498,7 @@ KRN_INIT_NVRAM:
 ;------------------------------------------------------------------------------
 KRN_INIT_SYSVARS:
         ; Set show deleted files with 'cat' as OFF
-        ld      A, 0
+        xor     A
         ld      (DISK_show_deleted), A
 
         ; Reset VDP Cursor position
@@ -538,7 +538,7 @@ _chgdsk:
         pop     AF                      ; restore new DISK number
         ld      (DISK_current), A       ; and set it as DISK_current
         call    F_KRN_DZFS_READ_SUPERBLOCK
-        ld      A, 0                    ; No errors
+        xor     A                       ; No errors
         ret
 
 ;==============================================================================

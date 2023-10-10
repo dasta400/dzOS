@@ -133,12 +133,12 @@ _cls_mode_0:
         ; fill frist 768 bytes
         ld      D, 3                    ; outer loop is 3
         ld      B, 0                    ; inner loop is 256
-        ld      A, 0                    ; fill with zeros
+        xor     A                       ; fill with zeros
         call    _cls_loop
         ; fill remaining 192 bytes
         ld      D, 0
         ld      B, 192
-        ld      A, 0
+        xor     A
         jr      _cls_loop
         ret
 _cls_mode_1:
@@ -148,7 +148,7 @@ _cls_mode_1:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      D, 4                    ; outer loop is 4
         ld      B, 0                    ; inner loop is 256
-        ld      A, 0                    ; fill with zeros
+        xor     A                       ; fill with zeros
         jr      _cls_loop
 _cls_mode_others:
         ; Fill 768 bytes of the Name Table with zeros
@@ -157,7 +157,7 @@ _cls_mode_others:
         call    F_BIOS_VDP_SET_ADDR_WR
         ld      D, 3                    ; outer loop is 3
         ld      B, 0                    ; inner loop is 256
-        ld      A, 0                    ; fill with zeros
+        xor     A                       ; fill with zeros
 
 _cls_loop:
         call    F_BIOS_VDP_BYTE_TO_VRAM ; fill VRAM address

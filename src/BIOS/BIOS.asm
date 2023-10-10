@@ -104,7 +104,7 @@ BIOS_WBOOT:
         ld      A, 1
         ld      (NMI_enable), A
         ; Disable usr configurable jump
-        ld      A, 0
+        xor     A
         ld      (NMI_usr_jump), A
         ; Set NMI jp to default. In case it was modified by a program
         ld      IX, BIOS_NMI_JP
@@ -122,7 +122,7 @@ BIOS_SYSHALT:
         ; disable Non-Maskable Interrupts
         call    F_BIOS_VDP_DI           
         ld      B, 0                    
-        ld      A, 0
+        xor     A
         call    F_BIOS_VDP_SET_REGISTER
         ld      A, 1
         call    F_BIOS_VDP_SET_REGISTER

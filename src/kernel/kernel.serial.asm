@@ -144,7 +144,7 @@ KRN_SERIAL_CLRSCR:  ; ToDo - delete?
         ld      DE, KRN_ANSI_CLRSCR
         ld      B, 7
         call    F_KRN_SERIAL_SEND_ANSI_CODE
-        ld      A, 0                    ; set to no character
+        xor     A                       ; set to no character
         ret
 ;------------------------------------------------------------------------------
 KRN_SERIAL_EMPTYLINES:
@@ -237,7 +237,7 @@ KRN_SERIAL_CLR_SIOCHA_BUFFER:
 ; Clear (sets to zeros) the SIO Channel A Buffer
         ld      HL, SIO_CH_A_BUFFER
         ld      B, 64                   ; Buffer is 64 bytes
-        ld      A, 0                    ; set to zeros
+        xor     A                       ; set to zeros
 _clr_sioa_buffer:
         ld      (HL), A
         inc     HL
