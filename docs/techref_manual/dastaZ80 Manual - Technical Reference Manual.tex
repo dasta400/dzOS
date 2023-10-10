@@ -1,4 +1,5 @@
 \documentclass[a4paper,11pt]{article}
+\usepackage[lmargin=1.5cm,rmargin=1.5cm,bmargin=1.5cm]{geometry}
 \usepackage[UKenglish]{babel}
 \usepackage[table]{xcolor}
 \usepackage{graphicx}
@@ -12,6 +13,7 @@
 \usepackage{multirow}
 \usepackage{longtable}
 \usepackage{siunitx}
+\usepackage[none]{hyphenat}
 % the hyperref package must always be the last package to be included
 \usepackage[pdftex,
             pdfusetitle,
@@ -37,13 +39,13 @@
     % ==========================================================================
     \begin{pspicture}(8.5,11)
         \rput[b](3.5,8){
-            \parbox{7in}{
+            \parbox{10in}{
                 \begin{flushright}
                     \Huge\bfseries\sffamily dastaZ80 Mark III\\ Technical Reference Manual
                 \end{flushright}
             }
         }
-        \uput[0](0,0){\color{blue}\rule{7in}{0.5ex}}
+        \uput[0](0,0){\color{blue}\rule{10in}{0.5ex}}
     \end{pspicture}
     \title{dastaZ80 Technical Reference Manual}
     \author{David Asta}
@@ -71,7 +73,7 @@
     The following conventions are used in this manual:
 
     \begin{center}
-        \begin{tabular}{c m{9cm}}
+        \begin{tabular}{c m{14cm}}
             \hline
             \textbf{DEVICE} & Device names are displayed in bold all upper case 
             letters, and refer to hardware devices.\\
@@ -88,6 +90,9 @@
             \hline
         \end{tabular}
     \end{center}
+
+    \hfill\break
+    \hfill\break
 
     The SD card is referred as \textbf{DISK}.
 
@@ -255,7 +260,7 @@
 
     The available commands (cmd) are:
  
-     \begin{tabular}{| c | m{3.8cm} | m{3cm} | m{3.5cm} | }
+     \begin{tabular}{| c | m{5.8cm} | m{3cm} | m{3.5cm} | }
          \hline
          \rowcolor{lightgray}
          cmd & Description & (Size) Input & (Size) Output\\
@@ -314,7 +319,7 @@
 
     The available commands (cmd) are:
 
-    \begin{tabular}{| c | m{3.8cm} | m{3cm} | m{3.5cm} | }
+    \begin{tabular}{| c | m{6.8cm} | m{3cm} | m{3.5cm} | }
         \hline
         \rowcolor{lightgray}
         cmd & Description & (Size) Input & (Size) Output\\
@@ -361,7 +366,7 @@
 
     The available commands (cmd) are:
 
-    \begin{tabular}{| c | m{3.8cm} | m{3cm} | m{3.5cm} | }
+    \begin{tabular}{| c | m{6.8cm} | m{3cm} | m{3.5cm} | }
         \hline
         \rowcolor{lightgray}
         cmd & Description & (Size) Input & (Size) Output\\
@@ -409,7 +414,7 @@
  
      The available commands (cmd) are:
  
-     \begin{tabular}{| c | m{3.8cm} | m{3cm} | m{3.5cm} | }
+     \begin{tabular}{| c | m{5.8cm} | m{2cm} | m{6.5cm} | }
          \hline
          \rowcolor{lightgray}
          cmd & Description & (Size) Input & (Size) Output\\
@@ -497,13 +502,19 @@
     \subsubsection{Composite Output}
     % ==========================================================================
 
-    The Composite output is achieved with a Texas Instruments TMS9918A\footnote
-    {The TMS9918 and its variants were used in the ColecoVision,
-    CreatiVision, Memotech MTX, MSX, SG-1000/SC-3000, Spectravideo, Sord M5,
-    Tatung Einstein, Texas Instruments TI-99/4, Casio PV-2000, and Tomy Tutor.},
-    which provides an NTSC\footnote{National Television System Committee (NTSC)
-    is the standard for analog television used mainly in USA, Japan and some
-    parts of South America} signal.
+    The Composite output is achieved with a Texas Instruments TMS9918A which
+    provides an NTSC\footnote{National Television System Committee (NTSC) is the
+    standard for analog television used mainly in USA, Japan and some parts of
+    South America} signal.
+
+    A PAL\footnote{Phase Alternating Line (PAL) is the standard for analog
+    television used mainly in European countries, some African countries, some
+    Asian countries, and some Soth American countries.} signal can be obtained
+    by using an external NTSC-to-PAL converter.
+    
+    The TMS9918 and its variants were used in the ColecoVision, CreatiVision,
+    Memotech MTX, MSX, Sega SG-1000, Sega SC-3000, Spectravideo, Sord M5,
+    Tatung Einstein, Texas Instruments TI-99/4, Casio PV-2000, and Tomy Tutor.
 
     This output is referred in the dastaZ80 manuals as \textit{Low Resolution}
     and it is meant to be used as a display for applications' graphics and video
@@ -529,22 +540,23 @@
     plane numbers) will appear in front of sprites on the lower planes.
 
     For technical information on the TMS9918A, refer to the Texas Instruments'
-    \textit{Video Display Processors Programmer's Guide}\cite{ti1}, or to the article
-    \textit{High-Resolution Sprite-Oriented Color Graphics}\cite{ciarcia2}
+    \textit{Video Display Processors Programmer's Guide}\cite{ti1}, or to the
+    article \textit{High-Resolution Sprite-Oriented Color Graphics}\cite{ciarcia2}
     published on BYTE magazine.
 
     % ==========================================================================
     \subsection{Programmable Sound Generator (PSG)}
     % ==========================================================================
 
-    The sound generation is provided by a General Instrument AY-3-8912
-    \footnote{The AY-3-8912 and its variants were used in numerous Arcade
-    machines and in home computers like the Amstrad CPC, Atari ST, MSX, ZX
-    Spectrum and others.}, which is the same as the original AY-3-8910 but with
-    only one parallel port instead of two. This fact does not affect the
-    sound generation.
+    The sound generation is provided by a General Instrument AY-3-8912, which is
+    the same as the original AY-3-8910 but with only one parallel port instead
+    of two.
 
-    The parallel port oif the PSG is currently not used in the dastaZ80.
+    This parallel port is currently not used in the dastaZ80.
+
+    The AY-3-8912 and its variants were used in numerous Arcade machines and in
+    home computers like the Amstrad CPC, Atari ST, MSX, ZX Spectrum and others.
+
 
     % ==========================================================================
     \subsection{Dual Digital Joystick Port}
@@ -652,8 +664,8 @@
     \subsection{Power Supply}
     % ==========================================================================
 
-    The whole computer is powered via an external 5V/4A AC adaptor, which
-    supplies voltage to the different internal parts of the computer.
+    The computer is powered via an external 5V/4A AC adaptor, which supplies
+    voltage to the different internal parts of the computer.
 
     The different current consumptions are:
 
@@ -1014,6 +1026,7 @@
         \end{itemize}
     \end{itemize}
 
+    \pagebreak
     % ==========================================================================
     \subsection{Acknowledgements and Thanks}
     % ==========================================================================
@@ -1042,17 +1055,6 @@
         \item \textbf{My father}, for buying my first computer, an Amstrad CPC
         464, and for teaching me the basics of Z80 assembly language.
     \end{itemize}
-
-    % % ==========================================================================
-    % \subsection{Future Improvements}
-    % % ==========================================================================
-
-    % These are some ideas I have for improvements:
-
-    % \begin{itemize}
-    %     \item \textbf{Cartridge Port}: allowing almost instantaneously load and
-    %     access to programs stored in EEPROMs.
-    % \end{itemize}
 
     % ==========================================================================
     % Bibliography

@@ -6,7 +6,7 @@
         \subsubsection{F\_BIOS\_SD\_BUSY\_WAIT}
         \label{func:fbiossdbusywait}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Calls \textbf{ASMDC} to check if the \textbf{DISK} is busy, and
             loops until it is not busy. \\
@@ -23,7 +23,7 @@
         \subsubsection{F\_BIOS\_SD\_GET\_STATUS}
         \label{func:fbiossdgetstatus}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Calls \textbf{ASMDC} to check the status of the SD Card module.\\
             \hline\textbf{Entry} & None \\
@@ -44,7 +44,7 @@
         \subsubsection{F\_BIOS\_SD\_PARK\_DISKS}
         \label{func:fbiossdparkdisks}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Tells \textbf{ASMDC} to close the Image File\\
             \hline\textbf{Entry} & None \\
@@ -60,7 +60,7 @@
         \subsubsection{F\_BIOS\_SD\_MOUNT\_DISKS}
         \label{func:fbiossdmountdisks}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Tells \textbf{ASMDC} to open the Image File\\
             \hline\textbf{Entry} & None \\
@@ -76,7 +76,7 @@
         \subsubsection{F\_BIOS\_DISK\_READ\_SEC}
         \label{func:fbiosdiskreadsec}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Reads a Sector (512 bytes), from the \textbf{DISK} and places the bytes into the \texttt{CF\_BUFFER\_START} \\
             \hline\multirow[t]{5}{4em}{\textbf{Entry}}
@@ -98,7 +98,7 @@
         \subsubsection{F\_BIOS\_DISK\_WRITE\_SEC}
         \label{func:fbiosdiskwritesec}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Writes a Sector (512 bytes), from the \texttt{DISK\_BUFFER\_START}
             into the \textbf{DISK}\\
@@ -121,7 +121,7 @@
         \subsubsection{F\_BIOS\_FDD\_BUSY\_WAIT}
         \label{func:fbiosfddbusywait}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Calls \textbf{ASMDC} to check if the \textbf{FDD} is busy, and
             loops until it is not busy. \\
@@ -138,7 +138,7 @@
         \subsubsection{F\_BIOS\_FDD\_CHANGE}
         \label{func:fbiosfddchange}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Tells the \textbf{ASMDC} that the current \textbf{DISK} for
             operations is now the \textbf{FDD}. \\
@@ -154,7 +154,7 @@
         \subsubsection{F\_BIOS\_FDD\_LOWLVL\_FORMAT}
         \label{func:fbiosfddlowlvlformat}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Tells the \textbf{ASMDC} to low-level format a \textbf{DISK} in
             the \textbf{FDD}. This function does not set up any file system. It
@@ -173,7 +173,7 @@
         \subsubsection{F\_BIOS\_FDD\_MOTOR\_ON}
         \label{func:fbiosfddmotoron}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Tells the \textbf{ASMDC} to switch the \textbf{FDD} motor on. It
             is a recommended practice to switch the motor on and off manually
@@ -190,7 +190,7 @@
         \subsubsection{F\_BIOS\_FDD\_MOTOR\_OFF}
         \label{func:fbiosfddmotoroff}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Tells the \textbf{ASMDC} to switch the \textbf{FDD} motor off. It
             is a recommended practice to switch the motor on and off manually
@@ -207,7 +207,7 @@
         \subsubsection{F\_BIOS\_FDD\_CHECK\_DISKIN}
         \label{func:fbiosfddcheckdiskin}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Asks the \textbf{ASMDC} to check if a Floppy Disk is inside the
             \textbf{FDD}.\\
@@ -225,7 +225,7 @@
         \subsubsection{F\_BIOS\_FDD\_CHECK\_WPROTECT}
         \label{func:fbiosfddcheckwprotect}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Asks the \textbf{ASMDC} to check if the Floppy Disk is write
             protected.\\

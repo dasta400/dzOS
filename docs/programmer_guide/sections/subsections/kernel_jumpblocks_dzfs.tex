@@ -6,7 +6,7 @@
     \subsubsection{F\_KRN\_DZFS\_READ\_SUPERBLOCK}
     \label{func:fkrndzfsreadsuperblock}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\multirow[t]{2}{4em}{\textbf{Action}}
         & Reads 512 bytes from Sector 0 (corresponding to the DZFS 
         \textit{Superblock}) into the disk buffer in \textbf{MEMORY}.\\
@@ -26,7 +26,7 @@
     \subsubsection{F\_KRN\_DZFS\_READ\_BAT\_SECTOR}
     \label{func:fkrndzfsreadbatsector}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Reads a BAT Sector from \textbf{DISK} into \textbf{MEMORY}.\\
         \hline\textbf{Entry} & \texttt{DISK\_cur\_sector} holds the sector 
@@ -42,7 +42,7 @@
     \subsubsection{F\_KRN\_DZFS\_BATENTRY\_TO\_BUFFER}
     \label{func:fkrndzfsbatentrytobuffer}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Extracts the data of a BAT entry from the \texttt{DISK Buffer}
         in \textbf{MEMORY} and populates the values into System variables.\\
@@ -61,7 +61,7 @@
     \subsubsection{F\_KRN\_DZFS\_SEC\_TO\_BUFFER}
     \label{func:fkrndzfssectobuffer}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Loads a Sector (512 bytes) from the \textbf{DISK} and copies the
         bytes into the \texttt{DISK Buffer} in \textbf{MEMORY}.\\
@@ -78,7 +78,7 @@
     \subsubsection{F\_KRN\_DZFS\_GET\_FILE\_BATENTRY}
     \label{func:fkrndzfsgetfilebatentry}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Gets the BAT's entry number of a specified filename.\\
         \hline\textbf{Entry} & \texttt{HL} = Address where the filename to 
@@ -101,7 +101,7 @@
     \subsubsection{F\_KRN\_DZFS\_LOAD\_FILE\_TO\_RAM}
     \label{func:fkrndzfsloadfiletoram}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Load a file from \textbf{DISK}. Copies the bytes stored in the
         \textbf{DISK} into \textbf{MEMORY}. If \hyperref[sec:ram_memmap]{SYSVARS}
@@ -125,7 +125,7 @@
     \subsubsection{F\_KRN\_DZFS\_DELETE\_FILE}
     \label{func:fkrndzfsdeletefile}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Marks a file as deleted. The mark is done by changing the first
         character of the filename to \texttt{0x7E} (\textasciitilde~)\\
@@ -143,7 +143,7 @@
     \subsubsection{F\_KRN\_DZFS\_CHGATTR\_FILE}
     \label{func:fkrndzfschgattrfile}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Changes the attributes (RHSE) of a file.\\
         \hline\multirow[t]{2}{4em}{\textbf{Entry}}
@@ -161,7 +161,7 @@
     \subsubsection{F\_KRN\_DZFS\_RENAME\_FILE}
     \label{func:fkrndzfsrenamefile}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Changes the name of a file.\\
         \hline\multirow[t]{2}{4em}{\textbf{Entry}}
@@ -181,7 +181,7 @@
     \subsubsection{F\_KRN\_DZFS\_FORMAT\_DISK}
     \label{func:fkrndzfsformatdisk}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Formats a \textbf{DISK} with DZFS.\\
         \hline\textbf{Entry}
@@ -211,7 +211,7 @@
     \subsubsection{F\_KRN\_DZFS\_CALC\_SN}
     \label{func:fkrndzfscalcsn}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Calculates the Serial Number (4 bytes) for a \textbf{DISK}.\\
         \hline\textbf{Entry}
@@ -231,7 +231,7 @@
     \subsubsection{F\_KRN\_DZFS\_SECTOR\_TO\_DISK}
     \label{func:fkrndzfssectortodisk}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Calls the \textbf{BIOS} subroutine that will store the data 
         (512 bytes) currently in \texttt{DISK Buffer} in \textbf{MEMORY},
@@ -250,7 +250,7 @@
     \subsubsection{F\_KRN\_DZFS\_GET\_BAT\_FREE\_ENTRY}
     \label{func:fkrndzfsgetbatfreeentry}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Get number of available BAT entry.\\
         \hline\textbf{Entry} & None\\
@@ -268,7 +268,7 @@
     \subsubsection{F\_KRN\_DZFS\_ADD\_BAT\_ENTRY}
     \label{func:fkrndzfsaddbatentry}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Adds a BAT entry into the \textbf{DISK}.\\
         \hline\multirow[t]{4}{4em}{\textbf{Entry}}
@@ -291,7 +291,7 @@
     \subsubsection{F\_KRN\_DZFS\_CREATE\_NEW\_FILE}
     \label{func:fkrndzfscreatenewfile}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Creates a new file (and its corresponding BAT Entry) in the 
         \textbf{DISK}, from bytes stored in \textbf{MEMORY}.\\
@@ -326,7 +326,7 @@
     \subsubsection{F\_KRN\_DZFS\_CALC\_FILETIME}
     \label{func:fkrndzfscalcfiletime}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\multirow[t]{2}{4em}{\textbf{Action}}
         & Packs current Real-Time Clock time into two bytes, which is the
         format used to store times (created/modified) for files in the 
@@ -344,7 +344,7 @@
     \subsubsection{F\_KRN\_DZFS\_CALC\_FILEDATE}
     \label{func:fkrndzfscalcfiledate}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\multirow[t]{2}{4em}{\textbf{Action}}
         & Packs current Real-Time Clock date into two bytes, which is the
         format used to store dates (created/modified) for files in the 
@@ -362,7 +362,7 @@
     \subsubsection{F\_KRN\_DZFS\_SHOW\_DISKINFO\_SHORT}
     \label{func:fkrndzfsshowdiskinfoshort}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Outputs to the \textbf{CONSOLE} some information of the 
         \textbf{DISK}: volume label, serial number, date/time creation.\\
@@ -383,7 +383,7 @@
     \subsubsection{F\_KRN\_DZFS\_SHOW\_DISKINFO}
     \label{func:fkrndzfsshowdiskinfo}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Outputs to the \textbf{CONSOLE} all information of the 
         \textbf{DISK}: volume label, serial number, date/time creation,
@@ -407,7 +407,7 @@
     \subsubsection{F\_KRN\_DZFS\_CHECK\_FILE\_EXISTS}
     \label{func:fkrndzfscheckfileexists}
     % ==========================================================================
-    \begin{tabular}{l p{9cm}}
+    \begin{tabular}{l p{15cm}}
         \hline\textbf{Action}
         & Checks if a specified filename exists in the \textbf{DISK}. The
         filename MUST be terminated by a zero.\\

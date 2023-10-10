@@ -21,8 +21,10 @@ Steps:
 \begin{enumerate}
     \item Insert the battery LIR2032 in the battery holder. Positive goes up.
     \item On a modern PC, format the SD card with FAT32.
-    \item Create a file of 33 MB on the SD card. For example using Linux 
-    terminal:  \texttt{fallocate -l \$((33*1024*1024)) dastaZ80.img}
+    \item Create a file of 33 MB on the SD card.
+    \begin{itemize}
+        \item For example using Linux terminal: \texttt{fallocate -l \$((33*1024*1024)) dastaZ80.img}
+    \end{itemize}
     \item Create a file named \textit{\_disks.cfg} in the root of the SD card,
     and add two lines to it:
     \begin{itemize}

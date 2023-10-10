@@ -1,4 +1,5 @@
 \documentclass[a4paper,11pt]{article}
+\usepackage[lmargin=1.5cm,rmargin=1.5cm,bmargin=1.5cm]{geometry}
 \usepackage[UKenglish]{babel}
 \usepackage{graphicx}
 \usepackage{courier}
@@ -8,6 +9,7 @@
 \usepackage{parskip}
 \usepackage[bottom]{footmisc}
 \usepackage{fancyhdr}
+\usepackage[none]{hyphenat}
 % the hyperref package must always be the last package to be included
 \usepackage[pdftex,
             pdfusetitle,
@@ -33,13 +35,13 @@
     % ==========================================================================
     \begin{pspicture}(8.5,11)
         \rput[b](3.5,8){
-            \parbox{5in}{
+            \parbox{10in}{
                 \begin{flushright}
                     \Huge\bfseries\sffamily dastaZ80 Mark III\\ User's Manual
                 \end{flushright}
             }
         }
-        \uput[0](0,0){\color{blue}\rule{5in}{0.5ex}}
+        \uput[0](0,0){\color{blue}\rule{10in}{0.5ex}}
     \end{pspicture}
     \title{dastaZ80 User's Manual}
     \author{David Asta}
@@ -67,7 +69,7 @@
     The following conventions are used in this manual:
 
     \begin{center}
-        \begin{tabular}{c m{9cm}}
+        \begin{tabular}{c m{14cm}}
             \hline
             MUST & MUST denotes that the definition is and absolute
             requirement.\\
@@ -102,6 +104,9 @@
             \hline
         \end{tabular}
     \end{center}
+
+    \hfill\break
+    \hfill\break
 
     The SD card is referred as \textbf{DISK}.
 

@@ -23,13 +23,15 @@ sector (CHS) to access the disk.
 A typical LBA scheme uses a 28-bit value that allows up to 8.4 GB of data
 storage capacity. DZFS schema is as follows:
 
-\begin{tabular}{ c c c c }
-    \hline
-    LBA 3 & LBA 2 & LBA 1 & LBA 0\\
-    \hline
-    XXXX & XXXX XXXX & BBBB BBBB & BBSS SSSS\\
-    \hline
-\end{tabular}
+\begin{center}
+    \begin{tabular}{ c c c c }
+        \hline
+        LBA 3 & LBA 2 & LBA 1 & LBA 0\\
+        \hline
+        XXXX & XXXX XXXX & BBBB BBBB & BBSS SSSS\\
+        \hline
+    \end{tabular}   
+\end{center}
 
 Where:
 
@@ -78,7 +80,7 @@ Where:
         DZFS, it is called \textit{Superblock}, as it is an orphan sector that
         doesn't belong to any block.
 
-        \begin{longtable}{ |m{2.2cm}|m{1.3cm}|m{6cm}|m{2.7cm}| }
+        \begin{longtable}{ |m{2.2cm}|m{1.3cm}|m{9cm}|m{2.7cm}| }
             \hline
             \rowcolor{lightgray}
             Offset & Length (bytes) & Description & Example\\
@@ -142,7 +144,7 @@ Where:
         describes the first file on the \textbf{DISK}, the second entry 
         describes the second file, and so on. 
 
-        \begin{longtable}{ |m{1cm}|m{1.3cm}|m{6.8cm}|m{2.7cm}| }
+        \begin{longtable}{ |m{1cm}|m{1.3cm}|m{8cm}|m{5cm}| }
             \hline
             \rowcolor{lightgray}
             Offset & Length (bytes) & Description & Example\\
@@ -335,6 +337,8 @@ Where:
 
     Below is provided a table for quick reference:
 
+    \hfill\break
+
     % \begin{tabular}{ |m{1.3cm}m{1.3cm}m{2.2cm}|l|m{1.3cm}m{1.3cm}m{2.2cm}|>{\raggedleft\arraybackslash}m{2cm}| }
     %     \hline
     %     \rowcolor{lightgray}
@@ -358,37 +362,39 @@ Where:
     %     \hline
     % \end{tabular}
 
-    \begin{tabular}{ |m{1.3cm}m{3.3cm}m{2.2cm}|>{\raggedleft\arraybackslash}m{2cm}| }
-        \hline
-        \rowcolor{lightgray}
-        Block & SecNum & Address \\
-        \hline
-        \hline
-        0    & 1     (\texttt{0x0000}) & \texttt{0x00000200} \\
-        1    & 65    (\texttt{0x0041}) & \texttt{0x00008200} \\
-        2    & 129   (\texttt{0x0081}) & \texttt{0x00010200} \\
-        3    & 193   (\texttt{0x00C1}) & \texttt{0x00018200} \\
-        4    & 257   (\texttt{0x0101}) & \texttt{0x00020200} \\
-        5    & 321   (\texttt{0x0141}) & \texttt{0x00028200} \\
-        6    & 385   (\texttt{0x0181}) & \texttt{0x00030200} \\
-        7    & 449   (\texttt{0x01C1}) & \texttt{0x00038200} \\
-        8    & 513   (\texttt{0x0201}) & \texttt{0x00040200} \\
-        9    & 577   (\texttt{0x0241}) & \texttt{0x00048200} \\
-        10   & 641   (\texttt{0x0281}) & \texttt{0x00050200} \\
-        11   & 705   (\texttt{0x02C1}) & \texttt{0x00058200} \\
-        12   & 705   (\texttt{0x0301}) & \texttt{0x00060200} \\
-        13   & 833   (\texttt{0x0341}) & \texttt{0x00068200} \\
-        14   & 897   (\texttt{0x0381}) & \texttt{0x00070200} \\
-        15   & 961   (\texttt{0x03C1}) & \texttt{0x00078200} \\
-        16   & 1025  (\texttt{0x0401}) & \texttt{0x00080200} \\
-        17   & 1089  (\texttt{0x0441}) & \texttt{0x00088200} \\
-        18   & 1153  (\texttt{0x0481}) & \texttt{0x00090200} \\
-        19   & 1217  (\texttt{0x04C1}) & \texttt{0x00098200} \\
-        20   & 1281  (\texttt{0x0501}) & \texttt{0x000A0200} \\
-        21   & 1345  (\texttt{0x0541}) & \texttt{0x000A8200} \\
-        22   & 1409  (\texttt{0x0581}) & \texttt{0x000B0200} \\
-        23   & 1473  (\texttt{0x05C1}) & \texttt{0x000B8200} \\
-        ...  & ...                     & ...                 \\
-        1023 & 65473 (\texttt{0xFFC1}) & \texttt{0x01FF8200} \\
-        \hline
-    \end{tabular}
+    \begin{center}
+        \begin{tabular}{ |m{1.3cm}m{3.3cm}m{2.2cm}|>{\raggedleft\arraybackslash}m{2cm}| }
+            \hline
+            \rowcolor{lightgray}
+            Block & SecNum & Address \\
+            \hline
+            \hline
+            0    & 1     (\texttt{0x0000}) & \texttt{0x00000200} \\
+            1    & 65    (\texttt{0x0041}) & \texttt{0x00008200} \\
+            2    & 129   (\texttt{0x0081}) & \texttt{0x00010200} \\
+            3    & 193   (\texttt{0x00C1}) & \texttt{0x00018200} \\
+            4    & 257   (\texttt{0x0101}) & \texttt{0x00020200} \\
+            5    & 321   (\texttt{0x0141}) & \texttt{0x00028200} \\
+            6    & 385   (\texttt{0x0181}) & \texttt{0x00030200} \\
+            7    & 449   (\texttt{0x01C1}) & \texttt{0x00038200} \\
+            8    & 513   (\texttt{0x0201}) & \texttt{0x00040200} \\
+            9    & 577   (\texttt{0x0241}) & \texttt{0x00048200} \\
+            10   & 641   (\texttt{0x0281}) & \texttt{0x00050200} \\
+            11   & 705   (\texttt{0x02C1}) & \texttt{0x00058200} \\
+            12   & 705   (\texttt{0x0301}) & \texttt{0x00060200} \\
+            13   & 833   (\texttt{0x0341}) & \texttt{0x00068200} \\
+            14   & 897   (\texttt{0x0381}) & \texttt{0x00070200} \\
+            15   & 961   (\texttt{0x03C1}) & \texttt{0x00078200} \\
+            16   & 1025  (\texttt{0x0401}) & \texttt{0x00080200} \\
+            17   & 1089  (\texttt{0x0441}) & \texttt{0x00088200} \\
+            18   & 1153  (\texttt{0x0481}) & \texttt{0x00090200} \\
+            19   & 1217  (\texttt{0x04C1}) & \texttt{0x00098200} \\
+            20   & 1281  (\texttt{0x0501}) & \texttt{0x000A0200} \\
+            21   & 1345  (\texttt{0x0541}) & \texttt{0x000A8200} \\
+            22   & 1409  (\texttt{0x0581}) & \texttt{0x000B0200} \\
+            23   & 1473  (\texttt{0x05C1}) & \texttt{0x000B8200} \\
+            ...  & ...                     & ...                 \\
+            1023 & 65473 (\texttt{0xFFC1}) & \texttt{0x01FF8200} \\
+            \hline
+        \end{tabular}
+    \end{center}

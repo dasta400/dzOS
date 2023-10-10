@@ -8,31 +8,33 @@
 
     The \textbf{ROM} is a 16KB EEPROM, and is divided as follows:
 
-    \begin{tabular}{ |m{1.3cm}|m{1.3cm}|m{3.3cm}|m{2.7cm}|>{\raggedleft\arraybackslash}m{2cm}| }
-        \hline
-        \rowcolor{lightgray}
-        \multicolumn{2}{|c|}{Address} &
-        \multicolumn{2}{|c|}{Description} &
-        Size (bytes) \\
-        \hline
-        \hline
-        \texttt{0x0000} & \texttt{0x0007} & Cold Boot & \textbf{\multirow{3}{4em}{BIOS}} & 8 \\
-        \texttt{0x0008} & \texttt{0x0215} & init SIO/2 & & 526 \\
-        \texttt{0x0216} & \texttt{0x0FFF} & BIOS code & & 3,562 \\
-        \hline
-        \texttt{0x1000} & \texttt{0x26C7} & Kernel code & \textbf{\multirow{2}{4em}{Kernel}} & 5,832 \\
-        \texttt{0x26B7} & \texttt{0x26C7} & dzOS version build & & 17 \\
-        \hline
-        \texttt{0x26C8} & \texttt{0x3A88} & CLI code & \textbf{CLI} & 5,057 \\
-        \hline
-        \texttt{0x3A89} & \texttt{0x3AAB} & Bootstrap & \textbf{BOOTSTRAP} & 35 \\
-        \hline
-        \texttt{0x3AAC} & \texttt{0x3D9B} & 8x6 Font Pattern set (alphanumeric only 0-Z) & & 752 \\
-        \hline
-        \texttt{0x3E20} & \texttt{0x3F0F} & BIOS Jumpblock & \textbf{\multirow{2}{4em}{Jumpblocks}} & 240 \\
-        \texttt{0x3F10} & \texttt{0x3FFF} & Kernel Jumpblock & & 240 \\
-        \hline
-    \end{tabular}
+    \begin{center}
+        \begin{tabular}{ |m{1.3cm}|m{1.3cm}|m{3.3cm}|m{2.7cm}|>{\raggedleft\arraybackslash}m{2cm}| }
+            \hline
+            \rowcolor{lightgray}
+            \multicolumn{2}{|c|}{Address} &
+            \multicolumn{2}{|c|}{Description} &
+            Size (bytes) \\
+            \hline
+            \hline
+            \texttt{0x0000} & \texttt{0x0007} & Cold Boot & \textbf{\multirow{3}{4em}{BIOS}} & 8 \\
+            \texttt{0x0008} & \texttt{0x0215} & init SIO/2 & & 526 \\
+            \texttt{0x0216} & \texttt{0x0FFF} & BIOS code & & 3,562 \\
+            \hline
+            \texttt{0x1000} & \texttt{0x26C7} & Kernel code & \textbf{\multirow{2}{4em}{Kernel}} & 5,832 \\
+            \texttt{0x26B7} & \texttt{0x26C7} & dzOS version build & & 17 \\
+            \hline
+            \texttt{0x26C8} & \texttt{0x3A88} & CLI code & \textbf{CLI} & 5,057 \\
+            \hline
+            \texttt{0x3A89} & \texttt{0x3AAB} & Bootstrap & \textbf{BOOTSTRAP} & 35 \\
+            \hline
+            \texttt{0x3AAC} & \texttt{0x3D9B} & 8x6 Font Pattern set (alphanumeric only 0-Z) & & 752 \\
+            \hline
+            \texttt{0x3E20} & \texttt{0x3F0F} & BIOS Jumpblock & \textbf{\multirow{2}{4em}{Jumpblocks}} & 240 \\
+            \texttt{0x3F10} & \texttt{0x3FFF} & Kernel Jumpblock & & 240 \\
+            \hline
+        \end{tabular}
+    \end{center}
 
     % ==========================================================================
     \subsection{RAM}

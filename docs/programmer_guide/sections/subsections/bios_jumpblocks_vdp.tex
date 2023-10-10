@@ -6,7 +6,7 @@
         \subsubsection{F\_BIOS\_VDP\_SET\_ADDR\_WR}
         \label{func:fbiosvdpsetaddrwr}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Set a \textbf{VRAM} address for writting. \\
             \hline\textbf{Entry} & \texttt{HL} = address to be set\\
@@ -20,7 +20,7 @@
         \subsubsection{F\_BIOS\_VDP\_SET\_ADDR\_RD}
         \label{func:fbiosvdpsetaddrrd}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Set a \textbf{VRAM} address for reading. \\
             \hline\textbf{Entry} & \texttt{HL} = address to be read\\
@@ -34,7 +34,7 @@
         \subsubsection{F\_BIOS\_VDP\_SET\_REGISTER}
         \label{func:fbiosvdpsetregister}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Set a value to a \textbf{VDP} register. \\
             \hline\multirow[t]{2}{4em}{\textbf{Entry}}
@@ -50,7 +50,7 @@
         \subsubsection{F\_BIOS\_VDP\_EI}
         \label{func:fbiosvdpei}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\multirow[t]{2}{4em}{\textbf{Action}}& Enable \textbf{VDP}
             Interrupts.\\
             & This is independent of the value (bit 5) in the \textbf{VDP}
@@ -69,7 +69,7 @@
         \subsubsection{F\_BIOS\_VDP\_DI}
         \label{func:fbiosvdpdi}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\multirow[t]{3}{4em}{\textbf{Action}}& Disable \textbf{VDP}
             Interrupts.\\
             & This is independent of the value (bit 5) in the \textbf{VDP}
@@ -89,7 +89,7 @@
         \subsubsection{F\_BIOS\_VDP\_READ\_STATREG}
         \label{func:fbiosvdpreadstatreg}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\multirow[t]{2}{4em}{\textbf{Action}}& Read the read-only
             \textbf{VDP} \textit{Status Register}.\\
             & \textbf{IMPORTANT}: Reading the \textbf{VDP} \textit{Status
@@ -108,7 +108,7 @@
         \subsubsection{F\_BIOS\_VDP\_VRAM\_CLEAR}
         \label{func:fbiosvdpvramclear}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Set all cells of the \textbf{VRAM} (\texttt{0x0000}-
             \texttt{0x3FFF}) to zero. \\
@@ -125,7 +125,7 @@
         \subsubsection{F\_BIOS\_VDP\_VRAM\_TEST}
         \label{func:fbiosvdpvramtest}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Set a value to each \textbf{VRAM} cell and then reads it back. If
             the value is not the same, something went wrong. \\
@@ -143,7 +143,7 @@
         \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_TXT}
         \label{func:fbiosvdpsetmodetxt}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Text Mode} display.\\
             \hline\multirow[t]{2}{4em}{\textbf{Entry}}
@@ -163,7 +163,7 @@
         \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_G1}
         \label{func:fbiosvdpsetmodeg1}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Graphics I Mode} display.\\
             \hline\multirow[t]{2}{4em}{\textbf{Entry}}
@@ -183,7 +183,7 @@
         \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_G2}
         \label{func:fbiosvdpsetmodeg2}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Graphics II Mode} display.\\
             \hline\multirow[t]{2}{4em}{\textbf{Entry}}
@@ -203,7 +203,7 @@
         \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_G2BM}
         \label{func:fbiosvdpsetmodeg2bm}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Graphics II Bit-mapped Mode} display.\\
             \hline\multirow[t]{2}{4em}{\textbf{Entry}}
@@ -223,7 +223,7 @@
         \subsubsection{F\_BIOS\_VDP\_SET\_MODE\_MULTICLR}
         \label{func:fbiosvdpsetmodemulticlr}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Set \textbf{VDP} to \textit{Multicolour Mode} display.\\
             \hline\multirow[t]{2}{4em}{\textbf{Entry}}
@@ -243,7 +243,7 @@
         \subsubsection{F\_BIOS\_VDP\_BYTE\_TO\_VRAM}
         \label{func:fbiosvdpbytetovram}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Writes a byte to currently pointed \textbf{VRAM} cell. The 
             \textbf{VDP} autoincrements the \textbf{VRAM} address whenever a
@@ -259,7 +259,7 @@
         \subsubsection{F\_BIOS\_VDP\_VRAM\_TO\_BYTE}
         \label{func:fbiosvdpvramtobyte}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Read a byte from \textbf{VRAM}. The \textbf{VDP} autoincrements
             the \textbf{VRAM} address whenever a Read or a Write to
@@ -276,7 +276,7 @@
         \subsubsection{F\_BIOS\_VDP\_JIFFY\_COUNTER}
         \label{func:fbiosvdpjiffycounter}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Increments the \hyperref[subsec:jiffy_counter]{Jiffy Counter}.\\
             \hline\textbf{Entry} & None\\
@@ -292,7 +292,7 @@
         \subsubsection{F\_BIOS\_VDP\_VBLANK\_WAIT}
         \label{func:fbiosvdpvblankwait}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\multirow[t]{2}{4em}{\textbf{Action}}
             & Test if the \hyperref[sec:ram_memmap]{SYSVARS}
             \textit{VDP\_jiffy\_byte1} has changed. If not, continues waiting
@@ -311,7 +311,7 @@
         \subsubsection{F\_BIOS\_VDP\_LDIR\_VRAM}
         \label{func:fbiosvdpldirvram}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
             & Block transfer from \textbf{RAM} to \textbf{VRAM}.\\
             \hline\multirow[t]{2}{4em}{\textbf{Entry}} & \texttt{BC} = Block 
@@ -332,7 +332,7 @@
         \subsubsection{F\_BIOS\_VDP\_CHAROUT\_ATXY}
         \label{func:fbiosvdpcharoutatxy}
         % ==========================================================================
-        \begin{tabular}{l p{9cm}}
+        \begin{tabular}{l p{15cm}}
             \hline\multirow[t]{2}{4em}{\textbf{Action}}
             & Print a character in the \textbf{Low Resolution display}, at the
             \textit{VDP\_cursor\_x}, \textit{VDP\_cursor\_y} postition.\\
