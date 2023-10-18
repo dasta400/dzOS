@@ -177,53 +177,74 @@
     % ==========================================================================
     \section{dastaZ80 Overview}
     % ==========================================================================
+
+    The dastaZ80 computer comes in two different formats:
+
+    \begin{itemize}
+        \item dastaZ80 (Original), in Acorn Archimedes A3010 case.
+        \item dastaZ80DB (\textit{DB} stands for Desktop Box), in a desktop
+            computer box.
+    \end{itemize}
+
+    Functionally, at hardware level both are very similar with just some minor
+    differences in the way the computer is set up and used. At software level,
+    both are identical.
+
+    The dastaZ80 Original was the first version I made, and it is a stand-alone
+    computer. Only things needed to use it are: the computer itself, a 5V/4A
+    power supply, a monitor with VGA connector and optionally a monitor with 
+    NTSC Composite video input and (also optionally) a pair of autoampplified
+    speakers or a monitor with RCA stereo connectors.
+
+    The dastaZ80DB requires the same as above, and an external serial keyboard.
+    Also, the VGA can be exchanged by a serial monitor. More about this 
+    configuration is explained below in the section \hyperref[sec:setting_system]
+    {Setting up the system}.
+
+    The dastaZ80DB was created with the idea of saving physical space, as the
+    Acorn Archimedes A3010 case is quite voluminous. This version of the
+    computer is ideally interfaced via a another computer, by using a terminal
+    software (like Minicom or PuTTY). More about this in the section
+    \hyperref[sec:setting_system]{Setting up the system}.
+
+    % ==========================================================================
+    \subsection{dastaZ80 Original}
+    % ==========================================================================
+
     \begin{itemize}
         \item ZiLOG Z80 microprocessor (CPU) running at 7.3728 MHz
-        \item 64 KB \textbf{MEMORY}
+        \item 64 KB \textbf{MEMORY}: 16 KB reserved for DZOS, 48 KB available
+            for the user and programms.
+        \item Storage devices: Micro SD Card\footnote{Formatted with FAT32 and
+            containing Disk Image Files formatted with DZFS (dastaZ80 File
+            System, a file system of my own design, for mass storage devices,
+            aimed at simplicity.)}, 3.5" DD/HD Floppy Disk Drive.
+        \item Dual Video output: VGA 80 columns by 25 lines and 16 colours,
+            Composite NTSC 15 colours.
+        \item Stereo Sound: 3 channels (1 tone per channel), 7 octaves, 1 noise
+            channel, envelope generator\footnote{Same chip (AY-3-8912 PSG) as
+            used in numerous Arcade machines and in Amstrad CPC, Atari ST, MSX,
+            ZX Spectrum and other home computers.}.
+        \item Real-Time Clock: Date and Time backed up with button cell battery.
+        \item Keyboard: Acorn Archimedes A3010 keyboard. 102 keys with 12 function
+            keys, cursor keys and numeric pad.
+        \item Case: Repurposed Acorn Archimedes A3010 case with keyboard.
+        \item Expansion ports.
         \begin{itemize}
-            \item 16 KB reserved for DZOS
-            \item 48 KB available for the user
-            \item 56 Bytes NVRAM
-        \end{itemize}
-        \item Storage devices
-        \begin{itemize}
-            \item Micro SD Card, formatted with FAT32 and containing Disk Image
-            Files formatted with DZFS\footnote{DZFS (dastaZ80 File System) is a
-            file system of my own design, for mass storage devices, aimed at
-            simplicity.}
-            \item 3.5" DD/HD Floppy Disk Drive
-        \end{itemize}
-        \item Dual Video output
-        \begin{itemize}
-            \item VGA 80 columns by 25 lines and 16 colours
-            \item Composite NTSC 15 colours
-        \end{itemize}
-        \item Stereo Sound
-        \begin{itemize}
-            \item Programmable Sound Generator (PSG) with 3 channels (1 tone
-            per channel), 7 octaves, 1 noise channel, envelope generator
-            \footnote{Same chip as used in numerous Arcade machines and in
-            Amstrad CPC, Atari ST, MSX, ZX Spectrum and other home computers.}
-        \end{itemize}
-        \item Real-Time Clock
-        \begin{itemize}
-            \item Date and Time backed up with button cell battery, provides
-            valid until the year 2100 leap year compensation.
-        \end{itemize}
-        \item Keyboard
-        \begin{itemize}
-            \item Acorn Archimedes A3010 keyboard. 102 keys with 12 function
-            keys, cursor keys and numeric pad
-        \end{itemize}
-        \item Case
-        \begin{itemize}
-            \item Repurposed Acorn Archimedes A3010 case with keyboard
-        \end{itemize}
-        \item Expansion ports
-        \begin{itemize}
-            \item 2x20 pin male header. Exposes all CPU signals
+            \item 2x20 pin male header. Exposes all CPU signals.
             \item 2x15 pin connector for ROM Cartridges.
         \end{itemize}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{dastaZ80DB}
+    % ==========================================================================
+
+    Same as above, with the only differences:
+
+    \begin{itemize}
+        \item No keyboard.
+        \item Case: desktop box.
     \end{itemize}
 
     \pagebreak

@@ -2,21 +2,57 @@
 \section{Setting up the system}
 % ==========================================================================
 \label{sec:setting_system}
+
+% ==========================================================================
+\subsection{dastaZ80 Original}
+% ==========================================================================
+
 You will only need:
 
 \begin{itemize}
-    \item the dastaZ80 computer.
+    \item The dastaZ80 computer.
     \item A 5 Volts (4 Amp) power supply with a female 2.1mm barrel-style DC
     connector (positive polarity).
     \item A Micro SD card.
     \item A monitor with VGA input.
-    \item A LIR2032 Li-Ion Rechargeable 3.6V Battery Button Cell
-    \item Optionally, a monitor with NTSC Composite input, and a 3.5mm jack
-    to 3 RCA Audio/Video cable\footnote{This is the same cable used on the
-    Raspberry Pi for Composite output}.
+    \item A LIR2032 Li-Ion Rechargeable 3.6V Battery Button Cell.
+    \item Optionally:
+    \begin{itemize}
+        \item A monitor with NTSC Composite input.
+        \item A 3.5mm jack to 3 RCA Audio/Video cable\footnote{This is the same
+            cable used on the Raspberry Pi for Composite output}.
+    \end{itemize}
 \end{itemize}
 
-Steps:
+% ==========================================================================
+\subsection{dastaZ80DB}
+% ==========================================================================
+
+You will need:
+
+\begin{itemize}
+    \item The dastaZ80DB computer.
+    \item Another computer, with serial port (either USB or RS-232).
+    \begin{itemize}
+        \item For USB, you will need a TTL-to-USB cable.
+        \item For RS-232, you will need a TTL-to-RS-232 converter.
+    \end{itemize}
+    \item A 5 Volts (4 Amp) power supply with a female 2.1mm barrel-style DC
+    connector (positive polarity).
+    \item A Micro SD card.
+    \item A LIR2032 Li-Ion Rechargeable 3.6V Battery Button Cell
+    \item Optionally:
+    \begin{itemize}
+        \item A monitor with VGA input.
+        \item A monitor with NTSC Composite input.
+        \item A 3.5mm jack to 3 RCA Audio/Video cable\footnote{This is the same
+            cable used on the Raspberry Pi for Composite output}.
+    \end{itemize}
+\end{itemize}
+
+% ==========================================================================
+\subsection{Lets put it together}
+% ==========================================================================
 
 \begin{enumerate}
     \item Insert the battery LIR2032 in the battery holder. Positive goes up.
@@ -32,20 +68,38 @@ Steps:
         \item \#
     \end{itemize}
     \item Introduce the SD card in the SD card slot at the back of the
-    computer case. This procedure MUST be performed with the computer
-    switched off.
-    \item Connect the VGA cable from the monitor to the VGA connector at the
-    back of the computer case. This procedure SHOULD be performed with the
-    computer unplugged.
+        computer case. This procedure MUST be performed with the computer
+        switched off. For the dastaZ80DB, the SD card slot is at the front of
+        the case.
     \item Connect the jack of the Audio/Video cable to the A/V connector at
-    the back of the computer case. This procedure SHOULD be performed with
-    the computer unplugged.
+        the back of the computer case. This procedure SHOULD be performed with
+        the computer unplugged.
     \item Connect the female power supply connector to the male connector at
-    the back of the case.
+        the back of the case.
+    \item For the dastaZ80 Original, connect the VGA cable from the monitor to
+        the VGA connector at the back of the computer case. This procedure
+        SHOULD be performed with the computer unplugged.
+    \item For the dastaZ80DB, there are two options:
+    \begin{itemize}
+        \item Connect the TTL-to-USB cable to the 4 pins header labelled
+            \textit{TTL I/O}, to have the input (keyboard) and output (screen)
+            from/to another computer.
+        \item Or, connect the TTL-to-USB cable to \textit{TTL I/O}, but also
+            connect the VGA cable to the VGA connector, and set the switch in
+            the front of the case (labelled \textit{TTL / VGA}) to the position
+            \textit{VGA}. This way, the signal will be send to the VGA monitor
+            and not to the other computer.
+    \end{itemize}
+
 \end{enumerate}
 
 That’s really it. Switch the computer on, with the power switch, and you
-should see text on your monitor. DZOS is ready to use.
+should see text on your VGA monitor. DZOS is ready to use.
+
+If your are using the dastaZ80DB with the TTL-to-USB cable for both input and
+output, you need to open a terminal program in your other computer and set it up
+to connect at 115,200bps 8N1 no hardware flow control. After flipping the
+switch, you should see text on the terminal program.
 
 Nevertheless, it's worth noting that by following this procedure the disk
 image in the SD card will be empty, and therefore no software will be

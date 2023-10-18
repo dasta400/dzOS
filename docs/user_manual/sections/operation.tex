@@ -1,6 +1,132 @@
 % ==========================================================================
 \section{Computer Operation}
 % ==========================================================================
+    
+    % ==========================================================================
+    \subsection{dastaZ80DB Front Panel}
+    % ==========================================================================
+    \label{subsec:frontpanel}
+
+    The dastaZ80DB has a front panel where all buttons, switches and slots are
+    located for easy access. Also, in difference to the dastaZ80 Original, this
+    computer has a LCD Display and some push buttons which form the
+    \textit{Control Panel}.
+
+    The front panel contains:
+
+    \begin{itemize}
+        \item ON/OFF Switch: use it to turn on and off the computer.
+        \item Reset button: use it to make a reset of the computer.
+        \item Micro SD Card slot: for massive storage of data.
+        \item 3.5" FDD: for storage of data in floppy diskettes.
+        \item Light (LED) indicators:
+        \begin{itemize}
+            \item Power (green): lighted when the system is switched ON.
+            \item Reset (red): lighted when the system is performing a hardware
+                reset.
+            \item SD (purple): blinks when the SD Card is being accessed
+                (read or write).
+            \item Halted (yellow): lighted when the system is in Halt status.
+            \item ROM Paged (blue): lighted when the ROM chip has been
+                disconnected.
+        \end{itemize}
+        \item Control Panel
+    \end{itemize}
+
+        % ==========================================================================
+        \subsubsection{Control Panel}
+        % ==========================================================================
+        \label{subsubsec:controlpanel}
+
+        The Control Panel is always ON as soon as the computer has been plugged
+        to the 5V/4A power supply. That's right, even when the computer is OFF,
+        this panel is ON. It will make sense in a second.
+        
+        This Panel is used to configure some pre-booting configurations (if you
+        are familiar with IBM AS/400 hardware you will see where this idea comes
+        from), and also monitors the internal temperature of the box and
+        switches ON and OFF a small fan used for cooling.
+
+        The Panel consists of one LCD display and three push buttons. The
+        buttons are labelled \textit{+}, \textit{-} and \textit{Select}.
+
+        The LCD display what is called \textit{pages} of information. The
+        buttons \textit{+} and \textit{-} are used to navigate the pages, and
+        the button \textit{Select} is used to select a page.
+        
+        When plugged in, the display will show the Page 0. This is indicated by
+        the number zero shown in the first character of each of the two lines of
+        the display.
+
+        Page 0 shows the Current Configuration. If the computer was to be
+        switched ON at this moment, it will use the configuration displayed in
+        the LCD to its boot.
+
+        Page 0 information is:
+        \[ +------------------+ \]
+        \[ |0 \$0000   Clk Int| \]
+        \[ |0 21.49 C   *     | \]
+        \[ +------------------+ \]
+
+        \begin{itemize}
+            \item Line 1:
+            \begin{itemize}
+                \item \textit{0}: indicates that this is Page 0.
+                \item \textit{\$0000}: refers to the address in ROM that will be
+                    used to start reading the OS.
+                \item \textit{Clk Int}: indicates the the Internal clock is
+                    being used as system clock.
+            \end{itemize}
+            \item Line 2:
+            \begin{itemize}
+                \item \textit{0}: indicates that this is Page 0.
+                \item \textit{21.49 C}: is the current measured internal
+                    temperature of the box.
+                \item \textit{*}: this only appears if a certain threshold of
+                    maximum temperatire has been reached. If the computer is
+                    switched ON, here it will appear a spinning animation
+                    indicating that the fan is ON. If the computer is OFF, a
+                    blinking exclamation mark will appear, indicating that it
+                    may not be safe to switch on the computer.
+            \end{itemize}
+        \end{itemize}
+
+        Pages 1 and 2 are selectable pages, and show the two different start ROM
+        addresses that can be selected.
+
+        \[ +------------------+ \]
+        \[ |0 \$0000   Clk Int| \]
+        \[ |0 21.49 C   *     | \]
+        \[ +------------------+ \]
+        
+        To select one or the other, press the button \textit{Select} while in
+        the desired page. After a couple of seconds, the Panel will display Page
+        0 automatically, and you should see the selected value in its
+        corresponding position.
+
+        Pages 3 and 4 are selectable pages, and show the two different system
+        clock that can be selected.
+
+        \[ +------------------+ \]
+        \[ |0 \$0000   Clk Int| \]
+        \[ |0 21.49 C   *     | \]
+        \[ +------------------+ \]
+        
+        To select one or the other, press the button \textit{Select} while in
+        the desired page. After a couple of seconds, the Panel will display Page
+        0 automatically, and you should see the selected value in its
+        corresponding position.
+
+        Worth noting:
+
+        \begin{itemize}
+            \item Once the computer is switched ON, the configuration cannot be
+                changed. Hence, any selection via the \textit{Select} button
+                will be ignored.
+            \item Changes in configuration are not stored. Once the computer is
+                unplugged from the power supply, it will start again with the
+                default settings.
+        \end{itemize}
 
     % ==========================================================================
     \subsection{ON/OFF button}
@@ -8,7 +134,7 @@
     \label{subsec:onoffbutt}
 
     The ON/OFF button is located on the lefthand side of the back of the
-    computer.
+    dastaZ80 computer and on the front of the dastaZ80DB.
 
     \includegraphics[scale=0.5]{images/onoffbutton.png}
 
@@ -26,7 +152,8 @@
     % ==========================================================================
     \label{subsec:resetbutton}
 
-    The reset button is located on the lefthand side of the computer.
+    The reset button is located on the lefthand side of the dastaZ80 computer
+    and on the front of the dastaZ80DB.
 
     \includegraphics[scale=0.7]{images/resetbutton.png}
 
@@ -42,10 +169,13 @@
     \subsection{Indicator LEDs}
     % ==========================================================================
 
-    At the top of the computer case there a few labelled LEDs\footnote{A
-    Light-Emitting Diode (LED) is a semiconductor device that emits light when
-    current flows through it.} that give information of the status of several
-    internal parts of the computer.
+    Indicator LEDs for the dastaZ80DB has been discussed in previous section
+    \hyperref[subsec:frontpanel]{dastaZ80DB Front Panel}.
+
+    For the dastaZ80, at the top of the computer case there a few labelled
+    LEDs\footnote{A Light-Emitting Diode (LED) is a semiconductor device that
+    emits light when current flows through it.} that give information of the
+    status of several internal parts of the computer.
 
     \begin{itemize}
         \item Above the numeric pad, on the righthand side of the keyboard,
@@ -95,10 +225,11 @@
     \end{itemize}
 
     % ==========================================================================
-    \subsubsection{MicroSD}
+    \subsection{MicroSD}
     % ==========================================================================
 
-    At the back of the computer there is a MicroSD slot.
+    At the back of the dastaZ80 computer and on the front of the dastaZ80DB
+    there is a MicroSD slot.
 
     Insert here a MicroSD formatted with FAT32 and containing Disk Image
     Files formatted with DZFS\footnote{DZFS (dastaZ80 File System) is a file
@@ -110,7 +241,8 @@
     \subsection{3.5 inch Floppy Disc Drive}
     % ==========================================================================
 
-    The Floppy Disc Drive is located on the righthand side of the computer.
+    The Floppy Disc Drive is located on the righthand side of the dastaZ80
+    computer and on the front of the dastaZ80DB.
 
     3.5 inch floppy discs can be inserted in this drive. 
 
@@ -123,6 +255,43 @@
     % ==========================================================================
     \subsection{Attaching peripheral devices}
     % ==========================================================================
+
+        % ==========================================================================
+        \subsubsection{TTL I/O}
+        % ==========================================================================
+
+        The dastaZ80DB has a 4 pins header labelled \textit{TTL I/O} that is
+        used to connect either a TTL-to-USB cable or a TTL-to-RS-232 converter.
+
+        This connector carries the signals for the input (keyboard) and output
+        (screen).
+
+        By connecting the dastaZ80DB to another computer, the latter can
+        \textit{control} the former. As a matter of fact, there is no other way
+        to input commands to the dastaZ80DB than using another device (a
+        computer in most cases, but also a serial terminal can be used).
+
+        For the output, two options are available:
+
+        \begin{itemize}
+            \item \textit{TTL}: output to a serial device (usually another
+                computer running a terminal program).
+            \item \textit{VGA}: output to a VGA monitor.
+        \end{itemize}
+
+        The \textit{TTL / VGA} switch (located on the \hyperref[subsec:frontpanel]
+        {Front Panel}) MUST be set up to the correct position, in order to see
+        output from the dastaZ80DB.
+
+        The TTL connector pins are configured as follows (seeing it from the
+        front):
+
+        \textbf{Ground} | NC | NC | \textbf{TX} | \textbf{RX} | NC
+
+        NC, stands for Not Connected. These are the \textit{+5V}, \textit{/CTS}
+        and \textit{/RTS} signals, which are not used.
+
+
 
         % ==========================================================================
         \subsubsection{Dual Video Output}
