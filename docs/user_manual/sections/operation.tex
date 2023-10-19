@@ -7,10 +7,10 @@
     % ==========================================================================
     \label{subsec:frontpanel}
 
-    The dastaZ80DB has a front panel where all buttons, switches and slots are
-    located for easy access. Also, in difference to the dastaZ80 Original, this
-    computer has a LCD Display and some push buttons which form the
-    \textit{Control Panel}.
+    The dastaZ80DB has a front panel (located for easy access) with buttons,
+    switches, indicator lights and a MicroSD slot. Also, in difference to the
+    dastaZ80 Original, this computer has a LCD Display and some push buttons
+    which form the \textit{Control Panel}.
 
     The front panel contains:
 
@@ -18,7 +18,6 @@
         \item ON/OFF Switch: use it to turn on and off the computer.
         \item Reset button: use it to make a reset of the computer.
         \item Micro SD Card slot: for massive storage of data.
-        \item 3.5" FDD: for storage of data in floppy diskettes.
         \item Light (LED) indicators:
         \begin{itemize}
             \item Power (green): lighted when the system is switched ON.
@@ -30,7 +29,11 @@
             \item ROM Paged (blue): lighted when the ROM chip has been
                 disconnected.
         \end{itemize}
-        \item Control Panel
+        \item Control Panel:
+            \begin{itemize}
+                \item LCD display: for showing information.
+                \item Three push buttons: for operating the Control Panel.
+            \end{itemize}
     \end{itemize}
 
         % ==========================================================================
@@ -38,22 +41,36 @@
         % ==========================================================================
         \label{subsubsec:controlpanel}
 
-        The Control Panel is always ON as soon as the computer has been plugged
-        to the 5V/4A power supply. That's right, even when the computer is OFF,
-        this panel is ON. It will make sense in a second.
-        
         This Panel is used to configure some pre-booting configurations (if you
-        are familiar with IBM AS/400 hardware you will see where this idea comes
-        from), and also monitors the internal temperature of the box and
-        switches ON and OFF a small fan used for cooling.
+        are familiar with IBM AS/400\footnote{The IBM AS/400 (Application
+        System/400) is a family of midrange computers from IBM produced since
+        1988.} computers you will see where this idea comes from). It also
+        monitors the internal temperature of the box and switches ON and OFF a
+        small fan used for cooling.
 
         The Panel consists of one LCD display and three push buttons. The
         buttons are labelled \textit{+}, \textit{-} and \textit{Select}.
 
-        The LCD display what is called \textit{pages} of information. The
-        buttons \textit{+} and \textit{-} are used to navigate the pages, and
-        the button \textit{Select} is used to select a page.
-        
+        The LCD displays what is referred in this manual as \textit{pages} of
+        information. The buttons \textit{+} and \textit{-} are used to navigate
+        the pages, and the button \textit{Select} is used to select a specific
+        configuration shown on a page.
+
+        The LCD display is always ON as soon as the computer has been plugged
+        to the 5V/4A power supply. That's right, even when the computer is OFF,
+        this panel is ON.
+
+        Once the computer is switched ON (via the Power Switch), the
+        configuration cannot be changed. Hence, any selection via the
+        \textit{Select} button will be ignored.
+
+        Changes in configuration are not stored. Once the computer is unplugged
+        from the power supply, it will start again with the default settings.
+
+        \pagebreak
+
+        \textbf{Current Configuration - Page 0}
+
         When plugged in, the display will show the Page 0. This is indicated by
         the number zero shown in the first character of each of the two lines of
         the display.
@@ -91,8 +108,15 @@
             \end{itemize}
         \end{itemize}
 
+        \textbf{ROM Start Address - Pages 1 and 2}
+
         Pages 1 and 2 are selectable pages, and show the two different start ROM
         addresses that can be selected.
+
+        The EEPROM that contains the OS can have two different versions. One
+        version is burned into the EEPROM at address \texttt{0x0000} and the
+        other at \texttt{0x4000}. This is useful for testing new versions or
+        even having completely different operating systems.
 
         \begin{center}
             \includegraphics[scale=0.7]{images/dastaZ80_ControlPanel_Page1.png}
@@ -104,30 +128,46 @@
         0 automatically, and you should see the selected value in its
         corresponding position.
 
+        \textbf{System Clock - Pages 3 and 4}
+
         Pages 3 and 4 are selectable pages, and show the two different system
         clock that can be selected.
+
+        The Internal clock is a 7.3728 Mhz clock, soldered in the Main Board,
+        that supplies clock signal to the different devices. The External clock
+        is a clock of any speed that can be connected to the
+        \textit{External Clock} pin in the box, and will supply the clock signal
+        to the different devices.
+
+        The current hardware set up of the dastaZ80DB requires a 7.3728 Mhz
+        clock for the serial device to work. Therefore, external clock SHOULD
+        only be used for other operating systems than the current version of 
+        DZOS.
 
         \begin{center}
             \includegraphics[scale=0.7]{images/dastaZ80_ControlPanel_Page3.png}
             \includegraphics[scale=0.7]{images/dastaZ80_ControlPanel_Page4.png}
         \end{center}
-                
-        To select one or the other, press the button \textit{Select} while in
-        the desired page. After a couple of seconds, the Panel will display Page
-        0 automatically, and you should see the selected value in its
-        corresponding position.
 
-        Worth noting:
+        \textbf{Video Output - Pages 5 and 6}
 
-        \begin{itemize}
-            \item Once the computer is switched ON, the configuration cannot be
-                changed. Hence, any selection via the \textit{Select} button
-                will be ignored.
-            \item Changes in configuration are not stored. Once the computer is
-                unplugged from the power supply, it will start again with the
-                default settings.
-        \end{itemize}
+        Pages 5 and 6 are selectable pages, and show the two different video
+        output that can be selected.
 
+        You MUST change this configuration accordingly to how you did set up the
+        computer (as explained in the section \hyperref[sec:setting_system]
+        {Setting up the system}). Select \textit{TTL Serial} if you are using
+        a TTL-to-USB (or TTL-to-RS-232) cable for input and output, or Select 
+        \textit{VGA} if you are using TTL-to-USB (or TTL-to-RS-232) cable for
+        input but VGA for output.
+
+        \begin{center}
+            \includegraphics[scale=0.7]{images/dastaZ80_ControlPanel_Page5.png}
+            \includegraphics[scale=0.7]{images/dastaZ80_ControlPanel_Page6.png}
+        \end{center}
+
+    \pagebreak
+    
     % ==========================================================================
     \subsection{ON/OFF button}
     % ==========================================================================
@@ -173,9 +213,8 @@
     \hyperref[subsec:frontpanel]{dastaZ80DB Front Panel}.
 
     For the dastaZ80, at the top of the computer case there a few labelled
-    LEDs\footnote{A Light-Emitting Diode (LED) is a semiconductor device that
-    emits light when current flows through it.} that give information of the
-    status of several internal parts of the computer.
+    LEDs that give information of the  status of several internal parts of the
+    computer.
 
     \begin{itemize}
         \item Above the numeric pad, on the righthand side of the keyboard,
@@ -309,9 +348,7 @@
 
         The second connector, which is optional (i.e. the computer will function
         perfectly normal without this connected), is a 3.5mm female jack for the
-        \textbf{Composite video output}\footnote{The Composite video signal is
-        NTSC (National Television System Committee), the standard for analog
-        television used mainly in USA, Japan and some parts of South America}.
+        NTSC \textbf{Composite video output}.
 
         Plug here the jack side of a 3.5mm jack-to-3-RCA Audio/Video cable
         \footnote{This is the same cable used on the Raspberry Pi for Composite

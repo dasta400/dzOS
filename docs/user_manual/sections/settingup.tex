@@ -35,7 +35,8 @@ You will need:
     \item Another computer, with serial port (either USB or RS-232).
     \begin{itemize}
         \item For USB, you will need a TTL-to-USB cable.
-        \item For RS-232, you will need a TTL-to-RS-232 converter.
+        \item For RS-232, you will need a TTL-to-RS-232 converter and a RS-232
+            null modem cable.
     \end{itemize}
     \item A 5 Volts (4 Amp) power supply with a female 2.1mm barrel-style DC
     connector (positive polarity).
@@ -81,25 +82,25 @@ You will need:
         SHOULD be performed with the computer unplugged.
     \item For the dastaZ80DB, there are two options:
     \begin{itemize}
-        \item Connect the TTL-to-USB cable to the 4 pins header labelled
-            \textit{TTL I/O}, to have the input (keyboard) and output (screen)
-            from/to another computer.
-        \item Or, connect the TTL-to-USB cable to \textit{TTL I/O}, but also
-            connect the VGA cable to the VGA connector, and set the switch in
-            the front of the case (labelled \textit{TTL / VGA}) to the position
-            \textit{VGA}. This way, the signal will be send to the VGA monitor
-            and not to the other computer.
+        \item Connect the TTL-to-USB (or TTL-to-RS-232) cable to the 4 pins
+            header labelled \textit{TTL I/O}, to have the input (keyboard) and
+            output (screen) from/to another computer.
+        \item Or, connect the TTL-to-USB (or TTL-to-RS-232) cable to
+            \textit{TTL I/O}, but also connect the VGA cable to the VGA
+            connector. You will then need to configure the 
+            \hyperref[subsubsec:controlpanel]{Control Panel} to use VGA output
+            instead of TTL output. This way, the signal will be send to the VGA
+            monitor and not to the other computer.
     \end{itemize}
-
 \end{enumerate}
 
-That’s really it. Switch the computer on, with the power switch, and you
-should see text on your VGA monitor. DZOS is ready to use.
+That’s really it. Switch the Power Switch to the ON position and you should see
+text on your VGA monitor. The computer and DZOS are ready to use.
 
-If your are using the dastaZ80DB with the TTL-to-USB cable for both input and
-output, you need to open a terminal program in your other computer and set it up
-to connect at 115,200bps 8N1 no hardware flow control. After flipping the
-switch, you should see text on the terminal program.
+If you are using the dastaZ80DB with the TTL-to-USB (or TTL-to-RS-232) cable for
+both input and output (i.e. no VGA), you need to open a terminal program in your
+other computer and set it up to connect at 115,200bps 8N1 no hardware flow
+control. After flipping the switch, you should see text on the terminal program.
 
 Nevertheless, it's worth noting that by following this procedure the disk
 image in the SD card will be empty, and therefore no software will be

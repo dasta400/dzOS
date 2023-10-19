@@ -122,6 +122,9 @@
 
     \textbf{MEMORY} refers to both \textbf{ROM} and \textbf{RAM}.
 
+    Although the word \textbf{ROM} is used in this manual, the actual chip used
+    in the dastaZ80 computer is of the type \textbf{EEPROM}.
+
     Memory used by the \textbf{Low Resolution Display} is referred as
     \textbf{VRAM} (Video RAM).
 
@@ -186,26 +189,20 @@
             computer box.
     \end{itemize}
 
-    Functionally, at hardware level both are very similar with just some minor
-    differences in the way the computer is set up and used. At software level,
-    both are identical.
+    Both are functionally the same, except the dastaZ80DB does not have a
+    keyboard nor a Floppy Disk Drive, and is meant to be operated from an
+    external video terminal (like DEC VT100) or a computer running a terminal
+    program (like Minicom or PuTTY). More details about this configuration in
+    the section \hyperref[sec:setting_system]{Setting up the system}.
 
     The dastaZ80 Original was the first version I made, and it is a stand-alone
     computer. Only things needed to use it are: the computer itself, a 5V/4A
     power supply, a monitor with VGA connector and optionally a monitor with 
-    NTSC Composite video input and (also optionally) a pair of autoampplified
+    NTSC Composite video input and (also optionally) a pair of amplified
     speakers or a monitor with RCA stereo connectors.
 
-    The dastaZ80DB requires the same as above, and an external serial keyboard.
-    Also, the VGA can be exchanged by a serial monitor. More about this 
-    configuration is explained below in the section \hyperref[sec:setting_system]
-    {Setting up the system}.
-
-    The dastaZ80DB was created with the idea of saving physical space, as the
-    Acorn Archimedes A3010 case is quite voluminous. This version of the
-    computer is ideally interfaced via a another computer, by using a terminal
-    software (like Minicom or PuTTY). More about this in the section
-    \hyperref[sec:setting_system]{Setting up the system}.
+    The dastaZ80DB requires the same, plus an external serial keyboard. Also,
+    the VGA can be exchanged by a serial monitor.
 
     % ==========================================================================
     \subsection{dastaZ80 Original}
@@ -213,12 +210,11 @@
 
     \begin{itemize}
         \item ZiLOG Z80 microprocessor (CPU) running at 7.3728 MHz
-        \item 64 KB \textbf{MEMORY}: 16 KB reserved for DZOS, 48 KB available
+        \item 64 KB RAM: 16 KB reserved for DZOS, 48 KB available
             for the user and programms.
         \item Storage devices: Micro SD Card\footnote{Formatted with FAT32 and
             containing Disk Image Files formatted with DZFS (dastaZ80 File
-            System, a file system of my own design, for mass storage devices,
-            aimed at simplicity.)}, 3.5" DD/HD Floppy Disk Drive.
+            System.)}, 3.5" DD/HD Floppy Disk Drive.
         \item Dual Video output: VGA 80 columns by 25 lines and 16 colours,
             Composite NTSC 15 colours.
         \item Stereo Sound: 3 channels (1 tone per channel), 7 octaves, 1 noise
@@ -229,11 +225,7 @@
         \item Keyboard: Acorn Archimedes A3010 keyboard. 102 keys with 12 function
             keys, cursor keys and numeric pad.
         \item Case: Repurposed Acorn Archimedes A3010 case with keyboard.
-        \item Expansion ports.
-        \begin{itemize}
-            \item 2x20 pin male header. Exposes all CPU signals.
-            \item 2x15 pin connector for ROM Cartridges.
-        \end{itemize}
+        \item Expansion ports: GPIO and ROM Cartridges.
     \end{itemize}
 
     % ==========================================================================
@@ -244,6 +236,7 @@
 
     \begin{itemize}
         \item No keyboard.
+        \item No Floppy Disk Drive.
         \item Case: desktop box.
     \end{itemize}
 
@@ -260,6 +253,8 @@
     \pagebreak
     \include{sections/other_software}
     \include{sections/appendixes}
+    \pagebreak
+    \include{sections/glossary}
     \pagebreak
 
     % ==========================================================================
