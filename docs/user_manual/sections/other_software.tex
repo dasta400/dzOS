@@ -719,6 +719,49 @@
         indicating the location in video \textbf{VDP} memory of the byte that
         will be displayed.
 
+    % ======================================================================
+    \subsection{Paste File to RAM (pastefile)}
+    % ======================================================================
+    \label{software:pastefile}
+
+    Allows to transfer files via a Terminal Emulator software (like Minicom or
+    PuTTY), directly into the \textbf{RAM} of the dastaZ80. It's very handy for
+    testing new software under
+    development.
+
+    The computer MUST be set to \hyperref[subsec:devmode]{Developer Mode}.
+
+    The program MUST be run with two parameters:
+
+    \begin{itemize}
+        \item RAM address where received bytes will start to be copied.
+        \item Total number of bytes to receive, in hexadecimal 4 digits notation.
+    \end{itemize}
+
+    For example, lets imagine we have assembled in our Linux PC a program and
+    we are connected to the dastaZ80 with Minicom. The binary of our assembled
+    program has a size of 145 bytes (\texttt{0x0091}) and the start address is
+    \texttt{0x4420}
+
+    First we need to get the hexadecimal values of the assembled binary. There
+    are multiple tools to do this, but from Linux command line we can get it
+    with \texttt{xxd -p -c 256}. \textit{-p} outputs the bytes as plain text.
+    \textit{-c 256} prints 256 (the max. we can) bytes per line. Copy the text
+    to the clipboard (typically Ctrl + C). Be sure there are no spaces between
+    the bytes. This will happen if there are more than 256 bytes.
+
+    Next, we run pastefile in dastaZ80: \texttt{pastefile 4420 0091}
+
+    Then we paste the bytes into the terminal program, and pastefile will
+    receive and write them into \textbf{RAM}.
+
+    It is \textbf{important} to remember that you MUST set a character delay of
+    1ms in your terminal software\footnote{In Minicom, press Ctrl + A and then
+    T. The \textit{Terminal settings} will be displayed. Press F, enter a 1 and
+    press ENTER twice.}. Otherwise some bytes will be lost, though
+    dastaZ80 will not be aware. And when you run the program there will be very
+    unexpected results.
+
     % % ==========================================================================
     % \subsection{Logo}
     % % ==========================================================================

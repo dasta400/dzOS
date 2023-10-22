@@ -298,9 +298,11 @@
         % ==========================================================================
         \subsubsection{TTL I/O}
         % ==========================================================================
+        \label{subsubsection:ttlio}
 
         The dastaZ80DB has a 4 pins header labelled \textit{TTL I/O} that is
-        used to connect either a TTL-to-USB cable or a TTL-to-RS-232 converter.
+        used for connecting either a TTL-to-USB cable or a TTL-to-RS-232
+        converter.
 
         This connector carries the signals for the input (keyboard) and output
         (screen).
@@ -406,3 +408,33 @@
         % This connector exposes all CPU signals and can be used to connect external
         % devices directly to the components (e.g. \textbf{CPU}, \textbf{RAM)} of
         % the computer.
+
+    % ==========================================================================
+    \subsection{Developer Mode}
+    % ==========================================================================
+    \label{subsec:devmode}
+
+    At the back of the dastaZ80 is located a pin header that configures the
+    routing of the signals between the the serial device and the internal I/O
+    devices.
+
+    By default, the signals are routed as follows:
+
+    \begin{itemize}
+        \item Serial TX $\rightarrow$ VGA controller RX
+        \item Serial RX $\leftarrow$ Keyboard controller TX
+    \end{itemize}
+
+    It's possible to redirect these signals to an external device (e.g. a
+    computer running a terminal emulator software like Minicom or PuTTY). This
+    configuration allows to use the computer via an external keyboard and/or
+    outputting the video signal to that device.
+
+    In the dastaZ80DB, this pin header is the \hyperref[subsubsection:ttlio]
+    {TTL I/O}, and signals are not routed because is used for connecting either
+    a TTL-to-USB cable or a TTL-to-RS-232 converter.
+
+    It's called \textit{Developer Mode}, because with this configuration is very
+    easy (and quick), to send programs via the \hyperref[software:pastefile]
+    {pastefile} tool and test them. Basically, we can write programs directly to
+    the \textbf{RAM}, without the need of transfer them to the MicroSD card.
