@@ -118,3 +118,45 @@
             Guide}\cite{dastaz80progref} for a complete list of message types.
     \end{itemize}
 
+    % ==========================================================================
+    \subsection{How to copy files}
+    % ==========================================================================
+
+    At the moment, DZOS doesn't have a command for copying files. But this can
+    be easily achieved using commands \hyperref[cmd:load]{load} and
+    \hyperref[cmd:save]{save}.
+
+    The \textit{load} command reads bytes from a file in a \textbf{DISK} and
+    copies them into \textbf{RAM}. On the other hand, the \textit{save}
+    command does exactly the opposite. Hence, we can  use these two commands to
+    read the bytes of the file we want to copy, store these bytes in
+    \textbf{RAM} and then store these bytes from \textbf{RAM} to \textbf{DISK}
+    with a new filename.
+
+    Let's look at an example: we have a file called \textit{testfile}, which is
+    956 bytes long, in the disk 1 and we want to copy it to the disk 2.
+
+    First, we need to be at the \textbf{DISK} unit were the original file is.
+    For our example, it's disk 1. So, if we are not already in disk 1, we use
+    the command \texttt{dsk 1}.
+
+    Next, we load the file into \textbf{RAM} with the command
+    \texttt{load testfile}. Once the file is loaded by the OS, it will tell us
+    in which \textbf{MEMORY} address was stored. Lets imagine, for this example,
+    that the address was \texttt{0x4420}.
+
+    Next, we need to position to the destination disk (disk 2 in our example)
+    with the command \texttt{dsk 2}.
+
+    Finally, we use the command \texttt{save 4420 956} to instruct the OS to
+    create a new file with 956 bytes from \textbf{RAM}, starting at address 
+    \textbf{0x4420}. The OS will ask us for a filename, and proceed to perform 
+    the saving. For our example we will keep the same name \textit{testfile}.
+
+    Now, we have two exact copies of the file \textit{testfile}. One in
+    \textbf{DISK} 1 and another in \textbf{DISK} 2.
+
+    The only downside, a part from the fact that we need to write 3 to 4
+    commands instead of just one, is that the \textit{File Attributes} will not
+    be the same as the original file, as the OS has just created a new file. We
+    can set the attributes with the command \hyperref[cmd:chgattr]{chgattr}.
