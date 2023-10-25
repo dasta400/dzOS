@@ -3,6 +3,13 @@
 % ==========================================================================
 
 \begin{itemize}
+    \item \textbf{Block Allocation Table (BAT)}: is a data structure used to
+        track disk blocks on a \textbf{DISK}. The Table is used as index of
+        files, and each entry in the Table constains details about each file
+        (filename, attributes, size, etc.) and details on how the OS can access
+        the data (e.g. in which Sector the file is stored). Technically, the BAT
+        is not allocating Blocks but Sectors, so it should have been named
+        Sector Allocation Table instead.
     \item \textbf{BIOS}: The Basic Input/Output System is the firmware used to
         provide hardware related subroutines to the operating system. It is
         stored in an EEPROM that cannot be modified unless extracting the chip,
@@ -34,10 +41,19 @@
         metadata of the files, and the available space of the device, dividing
         the storage area into units of storage and keeping a map of every
         storage unit of the device.
+    \item \textbf{General-Purpose Input/Output (GPIO)}: is a set of pins which
+        carries \textbf{CPU} (among others) signals, and allows external devices
+        to be plugged into the GPIO connector an be managed by the computer.
+        Typical devices connected to a GPIO are; modems, RAM expansions,
+        Real-Time Clocks (RTC), hard drives.
     \item \textbf{Kernel}: The Kernel is a layer of the operating system that
         it is in between the software and the BIOS. Thus the Kernel is agnostic
         to the hardware, and is only responsible for calling the needed
         subroutines.
+    \item \textbf{Logical Block Addressing (LBA)}: is a scheme for specifying
+        the location of blocks of data stored on computer storage devices. In
+        DZOS, it is based in blocks of sectors, where each block is 64 sectors
+        a each sector is 512 bytes.
     \item \textbf{LED}: A Light-Emitting Diode is a semiconductor device that
         emits light when current flows through it. It is commonly used in
         computers, as light indicator, due to their high durability and low
@@ -57,6 +73,15 @@
         video, and white and red for audio.
     \item \textbf{ROM}: Read-Only Memory is a type of non-volatile memory that 
         cannot be electronically modified after the manufacture process.
+    \item \textbf{Sector}: A virtual group of 512 bytes stored in a
+        \textbf{DISK}. 
+    \item \textbf{Superblock}: The first 512 bytes on a \textbf{DISK} contain
+        fundamental information about the \textbf{DISK} geometry, and is used by
+        the OS to know how to access every other information on the
+        \textbf{DISK}. On IBM PC-compatibles, this is known as the
+        \textit{Master Boot Record} (MBR). I decided to call it
+        \textit{Superblock}, as it is an orphan Sector that doesn't belong to
+        any Block and it's physically store above any other Block.
     \item \textbf{VGA}: The Video Graphics Array is a video display controller
         that became the standard for video output for computers around 1990s,
         and remained until the introduction of other standards around 2000s.

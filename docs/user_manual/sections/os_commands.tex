@@ -312,21 +312,6 @@ command \hyperref[cmd:dsk]{dsk}) and with attribute \textit{EXE}.
 
         \hfill\break
 
-        The File Types are:
-
-        \begin{itemize}
-            \item \textbf{USR}: User defined.
-            \item \textbf{EXE}: Executable binary.
-            \item \textbf{BIN}: Binary (non-executable) data.
-            \item \textbf{BAS}: BASIC code.
-            \item \textbf{TXT}: Plain ASCII Text file.
-            \item \textbf{FN6}: Font (6×8) for Text Mode.
-            \item \textbf{FN8}: Font (8×8) for Graphics Modes.
-            \item \textbf{SC1}: Screen 1 (Graphics I Mode) Picture.
-            \item \textbf{SC2}: Screen 2 (Graphics II Mode) Picture.
-            \item \textbf{SC3}: Screen 3 (Multicolour Mode) Picture.
-        \end{itemize}
-
         % ======================================================================
         \subsubsection{{erasedsk}}
         % ======================================================================
@@ -447,18 +432,7 @@ command \hyperref[cmd:dsk]{dsk}) and with attribute \textit{EXE}.
         % ======================================================================
         \label{cmd:chgattr}
 
-        Files in DZFS can have any of the following attributes:
-        
-        \begin{itemize}
-            \item \textbf{Read Only} (R): it cannot be overwritten, renamed or
-            deleted.
-            \item \textbf{Hidden} (H): it does not show up in the results
-            produced by the command \textit{cat}.
-            \item \textbf{System} (S): this is a file used by DZOS and it MUST
-            not be altered.
-            \item \textbf{Executable} (E): this is an executable file and can be
-            run directly with the command \textit{run $<$filename$>$}.
-        \end{itemize}
+        Changes the \hyperref[subsub:fileattr]{File Attributes} of a file.
 
         \hspace{1.9cm}\textbf{$>$ chgattr \textit{$<$filename$>$,$<$RHSE$>$}}
 
