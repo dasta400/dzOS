@@ -7,11 +7,12 @@
 ;
 ; Version 1.0.0
 ; Created on 23 Dec 2022
-; Last Modification 17 Aug 2023
+; Last Modification 10 Nov 2023
 ;******************************************************************************
 ; CHANGELOG
-; 	- 17 Aug 2023 - Removed include BIOS.VDPlogo.asm
+;   - 17 Aug 2023 - Removed include BIOS.VDPlogo.asm
 ;                 - Added include BIOS.FNTcharset.asm
+;   - 10 Nov 2023 - Added include BIOS.RTC.asm
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -47,6 +48,7 @@
 ;-----------------------------------------------------------------------------
 #include "src/BIOS/BIOS.asm"            ; BIOS routines
 #include "src/BIOS/BIOS.ASMDC.asm"      ; Arduino Serial Multi Device Controller
+#include "src/BIOS/BIOS.RTC.asm"        ; Real-Time Clock (RTC)
 #include "src/BIOS/BIOS.VDP.asm"        ; TMS9918A VDP
 #include "src/BIOS/BIOS.PSG.asm"        ; AY-3-8912 PSG
 #include "src/BIOS/BIOS.joys.asm"       ; Dual Digital Joystick Port
