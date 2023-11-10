@@ -47,7 +47,7 @@
 ; BIOS
 ;-----------------------------------------------------------------------------
 #include "src/BIOS/BIOS.asm"            ; BIOS routines
-#include "src/BIOS/BIOS.ASMDC.asm"      ; Arduino Serial Multi Device Controller
+#include "src/BIOS/BIOS.NVRAM.asm"      ; Non-volatile RAM
 #include "src/BIOS/BIOS.RTC.asm"        ; Real-Time Clock (RTC)
 #include "src/BIOS/BIOS.SD.asm"         ; SD card
 #include "src/BIOS/BIOS.FDD.asm"        ; Floppy Disk Drive
