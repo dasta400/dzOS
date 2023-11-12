@@ -63,5 +63,24 @@ dzOS.2023.01.11.18.28.bin (old)
         Wait for VBLANK.
         Copy blocks of RAM to VRAM.
 
-dzOS.2023.01.20.17.31.bin (current)
+dzOS.2023.01.20.17.31.bin (old)
     Added support for AY-3-8912 (Programmable Sound Generator)
+
+dzOS.2023.11.12.14.50.bin (current)
+    Added bq4845 RTC with its own board backed up with a 3V button cell battery.
+    Removed RTC from ASMDC.
+    Removed NVRAM code, because bq4845 doesn't have NVRAM.
+    Added bq4845 RTC with its own board backed up with a 3V button cell battery.
+    Added more information to Manuals and Guides.
+    VGA messages colours defined (and modifiable) in SYSVARS.
+    Files now can be run directly as if it were CLI commands.
+    Changed logo on VDP for text message, to save bytes in ROM image.
+    Solved bugs:
+        File Size not printed in same column when had no attribs.
+        Changed BIOS_VDP_VBLANK_WAIT because of possible bug in the VDP hardware implementation.
+    New subroutines:
+        Added F_KRN_STRCHR and F_KRN_STRCHRNTH functions.
+        Added KRN_VDP_CHG_COLOUR_BORDER.
+    Tweaks:
+        Changed 'ld A,0' for 'xor 0' because it's 3 clock cycles faster, and occupies 1 byte less.
+        Added push/pop in parse_get_command, that saves 354 clock cycles.
