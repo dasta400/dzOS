@@ -3,21 +3,36 @@
     % ==========================================================================
 
         % ==========================================================================
+        \subsubsection{F\_BIOS\_RTC\_INIT}
+        \label{func:fbiosrtcinit}
+        % ==========================================================================
+        \begin{tabular}{l p{15cm}}
+            \hline\textbf{Action}
+            & Initialises the \textbf{RTC} to 24 hours format and sets the
+            oscillator clock as running, so that the time keeps ticking when
+            running on battery.\\
+            \hline\textbf{Entry} & None \\
+            \hline\textbf{Exit} & None \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\textbf{Calls} & None \\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
         \subsubsection{F\_BIOS\_RTC\_GET\_TIME}
         \label{func:fbiosrtcgettime}
         % ==========================================================================
         \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
-            & Gets the current time from the \textbf{ASMDC}, and stores hour,
+            & Gets the current time from the \textbf{RTC}, and stores hour,
             minutes and seconds as hexadecimal values in
             \hyperref[sec:ram_memmap]{SYSVARS}.\\
             \hline\textbf{Entry} & None \\
             \hline\textbf{Exit} & \texttt{RTC\_hour}, \texttt{RTC\_minutes},
             \texttt{RTC\_seconds} \\
             \hline\textbf{Destroys} & \texttt{A} \\
-            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
-            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
-            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline\textbf{Calls}
+            & \hyperref[func:fkrnbcdtobin]{F\_KRN\_BCD\_TO\_BIN}\\
             \hline
         \end{tabular}
 
@@ -27,16 +42,15 @@
         % ==========================================================================
         \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
-            & Gets the current date from the \textbf{ASMDC}, and stores day,
+            & Gets the current date from the \textbf{RTC}, and stores day,
             month, year and day of the week as hexadecimal values in
             \hyperref[sec:ram_memmap]{SYSVARS}.\\
             \hline\textbf{Entry} & None \\
             \hline\textbf{Exit} & \texttt{RTC\_day}, \texttt{RTC\_month},
             \texttt{RTC\_year}, \texttt{RTC\_day\_of\_the\_week} \\
             \hline\textbf{Destroys} & \texttt{A}, \texttt{HL} \\
-            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
-            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
-            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline\textbf{Calls}
+            & \hyperref[func:fkrnbcdtobin]{F\_KRN\_BCD\_TO\_BIN}\\
             \hline
         \end{tabular}
 
@@ -46,13 +60,13 @@
         % ==========================================================================
         \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
-            & Tells \textbf{ASMDC} to store a new hour, minutes and seconds. \\
+            & Tells the \textbf{RTC} to store a new hours, minutes and seconds. \\
             \hline\textbf{Entry} & \texttt{RTC\_hour}, \texttt{RTC\_minutes},
             \texttt{RTC\_seconds} \\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A} \\
             \hline\textbf{Calls}
-            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fkrnbintobcd4]{F\_KRN\_BIN\_TO\_BCD4}\\
             \hline
         \end{tabular}
 
@@ -62,14 +76,14 @@
         % ==========================================================================
         \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
-            & Tells \textbf{ASMDC} to store a new day, month, year and day of
+            & Tells the \textbf{RTC} to store a new day, month, year and day of
             the week. \\
             \hline\textbf{Entry} & \texttt{RTC\_day}, \texttt{RTC\_month},
             \texttt{RTC\_year}, \texttt{RTC\_day\_of\_the\_week} \\
             \hline\textbf{Exit} & None\\
             \hline\textbf{Destroys} & \texttt{A} \\
             \hline\textbf{Calls}
-            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fkrnbintobcd4]{F\_KRN\_BIN\_TO\_BCD4}\\
             \hline
         \end{tabular}
 
@@ -79,14 +93,11 @@
         % ==========================================================================
         \begin{tabular}{l p{15cm}}
             \hline\textbf{Action}
-            & Asks the \textbf{ASMDC} if the battery is healthy or has to be
+            & Asks the \textbf{RTC} if the battery is healthy or has to be
             replaced. \\
             \hline\textbf{Entry} & None\\
-            \hline\textbf{Exit} & A = \texttt{0x0A} (Healthy) / \texttt{0x00}
-            (Dead)\\
+            \hline\textbf{Exit} & Z Flag set if battery unhealthy\\
             \hline\textbf{Destroys} & \texttt{A} \\
-            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
-            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
-            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline\textbf{Calls} & None\\
             \hline
         \end{tabular}

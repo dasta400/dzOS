@@ -7,11 +7,12 @@
 ;
 ; Version 1.0.0
 ; Created on 25 Apr 2019
-; Last Modification 17 Aug 2023
+; Last Modification 11 Nov 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - Removed F_BIOS_VDP_SHOW_DZ_LOGO
 ;                 - Added F_BIOS_VDP_FNT_CHARSET
+;   - 11 Nov 2023 - Changed RTC jumps for bq4845 RTC
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -95,18 +96,22 @@ F_BIOS_DISK_WRITE_SEC:          .EXPORT         F_BIOS_DISK_WRITE_SEC
         jp      BIOS_DISK_WRITE_SEC
 
         ; Real-Time Clock subroutines
-F_BIOS_RTC_GET_TIME:            .EXPORT         F_BIOS_RTC_GET_TIME
-        jp      BIOS_RTC_GET_TIME
-F_BIOS_RTC_GET_DATE:            .EXPORT         F_BIOS_RTC_GET_DATE
-        jp      BIOS_RTC_GET_DATE
-F_BIOS_RTC_SET_TIME:            .EXPORT         F_BIOS_RTC_SET_TIME
-        jp      BIOS_RTC_SET_TIME
-F_BIOS_RTC_SET_DATE:            .EXPORT         F_BIOS_RTC_SET_DATE
-        jp      BIOS_RTC_SET_DATE
+F_BIOS_RTC_INIT:                .EXPORT         F_BIOS_RTC_INIT
+        jp      BIOS_RTC_INIT
 F_BIOS_RTC_CHECK_BATTERY:       .EXPORT         F_BIOS_RTC_CHECK_BATTERY
         jp      BIOS_RTC_CHECK_BATTERY
-F_BIOS_NVRAM_DETECT:            .EXPORT         F_BIOS_NVRAM_DETECT
-        jp      BIOS_NVRAM_DETECT
+F_BIOS_RTC_CLOCK_INHIBIT:       .EXPORT         F_BIOS_RTC_CLOCK_INHIBIT
+        jp      BIOS_RTC_CLOCK_INHIBIT
+F_BIOS_RTC_CLOCK_RELEASE:       .EXPORT         F_BIOS_RTC_CLOCK_RELEASE
+        jp      BIOS_RTC_CLOCK_RELEASE
+F_BIOS_RTC_SET_TIME:            .EXPORT         F_BIOS_RTC_SET_TIME
+        jp      BIOS_RTC_SET_TIME
+F_BIOS_RTC_GET_TIME:            .EXPORT         F_BIOS_RTC_GET_TIME
+        jp      BIOS_RTC_GET_TIME
+F_BIOS_RTC_SET_DATE:            .EXPORT         F_BIOS_RTC_SET_DATE
+        jp      BIOS_RTC_SET_DATE
+F_BIOS_RTC_GET_DATE:            .EXPORT         F_BIOS_RTC_GET_DATE
+        jp      BIOS_RTC_GET_DATE
 
         ; TMS9918A VDP
 F_BIOS_VDP_SET_ADDR_WR:         .EXPORT         F_BIOS_VDP_SET_ADDR_WR

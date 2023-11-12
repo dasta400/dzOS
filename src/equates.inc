@@ -7,15 +7,15 @@
 ;
 ; Version 1.0.0
 ; Created on 03 Jan 2018
-; Last Modification 17 Aug 2023
+; Last Modification 11 Nov 2023
 ;******************************************************************************
 ; CHANGELOG
-;   -
+;   - 11 Nov 2023 - Added bq4845 RTC
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2018-2022 David Asta
+; Copyright (c) 2018-2023 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -51,6 +51,7 @@ PSG_DATA                    .EQU    $21 ; ^
 ROMRAM_PAGING               .EQU    $38 ; ROM/RAM paging
 JOY1_STAT                   .EQU    $40 ; Dual Digital Joystick Port
 JOY2_STAT                   .EQU    $41 ; ^
+BQ4845_CS                   .EQU    $50 ; bq4845 RTC
 SIO_CH_A_CONTROL            .EQU    $80 ; Zilog SIO/2
 SIO_CH_A_DATA               .EQU    $81 ; ^
 SIO_CH_B_CONTROL            .EQU    $82 ; ^
@@ -79,7 +80,7 @@ STACK_START                 .EQU    $4000               ; Top of the dastaZ80's 
 STACK_END                   .EQU    STACK_START + 31    ; Bottom of the dastaZ80's Stack location
 
 SYSVARS_START               .EQU    STACK_END + 1
-SYSVARS_END                 .EQU    SYSVARS_START + 348
+SYSVARS_END                 .EQU    SYSVARS_START + 388
 
 RESERVED_START              .EQU    SYSVARS_END + 1
 RESERVED_END                .EQU    $4220 - 1
@@ -197,15 +198,15 @@ SD_CMD_PARK_DISKS           .EQU    $B4
 SD_CMD_MOUNT_DISK           .EQU    $B5
 SD_CMD_GET_IMG_INFO         .EQU    $B6
 
-RTC_CMD_GET_INFO            .EQU    $C0
-RTC_CMD_GET_BATT            .EQU    $C1
-RTC_CMD_GET_DATE            .EQU    $C2
-RTC_CMD_GET_TIME            .EQU    $C3
-RTC_CMD_SET_DATE            .EQU    $C4
-RTC_CMD_SET_TIME            .EQU    $C5
-RTC_CMD_GET_TEMP            .EQU    $C6
+; RTC_CMD_GET_INFO            .EQU    $C0
+; RTC_CMD_GET_BATT            .EQU    $C1
+; RTC_CMD_GET_DATE            .EQU    $C2
+; RTC_CMD_GET_TIME            .EQU    $C3
+; RTC_CMD_SET_DATE            .EQU    $C4
+; RTC_CMD_SET_TIME            .EQU    $C5
+; RTC_CMD_GET_TEMP            .EQU    $C6
 
-NVRAM_CMD_DETECT            .EQU    $D0
+; NVRAM_CMD_DETECT            .EQU    $D0
 
 ;==============================================================================
 ; TMS9918A VDP
@@ -327,6 +328,40 @@ JOY_LEFT                    .EQU    $04
 JOY_RIGHT                   .EQU    $08
 JOY_FIRE                    .EQU    $10
 
+;==============================================================================
+; bq4845 Real-time Clock
+;==============================================================================
+; BQ4845 Registers
+BQ4845_TIME_SECS    .EQU    BQ4845_CS | $00     ; seconds Time
+BQ4845_ALRM_SECS    .EQU    BQ4845_CS | $01     ; seconds Alarm
+BQ4845_TIME_MINS    .EQU    BQ4845_CS | $02     ; minutes Time
+BQ4845_ALRM_MINS    .EQU    BQ4845_CS | $03     ; minutes Alarm
+BQ4845_TIME_HOURS   .EQU    BQ4845_CS | $04     ; hours Time
+BQ4845_ALRM_HOURS   .EQU    BQ4845_CS | $05     ; hours Alarm
+BQ4845_DATE_DAY     .EQU    BQ4845_CS | $06     ; day Time
+BQ4845_ALRM_DAY     .EQU    BQ4845_CS | $07     ; day Alarm
+BQ4845_DATE_DOW     .EQU    BQ4845_CS | $08     ; day of the week Time (1=Sunday)
+BQ4845_DATE_MONTH   .EQU    BQ4845_CS | $09     ; month Time
+BQ4845_DATE_YEAR    .EQU    BQ4845_CS | $0A     ; year Time
+BQ4845_PRG_RATES    .EQU    BQ4845_CS | $0B     ; programmable rates for Watchdog
+BQ4845_INTERRUPT    .EQU    BQ4845_CS | $0C     ; interrupt enables
+BQ4845_FLAGS        .EQU    BQ4845_CS | $0D     ; flags
+BQ4845_CTRL         .EQU    BQ4845_CS | $0E     ; control
+; BQ4845 Interrupt Enables masks
+BQ4845_INTEN_ABE    .EQU    %00000001           ; (bit 0) Alarm interrupt Enable
+BQ4845_INTEN_PWRIE  .EQU    %00000010           ; (bit 1) Power-fail interrupt Enable
+BQ4845_INTEN_PIE    .EQU    %00000100           ; (bit 2) Periodic interrupt Enable
+BQ4845_INTEN_AIE    .EQU    %00001000           ; (bit 3) Alarm interrupt Enable
+; BQ4845 Flags masks
+BQ4845_FLAGS_BVF    .EQU    %00000001           ; (bit 0) Battery-valid flag
+BQ4845_FLAGS_PWRF   .EQU    %00000010           ; (bit 1) Power-fail interrupt flag
+BQ4845_FLAGS_PF     .EQU    %00000100           ; (bit 2) Periodic interrupt flag
+BQ4845_FLAGS_AF     .EQU    %00001000           ; (bit 3) Alarm interrupt flag
+; BQ4845 Control register masks
+BQ4845_CTRL_DSE     .EQU    %00000001           ; (bit 0) 1=Daylight Saving Enable
+BQ4845_CTRL_24HOURS .EQU    %00000010           ; (bit 1) 1=24 hours, 0=12 hours
+BQ4845_CTRL_STOP    .EQU    %00000100           ; (bit 2) 1=RTC on, 0=RTC off
+BQ4845_CTRL_UTI     .EQU    %00001000           ; (bit 3) 1=Update Transfer Inhibit Enable
 
 #ENDIF
 

@@ -7,12 +7,13 @@
 ;
 ; Version 1.0.0
 ; Created on 03 Jan 2018
-; Last Modification 17 Aug 2023
+; Last Modification 11 Nov 2023
 ;******************************************************************************
 ; CHANGELOG
 ;     - 17 Aug 2023 - To save bytes in the ROM, instead of loading a logo into
 ;                        the VDP screen, load a default font charset and display
 ;                        a text.
+;     - 11 Nov 2023 - Removed NVRAM related code.
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -98,7 +99,6 @@
         call    KRN_INIT_FDD
         call    KRN_INIT_SD
         call    KRN_INIT_RTC
-        call    KRN_INIT_NVRAM
 
         ; SYSVARS initialisation
         call    KRN_INIT_SYSVARS
@@ -413,15 +413,6 @@ sd_image_notfound:
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 
-nonvram:
-        ld      HL, error_2101
-        ld      A, (col_kernel_error)
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      HL, msg_right_brkt
-        ld      A, (col_kernel_info)
-        call    F_KRN_SERIAL_WRSTRCLR
-        ret
-
 ;------------------------------------------------------------------------------
 KRN_INIT_RTC:
         ld      B, 1
@@ -434,13 +425,14 @@ KRN_INIT_RTC:
         ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ; Show battery status
-        call    F_BIOS_RTC_CHECK_BATTERY    ; A = 0x0A (Healthy) / 0x00 (Dead)
-        cp      $00
+        call    F_BIOS_RTC_CHECK_BATTERY    ; Z flag set if battery not healthy
         jp      z, battery_failed
 battery_healthy:
         ld      HL, msg_rtc_batok
         ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
+        ; Initialise RTC
+        call    F_BIOS_RTC_INIT
 rtc_show_datetime:
         ; Show current Date
         ld      A, ' '
@@ -465,30 +457,6 @@ rtc_show_datetime:
 battery_failed:
         ld      HL, error_2001
         ld      A, (col_kernel_error)
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      HL, msg_right_brkt
-        ld      A, (col_kernel_info)
-        call    F_KRN_SERIAL_WRSTRCLR
-        ret
-
-;------------------------------------------------------------------------------
-KRN_INIT_NVRAM:
-        ld      B, 1
-        call    F_KRN_SERIAL_EMPTYLINES
-        ; Detect NVRAM
-        ld      HL, msg_nvram_detect
-        ld      A, (col_kernel_notice)
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      A, (col_kernel_info)
-        ld      HL, msg_left_brkt
-        call    F_KRN_SERIAL_WRSTRCLR
-        call    F_BIOS_NVRAM_DETECT
-        cp      $FF
-        jp      z, nonvram
-        call    F_KRN_BIN_TO_BCD4       ; convert NVRAM length to decimal ASCII
-        call    F_KRN_SERIAL_PRN_BYTE
-        ld      HL, msg_nvram_bytes
-        ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
         ld      A, (col_kernel_info)
@@ -617,8 +585,6 @@ msg_rtc_detect:
         .BYTE   "....Detecting RTC  ", 0
 msg_rtc_batok:
         .BYTE   "RTC Battery is healthy", 0
-msg_nvram_detect:
-        .BYTE   "....Detecting NVRAM", 0
 msg_nvram_bytes:
         .BYTE   " Bytes", 0
 msg_vdp_detect:
@@ -648,8 +614,6 @@ error_1003:
         .BYTE   "    Image not found", 0
 error_2001:
         .BYTE   "RTC Battery needs replacement", 0
-error_2101:
-        .BYTE   "NVRAM not responding", 0
 error_3001:
         .BYTE   "VDP not detected", 0
 error_3002:

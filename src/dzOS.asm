@@ -7,12 +7,13 @@
 ;
 ; Version 1.0.0
 ; Created on 23 Dec 2022
-; Last Modification 10 Nov 2023
+; Last Modification 11 Nov 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - Removed include BIOS.VDPlogo.asm
 ;                 - Added include BIOS.FNTcharset.asm
 ;   - 10 Nov 2023 - Added include BIOS.RTC.asm
+;   - 11 Nov 2023 - Removed BIOS.NVRAM.asm as bq4845 doesn't have NVRAM
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -47,8 +48,7 @@
 ; BIOS
 ;-----------------------------------------------------------------------------
 #include "src/BIOS/BIOS.asm"            ; BIOS routines
-#include "src/BIOS/BIOS.NVRAM.asm"      ; Non-volatile RAM
-#include "src/BIOS/BIOS.RTC.asm"        ; Real-Time Clock (RTC)
+#include "src/BIOS/BIOS.RTC.asm"        ; bq4845 Real-Time Clock (RTC)
 #include "src/BIOS/BIOS.SD.asm"         ; SD card
 #include "src/BIOS/BIOS.FDD.asm"        ; Floppy Disk Drive
 #include "src/BIOS/BIOS.VDP.asm"        ; TMS9918A VDP

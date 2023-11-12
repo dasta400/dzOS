@@ -114,6 +114,8 @@
     The sound chip may be referred as \textbf{Sound Chip} or \textbf{PSG}
     (Programmable Sound Generator).
 
+    The Real-Time Clock is referred as \textbf{RTC}.
+
     \pagebreak
     % ==========================================================================
     \section*{Related Documentation}
@@ -238,13 +240,21 @@
     only 65,536 bytes (64 KB) are available.
 
     % ==========================================================================
+    \subsubsection{Real-Time Clock (RTC)}
+    % ==========================================================================
+
+    The RTC is a Texas Instruments bq4845, backed up by a 3V button cell battery
+    to keep the date and time when the computer is powered off or even unplugged
+    from the main power supply.
+
+    % ==========================================================================
     \subsection{ Arduino Serial Multi-Device Controller (ASMDC)}
     % ==========================================================================
     \label{asmdc}
 
     An Arduino board acting as a \textit{man-in-the-middle} to dastaZ80 to
-    communicate with different devices like Real-Time Clock, NVRAM, SD card,
-    Floppy Disc Drive, and more.
+    communicate with different devices like NVRAM, SD card, Floppy Disc Drive,
+    and more.
 
     The dastaZ80's SIO/2 Channel B is connected to an Arduino Mega2560's serial
     port. The dastaZ80 sends commands (identified by a unique single byte) to
@@ -357,73 +367,6 @@
         \end{itemize}
         \item \textbf{Upper Nibble} (number of disk image files found)
     \end{itemize}
-
-    % ==========================================================================
-    \subsubsection{Real-Time Clock (RTC) Module}
-    % ==========================================================================
-
-    The RTC is a DS3231 module connected to the Arduino via I2C.
-
-    The available commands (cmd) are:
-
-    \begin{tabular}{| c | m{6.8cm} | m{3cm} | m{3.5cm} | }
-        \hline
-        \rowcolor{lightgray}
-        cmd & Description & (Size) Input & (Size) Output\\
-        \hline
-        C0 & Get RTC info & (0) & (1) see below\\
-        \hline
-        C1 & Check Battery Health & (0) & (1) 0xA0=Healthy\\
-           &                      &     &     0x00=Dead\\
-        \hline
-        C2 & Get current Date (in Hexadecimal) & (0) & (9) CCYYMMDDW\\
-        \hline
-        C3 & Get current Time (in Hexadecimal) & (0) & (6) HHMMSS\\
-        \hline
-        C4 & Set Date & (7) YYMMDDW & (0)\\
-        \hline
-        C5 & Set Time & (6) HHMMSS & (0)\\
-        \hline
-    \end{tabular}
-
-    \textbf{C0 (Get RTC info)}
-
-    Tells information of the configuration of the \textbf{RTC} module.\\
-
-    Useful, for example if the time is not kept accurately, to check if the
-    clock is running or not.
-
-     \begin{itemize}
-        \item \textbf{Byte 1}
-        \begin{itemize}
-            \item \textbf{bit 0} = set if clock is running
-            \item \textbf{bit 1} = set if clock is in 24 hours mode. Otherwise,
-            clock is in 12 hours mode
-            \item \textbf{bit 2} = set if alarm 1 is ON
-            \item \textbf{bit 3} = set if alarm 2 is ON
-        \end{itemize}
-    \end{itemize}
-
-     % ==========================================================================
-     \subsubsection{NVRAM}
-     % ==========================================================================
- 
-     This module is part of the Real-Time Clock module.
-
-     This module is not currently used by dzOS.
- 
-     The available commands (cmd) are:
- 
-     \begin{tabular}{| c | m{5.8cm} | m{2cm} | m{6.5cm} | }
-         \hline
-         \rowcolor{lightgray}
-         cmd & Description & (Size) Input & (Size) Output\\
-         \hline
-         D0 & Test  NVRAM can be written & (0) & (1) NVRAM capacity (in bytes) or 0xFF if failure\\
-         \hline
-         D1 & Clear (Set all to zeros) NVRAM & (0) & (0) \\
-         \hline
-     \end{tabular}
 
     % ==========================================================================
     \subsection{Serial board}
@@ -744,7 +687,7 @@
         1 & 0 & 0 & /Y4 & \texttt{0x40} - \texttt{0x4F} & \textbf{Dual Joystick
         Port}\\
         \hline
-        1 & 0 & 1 & /Y5 & \texttt{0x50} - \texttt{0x5F} & For future use\\
+        1 & 0 & 1 & /Y5 & \texttt{0x50} - \texttt{0x5F} & \textbf{bq4845 (RTC)}\\
         \hline
         1 & 1 & 0 & /Y6 & \texttt{0x60} - \texttt{0x6F} & For future use\\
         \hline
@@ -1023,6 +966,13 @@
                 \item Added the Cartridge Port board and tested it with a
                 cartridge that contains a version of DZOS.
             \end{itemize}
+        \end{itemize}
+        \item \textbf{November 2023}
+        \begin{itemize}
+            \item I've replaced the RTC in the \textbf{ASMDC} by a board, with
+            a TI bq4845 RTC chip, connected to the backplane. Communication
+            with this RTC is now achieved in the traditional way of CPU
+            communicating via the Address and Data buses.
         \end{itemize}
     \end{itemize}
 

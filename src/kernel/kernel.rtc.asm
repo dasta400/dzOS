@@ -219,14 +219,15 @@ KRN_RTC_SET_DATE:
 ; RTC_month, RTC_day, RTC_day_of_the_week, and calls BIOS function to change
 ; date via ASMDC
 ; IN <= IX = address where the new date is stored in ASCII format
-        ld      A, (IX)
-        ld      H, A
-        ld      A, (IX + 1)
-        ld      L, A
-        call    F_KRN_ASCII_TO_HEX
-        call    F_KRN_BCD_TO_BIN
-        ld      (RTC_year), A
-
+        ; year
+        ld      A, (IX)                 ; get first character (year 1st digit)
+        ld      H, A                    ; store it in H
+        ld      A, (IX + 1)             ; get second character (year 2nd digit)
+        ld      L, A                    ; store it in H
+        call    F_KRN_ASCII_TO_HEX      ; convert HL to Hex, and put it in A
+        call    F_KRN_BCD_TO_BIN        ; convert A to BCD
+        ld      (RTC_year), A           ; store BCD in SYSVARS
+        ; month
         ld      A, (IX + 2)
         ld      H, A
         ld      A, (IX + 3)
@@ -234,7 +235,7 @@ KRN_RTC_SET_DATE:
         call    F_KRN_ASCII_TO_HEX
         call    F_KRN_BCD_TO_BIN
         ld      (RTC_month), A
-
+        ; day
         ld      A, (IX + 4)
         ld      H, A
         ld      A, (IX + 5)
@@ -242,13 +243,13 @@ KRN_RTC_SET_DATE:
         call    F_KRN_ASCII_TO_HEX
         call    F_KRN_BCD_TO_BIN
         ld      (RTC_day), A
-
+        ; day of week
         ld      A, (IX + 6)
         sub     $30                     ; convert from ASCII to hex by just
                                         ; subtracting $30, as the possible values
                                         ; are from $30 to $36
         ld      (RTC_day_of_the_week), A
-
+        ; send to RTC
         call    F_BIOS_RTC_SET_DATE
         ret
 

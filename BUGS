@@ -11,6 +11,7 @@
   * Else, return entry's number of the entry with $7E as first byte
   * If no $00 nor $7E, return $FFFF as entry number to indicate error
 * Message "....Detecting RTC  [ RTC Battery needs replacement ] ....Detecting NVRAM  [ 56 Bytes ]" lacks CarriageReturn
+* _delete_ is not deleting the file
 
 ## CLI
 

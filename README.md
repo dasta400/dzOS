@@ -98,11 +98,16 @@ Same as [Mark I](#mark-i), adding:
 
 Same as [Mark II](#mark-ii), adding:
 
+* **Real-Time Clock (RTC)**: the RTC has been removed from the [ASMDC](https://github.com/dasta400/ASMDC) and it has now its own board, with a TI bq4845 RTC and a 3V battery button cell.
+  * NVRAM is not available anymore.
 * **Cartridge Port**: allows to almost instantaneously load and access programs from a ROM cartridge plugged into the port. The port exposes only the memory-related signals (A0..A15, D0..D7, /MEMRD) from the CPU, power supply (+5V, GND), the ROM select signal (/ROM_CE) from the Control Bus, and a special signal (EXTROM) to indicate that a cartridge is inserted and the internal ROM shouldn't be used.
   * The Cartridge Connector is a 30 pins (2×15) Standard Card Edge Connector 2.54 mm pitch, located at the back of the computer case.
   * ROM Cartridges have an edge connector with 15 contacts on each side of the PCB, spaced to 2.54mm, that connects to the Cartridge Connector.
   * When a ROM Cartridge is inserted the internal ROM should be disabled, so that the computer executes code from the ROM cartridge instead of the OS. To enable this feature, the EXTROM signal is connected to +5V.
 * **Auto load&run files from disk**: When the user types a command, if the command entered is not a DZOS command, CLI checks in the current disk if a file with the name of the command exists. If it does and has attribute _EXE_, it loads it into RAM and executes it. No need anymore for _run \<filename>_. Simply type the filename to execute it.
+* **Two different case models**:
+  * **dastaZ80 Original** in Acorn Archimedes A3010 all-in-one computer case.
+  * **dastaZ80DB (Desktop Box)** in a box. User I/O (screen, keyboard) is done via serial communication with a terminal software (e.g. minicom, PuTTY).
 
 ### Block Diagram
 
