@@ -368,6 +368,23 @@
         \item \textbf{Upper Nibble} (number of disk image files found)
     \end{itemize}
 
+    \textbf{How disk images work?}
+
+    An SD card, formatted with FAT32 format, contains one or many so called
+    \textit{Disk Images}. These disk images are bit-by-bit binary
+    representations of a storage device structure. In our case, a dastaZ80
+    compatible disk (i.e. a disk formatted with DFZFS).
+
+    At boot, the \textbf{ASMDC} opens (\textit{fopen()}) all disk images listed
+    in the file \textit{\_disks.cfg} (also contained in the SD card) and adds
+    the pointers returned by \textit{fopen()} to an array. Everytime DZOS wants
+    to read a file, it sends the byte \texttt{0xB2}, to read a sector from the
+    image, followed by the disk image number from which to read. DZOS reads
+    files sector (512 bytes) by sector.
+
+    When a \textit{halt} command is issued by the user, \textbf{ASMDC} closes
+    all images that opened at boot.
+
     % ==========================================================================
     \subsection{Serial board}
     % ==========================================================================
