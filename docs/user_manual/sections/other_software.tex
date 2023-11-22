@@ -523,6 +523,29 @@
         disassemble.
 
         % ==========================================================================
+        \subsubsection{E - Enter program in Hexadecimal}
+        % ==========================================================================
+
+        Purpose:  Allows to enter Hexadecimal values (e.g. obtained from an
+        assembled program) into memory. It's an \textit{easy} way to test
+        programs.
+
+        Syntax: E \textit{$<$start\_address$>$}
+
+        Example: \texttt{E 2000}
+
+        \hspace{1cm}\textit{$<$start\_address$>$}: a four-digit hexadecimal
+        number indicating the location in memory of the first address to which
+        hexadecimal values will be inserted.
+
+        After entering the command, the ML monitor shows the current value at
+        that address ($<$start\_address$>$) and allows the user to enter a new
+        value (1 byte). After the user enters a value and presses ENTER, the
+        next address and value will be shown and the process will repeat.
+        To exit (and not change the last value), just press ENTER without
+        entering any value.
+
+        % ==========================================================================
         \subsubsection{F - Fill memory}
         % ==========================================================================
 
