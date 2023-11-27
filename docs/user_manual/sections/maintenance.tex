@@ -6,40 +6,40 @@
     \subsection{Internal Battery}
     % ==========================================================================
 
-    While it is switched off, the computer keeps the date and time, thanks to
-    its Real-Time Clock (RTC) internal circuitry.
+    While it is unplugged from the main power or switched off, the computer
+    keeps the date and time, thanks to its Real-Time Clock (RTC) internal
+    circuitry.
 
-    This circuitry is supported by a LIR2032 Li-Ion rechargeable 3.6V button
-    cell battery in the dastaz80 original, and a non-rechargeable 3V button
+    This RTC is supported by a LIR2032 Li-Ion rechargeable 3.6V button cell
+    battery in the dastaz80 original, and a CR2016 non-rechargeable 3V button
     cell battery in the dastaZ80DB.
 
-    For the LIR2032, ideally, to maintain the battery at full charge, the
-    computer SHOULD be switched on for at least one hour every month.
+    For the LIR2032, to maintain the battery at full charge, ideally the
+    computer SHOULD be switched ON for at least one hour every month.
+    Nevertheless, after a few years, due the way rechargeable batteries work,
+    the battery may be unable to recharge anymore. In such case, the baterry
+    MUST be replaced with a new battery of the same characteristics.
 
-    After a few years, due the way rechargeable batteries work, the battery may
-    be unable to recharge anymore. In such case, the baterry MUST be replaced
-    with a new battery of the same characteristics.
+    In the case of the CR2016, the battery charge will be consumed after a
+    certain number of hours of use, independently of how often or long the
+    computer is powered ON.
 
-    In the case of the CR2016 in the dastaZ80DB, the battery will be consumed
-    after a certain number of hours, independently of how often or long the
-    computer is powered on.
+    In any case, if you are not planning to use the computer for a year or more,
+    it is highly recommended to remove the battery, to avoid leaking of chemical
+    fluids that are highly toxic and also can damage the internal circuitry.
 
-    If you are not planning to use the computer for a year or more, it is highly
-    recommended to remove the battery, to avoid leacking of chemical liquids
-    that are highly toxic but also can damage the internal circuitry.
-
-    There is no danger of electrical shock, as the computer is power just by 5V,
-    but it is highly recommended to unplug the computer to avoid possible short
-    circuits that could damage the internal circuitry. It is also recommened to
-    discharge yourself from static electricity before touching the inside of the
-    computer.
+    There is no danger of electrical shock, as the computer is powered just by
+    12V max., but it is highly recommended to unplug the computer to avoid
+    possible short circuits that could damage the internal circuitry. It is also
+    recommened to discharge yourself from static electricity before touching the
+    inside of the computer.
 
         % ==========================================================================
         \subsubsection{dastaZ80 Original}
         % ==========================================================================
 
-        To replace/remove the battery you need to open the computer case. To do
-        so, unscrew the three small cross-head screws under the front edge of
+        To replace/remove the battery you need to open the computer case, by
+        unscrewing the three small cross-head screws under the front edge of
         the computer case.
 
         \centerline{\includegraphics[scale=1]{images/keyboardscrews.png}}
@@ -51,9 +51,8 @@
         \subsubsection{dastaZ80DB}
         % ==========================================================================
 
-        To replace/remove the battery there is no need to open the computer case.
-        There is a lid at the front of the computer that can be easily open and
-        gives access to the battery.
+        To replace/remove the battery you need to open the computer case, by
+        lifting the cover from the left side of the computer.
 
         You MUST use only a non-rechargeable CR2016 battery.
 
@@ -64,11 +63,14 @@
     In general, avoid high humidity, extreme cold, and extreme heat
     environments... and do not put the computer in the dishwasher!
 
-    The dastaZ80DB has an internal fan that will blow air to the outside when a
-    certain temperature inside the box has been reached. Before switching ON the
-    computer, if you see a blinking exclamation mark on the Page 0 (as explained
-    in section \hyperref[subsubsec:controlpanel]{Control Panel}) DO NOT switch
-    the computer ON.
-
     For the dastaZ80, it is highly recommended to use a cover to avoid the
     concentration of dust in the keyboard, which can lead to false contacts.
+
+    The dastaZ80DB has an internal fan that will blow air to the outside when a
+    certain temperature inside the box has been reached. To ensure a good flow
+    of air, ensure there is a good gap between the back of the computer and any
+    object behind the computer.
+
+    Before switching ON the dastaZ80DB, if you see a blinking exclamation mark
+    on the Page 0 (as explained in section \hyperref[subsubsec:controlpanel]
+    {Control Panel}) DO NOT switch the computer ON until it cooled down.

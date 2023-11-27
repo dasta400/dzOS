@@ -16,23 +16,28 @@
 
     \begin{itemize}
         \item ON/OFF Switch: use it to turn on and off the computer.
-        \item Reset button: use it to make a reset of the computer.
         \item Micro SD Card slot: for massive storage of data.
-        \item Light (LED) indicators:
-        \begin{itemize}
-            \item Power (green): lighted when the system is switched ON.
-            \item Reset (red): lighted when the system is performing a hardware
-                reset.
-            \item SD (purple): blinks when the SD Card is being accessed
-                (read or write).
-            \item Halted (yellow): lighted when the system is in Halt status.
-            \item ROM Paged (blue): lighted when the ROM chip has been
-                disconnected.
-        \end{itemize}
         \item Control Panel:
             \begin{itemize}
                 \item LCD display: for showing information.
-                \item Three push buttons: for operating the Control Panel.
+                \item Three push buttons (Up, Down, Select): for operating the
+                    Control Panel.
+            \end{itemize}
+        \item Light (LED) indicators (from left to right):
+            \begin{itemize}
+                \item Halted (purple): lighted when the system is in \textit{Halt}
+                    status.
+                \item Bi-colour LED:
+                    \begin{itemize}
+                        \item Reset (red): lighted when the system is performing
+                            a hardware reset.
+                        \item ROM Paged (blue): lighted when the \textbf{ROM}
+                            chip has been disconnected. Hence, full \textbf{RAM}
+                            is available.
+                    \end{itemize}
+                \item SD card (yellow): blinks when the SD Card is being
+                    accessed (reading or writing).
+                \item Power (green): lighted when the system is switched ON.
             \end{itemize}
     \end{itemize}
 
@@ -192,8 +197,8 @@
     % ==========================================================================
     \label{subsec:resetbutton}
 
-    The reset button is located on the lefthand side of the dastaZ80 computer
-    and on the front of the dastaZ80DB.
+    The reset button is located on the lefthand side on both the dastaZ80 and
+    the dastaZ80DB.
 
     \includegraphics[scale=0.7]{images/resetbutton.png}
 
@@ -237,16 +242,16 @@
         \begin{itemize}
             \item Computer status
             \begin{itemize}
-                \item \textbf{RESET}. It glows in \underline{red} colour when
+                \item \textbf{RESET}. Lighted in \underline{red} colour when
                 the computer is in reset status. This happens for 6.5 seconds
                 when the computer is switched ON (via the
                 \hyperref[subsec:onoffbutt]{ON/OFF button}) and when the
                 computer is reset via the \hyperref[subsec:resetbutton]
                 {Reset button}.
-                \item \textbf{HALTED}. It glows in \underline{blue} when the
+                \item \textbf{HALTED}. Lighted in \underline{purple} when the
                 computer is in halt status. Usually after issuing the command
                 \hyperref[cmd:halt]{halt}.
-                \item \textbf{ROM PAGED}. It glows in \underline{green} when the
+                \item \textbf{ROM PAGED}. Lighted in \underline{blue} when the
                 \textbf{ROM} has been electrically disconnected and therefore
                 the computer will only perform operations (read/write) from/to
                 the \textbf{RAM}. This happens only during the Boot Sequence.
