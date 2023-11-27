@@ -601,8 +601,7 @@ msg_OK:
         .BYTE   "OK", 0
 msg_halt:
         .BYTE    CR, LF
-        .BYTE   "Computer was halted", CR, LF, CR, LF
-        .BYTE   "IMPORTANT: To use it again you MUST turn it off and on again.", CR, LF, 0
+        .BYTE   "Computer was halted", CR, LF, 0
 ;------------------------------------------------------------------------------
 ;             ERROR MESSAGES
 ;------------------------------------------------------------------------------
