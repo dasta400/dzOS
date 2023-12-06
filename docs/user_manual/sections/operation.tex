@@ -133,26 +133,29 @@
         0 automatically, and you should see the selected value in its
         corresponding position.
 
-        \textbf{System Clock - Pages 3 and 4}
+        \textbf{HardDisk Drive - Pages 3 and 4}
 
-        Pages 3 and 4 are selectable pages, and show the two different system
-        clock that can be selected.
+        Pages 3 and 4 are selectable pages, and show the two different HDD that
+        can be selected.
 
-        The Internal clock is a 7.3728 Mhz clock, soldered in the Main Board,
-        that supplies clock signal to the different devices. The External clock
-        is a clock of any speed that can be connected to the
-        \textit{External Clock} pin in the box, and will supply the clock signal
-        to the different devices.
+        The two options are:
 
-        The current hardware set up of the dastaZ80DB requires a 7.3728 Mhz
-        clock for the serial device to work. Therefore, external clock SHOULD
-        only be used for other operating systems than the current version of 
-        DZOS.
+        \begin{itemize}
+            \item \textbf{Internal HHD}: This is the Sd Card controlled by the
+                \textbf{ASMDC}, and consist of a MiniSD card slot that allows
+                the insertion/extraction of MiniSD cards containing Disk Image
+                Files.
+            \item \textbf{External HDD}: At the back of the computer, there is a
+                6-pin header to which an FTDI-to-USB cable can be connected. On
+                a PC, connected to the USB end of the cable, a program (called
+                \textit{SerialHDDsimul}) can be run and simulate the behaviour
+                of the \textbf{ASMDC}, but with 3.8 times faster access.
+        \end{itemize}
 
-        \begin{center}
-            \includegraphics[scale=0.7]{images/dastaZ80_ControlPanel_Page3.png}
-            \includegraphics[scale=0.7]{images/dastaZ80_ControlPanel_Page4.png}
-        \end{center}
+        % \begin{center}
+        %     \includegraphics[scale=0.7]{images/dastaZ80_ControlPanel_Page3.png}
+        %     \includegraphics[scale=0.7]{images/dastaZ80_ControlPanel_Page4.png}
+        % \end{center}
 
         \textbf{Video Output - Pages 5 and 6}
 
@@ -305,8 +308,8 @@
         % ==========================================================================
         \label{subsubsection:ttlio}
 
-        The dastaZ80DB has a 4 pins header labelled \textit{TTL I/O} that is
-        used for connecting either a TTL-to-USB cable or a TTL-to-RS-232
+        The dastaZ80DB has a 6-pin header labelled \textit{TTL I/O} that is
+        used for connecting either a TTL-to-USB cable or a TTL-to-RS232
         converter.
 
         This connector carries the signals for the input (keyboard) and output
@@ -325,9 +328,8 @@
             \item \textit{VGA}: output to a VGA monitor.
         \end{itemize}
 
-        The \textit{TTL / VGA} switch (located on the \hyperref[subsec:frontpanel]
-        {Front Panel}) MUST be set up to the correct position, in order to see
-        output from the dastaZ80DB.
+        The option \textit{VGA} MUST be selected in the page 6 (Video Output) of
+        the \hyperref[subsubsec:controlpanel]{Control Panel}).
 
         The TTL connector pins are configured as follows (seeing it from the
         front):
@@ -413,6 +415,32 @@
         % This connector exposes all CPU signals and can be used to connect external
         % devices directly to the components (e.g. \textbf{CPU}, \textbf{RAM)} of
         % the computer.
+
+        % ==========================================================================
+        \subsubsection{External HDD}
+        % ==========================================================================
+
+        The dastaZ80DB has a 6-pin header labelled \textit{External HDD} that is
+        used for connecting either a TTL-to-USB cable or a TTL-to-RS232
+        converter.
+
+        This connector carries the signals for the Transmit (\textit{TX}) and
+        receive (\textit{RX}) of an external \textbf{DISK} device.
+
+        By connecting the dastaZ80DB to another computer, the latter can provide
+        a fast hard disk drive simulation (3.8 times faster than the SD Card on
+        the \textbf{ASMDC}).
+
+        The option \textit{External} MUST be selected in the page 4 (HardDisk
+        Drive) of the \hyperref[subsubsec:controlpanel]{Control Panel}).
+
+        The TTL connector pins are configured as follows (seeing it from the
+        front):
+
+        \textbf{Ground} | NC | NC | \textbf{TX} | \textbf{RX} | NC
+
+        NC, stands for Not Connected. These are the \textit{+5V}, \textit{/CTS}
+        and \textit{/RTS} signals, which are not used.
 
     % ==========================================================================
     \subsection{Developer Mode}
