@@ -4,9 +4,9 @@
  * Control Panel controler for dastaZ80
   * by David Asta (Oct 2023)
  * 
- * Version 1.0.1
+ * Version 1.1.0
  * Created on 17 Oct 2022
- * Last Modification 29 Nov 2023
+ * Last Modification 06 Dec 2023
  *******************************************************************************
  * CHANGELOG
  *   - 29 Nov 2023 - I've realised that the Tenssy 2.0 has no analog outputs,
@@ -14,10 +14,10 @@
  *                      fading the POWER LED.
  *                 - Also, moved switchFanOnOff() to loop(), because otherwise
  *                      was only working when display was at page 0.
+ *   - 06 Dec 2023 - Changed Clock Select for HardDisk Select
  *******************************************************************************
  ********************************************************************************
  * To Do
- *   - Output pin to connect to Clock Select (doesn't exist yet) on Main Board
  *   - If dz80IsOn is ON, do not make changes when Select is pressed
  *******************************************************************************
  */
@@ -69,6 +69,7 @@
 #define PIN_ROM_HIGH  12      // Activates/Deactivates the ROM select at $4000
 #define PIN_FAN       13      // Activates/Deactivates a fan for cooling
 #define PIN_POWER_LED 14      // LED to show if Power ON/OFF
+#define PIN_HDD_EXT   15      // Activates/Deactivates the HardDisk Drive to External
 
 // Other constants
 #define RGB_SYSON_DELAY 8
@@ -84,7 +85,7 @@ LiquidCrystal lcd(PIN_LCD_RS, PIN_LCD_E, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN
 
 int currentPage = 0;    // current page displayed
 int romAddr = 0;        // current ROM Address selected
-int clkSele = 0;        // current Clock (Internal/External) selected
+int hddSele = 0;        // current HDD (Internal/External) selected
 int videoSele = 0;      // Current Video Output selected (0=TTL, 1=VGA)
 int tempDelay;          // delay counter for updating temperature
 int spinDelay;          // delay counter for updating a spinning animation when the fan is ON
@@ -123,6 +124,7 @@ void setup() {
     pinMode(PIN_VID_VGA, OUTPUT);
     pinMode(PIN_ROM_HIGH, OUTPUT);
     pinMode(PIN_POWER_LED, OUTPUT);
+    pinMode(PIN_HDD_EXT, OUTPUT);
 
     // Configure an ISR for each push-button
     attachInterrupt(digitalPinToInterrupt(PIN_UP),   pinup,   LOW);
@@ -205,10 +207,12 @@ void pinsele(){
               digitalWrite(PIN_ROM_HIGH, romAddr);
               break;
           case 3:
-              clkSele = 0;
+              hddSele = 0;
+              digitalWrite(PIN_HDD_EXT, videoSele);
               break;
           case 4:
-              clkSele = 1;
+              hddSele = 1;
+              digitalWrite(PIN_HDD_EXT, videoSele);
               break;
           case 5:
               videoSele = 0;
@@ -235,16 +239,15 @@ void showPage0(){
     if(romAddr == 0) lcd.print("$0000   ");
     else lcd.print("$4000   ");
 
-    // Clock selected
+    // HDD selected
     lcd.setCursor(9, 0);
-    if(clkSele == 0) lcd.print("Clk Int");
-    else lcd.print("Clk Ext");
+    if(hddSele == 0) lcd.print("HDD Int");
+    else lcd.print("HDD Ext");
 
     // Video Output selected
     lcd.setCursor(12, 1);
     if(videoSele == 0) lcd.print("TTL");
     else lcd.print("VGA");
-    
 
     // Temperature
     if(tempDelay == 0){
@@ -312,17 +315,17 @@ void showPage2(){
 }
 
 void showPage3(){
-// Page 3: System Clock Internal
+// Page 3: HDD Internal
     lcd.setCursor(2, 0);
-    lcd.print("System Clock  ");
+    lcd.print("HardDisk Drive");
     lcd.setCursor(2, 1);
     lcd.print(" Internal     ");
 }
 
 void showPage4(){
-// Page 4: System Clock External
+// Page 4: HDD External
     lcd.setCursor(2, 0);
-    lcd.print("System Clock  ");
+    lcd.print("HardDisk Drive");
     lcd.setCursor(2, 1);
     lcd.print(" External     ");
 }
