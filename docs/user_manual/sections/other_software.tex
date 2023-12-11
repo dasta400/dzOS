@@ -203,31 +203,31 @@
         % ==========================================================================
 
         \begin{itemize}
-            \item \textbf{ABS}: Returns absolute value of a number
-            \item \textbf{ASC}: Returns the ASCII code of the first character of a string
-            \item \textbf{ATN}: Returns arctangent in radians
-            \item \textbf{CHR\$}: Returns a string whose one element has its ASCII code
-            \item \textbf{COS}: Returns cosine in radians
-            \item \textbf{EXP}: Returns a number to the power of another number
+            \item \textbf{ABS}: Returns absolute value of a number.
+            \item \textbf{ASC}: Returns the ASCII code of the first character of a string.
+            \item \textbf{ATN}: Returns arctangent in radians.
+            \item \textbf{CHR\$}: Returns a string whose one element has its ASCII code.
+            \item \textbf{COS}: Returns cosine in radians.
+            \item \textbf{EXP}: Returns the mathematical constant \textit{e} (Euler’s number) to the power of a specified number.
             \item \textbf{FRE}: Returns number of bytes in memory not being used by BASIC.
-            \item \textbf{INP}: Reads a byte from a port
-            \item \textbf{INT}: Returns the largest integer of a floating number
-            \item \textbf{LEFT\$}: Returns x leftmost characters of a string
-            \item \textbf{LEN}: Returns length of a string
-            \item \textbf{LOG}: Returns natural log of a number
-            \item \textbf{MID\$}: Returns x characters of a string
-            \item \textbf{POS}: Returns present column position of terminal's print head.
-            \item \textbf{RIGHT\$}: Returns x rightmost characters of a string
+            \item \textbf{INP}: Reads a byte from a port.
+            \item \textbf{INT}: Returns the largest integer of a floating number.
+            \item \textbf{LEFT\$}: Returns x leftmost characters of a string.
+            \item \textbf{LEN}: Returns length of a string.
+            \item \textbf{LOG}: Returns natural log of a number.
+            \item \textbf{MID\$}: Returns x characters of a string.
+            \item \textbf{POS}: Returns present column position of terminal's print head..
+            \item \textbf{RIGHT\$}: Returns x rightmost characters of a string.
             \item \textbf{RND}: Returns a random number between 0 and 1.
-            \item \textbf{SGN}: Returns 0 or 1 depending on the sign of a number
-            \item \textbf{SIN}: Returns the sine in radians
-            \item \textbf{SPC}: Prints x number of blanks
-            \item \textbf{SQR}: Returns square root of a number
-            \item \textbf{STR\$}: Returns string representation of value of a number
-            \item \textbf{TAB}: Spaces to x position on the terminal
-            \item \textbf{TAN}: Returns tangent in radians
-            \item \textbf{USR}: Calls a user's machine language subroutine
-            \item \textbf{VAL}: Returns numerical value of a string
+            \item \textbf{SGN}: Returns 0 or 1 depending on the sign of a number.
+            \item \textbf{SIN}: Returns the sine in radians.
+            \item \textbf{SPC}: Prints x number of blanks.
+            \item \textbf{SQR}: Returns square root of a number.
+            \item \textbf{STR\$}: Returns string representation of value of a number.
+            \item \textbf{TAB}: Spaces to x position on the terminal.
+            \item \textbf{TAN}: Returns tangent in radians.
+            \item \textbf{USR}: Calls a user's machine language subroutine.
+            \item \textbf{VAL}: Returns numerical value of a string.
         \end{itemize}
 
         % ==========================================================================
@@ -241,7 +241,9 @@
             \textbf{LET}, \textbf{LINES}, \textbf{ON...GOTO}, \textbf{ON...GOSUB},
             \textbf{OUT}, \textbf{PEEK}, \textbf{POKE}, \textbf{PRINT},
             \textbf{READ}, \textbf{REM}, \textbf{RESTORE}, \textbf{RETURN},
-            \textbf{STOP}, \textbf{WAIT}, \textbf{WIDTH}
+            \textbf{STOP}, \textbf{WAIT}, \st{\textbf{WIDTH}}\footnote{The
+            command \textit{WIDTH} has been removed because it doesn't have any
+            use in dastaZ80.}
         \end{itemize}
 
         % ==========================================================================
@@ -249,19 +251,19 @@
         % ==========================================================================
 
         \begin{itemize}
-            \item \textbf{CLEAR}: Sets all program variables to zero
-            \item \textbf{CLS}: Clears the screen
+            \item \textbf{CLEAR}: Sets all program variables to zero.
+            \item \textbf{CLS}: Clears the screen.
             \item \textbf{CONT}: Continues program execution after \textit{Escape}
             key was pressed, or a \textit{STOP} or \textit{END} statement has
-            been executed
-            \item \textbf{LIST}: List the contents of the BASIC program in memory
+            been executed.
+            \item \textbf{LIST}: List the contents of the BASIC program in memory.
             \item \textbf{MONITOR}: Transfer command to dzOS Command-Line
-            Interface (CLI)
+            Interface (CLI).
             \item \textbf{NEW}: Deletes the current program and clears all
-            variables
+            variables.
             \item \textbf{NULL}: Sets the number of nulls to be printed at the
-            end of each line
-            \item \textbf{RUN}: Starts execution of the current program
+            end of each line.
+            \item \textbf{RUN}: Starts execution of the current program.
         \end{itemize}
 
         % ==========================================================================
@@ -269,8 +271,11 @@
         % ==========================================================================
 
         \begin{itemize}
-            \item \textbf{+}, \textbf{-}, \textbf{*}, \textbf{/},
-            \textbf{\textasciicircum}
+            \item \textbf{+} Addition
+            \item \textbf{-} Subtraction
+            \item \textbf{*} Multiplication
+            \item \textbf{/} Division
+            \item \textbf{\textasciicircum} Power of
         \end{itemize}
 
         % ==========================================================================
@@ -341,6 +346,57 @@
     the following has been added:
 
         % ======================================================================
+        \subsubsection{{CAT}}
+        % ======================================================================
+        Shows a list of BASIC programs in the current disk. Only files of type
+        BASIC are listed, any other files are ignored.
+
+        \hspace{1.9cm}\textbf{CAT}
+
+        \textbf{Parameters}: None
+
+        \textbf{Example}: \texttt{CAT}
+
+        % ======================================================================
+        \subsubsection{{COLOUR}}
+        % ======================================================================
+        Changes the foreground and background colours of the \textbf{Low
+        Resolution Display} screen.
+
+        \hspace{1.9cm}\textbf{COLOUR \textit{$<$foreground$>$,$<$background$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$foreground$>$}}: number representing one
+        of the available VDP colours.
+
+        \hspace{1cm}\textbf{\textit{$<$background$>$}}: number representing one
+        of the available VDP colours.
+
+        \textbf{Example}: \texttt{COLOUR 16,4}
+
+        \textbf{Available VDP colours:}
+
+        \begin{itemize}
+            \item 0 = Black
+            \item 1 = Red
+            \item 2 = Green
+            \item 3 = Yellow
+            \item 4 = Blue
+            \item 5 = Magenta
+            \item 6 = Cyan
+            \item 7 = White
+            \item 8 = Bright Black (Grey)
+            \item 9 = Bright Red
+            \item 10 = Bright Green
+            \item 11 = Bright Yellow
+            \item 12 = Bright Blue
+            \item 13 = Bright Magenta
+            \item 14 = Bright Cyan
+            \item 15 = Bright White
+        \end{itemize}
+
+        % ======================================================================
         \subsubsection{{LOAD}}
         % ======================================================================
         Loads a BASIC program from \textbf{DISK} into \textbf{MEMORY}.
@@ -368,55 +424,6 @@
 
         \textbf{Example}: \texttt{SAVE "mandelbrot}
 
-
-        % ======================================================================
-        \subsubsection{{SPOKE}}
-        % ======================================================================
-        Writes a value in a specific \textbf{PSG} register.
-
-        \hspace{1.9cm}\textbf{SPOKE \textit{$<$PSG\_register$>$,$<$value$>$}}
-
-        \textbf{Parameters}:
-
-        \hspace{1cm}\textbf{\textit{$<$PSG\_register$>$}}: \textbf{PSG} register
-        number (0-13).
-
-        \hspace{1cm}\textbf{\textit{$<$value$>$}}: value to set (0..255).
-
-        \textbf{Example}: \texttt{SPOKE 7,62}
-
-        % ======================================================================
-        \subsubsection{{VPOKE}}
-        % ======================================================================
-        Writes a value at a specific \textbf{VRAM} address.
-
-        \hspace{1.9cm}\textbf{VPOKE \textit{$<$VRAM\_address$>$,$<$value$>$}}
-
-        \textbf{Parameters}:
-
-        \hspace{1cm}\textbf{\textit{$<$VRAM\_address$>$}}: \textbf{VRAM} address.
-
-        \hspace{1cm}\textbf{\textit{$<$value$>$}}: value to set (0..255).
-
-        \textbf{Example}: \texttt{VPOKE 6144,171}
-
-        % ======================================================================
-        \subsubsection{{VPEEK}}
-        % ======================================================================
-        Gets the value at a specific \textbf{VRAM} address.
-
-        \hspace{1.9cm}\textbf{VPEEK \textit{$<$VRAM\_address$>$}}
-
-        \textbf{Parameters}:
-
-        \hspace{1cm}\textbf{\textit{$<$VRAM\_address$>$}}: \textbf{VRAM} address.
-
-        \textbf{Examples}:
-        \begin{itemize}
-            \item \texttt{PRINT VPEEK(6144)}
-            \item \texttt{A=VPEEK(6144)}
-        \end{itemize}
-
         % ======================================================================
         \subsubsection{{SCREEN}}
         % ======================================================================
@@ -438,6 +445,54 @@
         \end{itemize}
 
         \textbf{Example}: \texttt{SCREEN 2}
+
+        % ======================================================================
+        \subsubsection{{SPOKE}}
+        % ======================================================================
+        Writes a value in a specific \textbf{PSG} register.
+
+        \hspace{1.9cm}\textbf{SPOKE \textit{$<$PSG\_register$>$,$<$value$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$PSG\_register$>$}}: \textbf{PSG} register
+        number (0-13).
+
+        \hspace{1cm}\textbf{\textit{$<$value$>$}}: value to set (0..255).
+
+        \textbf{Example}: \texttt{SPOKE 7,62}
+
+        % ======================================================================
+        \subsubsection{{VPEEK}}
+        % ======================================================================
+        Gets the value at a specific \textbf{VRAM} address.
+
+        \hspace{1.9cm}\textbf{VPEEK \textit{$<$VRAM\_address$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$VRAM\_address$>$}}: \textbf{VRAM} address.
+
+        \textbf{Examples}:
+        \begin{itemize}
+            \item \texttt{PRINT VPEEK(6144)}
+            \item \texttt{A=VPEEK(6144)}
+        \end{itemize}
+
+        % ======================================================================
+        \subsubsection{{VPOKE}}
+        % ======================================================================
+        Writes a value at a specific \textbf{VRAM} address.
+
+        \hspace{1.9cm}\textbf{VPOKE \textit{$<$VRAM\_address$>$,$<$value$>$}}
+
+        \textbf{Parameters}:
+
+        \hspace{1cm}\textbf{\textit{$<$VRAM\_address$>$}}: \textbf{VRAM} address.
+
+        \hspace{1cm}\textbf{\textit{$<$value$>$}}: value to set (0..255).
+
+        \textbf{Example}: \texttt{VPOKE 6144,171}
 
     % ==========================================================================
     \subsection{Machine Language Monitor (mlmonitor)}
