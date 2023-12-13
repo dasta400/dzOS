@@ -5,14 +5,15 @@
 ; for dastaZ80's dzOS
 ; by David Asta (Apr 2019)
 ;
-; Version 1.0.0
+; Version 1.1.0
 ; Created on 25 Apr 2019
-; Last Modification 11 Nov 2023
+; Last Modification 13 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - Removed F_BIOS_VDP_SHOW_DZ_LOGO
 ;                 - Added F_BIOS_VDP_FNT_CHARSET
 ;   - 11 Nov 2023 - Changed RTC jumps for bq4845 RTC
+;   - 13 Dec 2023 - Added F_BIOS_FDD_GET_STATUS
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -74,6 +75,8 @@ F_BIOS_SD_GET_IMG_INFO:         .EXPORT         F_BIOS_SD_GET_IMG_INFO
         jp      BIOS_SD_GET_IMG_INFO
 
         ; FDD subroutines
+F_BIOS_FDD_GET_STATUS:          .EXPORT         F_BIOS_FDD_GET_STATUS
+        jp      BIOS_FDD_GET_STATUS
 F_BIOS_FDD_BUSY_WAIT:           .EXPORT         F_BIOS_FDD_BUSY_WAIT
         jp      BIOS_FDD_BUSY_WAIT
 F_BIOS_FDD_CHANGE:              .EXPORT         F_BIOS_FDD_CHANGE

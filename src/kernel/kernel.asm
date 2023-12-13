@@ -5,15 +5,16 @@
 ; for dastaZ80's dzOS
 ; by David Asta (Jan 2018)
 ;
-; Version 1.0.0
+; Version 1.1.0
 ; Created on 03 Jan 2018
-; Last Modification 11 Nov 2023
+; Last Modification 13 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
 ;     - 17 Aug 2023 - To save bytes in the ROM, instead of loading a logo into
 ;                        the VDP screen, load a default font charset and display
 ;                        a text.
 ;     - 11 Nov 2023 - Removed NVRAM related code.
+;     - 13 Dec 2023 - Check if FDD is connected
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -223,21 +224,31 @@ KRN_INIT_PSG:
 ;------------------------------------------------------------------------------
 KRN_INIT_FDD:
 ; Detect FDD
-        ; It's not really detecting anything
-        ; It's assumed ASMDC did the initialisation
-        ; Just informing user of the disk number (0) for the FDD
         ld      HL, msg_fdd_init
         ld      A, (col_kernel_notice)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_left_brkt
         ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
+        ; Added 13 Dec 2023 - Check if FDD is connected
+        call    F_BIOS_FDD_GET_STATUS
+        ld      A, (DISK_status)
+        bit     2, A
+        jp      nz, _fdd_no_connected
         ;   print DISKn message
         ld      HL, msg_disk
         ld      A, (col_kernel_disk)
         call    F_KRN_SERIAL_WRSTRCLR
         ld      A, '0'                  ; FDD is always DISK0
         call    F_BIOS_SERIAL_CONOUT_A
+        ld      HL, msg_right_brkt
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ret
+_fdd_no_connected:
+        ld      HL, error_4001
+        ld      A, (col_kernel_error)
+        call    F_KRN_SERIAL_WRSTRCLR
         ld      HL, msg_right_brkt
         ld      A, (col_kernel_info)
         call    F_KRN_SERIAL_WRSTRCLR
@@ -617,6 +628,8 @@ error_3001:
         .BYTE   "VDP not detected", 0
 error_3002:
         .BYTE   "Unknown VDP mode", 0
+error_4001:
+        .BYTE   "Not connected", 0
 ;------------------------------------------------------------------------------
 ;             VDP Text
 ;------------------------------------------------------------------------------
