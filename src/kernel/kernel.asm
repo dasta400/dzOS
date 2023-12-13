@@ -233,7 +233,7 @@ KRN_INIT_FDD:
         ; Added 13 Dec 2023 - Check if FDD is connected
         call    F_BIOS_FDD_GET_STATUS
         ld      A, (DISK_status)
-        bit     2, A
+        bit     0, A
         jp      nz, _fdd_no_connected
         ;   print DISKn message
         ld      HL, msg_disk

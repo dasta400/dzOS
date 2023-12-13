@@ -118,6 +118,26 @@
         \end{tabular}
 
         % ==========================================================================
+        \subsubsection{F\_BIOS\_FDD\_GET\_STATUS}
+        \label{func:fbiosfddgetstatus}
+        % ==========================================================================
+        \begin{tabular}{l p{15cm}}
+            \hline\textbf{Action}
+            & Calls \textbf{ASMDC} to check the status of the Floppy Disk Drive.\\
+            \hline\textbf{Entry} & None \\
+            \hline\multirow[t]{4}{4em}{\textbf{Exit}}
+            & \textit{SD\_status} \\
+            & bit 0 = set if FDD was not detected \\
+            & bit 1 = Not used \\
+            & bit 2 = set if last command resulted in error \\
+            \hline\textbf{Destroys} & \texttt{A} \\
+            \hline\multirow[t]{2}{4em}{\textbf{Calls}}
+            & \hyperref[func:fbiosserialconoutb]{F\_BIOS\_SERIAL\_CONOUT\_B}\\
+            & \hyperref[func:fbiosserialconinb]{F\_BIOS\_SERIAL\_CONIN\_B}\\
+            \hline
+        \end{tabular}
+
+        % ==========================================================================
         \subsubsection{F\_BIOS\_FDD\_BUSY\_WAIT}
         \label{func:fbiosfddbusywait}
         % ==========================================================================

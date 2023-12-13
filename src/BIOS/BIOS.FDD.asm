@@ -65,7 +65,7 @@ BIOS_FDD_MOTOR_OFF:
 BIOS_FDD_GET_STATUS:
 ; OUT => SYSVARS.DISK_status
 ;           Low Nibble (0x00 if all OK)
-;               bit 0 = not used
+;               bit 0 = set if FDD was not detected
 ;               bit 1 = not used
 ;               bit 2 = set if last command resulted in error
 ;               bit 3 = not used
