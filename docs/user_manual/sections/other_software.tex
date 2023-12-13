@@ -413,7 +413,8 @@
         % ======================================================================
         \subsubsection{{SAVE}}
         % ======================================================================
-        Saves current BASIC program from \textbf{MEMORY} into \textbf{DISK}.
+        Saves current BASIC program from \textbf{MEMORY} into current
+        \textbf{DISK}.
 
         \hspace{1.9cm}\textbf{SAVE "\textit{$<$filename$>$}}
 
@@ -423,6 +424,17 @@
         saved.
 
         \textbf{Example}: \texttt{SAVE "mandelbrot}
+
+        \textbf{Hint}: Although there isn't an MS BASIC command to change the
+        current \textbf{DISK}, it can easily be changed manually. DZOS
+        \textbf{DISK} operations are performed to whatever \textbf{DISK} number
+        is stored in an area of \textbf{MEMORY} called \textit{SYSVARS}
+        (See \textit{dastaZ80 Manual - Programmer’s Reference Guide} for more
+        details). The \textbf{DISK} number is stored at address \texttt{0x4176},
+        therefore by changing the value stored at this address we are
+        effectively changing the current \textbf{DISK}. To change it simply use
+        \texttt{POKE \&h4176,$<$disknum$>$} where \textit{$<$disknum$>$} is a
+        valid \textbf{DISK} number.
 
         % ======================================================================
         \subsubsection{{SCREEN}}
