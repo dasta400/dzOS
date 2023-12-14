@@ -5,9 +5,9 @@
 ; for dastaZ80's dzOS
 ; by David Asta (Jan 2018)
 ;
-; Version 1.1.0
+; Version 1.2.0
 ; Created on 03 Jan 2018
-; Last Modification 13 Dec 2023
+; Last Modification 14 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
 ;     - 17 Aug 2023 - To save bytes in the ROM, instead of loading a logo into
@@ -15,6 +15,7 @@
 ;                        a text.
 ;     - 11 Nov 2023 - Removed NVRAM related code.
 ;     - 13 Dec 2023 - Check if FDD is connected
+;     - 14 Dec 2023 - in KRN_DISK_CHANGE, return error if FDD is not connected
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -235,6 +236,8 @@ KRN_INIT_FDD:
         ld      A, (DISK_status)
         bit     0, A
         jp      nz, _fdd_no_connected
+        ld      A, 1                    ; set value (detected)
+        ld      (FDD_detected), A       ;   in SYSVARS
         ;   print DISKn message
         ld      HL, msg_disk
         ld      A, (col_kernel_disk)
@@ -246,6 +249,8 @@ KRN_INIT_FDD:
         call    F_KRN_SERIAL_WRSTRCLR
         ret
 _fdd_no_connected:
+        xor     A                       ; set value (not detected)
+        ld      (FDD_detected), A       ;   in SYSVARS
         ld      HL, error_4001
         ld      A, (col_kernel_error)
         call    F_KRN_SERIAL_WRSTRCLR
@@ -499,16 +504,21 @@ KRN_INIT_SYSVARS:
 ;------------------------------------------------------------------------------
 KRN_DISK_CHANGE:
 ; Set default DISK = A
-
         push    AF                      ; backup new DISK number
         ; If DISK is 0, then cmd to FDD. Otherwise, to SD
         ; ld      A, (DISK_current)
         cp      0
-        jp      nz, _chgdsk
+        jr      nz, _chgdsk
 _chgdsk_fdd:
+        ; Added 14 Dec 2023 - Return error if FDD is not connected
+        ld      A, (FDD_detected)
+        cp      0
+        jr      z, _chgdsk_fdd_error
+        ; FDD is connected
         call    F_BIOS_FDD_CHANGE       ; 0x00=OK, 0xFF=No disk in drive
         cp      0                       ; Any error?
-        jp      z, _chgdsk              ; No error
+        jr      z, _chgdsk              ; No error
+_chgdsk_fdd_error:
         ; Error. Restore AF to avoid crash and set A=0xFF, to indicate error
         pop     AF
         ld      A, $FF

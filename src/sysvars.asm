@@ -150,6 +150,8 @@ MATH_polynomial                 .EXPORT         MATH_polynomial
 ;==============================================================================
 ; Generic variables
 ;==============================================================================
+FDD_detected                    .EXPORT         FDD_detected
+                .BYTE   0                       ; 1=FDD detected, 0=Not detected
 SD_images_num                   .EXPORT         SD_images_num
                 .BYTE   0                       ; Number of Image Files found by ASMDC
 DISK_current                    .EXPORT         DISK_current

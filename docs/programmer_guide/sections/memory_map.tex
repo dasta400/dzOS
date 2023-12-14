@@ -36,6 +36,65 @@
         \end{tabular}
     \end{center}
 
+        % ==========================================================================
+        \subsubsection{BIOS}
+        % ==========================================================================
+
+        The Basic Input/Output System (BIOS) is the part of the DZOS operating
+        system that contains the subroutines that communicate directly with the
+        hardware. It is, therefore, hardware dependent.
+
+        % ==========================================================================
+        \subsubsection{Kernel}
+        % ==========================================================================
+
+        The Kernel's main task is to facilitate interactions between any
+        software and the BIOS. It is, therefore, hardware independent.
+
+        Though it is entirely possible for any software to either communicate
+        directly with the BIOS via it's public functions (aka
+        \hyperref[sec:biosjumpblocks]{Jumpblocks}) or even directly with the
+        hardware via it's ports, it is highly recommended to use the Kernel
+        public functions (aka \hyperref[sec:kerneljumpblocks]{Kernel
+        Jumpblocks}). The reason being that the Kernel subroutines are well
+        tested and often already contain error handling, but more importantly
+        because some functions set/unset values in the so called
+        \hyperref[sec:ram_memmap]{System Variables (SYSVARS)}. Failing to
+        set/unset those values, could result on undesired behaviour of the OS
+        or of some software dependant on it.
+
+        % ==========================================================================
+        \subsubsection{CLI}
+        % ==========================================================================
+
+        The Command-Line Interface is the the part of the OS that interacts with
+        the user, by providing commands that can be entered via the keyboard and
+        information provided via the screen.
+
+        A full list of available CLI commands is provided in the
+        \textit{dastaZ80 User’s Manual}.
+
+        % ==========================================================================
+        \subsubsection{BOOTSTRAP}
+        % ==========================================================================
+
+        The bootstrap is a part of the BIOS that is executed first when the
+        computer is powered ON or reset (cold boot). The one and only purpose of
+        this code is to copy the contents of the \textbf{ROM} into \textbf{RAM}
+        and then disable the \textbf{ROM} chip, so that the whole OS resides in
+        \textbf{RAM}.
+
+        It does this by first copying all bytes (16 KB) from the \textbf{ROM}
+        into the so called \textbf{High RAM} (starting at \texttt{0x8000}). Then
+        electronically disables the \textbf{ROM} chip, and finally copies all 16
+        KB bytes from \textbf{High RAM} into \textbf{Low RAM} (starting at
+        \texttt{0x0000}). Then it gives control to back to the BIOS' cold boot
+        subroutine, which starts executing code from \textbf{Low RAM}.
+
+        % ==========================================================================
+        \subsubsection{Jumpblocks}
+        % ==========================================================================
+
     % ==========================================================================
     \subsection{RAM}
     % ==========================================================================
@@ -66,10 +125,10 @@
         & \multicolumn{2}{|l|}{\textbf{Stack}} & 32\\
         \hline
         \texttt{0x4020} & \texttt{0x4174} 
-        & \multicolumn{2}{|l|}{\textbf{System Variables}} & 373\\
+        & \multicolumn{2}{|l|}{\textbf{System Variables}} & 389\\
         \hline
-        \texttt{0x4188} & \texttt{0x421F} 
-        & \multicolumn{2}{|l|}{\textbf{Reserved for future use}} & 124\\
+        \texttt{0x41A5} & \texttt{0x421F} 
+        & \multicolumn{2}{|l|}{\textbf{Reserved for future use}} & 123\\
         \hline
         \texttt{0x4220} & \texttt{0x441F} 
         & \multicolumn{2}{|l|}{\textbf{DISK Buffer}} & 512\\
@@ -233,12 +292,14 @@
             \end{itemize}
             \item \textbf{Generic}
             \begin{itemize}
-                \item \texttt{0x4175} - \textbf{SD\_images\_num} (1 byte): number
+                \item \texttt{0x4175} - \textbf{FDD\_detected} (1 byte): 
+                1=FDD detected, 0=Not detected
+                \item \texttt{0x4176} - \textbf{SD\_images\_num} (1 byte): number
                 of Disk Image Files found by \textbf{ASMDC}.
-                \item \texttt{0x4175} - \textbf{DISK\_current} (1 byte): current 
+                \item \texttt{0x4177} - \textbf{DISK\_current} (1 byte): current 
                 \textbf{DISK} unit active. All disk operations will be on this
                 \textbf{DISK}.
-                \item \texttt{0x4177} - \textbf{DISK\_status} (1 byte): status of
+                \item \texttt{0x4178} - \textbf{DISK\_status} (1 byte): status of
                 the \textbf{FDD}.
                 \begin{itemize}
                     \item Low Nibble (\texttt{0x00} if all OK)
@@ -250,42 +311,30 @@
                     \end{itemize}
                     \item High Nibble: error code of last operation.
                 \end{itemize}
-                \item \texttt{0x4177} - \textbf{DISK\_status} (1 byte): status of
-                the \textbf{SD card}.
-                \begin{itemize}
-                    \item Low Nibble (\texttt{0x00} if all OK)
-                    \begin{itemize}
-                        \item bit 0 = set if \textbf{SD card} was not found.
-                        \item bit 1 = set if Disk Image File was not found.
-                        \item bit 2 = set if last command resulted in error.
-                        \item bit 3 = not used.
-                    \end{itemize}
-                    \item High Nibble: number of Disk Image Files found.
-                \end{itemize}
-                \item \texttt{0x4178} - \textbf{DISK\_file\_type} (1 byte): File
+                \item \texttt{0x4179} - \textbf{DISK\_file\_type} (1 byte): File
                 Type when creating (\textit{save}) next file.
-                \item \texttt{0x4179} - \textbf{DISK\_loadsave\_addr} (2 bytes): see
+                \item \texttt{0x417A} - \textbf{DISK\_loadsave\_addr} (2 bytes): see
                 \hyperref[sec:howto_readdata]{Read data from DISK} and 
                 \hyperref[sec:howto_writedata]{Write data to DISK}.
-                \item \texttt{0x417B} - \textbf{tmp\_addr1} (2 bytes): temporary
+                \item \texttt{0x417C} - \textbf{tmp\_addr1} (2 bytes): temporary
                 storage for an address.
-                \item \texttt{0x417D} - \textbf{tmp\_addr2} (2 bytes): temporary
+                \item \texttt{0x417E} - \textbf{tmp\_addr2} (2 bytes): temporary
                 storage for an address.
-                \item \texttt{0x417F} - \textbf{tmp\_addr3} (2 bytes): temporary
+                \item \texttt{0x4180} - \textbf{tmp\_addr3} (2 bytes): temporary
                 storage for an address.
-                \item \texttt{0x4181} - \textbf{tmp\_byte} (1 byte): temporary
+                \item \texttt{0x4182} - \textbf{tmp\_byte} (1 byte): temporary
                 storage for a byte.
-                \item \texttt{0x4182} - \textbf{tmp\_byte2} (1 byte): temporary
+                \item \texttt{0x4183} - \textbf{tmp\_byte2} (1 byte): temporary
                 storage for a byte.
             \end{itemize}
             \item \textbf{VDP}
             \begin{itemize}
-                \item \texttt{0x4183} - \textbf{NMI\_enable}: Enable (1) / Disable
+                \item \texttt{0x4184} - \textbf{NMI\_enable}: Enable (1) / Disable
                 (0) the execution of the \hyperref[sec:nmi]{NMI subroutine}.
-                \item \texttt{0x4184} - \textbf{NMI\_usr\_jump}: Enable (1) / Disable
+                \item \texttt{0x4185} - \textbf{NMI\_usr\_jump}: Enable (1) / Disable
                 (0) the user configurable \textit{BIOS\_NMI\_JP} jump of the 
                 \hyperref[sec:nmi]{NMI subroutine}.
-                \item \texttt{0x4185} - \textbf{VDP\_cur\_mode}:
+                \item \texttt{0x4186} - \textbf{VDP\_cur\_mode}:
                 \begin{itemize}
                     \item 0 = Text Mode
                     \item 1 = Graphics I Mode
@@ -293,25 +342,25 @@
                     \item 3 = Multicolour Mode
                     \item 4 = Graphics II Mode Bitmapped
                 \end{itemize}
-                \item \texttt{0x4186} - \textbf{VDP\_cursor\_x} (1 byte): Current
+                \item \texttt{0x4187} - \textbf{VDP\_cursor\_x} (1 byte): Current
                 horizontal position of the cursor on the \textbf{VDP} screen.
-                \item \texttt{0x4187} - \textbf{VDP\_cursor\_y} (1 byte): Current
+                \item \texttt{0x4188} - \textbf{VDP\_cursor\_y} (1 byte): Current
                 vertical position of the cursor on the \textbf{VDP} screen.
-                \item \texttt{0x4188} - \textbf{VDP\_PTRNTAB\_addr} (2 bytes):
+                \item \texttt{0x4189} - \textbf{VDP\_PTRNTAB\_addr} (2 bytes):
                 Address of current Mode’s Pattern Table.
-                \item \texttt{0x418A} - \textbf{VDP\_NAMETAB\_addr} (2 bytes):
+                \item \texttt{0x418B} - \textbf{VDP\_NAMETAB\_addr} (2 bytes):
                 Address of current Mode’s Name Table.
-                \item \texttt{0x418C} - \textbf{VDP\_COLRTAB\_addr} (2 bytes):
+                \item \texttt{0x418D} - \textbf{VDP\_COLRTAB\_addr} (2 bytes):
                 Address of current Mode’s Colour Table.
-                \item \texttt{0x418E} - \textbf{VDP\_SPRPTAB\_addr} (2 bytes):
+                \item \texttt{0x418F} - \textbf{VDP\_SPRPTAB\_addr} (2 bytes):
                 Address of current Mode’s Sprite Pattern Table.
-                \item \texttt{0x4190} - \textbf{VDP\_SPRATAB\_addr} (2 bytes):
+                \item \texttt{0x4191} - \textbf{VDP\_SPRATAB\_addr} (2 bytes):
                 Address of current Mode’s Sprite Attribute Table.
-                \item \texttt{0x4192} - \textbf{VDP\_jiffy\_byte1} (1 byte):
+                \item \texttt{0x4193} - \textbf{VDP\_jiffy\_byte1} (1 byte):
                 \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 1.
-                \item \texttt{0x4193} - \textbf{VDP\_jiffy\_byte2} (1 byte):
+                \item \texttt{0x4194} - \textbf{VDP\_jiffy\_byte2} (1 byte):
                 \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 2.
-                \item \texttt{0x4194} - \textbf{VDP\_jiffy\_byte3} (1 byte):
+                \item \texttt{0x4195} - \textbf{VDP\_jiffy\_byte3} (1 byte):
                 \hyperref[subsec:jiffy_counter]{Jiffy Counter}'s byte 3.
             \end{itemize}
             \item \textbf{System Colour Scheme}
@@ -319,35 +368,35 @@
             \textbf{High Resolution Screen} (VGA), and can be re-defined by the
             user by changing each byte value.
             \begin{itemize}
-                \item \texttt{0x4195} - \textbf{col\_kernel\_debug} (1 byte):
+                \item \texttt{0x4196} - \textbf{col\_kernel\_debug} (1 byte):
                     default is Cyan.
-                \item \texttt{0x4196} - \textbf{col\_kernel\_disk} (1 byte):
+                \item \texttt{0x4197} - \textbf{col\_kernel\_disk} (1 byte):
                     default is Magenta.
-                \item \texttt{0x4197} - \textbf{col\_kernel\_error} (1 byte):
+                \item \texttt{0x4198} - \textbf{col\_kernel\_error} (1 byte):
                     default is Red.
-                \item \texttt{0x4198} - \textbf{col\_kernel\_info} (1 byte):
+                \item \texttt{0x4199} - \textbf{col\_kernel\_info} (1 byte):
                     default is Green.
-                \item \texttt{0x4199} - \textbf{col\_kernel\_notice} (1 byte):
+                \item \texttt{0x419A} - \textbf{col\_kernel\_notice} (1 byte):
                     default is Yellow.
-                \item \texttt{0x419A} - \textbf{col\_kernel\_warning} (1 byte):
+                \item \texttt{0x419B} - \textbf{col\_kernel\_warning} (1 byte):
                     default is Magenta.
-                \item \texttt{0x419B} - \textbf{col\_kernel\_welcome} (1 byte):
+                \item \texttt{0x419C} - \textbf{col\_kernel\_welcome} (1 byte):
                     default is Blue.
-                \item \texttt{0x419C} - \textbf{col\_CLI\_debug} (1 byte):
+                \item \texttt{0x419D} - \textbf{col\_CLI\_debug} (1 byte):
                     default is Cyan.
-                \item \texttt{0x419D} - \textbf{col\_CLI\_disk} (1 byte):
+                \item \texttt{0x419E} - \textbf{col\_CLI\_disk} (1 byte):
                     default is Magenta.
-                \item \texttt{0x419E} - \textbf{col\_CLI\_error} (1 byte):
+                \item \texttt{0x419F} - \textbf{col\_CLI\_error} (1 byte):
                     default is Red.
-                \item \texttt{0x419F} - \textbf{col\_CLI\_info} (1 byte):
+                \item \texttt{0x41A0} - \textbf{col\_CLI\_info} (1 byte):
                     default is Green.
-                \item \texttt{0x41A0} - \textbf{col\_CLI\_input} (1 byte):
+                \item \texttt{0x41A1} - \textbf{col\_CLI\_input} (1 byte):
                     default is White.
-                \item \texttt{0x41A1} - \textbf{col\_CLI\_notice} (1 byte):
+                \item \texttt{0x41A2} - \textbf{col\_CLI\_notice} (1 byte):
                     default is Yellow.
-                \item \texttt{0x41A2} - \textbf{col\_CLI\_prompt} (1 byte):
+                \item \texttt{0x41A3} - \textbf{col\_CLI\_prompt} (1 byte):
                     default is Blue.
-                \item \texttt{0x41A3} - \textbf{col\_CLI\_warning} (1 byte):
+                \item \texttt{0x41A4} - \textbf{col\_CLI\_warning} (1 byte):
                     default is Magenta.
             \end{itemize}
         \end{itemize}
