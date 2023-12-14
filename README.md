@@ -134,7 +134,7 @@ Same as [Mark II](#mark-ii), adding:
 * ✔ ~~Do not allow deleting System or Read Only files.~~
 * ✔ ~~Disable disk commands if at boot the CF card was detected as not formatted.~~
 * ✔ ~~Make "_Attributes_" and "_Load Address_", of command _cat_, to print in the same column.~~
-* When _load_ or _run_, if the file has the attribute _E_, ignore the load address stored in BAT and instead load at the address specified in the binary.
+* ✔ ~~When _load_ or _run_, if the file has the attribute _E_, ignore the load address stored in BAT and instead load at the address specified in the binary.~~
 * Add support for 3.5" Double Density disks.
 
 ### Known BUGS
@@ -146,7 +146,7 @@ Same as [Mark II](#mark-ii), adding:
 * ✔ ~~Message "_....Detecting RTC  [ RTC Battery needs replacement ] ....Detecting NVRAM  [ 56 Bytes ]_" lacks CarriageReturn~~
 * ✔ ~~Results of _cat_ command are longer than 80 columns.~~
 * ✔ ~~There are some artifacts on the Composite Video screen, due to some bad data in the VDP's Colour Table.~~
-* Files on disk can be run directly by simply entering the filename as a CLI command, but CLI is not checking if the file is an EXE or not.
+* ✔ ~~Files on disk can be run directly by simply entering the filename as a CLI command, but CLI is not checking if the file is an EXE or not.~~
 
 ---
 
