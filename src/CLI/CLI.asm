@@ -16,6 +16,7 @@
 ;                       parse_get_command. This saves 354 clock cycles, because
 ;                       parse_get_command is not called twice when B=0 anymore.
 ;   - 14 Dec 2023 - Removed commands 'autopoke', 'crc16', 'screen'
+;                   Added check that only files with attribute Executable can be run
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -102,21 +103,26 @@ prompt_skip_lead_zero:
 cli_command_unknown:
         ; Added 17 Aug 2023 - Check if command is a file in the current disk
         ;                       and in case it is, load and run it
-        ; filename found, load and run it
+        ; is it a filename?
+        ld      HL, CLI_buffer_cmd
+        call    F_KRN_DZFS_CHECK_FILE_EXISTS
+        jp      z, filename_notfound    ; filename not found, error and exit
+        ; filename found, load and run it if it's an executable file
+        ; Added 14 Dec 2023 - Check that the file has attribute Executable
+        ld      A, (DISK_cur_file_attribs)
+        bit     3, A                    ; bit 3 = Indicates an executable file
+        jr      z, _file_not_exe        ; if bit 3 is 0, then isn't executable
+        ld      HL, CLI_buffer_cmd      ; HL = filename to load
         ld      A, $AB                  ; This is a flag to tell CLI_CMD_DISK_LOAD_DIRECT that the call
         ld      (tmp_byte2), A          ;   didn't come from the jumptable, so that it can return here
-        ld      HL, CLI_buffer_cmd
         call    CLI_CMD_DISK_LOAD_DIRECT
-        ld      A, (tmp_byte)           ; Was the file loaded correctly?
-        cp      $EF                     ; EF means there was an error
-        jp      z, cli_promptloop       ; exit subroutine if file didn't load
         ; file was loaded, run it
         ld      A, (col_CLI_input)      ; Set text colour
         call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
         ld      HL, (DISK_cur_file_load_addr)
         jp      (HL)                    ; jump execution to address in HL
-_cli_no_cmd_nor_file:
-        ld      HL, error_9001
+_file_not_exe:
+        ld      HL, error_9012
         ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
@@ -460,6 +466,9 @@ error_9010:
 error_9011:
         .BYTE   CR, LF
         .BYTE   "Error", CR, LF, 0
+error_9012:
+        .BYTE   CR, LF
+        .BYTE   "File is not Executable", CR, LF, 0
 ;==============================================================================
 ; Tables
 ;==============================================================================

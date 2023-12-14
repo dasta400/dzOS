@@ -191,11 +191,10 @@ CLI_CMD_DISK_LOAD_NOCHECK:              ; When called from CLI_CMD_RUN, the
         ; Search filename in BAT
         ; Check that filename exists
         ld      HL, CLI_buffer_parm1_val
-CLI_CMD_DISK_LOAD_DIRECT:               ; load filename from whatever is in HL address
-                                        ;   instead of CLI_buffer_parm1_val
         call    F_KRN_DZFS_CHECK_FILE_EXISTS
         jp      z, filename_notfound    ; filename not found, error and exit
-        ; yes, continue
+CLI_CMD_DISK_LOAD_DIRECT:               ; load filename from whatever is in HL address
+                                        ;   instead of CLI_buffer_parm1_val
         ld      DE, (DISK_cur_file_1st_sector)
         ld      IX, (DISK_cur_file_size_sectors)
         call    F_KRN_DZFS_LOAD_FILE_TO_RAM
