@@ -5,13 +5,15 @@
 ; for dastaZ80's dzOS
 ; by David Asta (Jul 2022)
 ;
-; Version 1.0.0
+; Version 1.1.0
 ; Created on 06 Jul 2022
-; Last Modification 11 Sep 2023
+; Last Modification 14 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 20 Jul 2022 - Added 'save' command
 ;   - 11 Sep 2023 - Removed command 'reset'
+;   - 14 Dec 2023 - Removed commands 'autopoke', 'crc16', 'clrram', 'vpoke'
+;                   Removed commands 'screen', 'clsvdp'
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -37,45 +39,14 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-; ;==============================================================================
-; ; Messages
-; ;==============================================================================
-; msg_help:
-;         .BYTE   CR, LF
-;         .BYTE   " This are just some dzOS commands", CR, LF
-;         .BYTE   "|-------------|-----------------------------------|--------------------|", CR, LF
-;         .BYTE   "| Command     | Description                       | Usage              |", CR, LF
-;         .BYTE   "|-------------|-----------------------------------|--------------------|", CR, LF
-;         .BYTE   "| peek        | Show a Memory Address value       | peek 20cf          |", CR, LF
-;         .BYTE   "| poke        | Change a Memory Address value     | poke 20cf,ff       |", CR, LF
-;         .BYTE   "| autopoke    | Like poke, but autoincrement addr.| autopoke 2570      |", CR, LF
-;         .BYTE   "| halt        | Halt the system                   | halt               |", CR, LF
-;         .BYTE   "|             |                                   |                    |", CR, LF
-;         .BYTE   "| dsk         | Change current DSK                | dsk 1              |", CR, LF
-;         .BYTE   "| cat         | Show Disk Catalogue               | cat                |", CR, LF
-;         .BYTE   "| run         | Run a file on disk                | run diskinfo       |", CR, LF
-;         .BYTE   "| load        | Load filename from disk to RAM    | load file1         |", CR, LF
-;         .BYTE   "| rename      | Rename a file                     | rename old,new     |", CR, LF
-;         .BYTE   "| delete      | Deletes a file                    | delete myfile      |", CR, LF
-;         .BYTE   "| save        | Save from addr. n bytes to a file | save 4570,64       |", CR, LF
-;         .BYTE   "|             |                                   |                    |", CR, LF
-;         .BYTE   "| date        | Show current date                 | date               |", CR, LF
-;         .BYTE   "| time        | Show current time                 | time               |", CR, LF
-;         .BYTE   "|-------------|-----------------------------------|--------------------|", 0
-
 ;==============================================================================
 ; AVAILABLE CLI COMMANDS
 ;==============================================================================
 _CMD_NOCMD              .BYTE   0
-; _CMD_HELP               .BYTE   "help", 0
 _CMD_PEEK               .BYTE   "peek", 0
 _CMD_POKE               .BYTE   "poke", 0
-_CMD_AUTOPOKE           .BYTE   "autopoke", 0
-; _CMD_RESET              .BYTE   "reset", 0
 _CMD_RUN                .BYTE   "run", 0
 _CMD_HALT               .BYTE   "halt", 0
-_CMD_CRC16BSC           .BYTE   "crc16", 0
-_CMD_CLRRAM             .BYTE   "clrram", 0
 
 ; Disk commands
 _CMD_DISK_CAT           .BYTE   "cat", 0        ; show files catalogue
@@ -96,11 +67,6 @@ _CMD_RTC_TIME           .BYTE   "time", 0
 _CMD_RTC_SETDATE        .BYTE   "setdate", 0
 _CMD_RTC_SETTIME        .BYTE   "settime", 0
 
-; VDP commands
-_CMD_VDP_VPOKE          .BYTE   "vpoke", 0
-_CMD_VDP_SCREEN         .BYTE   "screen", 0
-_CMD_VDP_CLS            .BYTE   "clsvdp", 0
-
 ;==============================================================================
 ; TABLES
 ;==============================================================================
@@ -108,11 +74,8 @@ _CMD_VDP_CLS            .BYTE   "clsvdp", 0
 ; List of available CLI commands (add below too)
 cmd_list_table:
         .WORD       _CMD_NOCMD
-        ; .WORD       _CMD_HELP
         .WORD       _CMD_PEEK
         .WORD       _CMD_POKE
-        .WORD       _CMD_AUTOPOKE
-        ; .WORD       _CMD_RESET
         .WORD       _CMD_RUN
         .WORD       _CMD_HALT
         .WORD       _CMD_DISK_CAT
@@ -130,20 +93,12 @@ cmd_list_table:
         .WORD       _CMD_RTC_TIME
         .WORD       _CMD_RTC_SETDATE
         .WORD       _CMD_RTC_SETTIME
-        .WORD       _CMD_CRC16BSC
-        .WORD       _CMD_CLRRAM
-        .WORD       _CMD_VDP_VPOKE
-        .WORD       _CMD_VDP_SCREEN
-        .WORD       _CMD_VDP_CLS
 
 ; Jump table for available CLI commands (add above too)
 cmd_jmptable:
         .WORD       CLI_NOCMD
-        ; .WORD       CLI_CMD_HELP
         .WORD       CLI_CMD_PEEK
         .WORD       CLI_CMD_POKE
-        .WORD       CLI_CMD_AUTOPOKE
-        ; .WORD       CLI_CMD_RESET
         .WORD       CLI_CMD_RUN
         .WORD       CLI_CMD_HALT
         .WORD       CLI_CMD_DISK_CAT
@@ -161,16 +116,11 @@ cmd_jmptable:
         .WORD       CLI_CMD_RTC_TIME
         .WORD       CLI_CMD_RTC_SETDATE
         .WORD       CLI_CMD_RTC_SETTIME
-        .WORD       CLI_CMD_CRC16BSC
-        .WORD       CLI_CMD_CLRRAM
-        .WORD       CLI_CMD_VDP_VPOKE
-        .WORD       CLI_CMD_VDP_SCREEN
-        .WORD       CLI_CMD_VDP_CLS
 
 ;==============================================================================
 ; Local Equates
 ;==============================================================================
-JMPTABLE_LENGTH     .EQU        26      ; total number of available commands
+JMPTABLE_LENGTH     .EQU        20      ; total number of available commands
                                         ; in jump table above
 
 CLI_NOCMD:

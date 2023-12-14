@@ -19,16 +19,6 @@ command \hyperref[cmd:dsk]{dsk}) and with attribute \textit{EXE}.
     % ==========================================================================
     \subsection{General Commands}\label{gencmds}
     % ==========================================================================
-        
-        % % ======================================================================
-        % \subsubsection{{help}}
-        % % ======================================================================
-        % Shows a list of the most important commands available for the user.
-        % For a complete list of commands, refer always to this manual.
-
-        % \hspace{1.9cm}\textbf{$>$ help}
-
-        % \textbf{Parameters}: None
 
         % ======================================================================
         \subsubsection{{peek}}
@@ -73,34 +63,6 @@ command \hyperref[cmd:dsk]{dsk}) and with attribute \textit{EXE}.
         0x2D.
 
         % ======================================================================
-        \subsubsection{{autopoke}}
-        % ======================================================================
-        Allows the user to enter a series of values to be stored at the
-        starting address and its consecutive addresses. Think of it like a
-        way to do poke but without having to enter the \textbf{MEMORY}
-        address each time.
-
-        After entering the command, a different command prompt, denoted by
-        the symbol \$, will be displayed.
-
-        Values are entered one by one after the symbol \$. Pressing 
-        \textit{Return} with no value will end the command.
-
-        \hspace{1.9cm}\textbf{$>$ autopoke \textit{$<$address$>$}}
-
-        \textbf{Parameters}:
-
-        \hspace{1cm}\textbf{\textit{address}}: address where the user wants
-        to start changing values.
-
-        \textbf{Example}: \texttt{$>$ autopoke 41A0}
-
-        Will overwrite the contents of the address 0x41A0 with the first
-        value entered by the user at the \$ prompt. Next value entered will
-        overwrite the contents of the address 0x41A1, next 0x41A2, and so on
-        until the end of the command.
-
-        % ======================================================================
         \subsubsection{{halt}}
         % ======================================================================
         \label{cmd:halt}
@@ -143,50 +105,6 @@ command \hyperref[cmd:dsk]{dsk}) and with attribute \textit{EXE}.
         \textit{dastaZ80 Programmer’s Reference Guide}\cite{dastaz80progref}.
         Otherwise the user will have to reset the computer to get back to CLI.
         Not harmful but cumbersome.
-
-        % ======================================================================
-        \subsubsection{{crc16}}
-        % ======================================================================
-        Generates a CRC-16/BUYPASS1\footnote{A 16-bit cyclic redundancy
-        check (CRC) based on the IBM Binary Synchronous Communications
-        protocol\cite{ibmbsc} (BSC or Bisync). It uses the polynomial
-        $X^{16} + X^{15} +X^2 + 1$}
-
-        There are two formats of this command: 
-        
-        \textbf{crc16 \textit{$<$start\_address$>$ $<$end\_address$>$}}
-        and \textbf{crc16 \textit{$<$filename$>$}} 
-        
-        Here the former is described. See the section \textit{\ref{dskcmds} 
-        DISK Commands} on page \pageref{dskcmds} for the other format.
-
-        \hspace{1.9cm}\textbf{$>$ crc16 \textit{$<$start\_address$>$
-        $<$end\_address$>$}}
-        
-        \textbf{Parameters}:
-
-        \hspace{1cm}\textbf{\textit{start\_address}}: first address from
-        where the bytes to calculate the CRC will be read.
-
-        \hspace{1cm}\textbf{\textit{end\_address}}: last address from where
-        the bytes to calculate the CRC will be read.
-
-        \textbf{Example}: \texttt{$>$ crc16 0000,0100}
-
-        Will calculate the CRC of all bytes in MEMORY between the two
-        specified address and show it on the screen:
-        
-        \hspace{1cm}\texttt{CRC16:\ 0x2F25}
-
-        % ======================================================================
-        \subsubsection{{clrram}}
-        % ======================================================================
-        Fills with zeros the entire Free RAM area (i.e. from 0x4420 to
-        0xFFFF).
-
-        \hspace{1.9cm}\textbf{$>$ clrram}
-
-        \textbf{Parameters}: None
 
     % ======================================================================
     \subsection{Real-Time Clock (RTC) Commands}
@@ -552,92 +470,3 @@ command \hyperref[cmd:dsk]{dsk}) and with attribute \textit{EXE}.
         it at the very bottom of the RAM (\texttt{0xFF2D}). In case that you may
         have a program loaded that uses those low bytes, after executing the
         \textit{disklist} command the program will be corrupted.
-
-        % % ======================================================================
-        % \subsubsection{{crc16}}
-        % % ======================================================================
-        % Generates a CRC-16/BUYPASS1\footnote{A 16-bit cyclic redundancy
-        % check (CRC) based on the IBM Binary Synchronous Communications
-        % protocol (BSC or Bisync). It uses the polynomial
-        % $X^{16} + X^{15} +X^2 + 1$}
-
-        % There are two formats of this command: 
-        
-        % \textbf{crc16 \textit{$<$start\_address$>$ $<$end\_address$>$}}
-        % and \textbf{crc16 \textit{$<$filename$>$}} 
-        
-        % Here the latter is described. See the section \textit{\ref{gencmds} 
-        % General Commands} on page \pageref{gencmds} for the other format.
-
-        % \hspace{1.9cm}\textbf{$>$ crc16 \textit{$<$filename$>$}}
-        
-        % \textbf{Parameters}:
-
-        % \hspace{1cm}\textbf{\textit{filename}}: the name of the file for which
-        % the CRC will be calculated.
-
-        % \textbf{Example}: \texttt{$>$ crc16 HelloWorld}
-
-        % Will calculate the CRC of all bytes on the file and show it on the
-        % screen:
-        
-        % \hspace{1cm}\texttt{CRC16:\ 0x3ABC}
-
-    % ==========================================================================
-    \subsection{VDP (\textit{Low Resolution Screen}) Commands}\label{vdpcmds}
-    % ==========================================================================
-        % ======================================================================
-        \subsubsection{{vpoke}}
-        % ======================================================================
-        \label{cmd:vpoke}
-
-        Changes the value of the byte stored at a specified \textbf{VRAM}
-        address.
-
-        \hspace{1.9cm}\textbf{$>$ vpoke \textit{$<$address$>$,$<$value$>$}}
-
-        \textbf{Parameters}:
-
-        \hspace{1cm}\textbf{\textit{address}}: address where the user wants
-        to change a value.
-        
-        \hspace{1cm}\textbf{\textit{value}}: new value (in Hexadecimal notation)
-        to be stored at \textit{address}.
-
-        \textbf{Example}: \texttt{$>$ vpoke 3800,00}
-
-        Will overwrite the contents of the address 0x3800 of the \textbf{VRAM}
-        with the value 0x00.
-
-        % ======================================================================
-        \subsubsection{{screen}}
-        % ======================================================================
-        Changes the \textbf{Low Resolution Screen} display mode.
-
-        \hspace{1.9cm}\textbf{$>$ screen \textit{$<$mode$>$}}
-
-        \textbf{Parameters}:
-
-        \hspace{1cm}\textbf{\textit{mode}}: one of the valid
-        \hyperref[sec:vdpscrmodes]{\textbf{Low Resolution} Screen Modes}:
-
-        \begin{itemize}
-            \item \textbf{0}: \textbf{Text Mode}.
-            \item \textbf{1}: \textbf{Graphics I Mode}.
-            \item \textbf{2}: \textbf{Graphics II Mode}.
-            \item \textbf{3}: \textbf{Multicolour Mode}.
-            \item \textbf{4}: \textbf{Graphics II Mode Bitmapped}.
-        \end{itemize}
-        
-        \textbf{Example}: \texttt{$>$ screen 0}
-
-        Will put the \textbf{Low Resolution Screen} in Text Mode.
-
-        % ======================================================================
-        \subsubsection{{clsvdp}}
-        % ======================================================================
-        Clears the contents of the \textbf{Low Resolution Screen}.
-
-        \hspace{1.9cm}\textbf{$>$ clsvdp}
-
-        \textbf{Parameters}: None

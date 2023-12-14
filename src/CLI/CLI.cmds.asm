@@ -5,9 +5,9 @@
 ; for dastaZ80's dzOS
 ; by David Asta (Jan 2018)
 ;
-; Version 1.0.0
+; Version 1.1.0
 ; Created on 06 Jul 2022
-; Last Modification 21 Sep 2023
+; Last Modification 14 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - F_BIOS_VDP_SET_MODE_ functions now require extra parameters
@@ -17,6 +17,8 @@
 ;   - 11 Sep 2023 - Removed command 'reset'
 ;   - 21 Sep 2023 - Solved bug: file Size was not printed in the same column
 ;                   as others, when the file had no attributes
+;   - 14 Dec 2023 - Removed commands 'autopoke', 'crc16', 'clrram', 'vpoke'
+;                   Removed commands 'screen', 'clsvdp'
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -109,80 +111,6 @@ CLI_CMD_POKE:
         ld      HL, msg_ok
         ld      A, (col_CLI_notice)
         call    F_KRN_SERIAL_WRSTRCLR
-        jp      cli_promptloop
-;------------------------------------------------------------------------------
-;    vpoke - Changes a single VRAM memory address to a specified value
-;------------------------------------------------------------------------------
-CLI_CMD_VDP_VPOKE:
-; IN <= CLI_buffer_parm1_val = memory address
-;       CLI_buffer_parm2_val = specified value
-; OUT => print message 'OK' to default output (e.g. screen, I/O)
-        call    F_CLI_CHECK_2_PARAMS    ; Check if both parameters were specified
-        call    param1val_uppercase
-        call    param2val_uppercase
-        call    F_KRN_ASCII_TO_HEX      ; Hex ASCII to Binary conversion
-        ; CLI_buffer_parm1_val has the address in hexadecimal ASCII
-        ; we need to convert its hexadecimal value (e.g. 33 => 03)
-        ld      IX, CLI_buffer_parm1_val
-        call    F_KRN_ASCIIADR_TO_HEX
-        push    HL                      ; Backup HL
-        ; CLI_buffer_parm2_val has the value in hexadecimal ASCII
-        ; we need to convert its hexadecimal value (e.g. 33 => 03)
-        ld      A, (CLI_buffer_parm2_val)
-        ld      H, A
-        ld      A, (CLI_buffer_parm2_val + 1)
-        ld      L, A
-        call    F_KRN_ASCII_TO_HEX      ; A contains the binary value for param2
-        pop     HL                      ; Restore HL
-        call    F_BIOS_VDP_SET_ADDR_WR  ; Store at VRAM address
-        call    F_BIOS_VDP_BYTE_TO_VRAM ;   the value stored in A
-        ; print OK, to let the user know that the command was successful
-        ld      HL, msg_ok
-        ld      A, (col_CLI_notice)
-        call    F_KRN_SERIAL_WRSTRCLR
-        jp      cli_promptloop
-;------------------------------------------------------------------------------
-;    autopoke - Allows to enter hexadecimal values that will be stored at the
-;              address in parm1 and consecutive positions.
-;              The address is incremented automatically after each hexadecimal 
-;              value is entered. 
-;              Entering no value (i.e. just press ENTER) will stop the process.
-;------------------------------------------------------------------------------
-CLI_CMD_AUTOPOKE:
-; IN <=     CLI_buffer_parm1_val = Start address
-        call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
-        ; Convert address from ASCII to its hex value
-        ld      IX, CLI_buffer_parm1_val
-        call    F_KRN_ASCIIADR_TO_HEX
-        ; Use IX as pointer to memory address where the values entered by
-        ; the user will be stored. It's incremented after each value is entered
-        ld      (tmp_addr1), HL
-        ld      IX, (tmp_addr1)
-autopoke_loop:
-        ; show a dollar symbol to indicate the user that can enter an hexadecimal
-        ld      HL, msg_prompt_hex      ; Prompt
-        ld      A, (col_CLI_notice)
-        call    F_KRN_SERIAL_WRSTRCLR
-        ; read 1st character
-        call    F_KRN_SERIAL_RDCHARECHO ; read a character, with echo
-        cp      CR                      ; test for 1st parameter entered
-        jp      z, end_autopoke         ; if it's CR, exit subroutine
-        call    F_KRN_TOUPPER
-        ld      H, A                    ; H = value's 1st digit
-        ; read 2nd character
-        call    F_KRN_SERIAL_RDCHARECHO ; read a character, with echo
-        cp      CR                      ; test for 1st parameter entered
-        jp      z, end_autopoke         ; if it's CR, exit subroutine
-        call    F_KRN_TOUPPER
-        ld      L, A                    ; L = value's 2nd digit
-        ; convert HL from ASCII to hex
-        call    F_KRN_ASCII_TO_HEX      ; A = HL in hex
-        ; Do the poke (i.e. store specified value at memory address)
-        ld      (IX), A
-        ; Increment memory address pointer and loop back to get next value
-        inc     IX
-        jp      autopoke_loop
-end_autopoke:
         jp      cli_promptloop
 ;------------------------------------------------------------------------------
 ;    run - Starts running instructions from a specific memory address
@@ -770,134 +698,6 @@ CLI_CMD_RTC_SETDATE:
 CLI_CMD_RTC_SETTIME:
         ld      IX, CLI_buffer_parm1_val
         call    F_KRN_RTC_SET_TIME
-        jp      cli_promptloop
-;------------------------------------------------------------------------------
-;   crc - Calculates the CRC-16 BSC for a number of bytes
-;------------------------------------------------------------------------------
-CLI_CMD_CRC16BSC:
-; IN <= CLI_buffer_parm1_val = start address or filename
-;       CLI_buffer_parm2_val = end address or blank
-;
-        call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
-        ; Check if param1 is an address (i.e. starts with a number) or a filename
-        ld      A, (CLI_buffer_parm1_val) ; check if the 1st character of param1
-        call    F_KRN_IS_NUMERIC        ;   is a number
-        jr      c, crc16_addr           ; is number? Yes, run from memory address
-crc16_filename:
-; ToDo - CLI_CMD_CRC16BSC for files
-        jp      cli_promptloop
-crc16_addr:
-        ; If it an address, parameter 2 MUST be provided too
-        call    check_param2            ; Check if parameter 2 was specified
-        jp      z, cli_promptloop       ; no, go back to CLI prompt
-        call    param1val_uppercase
-        call    param2val_uppercase
-        ; CLI_buffer_parm1_val and CLI_buffer_parm2_val has the value in 
-        ;   hexadecimal we need to convert it to binary
-        call    _CLI_HEX2BIN_PARAM1         ; DE contains the binary value for param1
-        ld      (CLI_buffer_parm1_val), DE  ; Store it in SYSVARS
-        call    _CLI_HEX2BIN_PARAM2         ; DE contains the binary value for param1
-        ld      (CLI_buffer_parm2_val), DE  ; Store it in SYSVARS
-
-        ; How many bytes?
-        ld      HL, (CLI_buffer_parm2_val)  ; end address
-        ld      DE, (CLI_buffer_parm1_val)  ; start address
-        xor     A                           ; clear Carry Flag
-        sbc     HL, DE                      ; HL = end address - start address
-        ld      B, H
-        ld      C, L
-        inc     BC                          ; BC = number of bytes to CRC
-        push    BC                          ; backup byte counter
-
-        ; Calculate the CRC
-        call    F_KRN_CRC16_INI             ; Initialise the CRC polynomial and clear the CRC
-        ld      IX, (CLI_buffer_parm1_val)  ; IX = pointer to byte to CRC
-        pop     BC                          ; restore byte counter
-crc16_gen_loop:
-        push    BC                          ; backup byte counter
-        ld      A, (IX)                     ; get byte to CRC
-        call    F_KRN_CRC16_GEN             ; generate CRC
-        inc     IX
-        pop     BC                          ; restore byte counter
-        dec     BC                          ; decrement counter
-        ld      A, B                        ; If didn't CRCed
-        or      C                           ;   all bytes
-        jp      nz, crc16_gen_loop          ;   do more CRCs
-
-        ; Show calculated CRC on screen
-        ld      HL, msg_crcis
-        ld      A, (col_CLI_notice)
-        call    F_KRN_SERIAL_WRSTRCLR
-        ld      HL, (MATH_CRC)
-        call    F_KRN_SERIAL_PRN_WORD
-
-        jp      cli_promptloop
-;------------------------------------------------------------------------------
-; clrram - fill the entire free ram with zeros
-;------------------------------------------------------------------------------
-CLI_CMD_CLRRAM:
-        ld      HL, FREERAM_START
-        ld      BC, FREERAM_END - FREERAM_START
-        xor     A
-        call    F_KRN_SETMEMRNG
-        jp      cli_promptloop
-;------------------------------------------------------------------------------
-;    screen - Changes the VDP screen mode
-;------------------------------------------------------------------------------
-CLI_CMD_VDP_SCREEN:
-; IN <= CLI_buffer_parm1_val = screen mode
-        call    F_CLI_CHECK_1_PARAM     ; Check if parameter 1 was specified
-        ld      B, 1
-        call    F_KRN_SERIAL_EMPTYLINES
-        ; call    F_KRN_IS_NUMERIC        ; and check  if it's a number (C Flag set)
-        ; jp      nc, _vdp_mode_error     ; if no numeric, error
-
-        ld      B, 0                    ; Sprite Size will be 8x8
-        ld      C, 0                    ; Sprite Magnification disabled
-        ld      A, (CLI_buffer_parm1_val)
-        cp      $30
-        jp      z, _set_mode0
-        cp      $31
-        jp      z, _set_mode1
-        cp      $32
-        jp      z, _set_mode2
-        cp      $33
-        jp      z, _set_mode3
-        cp      $34
-        jp      z, _set_mode4
-        
-        ld      HL, error_9012          ; wasn't any of the valid values
-        ld      A, (col_CLI_error)
-        call    F_KRN_SERIAL_WRSTRCLR
-        jp      cli_promptloop
-
-_set_mode0:
-        call    F_BIOS_VDP_SET_MODE_TXT
-        jp      cli_promptloop
-_set_mode1:
-        call    F_BIOS_VDP_SET_MODE_G1
-        jp      cli_promptloop
-_set_mode2:
-        call    F_BIOS_VDP_SET_MODE_G2
-        jp      cli_promptloop
-_set_mode3:
-        call    F_BIOS_VDP_SET_MODE_MULTICLR
-        jp      cli_promptloop
-_set_mode4:
-        call    F_BIOS_VDP_SET_MODE_G2BM
-        jp      cli_promptloop
-
-_vdp_mode_error:
-        ld      HL, error_9002
-        ld      A, (col_CLI_error)
-        call    F_KRN_SERIAL_WRSTRCLR
-        jp      cli_promptloop
-
-;------------------------------------------------------------------------------
-;    clsvdp - Clears the VDP screen
-;------------------------------------------------------------------------------
-CLI_CMD_VDP_CLS:
-        call    F_KRN_VDP_CLEARSCREEN
         jp      cli_promptloop
 ;==============================================================================
 ; Subroutines

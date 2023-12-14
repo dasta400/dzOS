@@ -5,9 +5,9 @@
 ; for dastaZ80's dzOS
 ; by David Asta (Jan 2018)
 ;
-; Version 1.1.0
+; Version 1.2.0
 ; Created on 03 Jan 2018
-; Last Modification 08 Sep 2023
+; Last Modification 14 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - Check if command is a file in the current disk and in case
@@ -15,6 +15,7 @@
 ;   - 08 Sep 2023 - Added a push/pop to preserve the subrotuine counter in
 ;                       parse_get_command. This saves 354 clock cycles, because
 ;                       parse_get_command is not called twice when B=0 anymore.
+;   - 14 Dec 2023 - Removed commands 'autopoke', 'crc16', 'screen'
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -362,16 +363,11 @@ msg_cli_version:
 msg_prompt:
         .BYTE   CR, LF
         .BYTE   "DSK", 0
-msg_prompt_hex:
-        .BYTE   CR, LF
-        .BYTE   "$ ", 0
 msg_ok:
         .BYTE   CR, LF
         .BYTE   "OK", 0
 msg_dirlabel:
         .BYTE   "<DIR>", 0
-msg_crc_ok:
-        .BYTE   " ...[CRC OK]", CR, LF, 0
 msg_exeloaded:
         .BYTE   CR, LF
         .BYTE   "Executable loaded at: 0x", 0
@@ -424,9 +420,6 @@ msg_todayis:
 msg_nowis:
         .BYTE   CR, LF
         .BYTE   "Now: ", 0
-msg_crcis:
-        .BYTE   CR, LF
-        .BYTE   "CRC16: 0x", 0
 msg_disk0:
         .BYTE   "                      DISK0 ", 0
 msg_fdd:
@@ -467,9 +460,6 @@ error_9010:
 error_9011:
         .BYTE   CR, LF
         .BYTE   "Error", CR, LF, 0
-error_9012:
-        .BYTE   CR, LF
-        .BYTE   "Mode number incorrect. Valid modes 0 to 4.", CR, LF, 0
 ;==============================================================================
 ; Tables
 ;==============================================================================

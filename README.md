@@ -108,6 +108,7 @@ Same as [Mark II](#mark-ii), adding:
 * **Two different case models**:
   * **dastaZ80 Original** in Acorn Archimedes A3010 all-in-one computer case.
   * **dastaZ80DB (Desktop Box)** in a box. User I/O (screen, keyboard) is done via serial communication with a terminal software (e.g. minicom, PuTTY).
+* **External Serial HDD**: Instead of the [ASMDC](https://github.com/dasta400/ASMDC) with MicroSD Card, a FTDI-to-USB cable can be used to connect the dastaZ80 to a PC and use the [Serial HDD Simulator](https://github.com/dasta400/dzSoftware/tree/main/DiskTools) program, which is 3.8 times faster than the ASMDC, to access disk images stored in the PC.
 
 ### Block Diagram
 
@@ -138,12 +139,12 @@ Same as [Mark II](#mark-ii), adding:
 
 ### Known BUGS
 
+* _save_ command fails to create the corresponding BAT entry when there are already 15 files.
 * ✔ ~~_run_, _rename_, _delete_ and _chgaatr_, are not taking in consideration the full filename (e.g. _disk_ is acting on file _diskinfo_)~~
 * ✔ ~~Keyboard controller is sending character for each press of special keys (e.g. Shift)~~
 * F_KRN_DZFS_GET_BAT_FREE_ENTRY not finished (doesn't check of deleted files if no available entries found).
-* Message "_....Detecting RTC  [ RTC Battery needs replacement ] ....Detecting NVRAM  [ 56 Bytes ]_" lacks CarriageReturn
+* ✔ ~~Message "_....Detecting RTC  [ RTC Battery needs replacement ] ....Detecting NVRAM  [ 56 Bytes ]_" lacks CarriageReturn~~
 * ✔ ~~Results of _cat_ command are longer than 80 columns.~~
-* _clrram_ executed after loading MS BASIC, hangs the computer.
 * ✔ ~~There are some artifacts on the Composite Video screen, due to some bad data in the VDP's Colour Table.~~
 * Files on disk can be run directly by simply entering the filename as a CLI command, but CLI is not checking if the file is an EXE or not.
 
@@ -197,8 +198,6 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 ### General commands
 
 * **run _[address]_**: moves the CPU Program Counter (PC) to the specified RAM address, so that the CPU starts executing whatever code finds in there.
-* **crc16 _[address_start]_,_[address_end]_**: Generates and prints a 16-bit cyclic redundancy check (CRC) based on the IBM Binary Synchronous Communications protocol (BSC or Bisync), for the bytes between start and end address.
-* **reset**: resets the system. It's effectively the same as pressing the reset button on the side of the computer. The contents of RAM are not cleared. Note that in both cases, reset by button or reset by this command, the [ASMDC](https://github.com/dasta400/ASMDC) is not reset.
 * **halt**: halts the system. Tells [ASMDC](https://github.com/dasta400/ASMDC) to close the image files, and puts the computer in the state of HALT.
 
 ### Disk commands
@@ -217,12 +216,8 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 
 ### Memory commands
 
-* ~~**memdump _[address_start]_,_[address_end]_**: shows all the contents of memory (ROM/RAM) from address_start to address_end.~~ This command is now an stand-alone program (part of the [dzSoftware repo](https://github.com/dasta400/dzSoftware) that can be loaded from disk, instead of being part of the ROM.
 * **peek _[address]_**: shows the byte stored at _address_.
 * **poke _[address]_,_[value]_**: overwrittes the byte stored at _address_ of RAM, with _value_.
-* **vpoke _[address]_,_[value]_**: overwrittes the byte stored at _address_ of VRAM, with _value_.
-* **autopoke _[start_address]_**: allows to enter hexadecimal values that will be stored at the RAM _start_address_ and consecutive positions. The address is incremented automatically after each hexadecimal value is entered (2 digits). Entering no value (i.e. just press ENTER) will stop the process.
-* **clrram**: fills with zeros the entire Free RAM area (i.e. from 0x4420 to 0xFFFF).
 
 ### Real-Time Clock (RTC) commands
 
@@ -231,41 +226,31 @@ For more detailed information, check the [dastaZ80 User's Manual](https://github
 * **setdate _[ddmmyyyy]_**: changes the date stored in the RTC.
 * **settime _[hhmmss]_**: changes the time stored in the RTC.
 
-### Low Resolution Display (VDP) commands
-
-* **screen _[n]_**: changes the display Mode.
-  * Available Modes are:
-    * 0 = Text Mode (40 columns by 24 lines. Text only.)
-    * 1 = Graphics I Mode (256x192 pixels. 32 columns by 24 lines. Graphics and Sprites)
-    * 2 = Graphics II Mode (256x192 pixels. 32 columns by 24 lines. Graphics and Sprites)
-    * 3 = Multicolour Mode (256x192 pixels. 32 columns by 24 lines. Graphics and Sprites)
-    * 4 = Graphics II Mode Bitmapped (256x192 pixels. 64 by 48 blocks of 4x4 pixels. Graphics and Sprites)
-* **clsvdp**: clears (CLS) the VDP screen.
-
 ---
 
-## How to use the SD Card module
+## How to create Disk Images FIles
 
 We will need:
 
-* Linux Terminal.
-* A Micro SD Card formatted with FAT32 file system.
-* [Arduino Serial Multi-Device Controller (ASMDC)](https://github.com/dasta400/ASMDC) connected to SIO/2 Channel B at 115,200 8N1
+* Linux Terminal
+* If using the [Arduino Serial Multi-Device Controller (ASMDC)](https://github.com/dasta400/ASMDC):
+  * A Micro SD Card formatted with FAT32 file system
+  * ASMDC connected to SIO/2 Channel B at 115,200 8N1
+* If not, disk image files copied to a folder in a PC running the [Serial HDD Simulator](https://github.com/dasta400/dzSoftware/tree/main/DiskTools)
 
 Follow the steps:
 
 1. Open a Linux Terminal
-1. Create a 33 MB file: _fallocate -l $((33 * 1024 * 1024)) myimage.img_
-1. Create a second 33 MB file: _fallocate -l $((33 * 1024 * 1024)) myimage2.img_
-1. Create more files if you want/need. Filenames MUST be [8.3 filename](https://en.wikipedia.org/wiki/8.3_filename) format.
-1. Copy the _.img_ files into the Micro SD Card
+1. Create a 1 MB file: _fallocate -l $((1 * 1024 * 1024)) myimage.img_
+   * Disk Images Files can be of a maximum of 33 MB. Change the first number from 1 to the desired value.
+   * Image file names (e.g. _myimage.img_) MUST be [8.3 filename](https://en.wikipedia.org/wiki/8.3_filename) format.
+1. Create more image files if needed, up to a maximum of 16 in total
+1. Copy the _.img_ file(s) into the Micro SD Card (if using [ASMDC](https://github.com/dasta400/ASMDC))
 1. Create a text ASCII file called __disks.cfg_ and add one line for each _.img_ file, with its name in the line. Be sure to leave an extra line at the end of the file. _#_ can be used to write comments.
-1. Insert the Micro SD Card in the MicroSD Card Adapter
-1. Turn dastaZ80 on, and format each disk with the commmand _formatdsk_
 
-Alternatively,
+Alternatively:
 
-* the image file can be formatted with _imgmngr_ (tool provided with [ASMDC](https://github.com/dasta400/ASMDC)): _imgmngr -new myimage.img mydisk_
+* image files can be created (already formatted with DZFS) with _imgmngr_ (tool provided with [ASMDC](https://github.com/dasta400/ASMDC)): _imgmngr -new myimage.img mydisk_
 * an image file can be generated and include in it a list of programs with _makeimgfile_ (tool provided with [ASMDC](https://github.com/dasta400/ASMDC))
 
 ---
