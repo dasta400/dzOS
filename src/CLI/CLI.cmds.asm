@@ -650,8 +650,17 @@ CLI_CMD_DISK_LIST:
         ld      HL, msg_disk0
         ld      A, (col_CLI_warning)
         call    F_KRN_SERIAL_WRSTRCLR
-        ld      HL, msg_fdd
+        ; Was FDD detected at boot?
+        ld      A, (FDD_detected)
+        cp      0
+        jr      z, _disk_list_no_fdd    ; No detected
+        ld      HL, msg_fdd             ; Detected
         ld      A, (col_CLI_info)
+        jr      _disk_list_show_fdd
+_disk_list_no_fdd:
+        ld      HL, error_4001
+        ld      A, (col_CLI_error)
+_disk_list_show_fdd:
         call    F_KRN_SERIAL_WRSTRCLR
         ; Get SD info
         ld      A, (DISK_current)
