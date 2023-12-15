@@ -151,7 +151,7 @@ KRN_DZFS_SEC_TO_BUFFER:
 ;------------------------------------------------------------------------------
 KRN_DZFS_GET_FILE_BATENTRY:
 ; Gets the BAT's entry number of a specified filename (terminated with zero)
-; IN <= HL = Address where the filename to check is stored
+; IN <= HL = Address where the filename to check is stored. Filename must end with $00
 ; OUT => BAT Entry values are stored in the SYSVARS
 ;        DE = $0000 if filename found. Otherwise, whatever value had at start
         ld      (tmp_addr2), HL                 ; Store address of filename to check

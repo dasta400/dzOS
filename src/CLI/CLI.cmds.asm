@@ -544,16 +544,27 @@ _save:
         ld      HL, msg_prompt_fname
         ld      A, (col_CLI_prompt)
         call    F_KRN_SERIAL_WRSTRCLR
-        ld      IX, CLI_buffer_cmd      ; store filename entered by the user in SYSVARS
-get_filename:
+        ld      A, (col_CLI_input)      ; Set text colour
+        call    F_KRN_SERIAL_SETFGCOLR  ;   for user input
+        ld      HL, CLI_buffer_cmd      ; store filename entered by the user in SYSVARS
+_get_filename:
         call    F_KRN_SERIAL_RDCHARECHO ; read character from user
         cp      CR                      ; was it an ENTER?
-        jp      z, end_get_fname        ; yes, filename was fully entered
-        ld      (IX), A                 ; no, store character in SYSVARS
-        inc     IX                      ;     increment pointer
-        jp      get_filename            ;      and continue reading characters
-end_get_fname:
-        ld      (IX), 0                 ; Add filename end character
+        jp      z, _end_get_fname       ; yes, filename was fully entered
+        ld      (HL), A                 ; no, store character in SYSVARS
+        inc     HL                      ;     increment pointer
+        jp      _get_filename           ;      and continue reading characters
+_end_get_fname:
+        ld      (HL), 0                 ; Add filename end character
+
+        ; ; DEBUG START
+        ; ld      HL, CLI_buffer_cmd
+        ; ld      A, (col_CLI_notice)
+        ; call    F_KRN_SERIAL_WRSTRCLR
+        ; jp      cli_promptloop
+        ; ; DEBUG END
+
+
         ; Check if filename already exists
         ld      HL, CLI_buffer_cmd
         call    F_KRN_DZFS_GET_FILE_BATENTRY
@@ -562,13 +573,13 @@ end_get_fname:
         add	    A, D
         add     A, E
         cp      0
-        jp      nz, save_filename       ; doesn't exist, do the saving
+        jp      nz, _save_filename      ; doesn't exist, do the saving
         ; exists, error and exit
         ld      HL, error_9004
         ld      A, (col_CLI_error)
         call    F_KRN_SERIAL_WRSTRCLR
         jp      cli_promptloop
-save_filename:
+_save_filename:
         ; Convert param1 to binary
         call    _CLI_HEX2BIN_PARAM1     ; DE contains the binary value for param1
         push    DE                      ;backup param1 in binary
