@@ -5,12 +5,12 @@
 ; for dastaZ80's dzOS
 ; by David Asta (Aug 2023)
 ;
-; Version 1.0.0
+; Version 1.1.0
 ; Created on 17 Aug 2023
-; Last Modification 18 Aug 2023
+; Last Modification 16 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
-;     - 
+;     - 16 Dec 2023 - Added KRN_VDP_SET_MODE
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -185,4 +185,34 @@ KRN_VDP_CHG_COLOUR_BORDER:
 ; IN <= B = Border colour
         ld      A, $07                  ; send the result
         call    F_BIOS_VDP_SET_REGISTER ;   to VDP register $07
+        ret
+;-----------------------------------------------------------------------------
+KRN_VDP_SET_MODE:
+; IN <= A = Mode to be set (0-4)
+        cp      0
+        jr      z, _set_mode0
+        cp      1
+        jr      z, _set_mode1
+        cp      2
+        jr      z, _set_mode2
+        cp      3
+        jr      z, _set_mode3
+        cp      4
+        jr      z, _set_mode4
+        ret
+
+_set_mode0:
+        call    F_BIOS_VDP_SET_MODE_TXT
+        ret
+_set_mode1:
+        call    F_BIOS_VDP_SET_MODE_G1
+        ret
+_set_mode2:
+        call    F_BIOS_VDP_SET_MODE_G2
+        ret
+_set_mode3:
+        call    F_BIOS_VDP_SET_MODE_MULTICLR
+        ret
+_set_mode4:
+        call    F_BIOS_VDP_SET_MODE_G2BM
         ret

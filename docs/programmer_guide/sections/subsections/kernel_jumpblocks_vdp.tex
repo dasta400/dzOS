@@ -94,3 +94,22 @@
         & \hyperref[func:fbiosvdpsetregister]{F\_BIOS\_VDP\_SET\_REGISTER}\\
         \hline
     \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_VDP\_SET\_MODE}
+    \label{func:fkrnvdpsetmode}
+    % ==========================================================================
+    \begin{tabular}{l p{15cm}}
+        \hline\textbf{Action}
+        & Changes the \textbf{VDP} screen mode.\\
+        \hline\textbf{Entry} & \texttt{A} = VDP Mode (0-4).\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}\\
+        \hline\multirow[t]{5}{4em}{\textbf{Calls}}
+        & \hyperref[func:fbiosvdpsetmodetxt]{F\_BIOS\_VDP\_SET\_MODE\_TXT}\\
+        & \hyperref[func:fbiosvdpsetmodeg1]{F\_BIOS\_VDP\_SET\_MODE\_G1}\\
+        & \hyperref[func:fbiosvdpsetmodeg2]{F\_BIOS\_VDP\_SET\_MODE\_G2}\\
+        & \hyperref[func:fbiosvdpsetmodeg2bm]{F\_BIOS\_VDP\_SET\_MODE\_G2BM}\\
+        & \hyperref[func:fbiosvdpsetmodemulticlr]{F\_BIOS\_VDP\_SET\_MODE\_MULTICLR}\\
+        \hline
+    \end{tabular}

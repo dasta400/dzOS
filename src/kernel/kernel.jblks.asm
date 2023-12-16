@@ -7,7 +7,7 @@
 ;
 ; Version 1.0.0
 ; Created on 25 Apr 2019
-; Last Modification 13 Sep 2023
+; Last Modification 16 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - Added F_KRN_VDP_WRSTR
@@ -17,6 +17,7 @@
 ;                   Added F_KRN_VDP_CHG_COLOUR_BORDER
 ;   - 12 Sep 2023 - Added F_KRN_STRCHR
 ;                   Added F_KRN_STRCHRNTH
+;   - 16 Dec 2023 - Added F_KRN_VDP_SET_MODE
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -212,6 +213,8 @@ F_KRN_VDP_CHG_COLOUR_FGBG:          .EXPORT         F_KRN_VDP_CHG_COLOUR_FGBG
         jp      KRN_VDP_CHG_COLOUR_FGBG
 F_KRN_VDP_CHG_COLOUR_BORDER:        .EXPORT         F_KRN_VDP_CHG_COLOUR_BORDER
         jp      KRN_VDP_CHG_COLOUR_BORDER
+F_KRN_VDP_SET_MODE:                 .EXPORT         F_KRN_VDP_SET_MODE
+        jp      KRN_VDP_SET_MODE
 
         .ORG	KRN_JBLK_END
         .BYTE	0
