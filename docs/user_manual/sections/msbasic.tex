@@ -1,0 +1,1630 @@
+% ==========================================================================
+\section{MS BASIC 4.7b}
+% ==========================================================================
+\label{sub:msbasic}
+
+The Nascom 2 computer\footnote{The Nascom 2 was a single-board computer kit
+issued in the United Kingdom in December 1979.} came with MS BASIC 4.7
+installed in ROM, and the disassembled code was published in the
+\textit{80-BUS NEWS} magazine: \cite{80busnews23}, \cite{80busnews24},
+\cite{80busnews25}, \cite{80busnews26}, \cite{80busnews31},
+\cite{80busnews32}, \cite{80busnews33}.
+
+Grant Searle published a modification (version 4.7b)in his Grant's \textit{7-chip Z80
+computer} webpage\cite{searle2}.
+
+Grant's version was then modified (version 4.7b(dz\textit{maj}.\textit{min}.\textit{patch}))
+to run on dastaZ80 under dzOS, and adding more commands.
+
+    % ==========================================================================
+    \subsection{Differences NASCOM MS BASIC v4.7 and Grant Searle's v4.7b}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item Added \hyperref[msbasic:lang:hex]{HEX\$(nn)}
+        \item Added \hyperref[msbasic:lang:hex]{BIN\$(nn)}
+        \item Added \&Hnn for interpreting numbers as Hexadecimal
+        \item Added \&Bnn for interpreting numbers as Binary
+        \item Removed SCREEN
+        \item Removed CLOAD
+        \item Removed CSAVE
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Differences Grant Searle's 4.7b and dastaZ80
+    v4.7b(dz\textit{maj}.\textit{min}.\textit{patch})}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item Added \hyperref[msbasic:lang:cat]{CAT}
+        \item Added \hyperref[msbasic:lang:colour]{COLOUR}
+        \item Added \hyperref[msbasic:lang:load]{LOAD}
+        \item Added \hyperref[msbasic:lang:save]{SAVE}
+        \item Added \hyperref[msbasic:lang:screen]{SCREEN}
+        \item Added \hyperref[msbasic:lang:spoke]{SPOKE}
+        \item Added \hyperref[msbasic:lang:vpeek]{VPEEK}
+        \item Added \hyperref[msbasic:lang:vpoke]{VPOKE}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{MS BASIC characteristics}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item Commands
+        \begin{itemize}
+            \item There is no support for \textit{ELSE} in \textit{IF}...
+            \textit{THEN}. Instead, it MUST be done with another \textit{IF}...
+            \textit{THEN}.
+        \end{itemize}
+        \item Variables
+        \begin{itemize}
+            \item The first character of a variable name MUST be a letter.
+            \item No reserved words may appear as as variable names.
+            \item Can be of any length, but any alphanumeric characters after
+            the first two are ignored. Therefore \textit{COURSE},
+            \textit{COLOUR} and\textit{COMIC} are the same variable because all
+            start with textit{CO}.
+            \item Integer numbers are signed (i.e. from -32,768 to +32,767). To
+            refer to a location \textit{n} above 32,767, you must provide the
+            2's complement number (i.e \textit{n}-65536).
+            \item Flotaing point is in the range 1.70141E38 to 2.9387E-38
+        \end{itemize}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Speeding up programs}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item Delete \textit{REM} statements.
+        \item Delete spaces. For example, \textit{10FORA=0TO10} is faster than
+        \textit{10 FOR A=0 TO 10}
+        \item Use \textit{NEXT} without the index variable.
+        \item Use variables instead of constants, especially in \textit{FOR}
+        loop and other code that is executed repeatedly.
+        \item Reuse variable names and keep the list of variables as short as
+        possible. Variables are set up in a table in the order of their first
+        appearance in the program. Later in the program, BASIC searches the
+        table for the variable at each reference. Variables at the head of the
+        table take less time to search.
+        \item MS BASIC uses a \textit{garbage collector} to clear out unwanted 
+        space. The frequency of grabage collection is inversely proportional to
+        the amount of string space. The time garbage collection takes is
+        proportional to the square of the number of string variables. To
+        minimise the time, make string space as large as possible and use as few
+        string variables as possible.
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Operators}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{+} Addition
+        \item \textbf{-} Subtraction
+        \item \textbf{*} Multiplication
+        \item \textbf{/} Division
+        \item \textbf{\textasciicircum} Power of
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Relational Operators}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{$>$}, \textbf{$<$}, \textbf{$<>$}, \textbf{=},
+        \textbf{$<=$}, \textbf{$>=$}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Logical Operators}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item \textbf{AND}, \textbf{NOT}, \textbf{OR}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Operators precedence}
+    % ==========================================================================
+    Operators are shown in decressing order of precerdence.
+
+    \begin{itemize}
+        \item Expressions enclosed in parenthesis
+        \item Exponent \textasciicircum
+        \item Negation -
+        \item Multiplication and Division
+        \item Addition and subtraction
+        \item Equal
+        \item Not equal <>, ><
+        \item Less than <
+        \item Greater than >
+        \item less than or equal to <=, =<
+        \item greater than or equal to >=, =<
+        \item NOT
+        \item AND
+        \item OR
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{How to call an ASM subroutine}
+    % ==========================================================================
+
+    This BASIC provides a way of executing external subroutines, via the
+    intrinsic function \textit{USR}.
+
+    The programmer needs to store the address of the subroutine to be called in
+    the the work space location reserved for \textit{USR}. In the case of the
+    version for dastaZ80, this is at \texttt{0x6148} for the LSB and
+    \texttt{0x6149} for the MSB.
+
+    This can be done from BASIC with the instruction \texttt{DPOKE 24904,<address>}
+
+    \textbf{Be aware} that at location \texttt{0x6147} there is stored a
+    \textit{jp} instruction, which is what is executed when the function
+    \textit{USR} is called from BASIC, and therefore it will jump to the
+    subroutine and never come back unless explicitily specified.
+
+    If instead your subroutine contains a \textit{ret}urn instruction, or if you
+    are calling dzOS functions, you \textbf{MUST} change the \textit{jp}
+    instruction to a \textit{call} instruction.
+
+    This can be done from BASIC with the instruction \texttt{POKE 24903,205}
+
+    Finally, to call the external subroutine, as the \textit{USR} is a function,
+    it returns a parameter and therefore it must be received. Either by assigning
+    the value to a variable (e.g. \texttt{A=USR(0)}) or by printing it or by
+    checking it with an \textit{IF}.
+
+    \begin{itemize}
+        \item Valid methods how to use \textit{USR}:
+        \begin{itemize}
+            \item \texttt{A=USR(0)}
+            \item \texttt{IF USR(0)<>0 THEN ...}
+            \item \texttt{PRINT USR(0)}
+        \end{itemize}
+        \item Invalid methods:
+        \begin{itemize}
+            \item \texttt{USR(0)}, will return \textit{?SN Error} (i.e. Syntax Error)
+        \end{itemize}
+    \end{itemize}
+
+    % ==========================================================================
+    \subsection{Language Reference}
+    % ==========================================================================
+    Following are listed in alphabetical order the intrinsic functions,
+    statements and commands available in the modified version for dastaZ80.
+
+    % ======================================================================
+    \subsubsection{{ABS (Absolute)}}
+    \label{msbasic:lang:abs}
+    % ======================================================================
+    Returns absolute value (i.e. no sign) of an expression.
+
+    \hspace{1.9cm}\textbf{ABS(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: expression.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT ABS(4.75)} prints 4.75
+        \item \texttt{A=ABS(-45)} A equals 45
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{ASC (ASCII code)}}
+    \label{msbasic:lang:asc}
+    % ======================================================================
+    Returns the ASCII code of the first character of a string.
+
+    \hspace{1.9cm}\textbf{ASC(\textit{x\$})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x\$}}: string.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT ASC("D")} prints 68
+        \item \texttt{A=ASC("DAVE")} A equals 68
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{ATN (Arctangent)}}
+    \label{msbasic:lang:atn}
+    % ======================================================================
+    Returns arctangent in radians (range -\textpi/2 to \textpi/2) of a number.
+
+    \hspace{1.9cm}\textbf{ATN(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT ATN(4)} prints 1.32582
+        \item \texttt{A=ATN(4)} A equals 1.32582
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{BIN\$ (Convert to Binary)}}
+    \label{msbasic:lang:bin}
+    % ======================================================================
+    Converts an expression into a string representing the binary value.
+
+    \hspace{1.9cm}\textbf{BIN\$(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: expression to convert to Binary.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT BIN\$(10)} prints 1010
+        \item \texttt{PRINT BIN\$(1000)} prints 1111101000
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{CAT (Disk Catalog)}}
+    \label{msbasic:lang:cat}
+    % ======================================================================
+    Shows a list of BASIC programs in the current disk. Only files of type
+    BASIC are listed, any other files are ignored.
+
+    \hspace{1.9cm}\textbf{CAT}
+
+    \textbf{Parameters}: None
+
+    % ======================================================================
+    \subsubsection{{CHR\$ (ASCII to character)}}
+    \label{msbasic:lang:chr}
+    % ======================================================================
+    Returns a one character string containing the character corresponding to
+    the specified ASCII code.
+
+    \hspace{1.9cm}\textbf{CHR\$(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number from ASCII table.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT CHR\$(65)} prints A
+        \item \texttt{A=CHR\$(65)} A equals A
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{CLEAR (Byte from RAM)}}
+    \label{msbasic:lang:clear}
+    % ======================================================================
+    Sets all program variables to zero and all strings to empty string.
+
+    \hspace{1.9cm}\textbf{CLEAR [\textit{s},\textit{t}]}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{s}}: optionally, if \textit{s} is present and is
+    a numeric expression, it sets the string area to \textit{s}. Default is 100.
+    Must be a value between -32768 and 32767.
+
+    \hspace{1cm}\textbf{\textit{t}}: optionally, if \textit{t} is present, it
+    sets the top of the \textit{RAM} available for MS BASIC to \textit{t}.
+    Must be a value between -32768 and 32767.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{CLEAR} clears all program variables and strings
+        \item \texttt{CLEAR 150} sets the string area to 150 characters
+        \item \texttt{CLEAR 150,-30000} sets the string area to 150 characters,
+        and assigns 30 KB of \textit{RAM} available for MS BASIC
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{CLS (Clear Screen)}}
+    \label{msbasic:lang:cls}
+    % ======================================================================
+    Clears the screen and sets the cursor to the top line.
+
+    \hspace{1.9cm}\textbf{CLS}
+
+    \textbf{Parameters}: None
+
+    % ======================================================================
+    \subsubsection{{COLOUR (Foreground/Background colours)}}
+    \label{msbasic:lang:colour}
+    % ======================================================================
+    Changes the foreground and background colours of the \textbf{Low
+    Resolution Display} screen.
+
+    \hspace{1.9cm}\textbf{COLOUR \textit{f},\textit{b}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{f}}: number representing one
+    of the available \textbf{VDP} colours.
+
+    \hspace{1cm}\textbf{\textit{b}}: number representing one
+    of the available \textbf{VDP} colours.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{COLOUR 16,4}
+    \end{itemize}
+
+    \textbf{Available VDP colours:}
+
+    \begin{itemize}
+        \item 0 = Black
+        \item 1 = Red
+        \item 2 = Green
+        \item 3 = Yellow
+        \item 4 = Blue
+        \item 5 = Magenta
+        \item 6 = Cyan
+        \item 7 = White
+        \item 8 = Bright Black (Grey)
+        \item 9 = Bright Red
+        \item 10 = Bright Green
+        \item 11 = Bright Yellow
+        \item 12 = Bright Blue
+        \item 13 = Bright Magenta
+        \item 14 = Bright Cyan
+        \item 15 = Bright White
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{CONT (Continue STOPped execution)}}
+    \label{msbasic:lang:cont}
+    % ======================================================================
+    Continues program execution after \textit{Escape} key was pressed or a 
+    \hyperref[msbasic:lang:stop]{STOP} or \hyperref[msbasic:lang:end]{END}
+    statement has been executed. Execution resumes at the statement after
+    the break occurred unless input from the terminal was interrupted, in which
+    case execution resumes with the reprinting of the prompt (?)
+
+    \hspace{1.9cm}\textbf{CONT}
+
+    \textbf{Parameters}: None
+
+    % ======================================================================
+    \subsubsection{{COS (Cosine)}}
+    \label{msbasic:lang:cos}
+    % ======================================================================
+    Returns cosine in radians (range -\textpi/2 to \textpi/2) of a number.
+
+    \hspace{1.9cm}\textbf{COS(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT COS(4)} prints -.653644
+        \item \texttt{A=COS(20)} A equals .408082
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{DATA (List of elements)}}
+    \label{msbasic:lang:data}
+    % ======================================================================
+    Specifies data to be read by \hyperref[msbasic:lang:read]{READ} statement.
+    List elements can be numbers or strings, and are separated by commas.
+
+    \hspace{1.9cm}\textbf{DATA(\textit{element1, element2,...,elementn})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{element}}: a number or a string.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{DATA 1,2,3}
+        \item \texttt{DATA "A","B","C"}
+        \item \texttt{DATA "dastaZ80","dzOS"}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{DEEK (Word from RAM)}}
+    \label{msbasic:lang:deek}
+    % ======================================================================
+    Reads a word (2 bytes) from a pair of continguous memory locations.
+
+    \hspace{1.9cm}\textbf{DEEK \textit{mem}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{mem}}: memory address where first byte will be
+    read from. Second byte will be read from \textit{mem} + 1
+
+    If \textit{x} or \textit{mem} are negative, they are interpreted as 65536 +
+    \textit{X} or \textit{mem}.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{A=DEEK(\&H4420)} the value found at \textit{RAM} address
+        \textit{0x4420} is assigned to the variable A
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{DEF FN (Define user-defined function)}}
+    \label{msbasic:lang:deffn}
+    % ======================================================================
+    Defines a user-defined function. Definitions are restricted to one line 
+
+    \hspace{1.9cm}\textbf{DEF FN\textit{name}(\textit{arg})=\textit{expression}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{name}}: function name.
+
+    \hspace{1cm}\textbf{\textit{arg}}: argument to be passed to the function.
+
+    \hspace{1cm}\textbf{\textit{expression}}: the function.
+
+    To call the function \textit{name}, we just write its full name (i.e. FN
+    followed by \textit{name}).
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{10 DEF FNKEL2CEL(KEL)=KEL-273.15}
+        \item \texttt{20 PRINT FNKEL2CEL(28)}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{DIM (Allocate array)}}
+    \label{msbasic:lang:dim}
+    % ======================================================================
+    Allocates space for array variables. More than one variable may be
+    dimensioned by one DIM statement up to the limit of the line. The value of
+    each expression gives the maximum subscript possible. The smallest subscript
+    is 0. Without a DIM statement, an array is assumed to have maximum subscript
+    of 10 for each dimension referenced.
+
+    Array can be resized during program execution, by using a variable as its
+    dimension.
+
+    Elements in a strings array can be up to 255 characters.
+
+    \hspace{1.9cm}\textbf{DIM \textit{name},\textit{dim1},\textit{dim2},...,
+    \textit{dimn}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{name}}: name of the array.
+
+    \hspace{1cm}\textbf{\textit{dim}}: dimension, count started from zero. Hence,
+    DIM A(4) will contain five elements, from 0 to 4.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{DIM A(4)}, 1 dimension array with five elements
+        \item \texttt{DIM B(4,2)}, 2 dimensions array with 15 elements
+        \item \texttt{DIM C(I)}, 1 dimension array with \textit{I} elements
+        \item \texttt{DIM D\$(10)}, 1 dimension string array with 10 elements
+        \item \texttt{DIM E(10),F(5),G(10)}, allocates three arrays (E, F and G)
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{DOKE (Word to RAM)}}
+    \label{msbasic:lang:doke}
+    % ======================================================================
+    Stores a word (2 bytes) into a pair of continguous memory locations.
+
+    \hspace{1.9cm}\textbf{DOKE \textit{mem},\textit{w}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{w}}: word to be stored.
+
+    \hspace{1cm}\textbf{\textit{mem}}: memory address where first byte of
+    \textit{w} will be stored. Second byte will be stored at \textit{mem} + 1
+
+    If \textit{x} or \textit{mem} are negative, they are interpreted as 65536 +
+    \textit{X} or \textit{mem}.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{DOKE \&H4420,\&H10AB}
+        \item \texttt{DOKE 17440,4267}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{END (Terminate program)}}
+    \label{msbasic:lang:end}
+    % ======================================================================
+    Terminates execution of a program.
+
+    \textbf{Parameters}: None
+
+    \hspace{1.9cm}\textbf{END}
+
+    % ======================================================================
+    \subsubsection{{EXP (Exponent)}}
+    \label{msbasic:lang:exp}
+    % ======================================================================
+    Returns the mathematical constant \textit{e} (Euler’s number) to the power
+    of a specified number.
+
+    \hspace{1.9cm}\textbf{EXP(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT EXP(4)} prints 54.5982
+        \item \texttt{A=EXP(4)} A equals 54.5982
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{FOR...NEXT...STEP (Loop execution)}}
+    \label{msbasic:lang:fornext}
+    % ======================================================================
+    Allows repeated execution (loop) of the same statements.
+
+    \hspace{1.9cm}\textbf{FOR \textit{index}=\textit{ini} TO \textit{end} 
+    [STEP \textit{s}]}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{index}}: variable used as index. It will be
+    incremented by one each time the program reaches the \textit{NEXT}
+    instruction.
+
+    \hspace{1cm}\textbf{\textit{ini}}: initial value of \textit{index} when
+    entering the \textit{FOR} loop.
+
+    \hspace{1cm}\textbf{\textit{end}}: Once \textit{index} equals the same value
+    as \textit{end}, the \textit{FOR} loop will no longer repeat instructions an
+    execution will continue with the statement after \textit{NEXT}.
+
+    \hspace{1cm}\textbf{\textit{s}}: Optionally, the default increment by 1 of
+    \textit{index} can be modified. \textit{s} may be a positive or a negative
+    number.
+
+    The statement \textit{NEXT} marks the last instruction of each loop. In
+    other words, all statements placed between \textit{FOR} and \textit{NEXT}
+    will be repeated at each loop.
+
+    The \textit{index} after \textit{NEXT} can be omitted, but for clarity it's
+    usually included.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{FOR I=0 TO 10:NEXT I}
+        \item \texttt{FOR I=10 TO 0 STEP -1:NEXT}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{FRE (Available RAM)}}
+    \label{msbasic:lang:fre}
+    % ======================================================================
+    Returns number of bytes in memory not being used by BASIC.
+
+    \hspace{1.9cm}\textbf{FRE(\textit{0})} or \textbf{FRE(\textit{""})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{0}}: free space for program and variables.
+
+    \hspace{1cm}\textbf{\textit{""}}: free space in string area.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT FRE(0)} prints available free space for program and
+        variables.
+        \item \texttt{PRINT FREE("")} prints available free space in string area.
+    \end{itemize}
+
+    String area can be cleared with \texttt{CLEAR}.
+
+    % ======================================================================
+    \subsubsection{{GOSUB (Branch to subroutine)}}
+    \label{msbasic:lang:gosub}
+    % ======================================================================
+    Unconditional branch to subroutine specified at line number.
+
+    The difference with \hyperref[msbasic:lang:goto]{GOTO} is that
+    \textit{GOSUB} will contine execution from next statement found after
+    \textit{GOSUB}, once the branched subroutine ends with
+    \hyperref[msbasic:lang:return]{RETURN}.
+
+    \hspace{1.9cm}\textbf{GOSUB \textit{x}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: line number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{GOSUB 100}, will execute statements from line 100 until a
+        \hyperref[msbasic:lang:return]{RETURN} statement is found, and then will
+        continue execution from next statement found after \textit{GOSUB}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{GOTO (Branch to line)}}
+    \label{msbasic:lang:goto}
+    % ======================================================================
+    Unconditional branch to specified line number.
+
+    \hspace{1.9cm}\textbf{GOTO \textit{x}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: line number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{GOTO 100}, will continue execution from line 100 and on
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{HEX\$ (Convert to Hexadecimal)}}
+    \label{msbasic:lang:hex}
+    % ======================================================================
+    Converts an expression into a string representing the hexadecimal value.
+
+    \hspace{1.9cm}\textbf{HEX\$(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: expression to convert to Hexadecimal.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT HEX\$(10)} prints A
+        \item \texttt{PRINT HEX\$(1000)} prints 3E8
+    \end{itemize}
+
+
+    % ======================================================================
+    \subsubsection{{IF...GOTO (Branch if true)}}
+    \label{msbasic:lang:ifgoto}
+    % ======================================================================
+    Same as \hyperref[msbasic:lang:ifthen]{IF...THEN} except \textit{GOTO} can
+    only be followed by a line number.
+
+    % ======================================================================
+    \subsubsection{{IF...THEN (Branch/Execute if true)}}
+    \label{msbasic:lang:ifthen}
+    % ======================================================================
+    Executes all statements after \textit{THEN} and until the end of the line,
+    if a condition is evaluated as true. Otherwise, execution proceeds at the
+    line after \textit{IF...THEN}
+
+    \hspace{1.9cm}\textbf{IF \textit{condition} THEN \textit{statement}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{condition}}: condition to test.
+
+    \hspace{1cm}\textbf{\textit{statement}}: statement to execute if
+    \textit{condition} evaluated as true. Instead of an statement after, a line
+    number can be used effectively doing the same as
+    \hyperref[msbasic:lang:ifgoto]{IF...GOTO}
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{IF A=10 THEN B=A}, only if A was equal to 10, A is
+        assigned to B
+        \item \texttt{IF A=10 THEN 100}, only if A was equal to 10, execution
+        continues at line 100
+        \item \texttt{IF A=10 THEN B=A:C=A:D=A}, only if A was equal to 10, A is
+        assigned to B, C and D
+        \item \texttt{IF A=10 THEN PRINT"A is 10":GOTO 100}, only if A was equal
+        to 10, \textit{A is 10} is printed and then execution continues at line
+        100
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{INP (Read from Port)}}
+    \label{msbasic:lang:inp}
+    % ======================================================================
+    Reads a byte from a specified port.
+
+    \hspace{1.9cm}\textbf{INP(\textit{p})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{p}}: port number. Must be a value between 0 and
+    255.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT INP(80)} prints byte from port 80.
+        \item \texttt{A=INP(80)} A equals byte read from port 80.
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{INPUT (Read from terminal)}}
+    \label{msbasic:lang:input}
+    % ======================================================================
+    Requests input from user and assignes typed values to a variable or variable
+    list. It can also be used to print a text before the value is typed.
+
+    A question mark symbol (?) is always printed to indicated that a value must
+    be typed. If more than one value is requested, a double question mark symbol
+    (??) will be printed.
+
+    \hspace{1.9cm}\textbf{INPUT(\textit{v1},[\textit{v2}],...,\textit{vn})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{v}}: variable or variables to assign type values
+    followed by \textit{RETURN} key.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{INPUT A} prints \textit{?} and waits for user to type a
+        numeric value followed by the \textit{RETURN} key. The numeric value
+        will be assigned to the variable A.
+        \item \texttt{INPUT A,B,C\$} prints \textit{?} and waits for user to
+        type a numeric value followed by the \textit{RETURN} key. The numeric
+        value will be assigned to the variable A. Then prints \textit{??} and
+        waits for user to type a numeric value followed by the \textit{RETURN}
+        key. The numeric value will be assigned to the variable B. Then prints
+        \textit{??} and waits for user to type a string value followed by the
+        \textit{RETURN} key. The string  value will be assigned to the variable
+        C\$
+        \item \texttt{INPUT "Name";na\$} prints the text \textit{Name?} and
+        waits for user to type a string value followed by the \textit{RETURN}
+        key
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{INT (Integer)}}
+    \label{msbasic:lang:int}
+    % ======================================================================
+    Returns the largest integer of a specified floating point number.
+
+    For positive numbers, the result is obtained by discarding the decimals. For
+    negative numbers, the result is obtained by rounding to the nearest integer
+    greater than the floating point.
+
+    \hspace{1.9cm}\textbf{INT(\textit{f})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{f}}: floating number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT INT(2.54)} prints 2
+        \item \texttt{A=INT(-2.54)} A equals -3
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{LEFT\$ (Leftmost characters of string)}}
+    \label{msbasic:lang:left}
+    % ======================================================================
+    Returns \textit{n} leftmost characters of a string.
+
+    \hspace{1.9cm}\textbf{LEFT\$(\textit{x\$},\textit{n})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x\$}}: string.
+
+    \hspace{1cm}\textbf{\textit{n}}: number of leftmost characters to return.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT LEFT\$("DAVE",2)} prints DA
+        \item \texttt{A\$=LEFT\$("DAVE",2)} A\$ equals DA
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{LEN (Length of string)}}
+    \label{msbasic:lang:len}
+    % ======================================================================
+    Returns the length of a string.
+
+    \hspace{1.9cm}\textbf{LEN(\textit{x\$})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x\$}}: string.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT LEN("DAVE")} prints 4
+        \item \texttt{A=LEN("DAVE")} A\$ equals 4
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{LET (Assign value to variable)}}
+    \label{msbasic:lang:let}
+    % ======================================================================
+    Assigns a value to a variable. It's optional and rarely used.
+
+    \hspace{1.9cm}\textbf{LET \textit{var}=\textit{x}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{var}}: variable that will be assigned.
+
+    \hspace{1cm}\textbf{\textit{x}}: value to assign to \textit{var}.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{LET A=10} assign 10 to A
+        \item \texttt{A=10} does the same, without the need of \textit{LET}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{LINES (Lines printed by LIST)}}
+    \label{msbasic:lang:lines}
+    % ======================================================================
+    Defines the number of lines printed by a \hyperref[msbasic:lang:list]{LIST}
+    command before pausing. Default is 20 lines.
+
+    \hspace{1.9cm}\textbf{LINES \textit{n}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{n}}: number of lines to print by a
+    \hyperref[msbasic:lang:list]{LIST} before pausing and waiting for a key to
+    continue listing.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{LINES 10} \hyperref[msbasic:lang:list]{LIST} will print 10
+        lines and then pause
+        \item \texttt{LINES 0} \hyperref[msbasic:lang:list]{LIST} won't print
+        anything, and it will wait forever. To exit, press CTRL+C
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{LIST (List BASIC program)}}
+    \label{msbasic:lang:list}
+    % ======================================================================
+    List the contents of the BASIC program in memory, starting from the lowest
+    line number.
+
+    The list is terminated by either the end of the program or by pressing
+    CTRL+C.
+
+    The list pauses every number of \hyperref[msbasic:lang:lines]{LINES}, until a
+    key is pressed.
+
+    \hspace{1.9cm}\textbf{LIST [\textit{n}]}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{n}}: optionally, line number from which the list
+    will start. If line number \textit{n} doesn't exit, it will start from next
+    closest line number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{LIST} list program, starting from lowest line
+        \item \texttt{LIST 100} list program, starting from line 100
+        \item \texttt{LIST 101} line 101 doesn't exist, list starts at next line
+        (e.g. 110)
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{LOAD (Load BASIC program from DISK)}}
+    \label{msbasic:lang:load}
+    % ======================================================================
+    Loads a BASIC program from \textbf{DISK} into \textbf{MEMORY}.
+
+    \hspace{1.9cm}\textbf{LOAD "\textit{f}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{f}}: the name of the file to be loaded.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{LOAD "mandelbrot}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{LOG (Natural logarithm)}}
+    \label{msbasic:lang:log}
+    % ======================================================================
+    Returns the natural logarithm of a number that's greater than zero.
+
+    \hspace{1.9cm}\textbf{LOG(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number (greater than 0).
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT LOG(4)} prints 1.38629
+        \item \texttt{PRINT LOG(0)} prints \textit{?FC Error}
+        \item \texttt{A=LOG(4)} A\$ equals 1.38629
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{MID\$ (n characters of a string)}}
+    \label{msbasic:lang:mid}
+    % ======================================================================
+    Returns \textit{n} characters of a string.
+
+    \hspace{1.9cm}\textbf{MID\$(\textit{x\$},\textit{s}[,\textit{n}])}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x\$}}: string.
+
+    \hspace{1cm}\textbf{\textit{s}}: character where to start.
+
+    \hspace{1cm}\textbf{\textit{n}}: Optional. Number of characters to return.
+
+    If number of characters (\textit{n}) is omitted, returns all characters from
+    start (\textit{s}).
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT MID\$("dastaZ80",3)} prints staZ80
+        \item \texttt{PRINT MID\$("dastaZ80",3,3)} prints sta
+        \item \texttt{PRINT MID\$("dastaZ80",1,3)} prints das
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{MONITOR (Exit MS BASIC)}}
+    \label{msbasic:lang:monitor}
+    % ======================================================================
+    Quits MS BASIC and transfers the command to dzOS Command-Line Interface (CLI).
+
+    \hspace{1.9cm}\textbf{MONITOR}
+
+    \textbf{Parameters}: None
+
+    % ======================================================================
+    \subsubsection{{NEW (Delete current BASIC program)}}
+    \label{msbasic:lang:new}
+    % ======================================================================
+    Deletes the current program and clears all variables.
+
+    \hspace{1.9cm}\textbf{NEW}
+
+    \textbf{Parameters}: None
+
+    % ======================================================================
+    \subsubsection{{ON...GOSUB (Branch to subroutine from list)}}
+    \label{msbasic:lang:ongosub}
+    % ======================================================================
+    Branches to subroutine specified at line whose numer is the \textit{n}th in
+    the list. And then, once a \hyperref[msbasic:lang:return]{RETURN} statement
+    is found in the subroutine, continue execution from next statement.
+
+    \hspace{1.9cm}\textbf{ON \textit{x} GOSUB \textit{n1},\textit{n2},...,
+    \textit{nn}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: value that contains the value to be
+    considered as \textit{n}th in the list. If \textit{x}=0 or greater than the
+    number of elements in the list, execution continues at next statement. If
+    \textit{x} is negative or greater than 255, an error occurs.
+
+    \hspace{1cm}\textbf{\textit{n}}: Line number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{ON A GOSUB 100,200,300} if A=1, it will branch to line
+        100. If A=2, it will branch to line 200. If A=3, it will branch to line
+        300.
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{ON...GOTO (Branch to line from list)}}
+    \label{msbasic:lang:ongoto}
+    % ======================================================================
+    Branches to line whose number is the \textit{n}th in the list.
+
+    \hspace{1.9cm}\textbf{ON \textit{x} GOTO \textit{n1},\textit{n2},...,
+    \textit{nn}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: value that contains the value to be
+    considered as \textit{n}th in the list. If \textit{x}=0 or greater than the
+    number of elements in the list, execution continues at next statement. If
+    \textit{x} is negative or greater than 255, an error occurs.
+
+    \hspace{1cm}\textbf{\textit{n}}: Line number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{ON A GOTO 100,200,300} if A=1, it will branch to line 100.
+        If A=2, it will branch to line 200. If A=3, it will branch to line 300
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{OUT (Send to Port)}}
+    \label{msbasic:lang:out}
+    % ======================================================================
+    Sends a byte to a specified port.
+
+    \hspace{1.9cm}\textbf{OUT \textit{p},\textit{x}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{p}}: port number. Must be a value between 0 and
+    255.
+
+    \hspace{1cm}\textbf{\textit{x}}: value to send. Must be a value between 0
+    and 255.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PORT 80,1} sends the value 1 to port 80
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{PEEK (Byte from RAM)}}
+    \label{msbasic:lang:peek}
+    % ======================================================================
+    Reads a byte from a \textit{RAM} address.
+
+    \hspace{1.9cm}\textbf{PEEK \textit{mem}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{mem}}: memory address where the byte will be
+    read from.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{A=PEEK(\&H4420)} the byte found at \textit{RAM} address
+        \textit{0x4420} is assigned to the variable A
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{POKE (Byte to RAM)}}
+    \label{msbasic:lang:poke}
+    % ======================================================================
+    Stores a value in a specific \textbf{RAM} address.
+
+    \hspace{1.9cm}\textbf{POKE \textit{mem},\textit{x}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{mem}}: \textbf{RAM} address where \textit{x}
+    will be stored.
+
+    \hspace{1cm}\textbf{\textit{x}}: value to store (0..255).
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{POKE \&h4420,62}, stores 62 in \textbf{RAM} address
+        \texttt{0x4420}
+        \item \texttt{POKE 17440,62}, stores 62 in \textbf{RAM} address 17440
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{PRINT (Print to Terminal)}}
+    \label{msbasic:lang:print}
+    % ======================================================================
+    Prints expression to Terminal. Expression can be a variable or text. A
+    Carriage Return (CR) is automatically added to the end of the expression.
+    The CR can be omitted if after the expression a semicolon (;) is added.
+
+    \hspace{1.9cm}\textbf{PRINT \textit{x}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: expression.
+
+    Multiple expressions can be printed one after the another, when separated
+    with semicolon (;)
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT A} prints the value stored in the variable A
+        \item \texttt{PRINT "dastaZ80"} prints the text \textit{dastaZ80}
+        \item \texttt{PRINT "dasta";"Z80"} prints the text \textit{dastaZ80}
+        \item \texttt{PRINT "dasta";A} prints the text \textit{dasta} followed
+        by the value stored in the variable A
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{READ (Assign value from DATA)}}
+    \label{msbasic:lang:read}
+    % ======================================================================
+    Assigns values in \hyperref[msbasic:lang:data]{DATA} statements to variable.
+    If multiple READs are issued, the values are assigned in sequence from the
+    \hyperref[msbasic:lang:data]{DATA} list.
+
+    \hspace{1.9cm}\textbf{READ \textit{v}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{v}}: a variable or list of variables to which
+    assign the values from \hyperref[msbasic:lang:data]{DATA}.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{10 DATA 74,"dasta"}
+        \item \texttt{20 READ A,B\$} will assign 74 to A and "dasta" to B\$
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{REM (Remark)}}
+    \label{msbasic:lang:rem}
+    % ======================================================================
+    Allows the insertion of remarks, not executed but may be branched into.
+
+    \hspace{1.9cm}\textbf{REM \textit{r}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{r}}: text that will be used as remark.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{10 REM "dastaZ80"}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{RESET (Re-start dastaZ80)}}
+    \label{msbasic:lang:reset}
+    % ======================================================================
+    Reset the computer. It has the same effect as pressing the reset button at
+    the side of the computer.
+
+    \hspace{1.9cm}\textbf{RESET}
+
+    \textbf{Parameters}: None
+
+    % ======================================================================
+    \subsubsection{{RESTORE (DATA from start)}}
+    \label{msbasic:lang:restore}
+    % ======================================================================
+    Allows \hyperref[msbasic:lang:data]{DATA} values to be re-read, by
+    positioning the pointer to the first element of the first
+    \hyperref[msbasic:lang:data]{DATA} statement.
+
+    \hspace{1.9cm}\textbf{RESTORE}
+
+    \textbf{Parameters}: None
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{10 DATA 74,"dasta"}
+        \item \texttt{20 READ A} will assign 74 to A, and point to the second
+        element
+        \item \texttt{30 RESTORE} will point to the first element again
+        \item \texttt{20 READ B} will assign 74 to B
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{RETURN (End of subroutine)}}
+    \label{msbasic:lang:return}
+    % ======================================================================
+    Terminates a subroutine and branches execution to most recent
+    \hyperref[msbasic:lang:gosub]{GOSUB}.
+
+    \hspace{1.9cm}\textbf{RESTORE}
+
+    \textbf{Parameters}: None
+
+    % ======================================================================
+    \subsubsection{{RIGHT\$ (Rightmost characters of a string)}}
+    \label{msbasic:lang:right}
+    % ======================================================================
+    Returns \textit{n} rightmost characters of a string.
+
+    \hspace{1.9cm}\textbf{RIGHT\$(\textit{x\$},\textit{n})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x\$}}: string.
+
+    \hspace{1cm}\textbf{\textit{n}}: number of rightmost characters to return.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT RIGHT\$("DAVE",2)} prints VE
+        \item \texttt{A\$=RIGHT\$("DAVE",2)} A\$ equals VE
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{RND (Random number)}}
+    \label{msbasic:lang:rnd}
+    % ======================================================================
+    Returns a random number between 0 and 1.
+
+    \hspace{1.9cm}\textbf{RND(\textit{x})}
+
+    \textbf{Parameters}:
+
+    If \textit{x} is negative, the random number generator will be re-seed
+    before returning the number. If \textit{x} is zero, the last returned number
+    will be returned again. If \textit{x} is postive, the next randdom in the
+    swquence will be returned.
+
+    Random number are generated in a sequence, same negative value used in
+    \textit{x} will generate the same sequence.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT RND(-1)} re-seed and prints random
+        \item \texttt{PRINT RND(0)} prints previous generated random
+        \item \texttt{A=RND(1)} A\$ equals next random in the sequence
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{RUN (Execute BASIC program)}}
+    \label{msbasic:lang:run}
+    % ======================================================================
+    Starts execution of the current program.
+
+    \hspace{1.9cm}\textbf{RUN [\textit{l}]}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{l}}: optionally, line number to start execution
+    from.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{RUN} starts execution of program from lowest line number
+        \item \texttt{RUN 100} starts execution of program from line 100
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{SAVE (Save BASIC program to DISK)}}
+    \label{msbasic:lang:save}
+    % ======================================================================
+    Saves current BASIC program from \textbf{MEMORY} into current
+    \textbf{DISK}.
+
+    \hspace{1.9cm}\textbf{SAVE "\textit{f}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{f}}: the name of the file to be
+    saved.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{SAVE "mandelbrot}
+    \end{itemize}
+
+    \textbf{Hint}: Although there isn't an MS BASIC command to change the
+    current \textbf{DISK}, it can easily be changed manually. DZOS
+    \textbf{DISK} operations are performed to whatever \textbf{DISK} number
+    is stored in an area of \textbf{MEMORY} called \textit{SYSVARS}
+    (See \textit{dastaZ80 Manual - Programmer’s Reference Guide} for more
+    details). The \textbf{DISK} number is stored at address \texttt{0x4176},
+    therefore by changing the value stored at this address we are
+    effectively changing the current \textbf{DISK}. To change it simply use
+    \texttt{POKE \&h4176,disknum} where \textit{disknum} is a valid
+    \textbf{DISK} number.
+
+    % ======================================================================
+    \subsubsection{{SCREEN (Change VDP screen mode)}}
+    \label{msbasic:lang:screen}
+    % ======================================================================
+    Changes the \textbf{Low Resolution Display} screen mode.
+
+    \hspace{1.9cm}\textbf{SCREEN \textit{m}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{m}}: one of the valid
+    \hyperref[sec:vdpscrmodes]{\textbf{Low Resolution} Screen Modes}:
+
+    \begin{itemize}
+        \item 0 = Text Mode
+        \item 1 = Graphics I Mode
+        \item 2 = Graphics II Mode
+        \item 3 = Multicolour Mode
+        \item 4 = Graphics II Mode Bitmapped
+    \end{itemize}
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{SCREEN 2}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{SGN (Sign)}}
+    \label{msbasic:lang:sgn}
+    % ======================================================================
+    Returns the sign of a specified number.
+
+    If number is 0, return is 0. If number is positive, return is 1. If number
+    is negative, return is -1.
+
+    \hspace{1.9cm}\textbf{SGN(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT SGN(9)} print 1
+        \item \texttt{PRINT SGN(0)} prints 0
+        \item \texttt{A=SGN(-3)} A\$ equals -1
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{SIN (Sine)}}
+    \label{msbasic:lang:sin}
+    % ======================================================================
+    Returns sine in radians (range -\textpi/2 to \textpi/2) of a number.
+
+    \hspace{1.9cm}\textbf{SIN(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT SIN(4)} prints -.756802
+        \item \texttt{A=SIN(20)} A equals -.756802
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{SPC (Print n spaces)}}
+    \label{msbasic:lang:spc}
+    % ======================================================================
+    Prints \textit{n} number of blanks. It can only be used in conjuntion with
+    \hyperref[msbasic:lang:print]{PRINT}.
+
+    \hspace{1.9cm}\textbf{SPC(\textit{n})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{n}}: number of blanks. MUST be a positive number
+    less than 256.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT SPC(4)};"dastaZ80" prints 4 blank spaces and then
+        prints dastaZ80
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{SPOKE (Byte to PSG)}}
+    \label{msbasic:lang:spoke}
+    % ======================================================================
+    Writes a value in a specific \textbf{PSG} register.
+
+    \hspace{1.9cm}\textbf{SPOKE \textit{r},\textit{x}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{r}}: \textbf{PSG} register number (0-13).
+
+    \hspace{1cm}\textbf{\textit{x}}: value to set (0..255).
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{SPOKE 7,62}
+    \end{itemize}
+
+
+    % ======================================================================
+    \subsubsection{{SQR (Square root)}}
+    \label{msbasic:lang:sqr}
+    % ======================================================================
+    Returns square root of a number.
+
+    \hspace{1.9cm}\textbf{SQR(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number, greater than zero.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT SQR(4)} prints 2
+        \item \texttt{A=SQR(4)} A equals 2
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{STOP (Stop program execution)}}
+    \label{msbasic:lang:stop}
+    % ======================================================================
+    Stops program execution. BASIC enters command level and prints
+    \textit{Break in nnnn}, where \textit{nnnn} is the line where the STOP was
+    found.
+
+    Execution can be continued with \hyperref[msbasic:lang:cont]{CONT}.
+
+    \hspace{1.9cm}\textbf{STOP)}
+
+    \textbf{Parameters}: None
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{10 PRINT "Hello"} prints Hello
+        \item \texttt{20 STOP} programs stops, BASIC prints \textit{Break in 20}
+        \item \texttt{30 PRINT "Continued"} this is not printed
+        \item \texttt{CONT} execution continues from 30, hence prints
+        \textit{Continued}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{STR\$ (Number to String)}}
+    \label{msbasic:lang:str}
+    % ======================================================================
+    Returns string representation of value of a number.
+
+    \hspace{1.9cm}\textbf{STR\$(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{A\$=STR(12)} A\$ equal string 12
+        \item \texttt{A\$=STR(-2)} A\$ equals string -2
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{TAB (Move cursor n columns)}}
+    \label{msbasic:lang:tab}
+    % ======================================================================
+    Moves the cursor to the \textit{n}th column on the terminal. It can only be
+    used in conjuntion with \hyperref[msbasic:lang:print]{PRINT}.
+
+    \hspace{1.9cm}\textbf{TAB\$(\textit{n})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{n}}: number. UST be a positive number less than
+    256.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT TAB(4)};"dastaZ80" moves the cursor to column 4 and
+        then prints dastaZ80
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{TAN (Tangent)}}
+    \label{msbasic:lang:tan}
+    % ======================================================================
+    Returns tangent in radians (range -\textpi/2 to \textpi/2) of a number.
+
+    \hspace{1.9cm}\textbf{TAN(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT TAN(4)} prints 1.15782
+        \item \texttt{A=TAN(4)} A equals 1.15782
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{USR (Call user-defined subroutine)}}
+    \label{msbasic:lang:usr}
+    % ======================================================================
+    Calls the user's machine language subroutine with an argument.
+
+    After boot, USR points to an \textit{Illegal function call Error} and
+    therefore it must first be configured in order to be used. To configure it,
+    we need to set the address to which USR will jump. The two bytes of the
+    address are stored at \texttt{0x473F} and \texttt{0x4740}
+
+    \hspace{1.9cm}\textbf{USR(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: argument. Mandatory even if not used by the
+    called subroutine.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{USR(0)} jumps to whatever address is stored at
+        \texttt{0x473F}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{VAL (Numeric value of a string)}}
+    \label{msbasic:lang:val}
+    % ======================================================================
+    Returns numerical value of a string.
+
+    \hspace{1.9cm}\textbf{VAL(\textit{x})}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: number.
+
+    If first character if \textit{x} is not a number, or +, -, \$, \%, returns zero.
+
+    If first character is \$, the number is interpreted as hexadecimal.
+
+    If first character is \%, the number is interpreted as binary.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{A=VAL("45")} A equals 45
+        \item \texttt{A=VAL("+45")} A equals 45
+        \item \texttt{A=VAL("-45")} A equals -45
+        \item \texttt{A=VAL("\$FF")} A equals 255
+        \item \texttt{A=VAL("\%1010")} A equals 10
+        \item 
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{VPEEK (Byte from VRAM)}}
+    \label{msbasic:lang:vpeek}
+    % ======================================================================
+    Gets the value at a specific \textbf{VRAM} address.
+
+    \hspace{1.9cm}\textbf{VPEEK \textit{x}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: \textbf{VRAM} address.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{PRINT VPEEK(6144)}
+        \item \texttt{A=VPEEK(6144)}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{VPOKE (Byte to VRAM)}}
+    \label{msbasic:lang:vpoke}
+    % ======================================================================
+    Writes a value at a specific \textbf{VRAM} address.
+
+    \hspace{1.9cm}\textbf{VPOKE \textit{x},\textit{v}}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{x}}: \textbf{VRAM} address.
+
+    \hspace{1cm}\textbf{\textit{v}}: value to set (0..255).
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{VPOKE 6144,171}
+    \end{itemize}
+
+    % ======================================================================
+    \subsubsection{{WAIT (Waits for value in Port)}}
+    \label{msbasic:lang:wait}
+    % ======================================================================
+    Execution waits until a value read for a Port and XOR'd with a specified
+    value is non-zero. Optionally, the value read from the port can be also
+    AND'ed with another value.
+
+    \hspace{1.9cm}\textbf{WAIT \textit{p},\textit{o}[,\textit{a}]}
+
+    \textbf{Parameters}:
+
+    \hspace{1cm}\textbf{\textit{p}}: port number where to read value from.
+
+    \hspace{1cm}\textbf{\textit{o}}: this value (0..255) will be XOR'd with the
+    value read from \textit{p}.
+
+    \hspace{1cm}\textbf{\textit{a}}: optionally, this value (0..255) will be
+    AND'ed with the result of \textit{o} XOR'd with the value read from
+    \textit{p}. If not specified, it defaults to zero.
+
+    \textbf{Examples}:
+    \begin{itemize}
+        \item \texttt{WAIT 20,6} execution stops until either bit 1 or bit 2 of
+        port 20 are equal to 1
+        \item \texttt{WAIT 10,255,7} execution stops until any of the most
+        significant 5 bits of port 10 are one or any of the least significant 3
+        bits are zero
+    \end{itemize}
