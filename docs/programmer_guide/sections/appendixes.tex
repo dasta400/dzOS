@@ -379,3 +379,96 @@
             \item \textit{.WORD} is used instead of \textit{.DW}
         \end{itemize}
     \end{itemize}
+
+    % ==========================================================================
+    \subsection{How a BASIC program is stored in RAM}
+    % ==========================================================================
+
+    When a user enters a program line (e.g. \texttt{10 PRINT "HELLO WORLD"}),
+    BASIC must store it somewhere in \textbf{RAM} so that it can be retrieved
+    later when for example the user wants to run, list or save the program.
+
+    If all bytes would have to be stored, our example above would require 20
+    bytes for the text code (including space between line number and PRINT),
+    plus at least 2 bytes more for the line counter.
+
+    The authors of MS BASIC cleverly decided that instead of storing the BASIC
+    statements as ASCII characters, needing one byte per character, it would be
+    enough to give each statement a unique identifier of one byte and instead
+    store that byte. This unique identifier is commonly know as \textit{token}.
+
+    For example, the \texttt{PRINT} statement has the token \texttt{0x9E}, so
+    instead of needing 5 bytes to store each letter of the word \textit{PRINT},
+    BASIC just needs 1 byte. It has saved 4 bytes. Imagine how much can save in
+    a program with hundreds or even thousand of lines.
+
+    So how it's a program stored in RAM, now that we know BASIC will use tokens
+    for each reserved word instead of storing each character of the word?
+
+    Lets take our previous example: \texttt{10 PRINT "HELLO WORLD"}
+
+    Assuming the program is stored at address \texttt{0x80F9}, it will be stored
+    as:
+
+    \texttt{
+    \resizebox{12cm}{!}{
+        \begin{tabular}{l l l l l l l l l l l l l l l l l}
+            80F9: & 00 & 0E & 81 & 0A & 00 & 9E & 20 & 22 & 48 & 45 & 4C & 4C & 4F & 20 & 57 & 4F\\
+            810F: & 52 & 4C & 44 & 22 & 00 & 00 & 00\\
+        \end{tabular}
+    }}
+
+    where:
+
+    \begin{itemize}
+        \item \texttt{00}: flag indicates start of program.
+        \item \texttt{0E 81}: address to the next line in memory. In this
+        example equals to end of program as there are no more lines.
+        \item \texttt{0A 00}: line 10 in little-endian.
+        \item \texttt{9E}: token for PRINT.
+        \item \texttt{20}: space character.
+        \item \texttt{22}: double quote (") character.
+        \item \texttt{48 45 4C 4C 4F}: characters for HELLO.
+        \item \texttt{20}: space character.
+        \item \texttt{57 4F 52 4C 44}: characters for WORLD.
+        \item \texttt{22}: double quote (") character.
+        \item \texttt{00}: flag indicates end of line.
+        \item \texttt{00 00}: flag indicates end of program.
+    \end{itemize}
+
+    Now it's easy to understand why some programs published in books and
+    magazines skip some of the blank spaces, and write \texttt{FOR I=0 TO 10}
+    instead as \texttt{FORI=0TO10}. It saves 3 bytes in memory by not having to
+    store the space characters \texttt{0x20}. It also increases a bit the
+    running speed, as the BASIC interpreter doesn't have to parse and interpret
+    each of the spaces.
+
+    % ==========================================================================
+    \subsection{How a BASIC program is stored in DISK}
+    % ==========================================================================
+
+    \begin{itemize}
+        \item 2 bytes: Address of PROGND (End of program). Start of variables
+            area. This is where the variables are stored.
+        \item 2 bytes: Address of VAREND (End of variables). Start of arrays
+            area. This is where the arrays are stored.
+        \item 2 bytes: Address of ARREND (End of arrays). This contains the
+            address of the byte after last array.
+        \item 2 bytes: Address of NXTDAT (Next DATA item). This contains the
+            address of the next item of DATA to be READ.
+        \item 2 bytes: Address of FNRGNM (FN argument name). This contains the
+            name of the argument for the current FN function.
+        \item 4 bytes: Address of FNARG (FN function argument). This is the
+            floating point value of the current FN function's argument.
+        \item 4 bytes: Address of FPREG (Floating point register). This is a
+            floating point number for the current value.
+        \item 1 byte: Address of SGNRES (Sign of result). This contains the sign
+            of the result for multiplication.
+        \item 13 bytes: Address of PBUFF (Number print buffer). When a floating
+            point number has to be converted into ASCII for PRINT or STR\$ the
+            ASCII number is built up in this buffer.
+        \item 3 bytes: Address of NULVAL (Multiply value). This contains the
+            24-bit multiplier.
+        \item n bytes: tokenised BASIC program.
+    \end{itemize}
+
