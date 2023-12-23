@@ -205,13 +205,19 @@
 
     \includegraphics[scale=0.7]{images/resetbutton.png}
 
-    This button is used to restart the computer without turning it off via the
-    \hyperref[subsec:onoffbutt]{ON/OFF button}.
+    To reset the computer simply press and release the button.
 
-    To reset the computer simply press and release the button. The reset process
-    will take 6.5 seconds in total, as explained in the section
-    \textit{Reset circuit} of the dastaZ80 Technical Reference
-    Manual\cite{dastaz80techman}.
+    When pressed, the internal Reset Circuit sends a reset signal to all chips
+    in the computer, and thus setting them to an initial and unconfigured state.
+    One of those chips is the CPU itself, which when reset or powered ON starts
+    executing code found at the very beginning of the \textbf{ROM}, and hence
+    re-configuring all chips. In the section appendix \textit{OS Boot Sequence}
+    of the \textit{dastaZ80 Programmer's Reference Guide}\cite{dastaz80progref}
+    there is detailed information of what happens after a reset or power up.
+
+    The reset process will take 6.5 seconds in total, as explained in the
+    section \textit{Reset circuit} of the \textit{dastaZ80 Technical Reference
+    Manual}\cite{dastaz80techman}.
 
     % ==========================================================================
     \subsection{Indicator LEDs}
@@ -338,8 +344,6 @@
 
         NC, stands for Not Connected. These are the \textit{+5V}, \textit{/CTS}
         and \textit{/RTS} signals, which are not used.
-
-
 
         % ==========================================================================
         \subsubsection{Dual Video Output}
