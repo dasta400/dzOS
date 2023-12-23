@@ -474,3 +474,25 @@
         \item n bytes: tokenised BASIC program.
     \end{itemize}
 
+    % ==========================================================================
+    \subsection{How a BASIC floating point number is stored in RAM}
+    % ==========================================================================
+
+    Floating point is arithmetic that represents subsets of real numbers using
+    an integer with a fixed precision, called the significand, scaled by an
+    integer exponent of a fixed base.
+
+    To store floating point numbers in MS BASIC, Microsoft introduced the
+    \textit{Microsoft Binary Format} (MBF) in the very first version of MS BASIC
+    (then called \textit{Altair BASIC}) in 1975.
+
+    MBF single-precision format uses 4 bytes (32 bits):
+    
+    \begin{itemize}
+        \item 1-bit sign (0=positive, 1=negative)
+        \item 23-bit mantissa of the significand
+        \item 8-bit base-2 exponent. Encoded with a bias of 128, so that
+            negative exponents (-127 to -1) are reprsented by 1 to 127, and
+            positive exponents (0 to 127) are represented by 128 to 255.
+        \item Less significant 8 bits are unused
+    \end{itemize}

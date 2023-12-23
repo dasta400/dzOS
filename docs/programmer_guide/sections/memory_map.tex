@@ -92,8 +92,54 @@
         subroutine, which starts executing code from \textbf{Low RAM}.
 
         % ==========================================================================
-        \subsubsection{Jumpblocks}
+        \subsubsection{Interrupt Vectors}
         % ==========================================================================
+
+        The dastaZ80's CPU is configured at boot to \textit{Maskable Interrupt
+        Mode 2}. This mode allows an indirect call to any memory location by a
+        single 8-bit vector supplied from the peripheral. Thus, when a device
+        generates an interrupt it places the vector on the data bus in response
+        to an interrupt acknowledge from the CPU. This vector then becomes the
+        least significat 8 bits of the indirect pointer while the CPU's
+        \textit{I} register provides the most significant 8 bits. The resulting
+        16-bit address points to an address in a vector table which is the
+        starting address of the interrupt routine.
+
+        \begin{longtable}{ |l|l|l|l| }\hline
+            \hline
+            \rowcolor{lightgray}
+            Address & Initiator & Description \\
+            \hline
+            \hline
+            \endfirsthead
+    
+            \hline
+            \rowcolor{lightgray}
+            Address & Type & Initiator & Description \\
+            \hline
+            \hline
+            \endhead
+    
+            \texttt{0x0008} & INT & SIO/2 & Transmit character over serial line Channel A\\
+            \hline
+            \texttt{0x0010} & INT & SIO/2 & Receive character over serial line Channel A\\
+            \hline
+            \texttt{0x0018} & INT & SIO/2 & Transmit character over serial line Cannel B\\
+            \hline
+            \texttt{0x0020} & INT & SIO/2 & Receive character over serial line Channel B\\
+            \hline
+            \texttt{0x0066} & NMI & VDP & Jiffy Counter + User configurable jump\\
+            \hline
+            \texttt{0x00B8} & INT & SIO/2 & Receive Character Available in Channel A\\
+            \hline
+            \texttt{0x00DF} & INT & SIO/2 & Receive Character Available in Channel B\\
+            \hline
+        \end{longtable}
+
+        INT = Maskable Interrupt, NMI = Non-Maskable Interrupt
+
+        Non-Maskable interrupt has priority over any Maskable Interrupt and
+        generates an automatic restart to location \texttt{0x0066}.
 
     % ==========================================================================
     \subsection{RAM}
