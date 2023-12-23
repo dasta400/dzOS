@@ -56,13 +56,11 @@
         \begin{itemize}
             \item Screen is divided into 960 pattern positions each of which is
                 capable of displaying a character. There are 40 characters in
-                each row and 24 rows on the screen.
-            \item Each character is 8x6 pixels.
+                each row and 24 rows in total.
+            \item Each character is 6 horizontal pixels by 8 vertical pixels.
             \item Each character can have 2 colours (Foreground and Background).
             \item Sprites cannot be used.
-            \item The Pattern Table starts at \textbf{VRAM} address
-                \texttt{0x0000}, for a lenght of 2048 bytes (from
-                \texttt{0x0000} to \texttt{0x07FFF}).
+            \item Pattern Table:
             \begin{itemize}
                 \item This table contains the character sets, for a maximum of
                     256 characters per set.
@@ -79,9 +77,7 @@
                     to a byte in the Name Table to display the character
                     \textit{A}.
             \end{itemize}
-            \item The Name Table starts at \textbf{VRAM} address \texttt{0x0800}.
-                for a lenght of 960 bytes (from \texttt{0x0800} to
-                \texttt{0x0BBF}).
+            \item Name Table:
             \begin{itemize}
                 \item Each entry in the table is 1 byte long and therefore can
                     specify one of 256 patterns (from \texttt{0x00} to
@@ -100,7 +96,8 @@
             \item Screen is divided into 768 blocks of 8x8 pixels each. There
                 are 32 blocks in a row and 24 rows on the screen.
             \item Sprites can be used.
-            \item The Name Table starts at \textbf{VRAM} address \texttt{0x1400}.
+            \item Screen resolution is 256 by 192 pixels.
+            \item Name Table:
             \begin{itemize}
                 \item This table has 768 entries, one for each block on the screen.
                 \item If the Pattern Table is loaded with with a full ASCII
@@ -108,8 +105,7 @@
                     Table will result in the corresponding character being
                     displayed on the screen.
             \end{itemize}
-            \item The Pattern Table starts at \textbf{VRAM} address \texttt{0x0800}.
-            \item The Colour Table starts at \textbf{VRAM} address \texttt{0x2000}.
+            \item Colour Table:
             \begin{itemize}
                 \item This table has 32 entries, each entry defining 2 colours
                 (Foreground and Background) out of 15 colours available, for a
@@ -123,17 +119,15 @@
         \subsubsection{Mode 2: \textbf{Graphics II Mode}}
         % ==========================================================================
         \begin{itemize}
-            \item Also known as \textbf{Bitmap Mode}.
             \item Screen is divided into 768 blocks of 8x8 pixels each. There
             are 32 blocks in a row and 24 rows on the screen.
             \item Sprites can be used.
-            % \item Screen resolution is 256 by 192 pixels.
-            \item The Name Table starts at \textbf{VRAM} address \texttt{0x3800}.
+            \item Screen resolution is 256 by 192 pixels.
+            \item Name Table:
             \begin{itemize}
                 \item This table is divided into three subtables of 256 each.
             \end{itemize}
-            \item The Pattern Table starts at \textbf{VRAM} address \texttt{0x0000}.
-            \item The Colour Table starts at \textbf{VRAM} address \texttt{0x2000}.
+            \item Colour Table:
             \begin{itemize}
                 \item Each entry in the Colour Table is 8 bytes and each byte
                     defines the 2 colours (Foreground and Background) of each 
@@ -161,10 +155,9 @@
             \end{itemize}
             \item No characters for text can be used.
             \item Sprites can be used.
-            \item The Name Table starts at \textbf{VRAM} address \texttt{0x1400}.
             \item The Colour Table is not used. Instead, the colour of the boxes
             are defined in the Pattern Table.
-            \item The Pattern Table starts at \textbf{VRAM} address \texttt{0x0800}.
+            \item Pattern Table:
             \begin{itemize}
                 \item Each entry in the table is 8 bytes, but only 2 bytes are
                         used to define the colours of the 4 boxes that make up
@@ -178,6 +171,13 @@
         \begin{itemize}
             \item Same as Mode 2, but screen is bitmapped for addressing every
                 pixel individually.
+            \item Pixels cannot have colours assigned individually. Instead
+                colour is assigned by a byte, where each bit tells if the pixel
+                is visible (bit=1) or not (bit=0). Therefore, pixels are grouped
+                in groups of 8. For example, \texttt{0x4F} (0100 1111) will set
+                pixels 0, 1, 2, 3 and 6 as visible, and pixels 4, 5, and 7 not
+                visible. Pixels that are visible will have dark blue colour
+                (\texttt{0x04}) over white background (\texttt{0x0F}).
         \end{itemize}
 
     % ==========================================================================

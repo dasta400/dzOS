@@ -428,90 +428,17 @@
     % ==========================================================================
     \label{subsec:vdp_memmap}
 
-        % ==========================================================================
-        \subsubsection{Text Mode}
-        % ==========================================================================
-        \begin{center}
-            \begin{tabular}{c r}
-                \hline
-                Pattern Table           & \texttt{0x0000}\\
-                \hline
-                Name Table              & \texttt{0x0800}\\
-                \hline
-                \multirow{2}{*}{UNUSED} & \texttt{0x0BC0}\\
-                                        & \texttt{0x3FFF}\\
-                \hline
-            \end{tabular}
-        \end{center}
-
-        % ==========================================================================
-        \subsubsection{Graphics I Mode}
-        % ==========================================================================
-        \begin{center}
-            \begin{tabular}{c r}
-                \hline
-                Sprites Patterns         & \texttt{0x0000}\\
-                \hline
-                Pattern Table           & \texttt{0x0800}\\
-                \hline
-                SPRITE ATTRIBUTTES      & \texttt{0x1000}\\
-                \hline
-                UNUSED                  & \texttt{0x1080}\\
-                \hline
-                Name Table              & \texttt{0x1400}\\
-                \hline
-                UNUSED                  & \texttt{0x1800}\\
-                \hline
-                COLOUR TABLE            & \texttt{0x2000}\\
-                \hline
-                \multirow{2}{*}{UNUSED} & \texttt{0x2020}\\
-                                        & \texttt{0x3FFF}\\
-                \hline
-            \end{tabular}
-        \end{center}
-
-        % ==========================================================================
-        \subsubsection{Graphics II Mode}
-        % ==========================================================================
-        \begin{center}
-            \begin{tabular}{c r}
-                \hline
-                Pattern Table           & \texttt{0x0000}\\
-                \hline
-                Sprites Patterns         & \texttt{0x1800}\\
-                \hline
-                COLOUR TABLE            & \texttt{0x2000}\\
-                \hline
-                Name Table              & \texttt{0x3800}\\
-                \hline
-                SPRITE ATTRIBUTTES      & \texttt{0x3B00}\\
-                \hline
-                \multirow{2}{*}{UNUSED} & \texttt{0x3C00}\\
-                                        & \texttt{0x3FFF}\\
-                \hline
-            \end{tabular}
-        \end{center}
-
-        % ==========================================================================
-        \subsubsection{Multicolour Mode}
-        % ==========================================================================
-        \begin{center}
-            \begin{tabular}{c r}
-                \hline
-                Sprites Patterns         & \texttt{0x0000}\\
-                \hline
-                Pattern Table           & \texttt{0x0800}\\
-                \hline
-                UNUSED                  & \texttt{0x0E00}\\
-                \hline
-                SPRITE ATTRIBUTTES      & \texttt{0x1000}\\
-                \hline
-                UNUSED                  & \texttt{0x1080}\\
-                \hline
-                Name Table              & \texttt{0x1400}\\
-                \hline
-                \multirow{2}{*}{UNUSED} & \texttt{0x1700}\\
-                                        & \texttt{0x3FFF}\\
-                \hline
-            \end{tabular}
-        \end{center}
+    \begin{tabular}{llllllll}
+        \rowcolor[HTML]{C0C0C0} 
+        Screen Mode & Pattern & Name & Colour & Sprite Attribute & Sprite Pattern \\
+        \hline
+        \cellcolor[HTML]{C0C0C0}0 (Text)                  & \texttt{0x0000} & \texttt{0x0800} & N/A             & N/A             & N/A \\
+        \hline
+        \cellcolor[HTML]{C0C0C0}1 (Graphics I)            & \texttt{0x0800} & \texttt{0x1400} & \texttt{0x2000} & \texttt{0x0000} & \texttt{0x1000} \\
+        \hline
+        \cellcolor[HTML]{C0C0C0}2 (Graphics II)           & \texttt{0x0000} & \texttt{0x3800} & \texttt{0x2000} & \texttt{0x3B00} & \texttt{0x1800} \\
+        \hline
+        \cellcolor[HTML]{C0C0C0}3 (Multicolour)           & \texttt{0x0800} & \texttt{0x1400} & N/A             & \texttt{0x1000} & \texttt{0x0000} \\
+        \hline
+        \cellcolor[HTML]{C0C0C0}4 (Graphics II Bitmapped) & \texttt{0x0000} & \texttt{0x3800} & \texttt{0x2000} & \texttt{0x3B00} & \texttt{0x1800} \\
+    \end{tabular}
