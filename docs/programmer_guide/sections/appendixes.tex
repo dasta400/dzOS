@@ -287,13 +287,15 @@
         \end{itemize}
         \item \textbf{BIOS Boot} (\texttt{F\_BIOS\_WBOOT})
         \begin{itemize}
-            \item Set SIO/2 Channel A as primary I/O.
+            \item Enable NMI (VDP) interrupts.
+            \item Set NMI jump address to default value.
             \item Transfer control to Kernel (\texttt{jp F\_KRN\_START}).
         \end{itemize}
         \item \textbf{Kernel Boot} (\texttt{F\_KRN\_START})
         \begin{itemize}
             \item Display dzOS welcome message.
             \item Display dzOS release version.
+            \item Display BIOS version.
             \item Display Kernel version.
             \item Display available \textbf{RAM}.
             \item Initialise \textbf{VDP}.
