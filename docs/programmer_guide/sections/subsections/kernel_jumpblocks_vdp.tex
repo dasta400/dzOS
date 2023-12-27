@@ -18,7 +18,7 @@
         \hline\textbf{Destroys} & \texttt{A}, \texttt{VDP\_cursor\_x},
             \texttt{VDP\_cursor\_y}, \texttt{HL} \\
         \hline\textbf{Calls} & 
-        \hyperref[func:fbiosvdpcharoutatxy]{F\_BIOS\_VDP\_CHAROUT\_ATXY}\\
+        \hyperref[func:fkrnvdpcharoutatxy]{F\_KRN\_VDP\_CHAROUT\_ATXY}\\
         \hline
     \end{tabular}
 
@@ -36,8 +36,7 @@
         \hline\textbf{Exit} & \texttt{HL} = \textbf{VRAM} address.\\
         \hline\textbf{Destroys} & \texttt{A}, \texttt{B}, \texttt{DE},
             \texttt{HL},\texttt{IX} \\
-        \hline\textbf{Calls} & 
-        \hyperref[func:fbiosvdpcharoutatxy]{F\_BIOS\_VDP\_CHAROUT\_ATXY}\\
+        \hline\textbf{Calls} & None \\
         \hline
     \end{tabular}
 
@@ -111,5 +110,26 @@
         & \hyperref[func:fbiosvdpsetmodeg2]{F\_BIOS\_VDP\_SET\_MODE\_G2}\\
         & \hyperref[func:fbiosvdpsetmodeg2bm]{F\_BIOS\_VDP\_SET\_MODE\_G2BM}\\
         & \hyperref[func:fbiosvdpsetmodemulticlr]{F\_BIOS\_VDP\_SET\_MODE\_MULTICLR}\\
+        \hline
+    \end{tabular}
+
+    % ==========================================================================
+    \subsubsection{F\_KRN\_VDP\_CHAROUT\_ATXY}
+    \label{func:fkrnvdpcharoutatxy}
+    % ==========================================================================
+    \begin{tabular}{l p{15cm}}
+        \hline\textbf{Action}
+        & Print a character in the \textbf{Low Resolution display}, at the
+            current \textit{VDP\_cursor\_x}, \textit{VDP\_cursor\_y} postition.\\
+        & \textit{VDP\_cursor\_x} is incremented by 1, and if it has reached
+            the maximum width (Mode 0 = 40, others = 32), resets it to zero and
+            increases \textit{VDP\_cursor\_y} by 1.\\
+        \hline\textbf{Entry} & \texttt{A} = Character to be printed, in
+            Hexadecimal ASCII.\\
+        \hline\textbf{Exit} & None\\
+        \hline\textbf{Destroys} & \texttt{A}, \texttt{HL},
+        \texttt{VDP\_cursor\_x}, \texttt{VDP\_cursor\_y}\\
+        \hline\textbf{Calls}
+        & \hyperref[func:fbiosvdpcharoutatxy]{F\_BIOS\_VDP\_CHAROUT\_ATXY}\\
         \hline
     \end{tabular}

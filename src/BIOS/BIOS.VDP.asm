@@ -824,48 +824,15 @@ BIOS_VDP_CHAROUT_ATXY:
         ; Output char, but before check for special characters
         call    F_BIOS_VDP_SET_ADDR_WR
         pop     AF                      ; restore character to be printed
-        ; Check for special characters CarriageReturn and Backspace
-        cp      CR
-        jr      z, _resetX
+        ; ; Check for special characters CarriageReturn and Backspace
+        ; cp      CR
+        ; jr      z, _resetX
         ; cp      BSPACE                  ; ToDo - add support for Backspace
         ; cp      TAB                     ; ToDo - add support for TAB
         ; cp      DELETE                  ; ToDo - add support for Delete
 
         ; Output char
         call    F_BIOS_VDP_BYTE_TO_VRAM
-
-        ; Advance cursor X, and possibly cursor Y if end of the line was reached
-        ld      HL, VDP_cursor_x
-        inc     (HL)
-        ; If X has reached the maximum width (Mode 0 = 40, others = 32)
-        ;   reset X to zero and increase Y by 1
-        ld      A, (VDP_cur_mode)
-        cp      0                       ; Mode 0
-        jr      z, _inc_xy_40           ;   is 40 characters per line
-_inc_xy_32:                             ; Other modes, 32 per line
-        ld      A, (VDP_cursor_x)
-        cp      32
-        jr      z, _resetX
-        ret
-_inc_xy_40:
-        ld      A, (VDP_cursor_x)
-        cp      40
-        jr      z, _resetX
-        ret
-_resetX:                                ; Set X to 0, and increment Y
-        xor     A
-        ld      (VDP_cursor_x), A
-        ld      HL, VDP_cursor_y
-        inc     (HL)
-        ; If Y has reached the maximum height (24 for all modes)
-        ;   reset to zero both X and Y
-        ld      A, (VDP_cursor_y)
-        cp      24
-        ret     nz
-_resetY:                                ; Set X and Y to 0
-        xor     A
-        ld      (VDP_cursor_x), A
-        ld      (VDP_cursor_y), A
         ret
 
 _mult_by_y:

@@ -1,13 +1,11 @@
 ;******************************************************************************
-; kernel_jblks.asm
-;
-; Kernel Jumpblocks
-; for dastaZ80's dzOS
-; by David Asta (Apr 2019)
-;
-; Version 1.0.0
-; Created on 25 Apr 2019
-; Last Modification 16 Dec 2023
+; Name:         kernel.jblks.asm
+; Description:  Kernel Jumpblocks
+; Author:       David Asta
+; License:      The MIT License
+; Created:      25 Apr 2019
+; Version:      1.5.0
+; Last Modif.:  27 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - Added F_KRN_VDP_WRSTR
@@ -18,6 +16,7 @@
 ;   - 12 Sep 2023 - Added F_KRN_STRCHR
 ;                   Added F_KRN_STRCHRNTH
 ;   - 16 Dec 2023 - Added F_KRN_VDP_SET_MODE
+;   - 27 Dec 2023 - Added F_KRN_VDP_CHAROUT_ATXY
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -215,6 +214,8 @@ F_KRN_VDP_CHG_COLOUR_BORDER:        .EXPORT         F_KRN_VDP_CHG_COLOUR_BORDER
         jp      KRN_VDP_CHG_COLOUR_BORDER
 F_KRN_VDP_SET_MODE:                 .EXPORT         F_KRN_VDP_SET_MODE
         jp      KRN_VDP_SET_MODE
+F_KRN_VDP_CHAROUT_ATXY              .EXPORT         F_KRN_VDP_CHAROUT_ATXY
+        jp      KRN_VDP_CHAROUT_ATXY
 
-        .ORG	KRN_JBLK_END
-        .BYTE	0
+        .ORG    KRN_JBLK_END
+        .BYTE   0

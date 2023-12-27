@@ -126,8 +126,8 @@ KRN_INIT_SYSVARS:
         ld      (DISK_show_deleted), A
 
         ; Reset VDP Cursor position
-        ld      (VDP_cursor_x), A
-        ld      (VDP_cursor_y), A
+        ; ld      (VDP_cursor_x), A
+        ; ld      (VDP_cursor_y), A
 
         ; Set default File Type as 0=USR (User defined)
         ; Set loadsave address to default ($0000)

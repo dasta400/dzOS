@@ -1,16 +1,15 @@
 ;******************************************************************************
-; kernel.vdp.asm
-;
-; Kernel's VDP routines
-; for dastaZ80's dzOS
-; by David Asta (Aug 2023)
-;
-; Version 1.1.0
-; Created on 17 Aug 2023
-; Last Modification 16 Dec 2023
+; Name:         kernel.vdp.asm
+; Description:  Kernel's VDP routines
+; Author:       David Asta
+; License:      The MIT License
+; Created:      17 Aug 2023
+; Version:      1.2.0
+; Last Modif.:  27 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
-;     - 16 Dec 2023 - Added KRN_VDP_SET_MODE
+;   - 16 Dec 2023 - Added KRN_VDP_SET_MODE
+;   - 27 Dec 2023 - Added KRN_VDP_CHAROUT_ATXY
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -84,6 +83,11 @@ KRN_INIT_VDP:
         ld      C, 7
         ld      HL, vdp_line_7
         call    F_KRN_VDP_WRSTR
+        ; Update SYSVARS VDP_cursor_x and VDP_cursor_y
+        ld      A, 26                   ; 27th column
+        ld      (VDP_cursor_x), A
+        ld      A, 7                    ; 5th row
+        ld      (VDP_cursor_y), A
         ret
 _vdp_error: ; VDP VRAM test NOT passed
         ld      HL, msg_left_brkt
@@ -116,7 +120,7 @@ _vdp_wrstr_loop:
         cp      0                       ; if terminator character found
         jr      z, _vdp_wrstr_end       ;   do not print anymore and exit
         push    HL
-        call    F_BIOS_VDP_CHAROUT_ATXY ; output character at XY position
+        call    F_KRN_VDP_CHAROUT_ATXY  ; output character at XY position
         pop     HL
         inc     HL                      ; next character in the string
         jr      _vdp_wrstr_loop
@@ -275,4 +279,50 @@ _set_mode3:
         ret
 _set_mode4:
         call    F_BIOS_VDP_SET_MODE_G2BM
+        ret
+;------------------------------------------------------------------------------
+KRN_VDP_CHAROUT_ATXY:
+; Print a character in the current VDP_cursor_X, VDP_cursor_Y postition
+; IN <= A = Character to be printed in Hexadecimal ASCII
+        call    F_BIOS_VDP_CHAROUT_ATXY
+
+        ; Check for special characters CarriageReturn and Backspace
+        cp      CR
+        jr      z, _resetX
+        ; cp      BSPACE                  ; ToDo - add support for Backspace
+        ; cp      TAB                     ; ToDo - add support for TAB
+        ; cp      DELETE                  ; ToDo - add support for Delete
+
+        ; Advance cursor X, and possibly cursor Y if end of the line was reached
+        ld      HL, VDP_cursor_x
+        inc     (HL)
+        ; If X has reached the maximum width (Mode 0 = 40, others = 32)
+        ;   reset X to zero and increase Y by 1
+        ld      A, (VDP_cur_mode)
+        cp      0                       ; Mode 0
+        jr      z, _inc_xy_40           ;   is 40 characters per line
+_inc_xy_32:                             ; Other modes, 32 per line
+        ld      A, (VDP_cursor_x)
+        cp      32
+        jr      z, _resetX
+        ret
+_inc_xy_40:
+        ld      A, (VDP_cursor_x)
+        cp      40
+        jr      z, _resetX
+        ret
+_resetX:                                ; Set X to 0, and increment Y
+        xor     A
+        ld      (VDP_cursor_x), A
+        ld      HL, VDP_cursor_y
+        inc     (HL)
+        ; If Y has reached the maximum height (24 for all modes)
+        ;   reset to zero both X and Y
+        ld      A, (VDP_cursor_y)
+        cp      24
+        ret     nz
+_resetY:                                ; Set X and Y to 0
+        xor     A
+        ld      (VDP_cursor_x), A
+        ld      (VDP_cursor_y), A
         ret
