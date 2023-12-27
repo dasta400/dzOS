@@ -5,12 +5,13 @@
 ; for dastaZ80's dzOS
 ; by David Asta (Jan 2018)
 ;
-; Version 1.0.0
+; Version 1.0.1
 ; Created on 03 Jan 2018
-; Last Modification 11 Nov 2023
+; Last Modification 26 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 11 Nov 2023 - Added bq4845 RTC
+;   - 26 Dec 2023 - BUG: VDP_G1_SPRA_TAB should be $0000. It was $1000
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -245,7 +246,7 @@ VDP_G1_PATT_TAB             .EQU    $0800   ; Pattern Table
 VDP_G1_SPRP_TAB             .EQU    $1000   ; Sprite Pattern Table
 VDP_G1_COLR_TAB             .EQU    $2000   ; Colour Table
 VDP_G1_NAME_TAB             .EQU    $1400   ; Name Table
-VDP_G1_SPRA_TAB             .EQU    $1000   ; Sprite Attribute Table
+VDP_G1_SPRA_TAB             .EQU    $0000   ; Sprite Attribute Table
 VDP_G1_DEFT_TBC             .EQU    $F1     ; Default Text Background Colour
 
 ; Graphics II Mode and Graphics II Mode Bitmapped
