@@ -36,6 +36,66 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
+KRN_INIT_VDP:
+; Detect VDP
+        ld      HL, msg_vdp_detect
+        ld      A, (col_kernel_notice)
+        call    F_KRN_SERIAL_WRSTRCLR
+        call    F_BIOS_VDP_VRAM_TEST    ; Carry Flag set if an error ocurred
+        jp      c, _vdp_error
+        ld      HL, msg_left_brkt
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_OK
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_right_brkt
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+
+        ; VDP VRAM test passed OK
+        call    F_BIOS_VDP_VRAM_CLEAR   ; Clear VRAM
+        ld      B, 0                    ; Sprite Size will be 8x8
+        ld      C, 0                    ; Sprite Magnification disabled
+        call    F_BIOS_VDP_SET_MODE_TXT ; Set VDP to Text Mode
+        call    F_BIOS_VDP_FNT_CHARSET  ; Copy Default Font Charset to VRAM
+        ; Change Foreground and Background colours
+        ld      A, VDP_COLR_WHITE
+        ld      B, VDP_COLR_BLACK
+        call    F_KRN_VDP_CHG_COLOUR_FGBG
+        ;   Display text in VDP screen
+        ld      B, 0
+        ld      C, 1
+        ld      HL, vdp_line_1
+        call    F_KRN_VDP_WRSTR
+        ld      B, 0
+        ld      C, 3
+        ld      HL, vdp_line_3
+        call    F_KRN_VDP_WRSTR
+        ld      B, 0
+        ld      C, 4
+        ld      HL, vdp_line_4
+        call    F_KRN_VDP_WRSTR
+        ld      B, 0
+        ld      C, 5
+        ld      HL, vdp_line_5
+        call    F_KRN_VDP_WRSTR
+        ld      B, 0
+        ld      C, 7
+        ld      HL, vdp_line_7
+        call    F_KRN_VDP_WRSTR
+        ret
+_vdp_error: ; VDP VRAM test NOT passed
+        ld      HL, msg_left_brkt
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, error_3001
+        ld      A, (col_kernel_error)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_right_brkt
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ret
 ;-----------------------------------------------------------------------------
 KRN_VDP_WRSTR:
 ; Displays a text in the VDP screen, starting at a specified XY position

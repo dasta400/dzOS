@@ -5,15 +5,17 @@
 ; for dastaZ80's dzOS
 ; by David Asta (Dec 2022)
 ;
-; Version 1.0.0
+; Version 1.1.0
 ; Created on 23 Dec 2022
-; Last Modification 11 Nov 2023
+; Last Modification 27 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
 ;   - 17 Aug 2023 - Removed include BIOS.VDPlogo.asm
 ;                 - Added include BIOS.FNTcharset.asm
 ;   - 10 Nov 2023 - Added include BIOS.RTC.asm
 ;   - 11 Nov 2023 - Removed BIOS.NVRAM.asm as bq4845 doesn't have NVRAM
+;   - 27 Dec 2023 - Added KRN_DZOS_VERSION
+;                 - Added Kernel includes
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -61,6 +63,23 @@
 ; Kernel
 ;-----------------------------------------------------------------------------
 #include "src/kernel/kernel.asm"        ; Kernel routines
+#include "src/kernel/kernel.serial.asm" ; Serial I/O routines
+#include "src/kernel/kernel.mem.asm"    ; Memory routines
+#include "src/kernel/kernel.string.asm" ; String routines
+#include "src/kernel/kernel.conv.asm"   ; COnversion routines
+#include "src/kernel/kernel.math.asm"   ; Math routines
+#include "src/kernel/kernel.dzfs.asm"   ; DZFS routines
+#include "src/kernel/kernel.rtc.asm"    ; RTC routines
+#include "src/kernel/kernel.vdp.asm"    ; VDP routines
+#include "src/kernel/kernel.psg.asm"    ; PSG routines
+#include "src/kernel/kernel.disk.asm"   ; DISK routines
+;==============================================================================
+; DZOS Version
+;==============================================================================
+        .ORG    KRN_DZOS_VERSION
+dzos_version:            .EXPORT        dzos_version
+        .BYTE    "YYYY.MM.DD.HH.MM", 0  ; This is overwritten by Makefile with
+                                        ; compilation date and time
 #include "src/kernel/kernel.jblks.asm"  ; Kernel Jumpblocks
 
 ;-----------------------------------------------------------------------------

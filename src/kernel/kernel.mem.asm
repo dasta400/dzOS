@@ -1,17 +1,16 @@
 ;******************************************************************************
-; kernel.mem.asm
-;
-; Kernel's Memory routines
-; for dastaZ80's dzOS
-; by David Asta (May 2019)
-;
-; Version 2.0.0
-; Created on 08 May 2019
-; Last Modification 03 Jul 2022
+; Name:         kernel.mem.asm
+; Description:  Kernel's Memory routines
+; Author:       David Asta
+; License:      The MIT License
+; Created:      08 May 2019
+; Version:      1.3.0
+; Last Modif.:  27 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
-;   - 20 Jun 2022: Shorter and faster routine for F_KRN_SETMEMRNG
-;   - 03 Jul 2022: Added F_KRN_WHICH_RAMSIZE
+;   - 20 Jun 2022 - Shorter and faster routine for F_KRN_SETMEMRNG
+;   - 03 Jul 2022 - Added F_KRN_WHICH_RAMSIZE
+;   - 27 Dec 2023 - Added KRN_INIT_RAM
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -37,9 +36,26 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
-;==============================================================================
-; Memory Routines
-;==============================================================================
+KRN_INIT_RAM:
+; Detect RAM
+        ld      HL, msg_ram_detect
+        ld      A, (col_kernel_notice)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_left_brkt
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ; Show Free available RAM
+        ld      HL, FREERAM_TOTAL
+        call    F_KRN_BIN_TO_BCD6       ; CDE = 6-digit decimal number
+        ex      DE, HL
+        ld      DE, tmp_addr1
+        call    F_KRN_BCD_TO_ASCII
+        ld      IX, tmp_addr1
+        call    F_KRN_SERIAL_WR6DIG_NOLZEROS
+        ld      HL, msg_ram_trail
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ret
 ;------------------------------------------------------------------------------
 KRN_SETMEMRNG:
 ; Sets a value in a memory position range

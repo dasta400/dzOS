@@ -1,21 +1,19 @@
 ;******************************************************************************
-; kernel.rtc.asm
-;
-; Kernel's RTC routines
-; for dastaZ80's dzOS
-; by David Asta (Aug 2022)
-;
-; Version 2.0.0
-; Created on 12 Aug 2022
-; Last Modification 12 Aug 2022
+; Name:         kernel.rtc.asm
+; Description:  Kernel's RTC routines
+; Author:       David Asta
+; License:      The MIT License
+; Created:      12 Aug 2022
+; Version:      1.1.0
+; Last Modif.:  27 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
-;   - 
+;   - 27 Dec 2023 - Added KRN_INIT_RTC
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
 ; 
-; Copyright (c) 2022 David Asta
+; Copyright (c) 2022-2023 David Asta
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +34,54 @@
 ; SOFTWARE.
 ; -----------------------------------------------------------------------------
 
+KRN_INIT_RTC:
+        ld      B, 1
+        call    F_KRN_SERIAL_EMPTYLINES
+        ; Detect RTC
+        ld      HL, msg_rtc_detect
+        ld      A, (col_kernel_notice)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_left_brkt
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ; Show battery status
+        call    F_BIOS_RTC_CHECK_BATTERY    ; Z flag set if battery not healthy
+        jp      z, battery_failed
+battery_healthy:
+        ld      HL, msg_rtc_batok
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ; Initialise RTC
+        call    F_BIOS_RTC_INIT
+rtc_show_datetime:
+        ; Show current Date
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
+        call    F_KRN_RTC_GET_DATE
+        call    F_KRN_RTC_SHOW_DATE
+        ; Separate Date and Time
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      A, '-'
+        call    F_BIOS_SERIAL_CONOUT_A
+        ld      A, ' '
+        call    F_BIOS_SERIAL_CONOUT_A
+        ; Show current Time
+        call    F_BIOS_RTC_GET_TIME
+        call    F_KRN_RTC_SHOW_TIME
+        ld      HL, msg_right_brkt
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ret
+
+battery_failed:
+        ld      HL, error_2001
+        ld      A, (col_kernel_error)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ld      HL, msg_right_brkt
+        ld      A, (col_kernel_info)
+        call    F_KRN_SERIAL_WRSTRCLR
+        ret
 ;-----------------------------------------------------------------------------
 KRN_RTC_GET_DATE:
 ; Call BIOS function to get date from the RTC, and then calculate
