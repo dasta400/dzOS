@@ -1,16 +1,14 @@
 ;******************************************************************************
-; BIOS.PSG.asm
-;
-; BIOS' PSH (AY-3-8912) routines
-; for dastaZ80's dzOS
-; by David Asta (December 2022)
-;
-; Version 0.1.0
-; Created on 27 Dec 2022
-; Last Modification 27 Dec 2022
+; Name:         BIOS.PSG.asm
+; Description:  BIOS' PSG (AY-3-8912) routines
+; Author:       David Asta
+; License:      The MIT License
+; Created:      27 Dec 2022
+; Version:      1.1.0
+; Last Modif.:  27 Dec 2023
 ;******************************************************************************
 ; CHANGELOG
-; 	-
+;   - 27 Dec 2023 - Changed beep sound to higher pitch
 ;******************************************************************************
 ; --------------------------- LICENSE NOTICE ----------------------------------
 ; MIT License
@@ -42,8 +40,8 @@
 ;==============================================================================
 ;------------------------------------------------------------------------------
 _PSG_REGS_INI:
-; noise OFF, audio OFF, I/O Port as Output (1=off, 0=on)
-; Initialisation value for Registers
+; noise OFF, audio OFF, I/O Port as Output
+; Initialisation value for Registers (1=off, 0=on)
               ; R0   R1   R2   R3   R4   R5   R6   R7
         .BYTE   $00, $00, $00, $00, $00, $00, $00, $FF
               ; R10  R11  R12  R13  R14  R15  R16  R17
@@ -52,10 +50,9 @@ _PSG_REGS_INI:
 _PSG_BEEPON:
 ; 4010 Hz tone on Channel C
         .BYTE   $07, %10111110          ; R7 (Mixer) = Turn Tone Channel A only
-        .BYTE   $00, $FF                ; R0 (Channel A 8-bit Fine Tune)
-        .BYTE   $01, $01                ; R1 (Channel A 4-bit coarse Tune)
+        .BYTE   $00, $6B                ; R0 (Channel A 8-bit Fine Tune)
+        .BYTE   $01, $00                ; R1 (Channel A 4-bit coarse Tune)
         .BYTE   $08, $0F                ; R8 = Set Channel A Volume to maximum
-        .BYTE   $13, %00001010          ; R13 (Envelope)
 _PSG_BEEPOFF:
         .BYTE   $08, $00                ; R8 = Set Channel A Volume to minimum
         .BYTE   $07, $FF                ; R7 (Mixer) = Turn off everything
@@ -63,7 +60,6 @@ _PSG_BEEPOFF:
 ;==============================================================================
 ; SUBROUTINES
 ;==============================================================================
-;------------------------------------------------------------------------------
 BIOS_PSG_SET_REGISTER:
 ; Set a value to a PSG Register
 ; IN <= A = register number
@@ -104,17 +100,18 @@ BIOS_PSG_BEEP:
 ; Makes a beep-like sound
         ld      HL, _PSG_BEEPON
 _psg_beepon:
-        ld      B, $05                  ; 4 pairs (register num,, value) to send
+        ld      B, 4                    ; 4 pairs (register num, value) to send
 _psg_beepon_loop:
         call    _psg_send_regpairs
         djnz    _psg_beepon_loop
 
+        call    F_BIOS_VDP_VBLANK_WAIT  ; Delay a bit
+        call    F_BIOS_VDP_VBLANK_WAIT  ;   until switching beep OFF
+
         ld      HL, _PSG_BEEPOFF
 
-        call    F_BIOS_VDP_VBLANK_WAIT  ; Wait a bit
-
 _psg_beepoff:
-        ld      B, $02                  ; 4 pairs (register num,, value) to send
+        ld      B, 2                    ; 2 pairs (register num, value) to send
 _psg_beepoff_loop:
         call    _psg_send_regpairs
         djnz    _psg_beepoff_loop
